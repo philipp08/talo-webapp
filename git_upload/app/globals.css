@@ -1,0 +1,156 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --t-bg: #FFFFFF;
+    --t-bg-soft: #F1F4F8;
+    --t-bg-card: #FFFFFF;
+    --t-bg-muted: #F8F9FA;
+    --t-text: #080808;
+    --t-text-sub: #4B5563;
+    --t-text-muted: #9CA3AF;
+    --t-border: #E5E7EB;
+    --t-glass-card-bg: rgba(255, 255, 255, 0.75);
+    --t-glass-card-border: rgba(0, 0, 0, 0.05);
+    --t-pink: #E87AA0;
+    --t-green: #34C759;
+    --t-orange: #FF9500;
+    --t-red: #FF453A;
+    --mega-featured-bg: #F1F4F8;
+  }
+
+  .dark {
+    --t-bg: #080808;
+    --t-bg-soft: #0F0F0F;
+    --t-bg-card: #121212;
+    --t-bg-muted: #1A1A1A;
+    --t-text: #FFFFFF;
+    --t-text-sub: #94A3B8;
+    --t-text-muted: #334155;
+    --t-border: #1E293B;
+    --t-glass-card-bg: rgba(18, 18, 18, 0.8);
+    --t-glass-card-border: rgba(255, 255, 255, 0.03);
+    --t-pink: #E87AA0;
+    --t-green: #34C759;
+    --t-orange: #FF9500;
+    --t-red: #FF453A;
+    --mega-featured-bg: #141414;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--t-bg);
+    color: var(--t-text);
+    font-family: var(--font-poppins), 'Poppins', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .font-logo {
+    font-family: var(--font-montserrat), 'Montserrat', sans-serif;
+  }
+
+  .font-poppins-bold { font-family: var(--font-poppins), 'Poppins', sans-serif; font-weight: 700; }
+  .font-poppins-semibold { font-family: var(--font-poppins), 'Poppins', sans-serif; font-weight: 600; }
+  .font-poppins-regular { font-family: var(--font-poppins), 'Poppins', sans-serif; font-weight: 400; }
+  .font-poppins-medium { font-family: var(--font-poppins), 'Poppins', sans-serif; font-weight: 500; }
+
+  /* Glassmorphism card exactly like Swift GlassCard */
+  .glass-card {
+    background: var(--t-glass-card-bg);
+    border: 1px solid var(--t-glass-card-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Base TCard (für non-hero Bereiche) */
+  .t-card {
+    background: var(--t-bg-card);
+    border: 1px solid var(--t-border);
+    border-radius: 16px;
+  }
+
+  /* Ambient blob */
+  .ambient-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+  /* Phone screen transitions */
+  .screen-transition {
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  /* Category badge colors – matching Swift TCatBadge */
+  .cat-a { background: var(--t-red); color: #fff; }
+  .cat-b { background: #FFFFFF; color: #080C14; }
+  .cat-c { background: var(--t-green); color: #fff; }
+  .cat-s { background: var(--t-orange); color: #fff; }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #080808 0%, #4B5563 50%, #080808 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+  }
+
+  .dark .gradient-text {
+    background: linear-gradient(135deg, #ffffff 0%, #9CA3AF 40%, #C8D0E0 60%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Hide scrollbar in phone demo */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--t-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--t-border);
+  border-radius: 3px;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
