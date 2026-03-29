@@ -14,7 +14,7 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
     subHeadline: "Tradition trifft Moderne: Warum digitale Werkzeuge heute über die Zukunft von Vereinen entscheiden und wie Talo dabei den Menschen in den Mittelpunkt stellt.",
     content: (
       <>
-        <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-12 italic border-l-4 border-[#34C759] pl-8 py-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-r-3xl pr-6">
+        <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-12 italic border-l-4 border-[#8A8A8A] pl-8 py-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-r-3xl pr-6">
           Hinter jedem erfolgreichen Verein stecken Menschen, die ihre Freizeit opfern, um Gemeinschaften zu stärken. Doch allzu oft wird diese Leidenschaft von Bergen aus Papierkram, unübersichtlichen Excel-Listen und dem ständigen Kampf um Transparenz erstickt. Talo wurde entwickelt, um dieses Feuer wieder zu entfachen und dem Ehrenamt die Leichtigkeit zurückzugeben, die es verdient.
         </p>
         
@@ -27,10 +27,10 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
           Viele Vereine klagen über Nachwuchsmangel in den Führungsetagen. Der Grund ist selten ein Mangel an Interesse am Vereinszweck, sondern die abschreckende Last der Bürokratie. Wenn die Wochenenden nur noch damit verbracht werden, Anwesenheitslisten abzugleichen oder Punkte für Arbeitseinsätze händisch in Tabellen zu übertragen, geht der eigentliche Sinn des Vereinslebens verloren. Talo automatisiert diese kritischen Prozesse. Durch die einfache Erfassung von Tätigkeiten per Web- oder App-Interface wird die Administration zum Nebenprodukt des eigentlichen Handelns, statt dessen zeitfressendes Zentrum zu sein.
         </p>
 
-        <div className="my-20 p-12 rounded-[48px] bg-[#34C759]/5 border border-[#34C759]/10 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#34C759]/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
+        <div className="my-20 p-12 rounded-[48px] bg-[#8A8A8A]/5 border border-[#8A8A8A]/10 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#8A8A8A]/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
           <div className="flex flex-col md:flex-row gap-10 items-center relative z-10">
-             <div className="w-20 h-20 rounded-[28px] bg-white dark:bg-[#121212] border border-[#34C759]/20 shadow-xl flex items-center justify-center text-[#34C759] shrink-0">
+             <div className="w-20 h-20 rounded-[28px] bg-white dark:bg-[#121212] border border-[#8A8A8A]/20 shadow-xl flex items-center justify-center text-[#8A8A8A] shrink-0">
                 <Sparkles size={40} />
              </div>
              <div>
@@ -57,7 +57,7 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
         </p>
 
         <blockquote className="relative my-24 pl-12 pr-6 py-12 group">
-           <Quote className="absolute -left-4 top-0 text-[#34C759]/10 -z-10" size={160} />
+           <Quote className="absolute -left-4 top-0 text-[#8A8A8A]/10 -z-10" size={160} />
            <p className="text-3xl md:text-4xl font-logo font-medium text-gray-950 dark:text-white leading-tight italic relative z-10">
               "Talo ist das Ende der Zettelwirtschaft. Es ist der Neubeginn für ein Ehrenamt, das sich wieder auf das Wesentliche konzentrieren darf: Die Gemeinschaft und das Wachstum."
            </p>

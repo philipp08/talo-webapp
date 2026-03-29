@@ -13,10 +13,10 @@
     --t-border: #E5E7EB;
     --t-glass-card-bg: rgba(255, 255, 255, 0.75);
     --t-glass-card-border: rgba(0, 0, 0, 0.05);
-    --t-pink: #E87AA0;
-    --t-green: #34C759;
-    --t-orange: #FF9500;
-    --t-red: #FF453A;
+    --t-pink: #D1D5DB;
+    --t-green: #9CA3AF;
+    --t-orange: #6B7280;
+    --t-red: #374151;
     --mega-featured-bg: #F1F4F8;
   }
 
@@ -31,10 +31,10 @@
     --t-border: #1E293B;
     --t-glass-card-bg: rgba(18, 18, 18, 0.8);
     --t-glass-card-border: rgba(255, 255, 255, 0.03);
-    --t-pink: #E87AA0;
-    --t-green: #34C759;
-    --t-orange: #FF9500;
-    --t-red: #FF453A;
+    --t-pink: #4B5563;
+    --t-green: #374151;
+    --t-orange: #1F2937;
+    --t-red: #111827;
     --mega-featured-bg: #141414;
   }
 

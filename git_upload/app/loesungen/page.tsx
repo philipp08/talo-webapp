@@ -70,7 +70,7 @@ export default function SolutionsPage() {
             {solutions.map((item, idx) => (
               <ScrollReveal key={idx} direction="up" delay={0.1 * idx}>
                 <div id={item.title.toLowerCase().replace(/\s/g, "-")} className="glass-card rounded-3xl p-8 h-full flex flex-col border border-gray-200 dark:border-white/10">
-                  <div className="w-16 h-16 rounded-2xl bg-white dark:bg-white/5 shadow-sm border border-gray-100 dark:border-white/10 flex items-center justify-center mb-6 text-[#E87AA0]">
+                  <div className="w-16 h-16 rounded-2xl bg-white dark:bg-white/5 shadow-sm border border-gray-100 dark:border-white/10 flex items-center justify-center mb-6 text-[#8A8A8A]">
                     {item.icon}
                   </div>
                   <h3 className="text-2xl font-bold font-logo text-gray-900 dark:text-white mb-4">{item.title}</h3>
@@ -80,7 +80,7 @@ export default function SolutionsPage() {
                   <ul className="space-y-3 pt-6 border-t border-gray-100 dark:border-white/5">
                     {item.features.map((feat, i) => (
                       <li key={i} className="flex items-center gap-2 text-sm text-gray-500 dark:text-[#555]">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#E87AA0]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#8A8A8A]" />
                         {feat}
                       </li>
                     ))}

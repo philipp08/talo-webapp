@@ -80,7 +80,7 @@ export default function AboutPage() {
             </ScrollReveal>
             <ScrollReveal direction="up" delay={0.4}>
               <div className="flex gap-4">
-                <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/20 flex items-center justify-center text-green-600 shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/20 flex items-center justify-center text-gray-400 shrink-0">
                   <BarChart3 className="w-6 h-6" />
                 </div>
                 <div>
@@ -101,7 +101,7 @@ export default function AboutPage() {
             <p className="text-3xl md:text-4xl font-logo text-gray-900 dark:text-white leading-snug mb-8">
               Talo ist das Ende der Ausreden. Es ist der Anfang einer neuen Ära des Vereinslebens.
             </p>
-            <span className="text-sm font-bold tracking-widest text-[#E87AA0] uppercase">Die Talo Vision</span>
+            <span className="text-sm font-bold tracking-widest text-[#8A8A8A] uppercase">Die Talo Vision</span>
           </ScrollReveal>
         </div>
       </section>

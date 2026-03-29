@@ -40,7 +40,7 @@ export default function FeaturesPage() {
           <div id="admin" className="mb-32">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <ScrollReveal direction="left" duration={0.8}>
-                <div className="flex items-center gap-3 mb-4 text-[#34C759]">
+                <div className="flex items-center gap-3 mb-4 text-[#8A8A8A]">
                   <LayoutDashboard className="w-6 h-6" />
                   <span className="text-xs uppercase tracking-widest font-bold">Für Administratoren</span>
                 </div>
@@ -55,7 +55,7 @@ export default function FeaturesPage() {
                     "Exportfunktion für die Jahresabschluss-Sitzung (CSV/PDF)."
                   ].map((text, i) => (
                     <div key={i} className="flex gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-[#34C759] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 text-[#8A8A8A] shrink-0 mt-0.5" />
                       <p className="text-gray-600 dark:text-[#8A8A8A]">{text}</p>
                     </div>
                   ))}
@@ -74,7 +74,7 @@ export default function FeaturesPage() {
             <div className="grid lg:grid-cols-2 gap-16 items-center lg:flex-row-reverse">
               <div className="lg:order-2">
                 <ScrollReveal direction="right" duration={0.8}>
-                  <div className="flex items-center gap-3 mb-4 text-[#E87AA0]">
+                  <div className="flex items-center gap-3 mb-4 text-[#8A8A8A]">
                     <ClipboardCheck className="w-6 h-6" />
                     <span className="text-xs uppercase tracking-widest font-bold">Für Trainer & Leiter</span>
                   </div>
@@ -89,7 +89,7 @@ export default function FeaturesPage() {
                       "Verwaltung von Trainingsgruppen und Sparten."
                     ].map((text, i) => (
                       <div key={i} className="flex gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#E87AA0] shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-5 h-5 text-[#8A8A8A] shrink-0 mt-0.5" />
                         <p className="text-gray-600 dark:text-[#8A8A8A]">{text}</p>
                       </div>
                     ))}
@@ -110,7 +110,7 @@ export default function FeaturesPage() {
           <div id="community">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <ScrollReveal direction="left" duration={0.8}>
-                <div className="flex items-center gap-3 mb-4 text-[#FF9500]">
+                <div className="flex items-center gap-3 mb-4 text-[#8A8A8A]">
                   <Users className="w-6 h-6" />
                   <span className="text-xs uppercase tracking-widest font-bold">Für Mitglieder</span>
                 </div>
@@ -125,7 +125,7 @@ export default function FeaturesPage() {
                     "Engagement-Profil mit Historie aller Tätigkeiten."
                   ].map((text, i) => (
                     <div key={i} className="flex gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-[#FF9500] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 text-[#8A8A8A] shrink-0 mt-0.5" />
                       <p className="text-gray-600 dark:text-[#8A8A8A]">{text}</p>
                     </div>
                   ))}

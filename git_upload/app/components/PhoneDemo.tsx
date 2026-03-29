@@ -18,9 +18,9 @@ const Colors = {
   bgSoft: "#0D0D0D",
   bgCard: "#101010",
   bgMuted: "#1A1A1A",
-  teal: "#00E0D1",
+  teal: "#FFFFFF",
   green: "#FFFFFF",
-  orange: "#FF9500",
+  orange: "#8A8A8A",
   red: "#FF453A",
   text: "#FFFFFF",
   textSub: "#8A8A8A",
@@ -97,7 +97,7 @@ function DashboardScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
       <div className="grid grid-cols-2 gap-3.5">
         {[
           { value: "152", label: "TEILNEHMER", icon: <Users size={16} />, color: "#FFFFFF" },
-          { value: "4", label: "AUSSTEHEND", icon: <Clock size={16} />, color: "#FF9500" },
+          { value: "4", label: "AUSSTEHEND", icon: <Clock size={16} />, color: "#8A8A8A" },
           { value: "118", label: "ON TRACK", icon: <CheckCircle size={16} />, color: "#FFFFFF" },
           { value: "34", label: "RÜCKSTAND", icon: <AlertCircle size={16} />, color: "#FF453A" },
         ].map((s, i) => (
@@ -123,7 +123,7 @@ function DashboardScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         <GlassSection>
           {[
             { name: "Lukas K.", pts: 72, target: 80, color: "#FFFFFF" },
-            { name: "Sarah M.", pts: 45, target: 80, color: "#FF9500" },
+            { name: "Sarah M.", pts: 45, target: 80, color: "#8A8A8A" },
             { name: "Tom H.", pts: 89, target: 80, color: "#FFFFFF" },
           ].map((m, i) => (
             <div key={i}>
@@ -351,7 +351,7 @@ function MoreScreen() {
           {[
             { icon: <BarChart3 size={20} />, title: "Export", sub: "CSV & PDF Berichte", color: "#FFFFFF" },
             { icon: <Settings2 size={20} />, title: "Einstellungen", sub: "App & Account", color: "#8A8A8A" },
-            { icon: <Megaphone size={20} />, title: "News", sub: "Letzte Updates", color: "#00E0D1" },
+            { icon: <Megaphone size={20} />, title: "News", sub: "Letzte Updates", color: "#FFFFFF" },
           ].map((item, i) => (
              <div key={i} className="rounded-[20px] p-4 bg-[#101010] border border-white/[0.08] flex items-center gap-4 active:scale-95 transition-all">
                 <div className="w-[48px] h-[48px] rounded-[14px] flex items-center justify-center" style={{ background: `${item.color}15`, color: item.color }}>

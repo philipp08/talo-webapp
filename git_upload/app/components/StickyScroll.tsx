@@ -31,16 +31,16 @@ const stickyItems: StickyItem[] = [
     title: "Beiträge einreichen in Sekunden.",
     description: "Mitglieder erfassen ihr Engagement direkt über die mobile App. Ob Training, Event oder Vorstandsarbeit – ein Foto vom Protokoll oder ein kurzer Text genügt.",
     icon: <Zap className="w-5 h-5" />,
-    accent: "#34C759",
+    accent: "#8A8A8A",
     visual: (
       <div className="w-full h-full bg-[#E4F3E8] dark:bg-[#1A261F] flex items-center justify-center p-12">
         <div className="w-full max-w-[280px] bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-gray-100 dark:border-white/5 p-6 space-y-4">
            <div className="h-4 w-1/3 bg-gray-100 dark:bg-white/5 rounded-full" />
            <div className="h-32 w-full bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center">
-             <Zap className="w-8 h-8 text-[#34C759] opacity-20" />
+             <Zap className="w-8 h-8 text-[#8A8A8A] opacity-20" />
            </div>
            <div className="flex gap-2">
-             <div className="h-8 flex-1 bg-[#34C759] rounded-xl" />
+             <div className="h-8 flex-1 bg-[#8A8A8A] rounded-xl" />
              <div className="h-8 w-8 bg-gray-100 dark:bg-white/5 rounded-xl" />
            </div>
         </div>
@@ -66,7 +66,7 @@ const stickyItems: StickyItem[] = [
                <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-50 dark:border-white/5">
                  <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/5 flex-shrink-0" />
                  <div className="h-3 flex-1 bg-gray-50 dark:bg-white/5 rounded-full" />
-                 <CheckCircle2 className="w-4 h-4 text-[#34C759]" />
+                 <CheckCircle2 className="w-4 h-4 text-[#8A8A8A]" />
                </div>
              ))}
           </div>
@@ -80,7 +80,7 @@ const stickyItems: StickyItem[] = [
     title: "Mit einem Tap alles erledigt.",
     description: "Trainer und Fachleiter erhalten Push-Benachrichtigungen und können Beiträge direkt im Dashboard oder per App freigeben. Transparenz für alle Beteiligten.",
     icon: <CheckCircle2 className="w-5 h-5" />,
-    accent: "#E87AA0",
+    accent: "#8A8A8A",
     visual: (
       <div className="w-full h-full bg-[#FCE7F3] dark:bg-[#2E1A23] flex items-center justify-center p-12">
         <div className="relative">
@@ -88,9 +88,9 @@ const stickyItems: StickyItem[] = [
               <div className="h-5 w-1/2 bg-gray-100 dark:bg-white/5 rounded-full mb-8 mt-4 mx-auto" />
               <div className="space-y-4">
                 <div className="h-24 w-full bg-pink-50 dark:bg-pink-500/10 rounded-2xl flex items-center justify-center">
-                   <MousePointer2 className="w-6 h-6 text-[#E87AA0]" />
+                   <MousePointer2 className="w-6 h-6 text-[#8A8A8A]" />
                 </div>
-                <div className="h-8 w-full bg-[#E87AA0] rounded-xl text-white text-[10px] flex items-center justify-center font-bold">GENEHMIGEN</div>
+                <div className="h-8 w-full bg-[#8A8A8A] rounded-xl text-white text-[10px] flex items-center justify-center font-bold">GENEHMIGEN</div>
               </div>
            </div>
         </div>

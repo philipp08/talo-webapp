@@ -69,7 +69,7 @@ export default function SettingsPage() {
     : 15;
 
   const progress = targetPts > 0 ? Math.min(1, approvedPts / targetPts) : 0;
-  const progressColor = progress >= 1 ? "#34C759" : progress >= 0.6 ? "#FF9500" : "#FF3B30";
+  const progressColor = progress >= 1 ? "#8A8A8A" : progress >= 0.6 ? "#8A8A8A" : "#333333";
 
   const sendPasswordReset = async () => {
     if (!currentMember?.email) return;
@@ -149,7 +149,7 @@ export default function SettingsPage() {
                    
                    <div className="flex items-center gap-2">
                       {isAdmin && <TBadge label="Admin" icon={ShieldCheck} color="white" />}
-                      {isTrainer && !isAdmin && <TBadge label="Trainer" icon={Dumbbell} color="#FF9500" />}
+                      {isTrainer && !isAdmin && <TBadge label="Trainer" icon={Dumbbell} color="#8A8A8A" />}
                       <span className="px-2.5 py-1 rounded-full text-[10px] font-poppins font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-[#8A8A8A]">
                         {currentMember.memberType}
                       </span>
@@ -195,7 +195,7 @@ export default function SettingsPage() {
 
            {/* Club Section */}
            <div className="flex flex-col gap-3">
-              <SectionHeader title={isAdmin ? "VEREIN VERWALTEN" : "VEREIN"} icon={Building2} color="#FF9500" />
+              <SectionHeader title={isAdmin ? "VEREIN VERWALTEN" : "VEREIN"} icon={Building2} color="#8A8A8A" />
               {isAdmin ? (
                 <GlassSection className="p-4 flex flex-col gap-5">
                    <div className="flex flex-col gap-1.5 px-1">
@@ -223,7 +223,7 @@ export default function SettingsPage() {
                       </div>
                       <button 
                         onClick={() => setApprovalRequired(!approvalRequired)}
-                        className={`w-11 h-6 rounded-full relative transition-all ${approvalRequired ? "bg-[#34C759]" : "bg-white/10"}`}
+                        className={`w-11 h-6 rounded-full relative transition-all ${approvalRequired ? "bg-[#8A8A8A]" : "bg-white/10"}`}
                       >
                          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${approvalRequired ? "left-6" : "left-1"}`} />
                       </button>
@@ -232,9 +232,9 @@ export default function SettingsPage() {
                 </GlassSection>
               ) : (
                 <GlassSection>
-                   <SettingsRow icon={Building2} label={currentClub?.name ?? "–"} sub="Dein aktiver Verein" color="#FF9500" chevron={false} />
+                   <SettingsRow icon={Building2} label={currentClub?.name ?? "–"} sub="Dein aktiver Verein" color="#8A8A8A" chevron={false} />
                    <TLine className="ml-[68px]" />
-                   <SettingsRow icon={Target} label={`${currentClub?.requiredPoints ?? 15} Punkte`} sub="Jahrespflichtpunkte" color="#00E0D1" chevron={false} />
+                   <SettingsRow icon={Target} label={`${currentClub?.requiredPoints ?? 15} Punkte`} sub="Jahrespflichtpunkte" color="#FFFFFF" chevron={false} />
                    <TLine className="ml-[68px]" />
                    <SettingsRow icon={Calendar} label={currentClub?.seasonType ?? "–"} sub="Saisontyp" color="#7C6FE0" chevron={false} />
                 </GlassSection>
@@ -253,13 +253,13 @@ export default function SettingsPage() {
 
            {/* Action Zone */}
            <div className="flex flex-col gap-3 pt-4">
-              <SectionHeader title="KONTO-AKTIONEN" icon={AlertTriangle} color="#FF3B30" />
+              <SectionHeader title="KONTO-AKTIONEN" icon={AlertTriangle} color="#333333" />
               <GlassSection className="bg-red-500/[0.03] border-red-500/10">
                  <SettingsRow 
                    icon={LogOut} 
                    label="Abmelden" 
                    sub="Von diesem Gerät ausloggen" 
-                   color="#FF3B30" 
+                   color="#333333" 
                    onClick={() => signOut(auth)}
                  />
               </GlassSection>
@@ -308,7 +308,7 @@ function SettingsRow({ icon: Icon, label, sub, color, onClick, chevron = true, l
        {loading ? (
          <RefreshCcw size={14} className="text-[#8A8A8A] animate-spin" />
        ) : success ? (
-         <Check size={16} className="text-[#34C759]" />
+         <Check size={16} className="text-[#8A8A8A]" />
        ) : chevron && (
          <ChevronRight size={14} className="text-[#383838]" />
        )}

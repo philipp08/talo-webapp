@@ -12,10 +12,10 @@ export const colors = {
   text: "#FFFFFF",
   textSub: "#8A8A8A",
   textMuted: "#555555",
-  teal: "#00E0D1", // Approximate tTeal
+  teal: "#FFFFFF",
   green: "#8A8A8A",
-  orange: "#FF9500",
-  red: "#FF3B30",
+  orange: "#555555",
+  red: "#333333",
   border: "#ffffff0f",
 };
 
@@ -26,10 +26,10 @@ export const colors = {
  */
 export const TCatBadge = ({ category, size = 40, className = "" }: { category: string; size?: number; className?: string }) => {
   const styles: Record<string, string> = {
-    A: "bg-red-500/10 text-red-500",
-    B: "bg-blue-500/10 text-blue-400",
-    C: "bg-[#00E0D1]/10 text-[#00E0D1]",
-    S: "bg-purple-500/10 text-purple-400",
+    A: "bg-white/10 text-white group-hover:bg-white/20",
+    B: "bg-white/[0.05] text-[#8A8A8A] group-hover:text-white",
+    C: "bg-white/5 text-[#555555] group-hover:text-white",
+    S: "bg-white/[0.03] text-[#333333] group-hover:text-white border border-white/5",
   };
   const style = styles[category] || styles.B;
   
@@ -100,9 +100,9 @@ export const TButton = ({
   className?: string;
 }) => {
   const themes = {
-    primary: "bg-[#00E0D1] text-[#071212] hover:bg-[#00E0D1]/90",
+    primary: "bg-white text-[#071212] hover:bg-gray-200",
     secondary: "bg-white/10 text-white hover:bg-white/20 border border-white/10",
-    danger: "bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20",
+    danger: "bg-white/[0.05] text-white/40 hover:text-white hover:bg-white/10 border border-white/5",
     ghost: "bg-transparent text-[#8A8A8A] hover:text-white",
   };
 

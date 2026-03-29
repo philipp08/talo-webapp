@@ -27,7 +27,7 @@ const DesktopStatCard = ({ label, value, icon: Icon, color, delay, subtext }: { 
         <div className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center border border-white/5" style={{ background: `${color}08`, color: color }}>
           <Icon size={24} strokeWidth={2.2} />
         </div>
-        <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-[#34C759] bg-[#34C759]/10 px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-white bg-white/10 px-3 py-1.5 rounded-full">
            <TrendingUp size={12} />
            <span>+12%</span>
         </div>
@@ -98,7 +98,7 @@ export default function DashboardPage() {
                  label="Warteschlange" 
                  value={pendingPts.toFixed(1)} 
                  icon={Clock} 
-                 color="#FF9500" 
+                 color="#8A8A8A" 
                  delay={0.15} 
                  subtext="In Prüfung durch Admin"
               />
@@ -106,7 +106,7 @@ export default function DashboardPage() {
                  label="Soll-Erfüllung" 
                  value={`${progress.toFixed(0)}%`} 
                  icon={Zap} 
-                 color="#00E0D1" 
+                 color="#FFFFFF" 
                  delay={0.2} 
                  subtext={`${targetPts - approvedPts > 0 ? (targetPts - approvedPts).toFixed(1) : 0} Pkt. verbleibend`}
               />
@@ -158,9 +158,9 @@ export default function DashboardPage() {
                                 <div className="relative">
                                    <TCatBadge category={entry.activityCategory} size={52} />
                                    <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-[#0c0c0c] flex items-center justify-center ${
-                                      entry.status === "Genehmigt" ? "bg-[#34C759]" : entry.status === "Abgelehnt" ? "bg-[#FF3B30]" : "bg-[#FF9500]"
+                                      entry.status === "Genehmigt" ? "bg-white" : entry.status === "Abgelehnt" ? "bg-gray-800" : "bg-gray-500"
                                    }`}>
-                                      {entry.status === "Genehmigt" ? <CheckCircle size={10} className="text-white" /> : <Clock size={10} className="text-white" />}
+                                      {entry.status === "Genehmigt" ? <CheckCircle size={10} className="text-black" /> : <Clock size={10} className="text-white" />}
                                    </div>
                                 </div>
                                 
@@ -230,14 +230,14 @@ export default function DashboardPage() {
                      <div className="bg-white/[0.015] border border-white/5 rounded-[40px] p-8 space-y-6">
                         <div className="flex flex-col gap-2">
                            <div className="flex items-center gap-2">
-                              <Star size={12} className="text-[#34C759]" />
-                              <span className="text-[10px] font-black text-[#34C759] uppercase tracking-[0.2em]">Mitglieder-Event</span>
+                              <Star size={12} className="text-white" />
+                              <span className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em]">Mitglieder-Event</span>
                            </div>
                            <h4 className="font-poppins font-bold text-white text-lg leading-snug">Sommerfest Vorbereitung <br />am kommenden Samstag.</h4>
                            <p className="text-gray-500 text-sm font-medium leading-relaxed">Wir benötigen noch Unterstützung beim Aufbau ab 10:00 Uhr. Wer Zeit hat, bitte melden!</p>
                         </div>
                         <div className="h-px bg-white/5" />
-                        <Link href="/dashboard/ankuendigungen" className="block text-center text-[10px] font-black text-white hover:text-[#34C759] transition-colors uppercase tracking-[0.3em]">Alle Ankündigungen</Link>
+                        <Link href="/dashboard/ankuendigungen" className="block text-center text-[10px] font-black text-white hover:text-white/60 transition-colors uppercase tracking-[0.3em]">Alle Ankündigungen</Link>
                      </div>
                   </div>
 

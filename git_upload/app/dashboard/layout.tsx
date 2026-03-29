@@ -146,7 +146,7 @@ export default function DashboardLayout({
                          <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
                            {currentMember?.isAdmin ? "Admin" : currentMember?.isTrainer ? "Trainer" : "Mitglied"}
                          </span>
-                         {currentMember?.isAdmin && <ShieldCheck size={10} className="text-[#34C759]" />}
+                         {currentMember?.isAdmin && <ShieldCheck size={10} className="text-white/60" />}
                       </div>
                    </div>
                 </div>

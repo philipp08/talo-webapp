@@ -86,9 +86,9 @@ export default function ApprovalsPage() {
             className="flex flex-col items-center justify-center py-20 gap-5 text-center"
           >
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-[#34C759]/10 blur-xl absolute inset-0" />
-              <div className="w-20 h-20 rounded-full bg-[#34C759]/10 flex items-center justify-center relative border border-[#34C759]/20">
-                <CheckSquare size={40} className="text-[#34C759]" strokeWidth={1.5} />
+              <div className="w-24 h-24 rounded-full bg-[#8A8A8A]/10 blur-xl absolute inset-0" />
+              <div className="w-20 h-20 rounded-full bg-[#8A8A8A]/10 flex items-center justify-center relative border border-[#8A8A8A]/20">
+                <CheckSquare size={40} className="text-[#8A8A8A]" strokeWidth={1.5} />
               </div>
             </div>
             <div className="flex flex-col gap-1">
@@ -152,7 +152,7 @@ export default function ApprovalsPage() {
                       <div className="ml-auto flex items-center gap-2">
                         <button 
                           onClick={() => setRejectId(entry.id)}
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-poppins font-semibold text-[#FF3B30] bg-[#FF3B30]/10 border border-[#FF3B30]/20 hover:bg-[#FF3B30]/20 transition-all"
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-poppins font-semibold text-[#333333] bg-[#333333]/10 border border-[#333333]/20 hover:bg-[#333333]/20 transition-all"
                         >
                           <XCircle size={12} />
                           Ablehnen
@@ -160,7 +160,7 @@ export default function ApprovalsPage() {
                         <button 
                           onClick={() => approve(entry)}
                           disabled={processingId === entry.id}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-poppins font-bold text-[#071212] bg-[#00E0D1] hover:bg-[#00E0D1]/90 transition-all shadow-lg shadow-[#00E0D1]/20 disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-poppins font-bold text-[#071212] bg-[#FFFFFF] hover:bg-[#FFFFFF]/90 transition-all shadow-lg shadow-[#FFFFFF]/20 disabled:opacity-50"
                         >
                           {processingId === entry.id ? (
                             <div className="h-3 w-3 animate-spin rounded-full border border-[#071212] border-t-transparent" />
@@ -189,10 +189,10 @@ export default function ApprovalsPage() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="w-full max-w-sm"
             >
-              <GlassSection className="p-6 flex flex-col gap-5 border-[#FF3B30]/20">
+              <GlassSection className="p-6 flex flex-col gap-5 border-[#333333]/20">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="w-14 h-14 rounded-full bg-[#FF3B30]/10 flex items-center justify-center">
-                    <XCircle size={28} className="text-[#FF3B30]" />
+                  <div className="w-14 h-14 rounded-full bg-[#333333]/10 flex items-center justify-center">
+                    <XCircle size={28} className="text-[#333333]" />
                   </div>
                   <h3 className="font-poppins font-bold text-white text-lg">Eintrag ablehnen</h3>
                 </div>

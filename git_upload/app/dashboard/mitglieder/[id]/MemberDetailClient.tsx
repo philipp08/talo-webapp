@@ -91,7 +91,7 @@ export default function MemberDetailPage() {
   const pendingPts  = entries.filter((e) => e.status === "Ausstehend").reduce((s, e) => s + e.points, 0);
   const missingPts  = Math.max(0, targetPts - approvedPts);
   const progress    = targetPts > 0 ? Math.min(1, approvedPts / targetPts) : 0;
-  const progressColor = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF3B30";
+  const progressColor = progress >= 1 ? "#FFFFFF" : progress >= 0.5 ? "#8A8A8A" : "#333333";
   const isExempt    = member?.memberType === MemberType.Youth || member?.memberType === MemberType.Board;
 
   const saveMember = async () => {
@@ -192,7 +192,7 @@ export default function MemberDetailPage() {
               )}
               <button 
                 onClick={() => setMemberToDelete(true)} 
-                className="w-12 h-12 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all border-red-500/0 hover:border-red-500/20"
+                className="w-12 h-12 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all border-white/0 hover:border-white/20"
               >
                  <Trash2 size={18} />
               </button>
@@ -222,12 +222,12 @@ export default function MemberDetailPage() {
                  <div className="flex flex-col items-center gap-3 text-center mb-10">
                     <div className="flex items-center gap-3">
                        <h2 className="text-2xl font-poppins font-black text-white">{member.firstName} {member.lastName}</h2>
-                       {member.isAdmin && <ShieldCheck size={20} className="text-[#34C759]" />}
+                       {member.isAdmin && <ShieldCheck size={20} className="text-white/60" />}
                     </div>
                     <p className="text-gray-500 font-bold text-sm">{member.email}</p>
                     <div className="flex items-center gap-2 mt-2">
                        <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-gray-400 uppercase tracking-widest">{member.memberType}</span>
-                       {member.isTrainer && <span className="px-4 py-1.5 rounded-full bg-[#FF9500]/10 border border-[#FF9500]/20 text-[10px] font-black text-[#FF9500] uppercase tracking-widest">Trainer</span>}
+                       {member.isTrainer && <span className="px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[10px] font-black text-white/60 uppercase tracking-widest">Trainer</span>}
                     </div>
                  </div>
 
@@ -248,11 +248,11 @@ export default function MemberDetailPage() {
                     <div className="grid grid-cols-2 gap-4">
                        <div className="bg-white/5 p-6 rounded-3xl border border-white/5 flex flex-col gap-2">
                           <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Bestätigt</span>
-                          <span className="text-2xl font-mono font-black text-[#34C759]">+{approvedPts.toFixed(1)}</span>
+                          <span className="text-2xl font-mono font-black text-white">+{approvedPts.toFixed(1)}</span>
                        </div>
                        <div className="bg-white/5 p-6 rounded-3xl border border-white/5 flex flex-col gap-2">
                           <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">In Prüfung</span>
-                          <span className="text-2xl font-mono font-black text-[#FF9500]">+{pendingPts.toFixed(1)}</span>
+                          <span className="text-2xl font-mono font-black text-gray-400">+{pendingPts.toFixed(1)}</span>
                        </div>
                        <div className="bg-white/5 p-6 rounded-3xl border border-white/5 flex flex-col gap-2">
                           <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Ziel</span>
@@ -335,7 +335,7 @@ export default function MemberDetailPage() {
                                         <span className="text-sm font-bold text-white">Administrator</span>
                                         <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Voller Zugriff auf Verein</span>
                                      </div>
-                                     <button onClick={() => setEditForm({...editForm, isAdmin: !editForm.isAdmin})} className={`w-12 h-6 rounded-full transition-all relative ${editForm.isAdmin ? "bg-[#34C759]" : "bg-white/10"}`}>
+                                     <button onClick={() => setEditForm({...editForm, isAdmin: !editForm.isAdmin})} className={`w-12 h-6 rounded-full transition-all relative ${editForm.isAdmin ? "bg-[#8A8A8A]" : "bg-white/10"}`}>
                                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${editForm.isAdmin ? "left-7" : "left-1"}`} />
                                      </button>
                                   </div>
@@ -344,7 +344,7 @@ export default function MemberDetailPage() {
                                         <span className="text-sm font-bold text-white">Trainer / Coach</span>
                                         <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Kann Punkte genehmigen</span>
                                      </div>
-                                     <button onClick={() => setEditForm({...editForm, isTrainer: !editForm.isTrainer})} className={`w-12 h-6 rounded-full transition-all relative ${editForm.isTrainer ? "bg-[#34C759]" : "bg-white/10"}`}>
+                                     <button onClick={() => setEditForm({...editForm, isTrainer: !editForm.isTrainer})} className={`w-12 h-6 rounded-full transition-all relative ${editForm.isTrainer ? "bg-[#8A8A8A]" : "bg-white/10"}`}>
                                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${editForm.isTrainer ? "left-7" : "left-1"}`} />
                                      </button>
                                   </div>
@@ -410,10 +410,10 @@ export default function MemberDetailPage() {
                                   <td className="px-10 py-6">
                                      <div className="flex items-center gap-2">
                                         <div className={`w-1.5 h-1.5 rounded-full ${
-                                           entry.status === "Genehmigt" ? "bg-[#34C759]" : entry.status === "Abgelehnt" ? "bg-[#FF3B30]" : "bg-[#FF9500]"
+                                           entry.status === "Genehmigt" ? "bg-[#8A8A8A]" : entry.status === "Abgelehnt" ? "bg-[#333333]" : "bg-[#8A8A8A]"
                                         }`} />
                                         <span className={`text-[11px] font-black uppercase tracking-widest ${
-                                           entry.status === "Genehmigt" ? "text-[#34C759]" : entry.status === "Abgelehnt" ? "text-[#FF3B30]" : "text-[#FF9500]"
+                                           entry.status === "Genehmigt" ? "text-[#8A8A8A]" : entry.status === "Abgelehnt" ? "text-[#333333]" : "text-[#8A8A8A]"
                                         }`}>
                                            {entry.status}
                                         </span>

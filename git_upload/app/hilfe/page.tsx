@@ -82,9 +82,9 @@ export default function HelpPage() {
       <section className="relative pt-[160px] pb-12 lg:pb-20 border-b border-gray-100 dark:border-white/5">
         <div className="max-w-6xl mx-auto px-6 w-full">
           <ScrollReveal direction="up" delay={0.1}>
-             <span className="text-[11px] font-bold tracking-[0.2em] text-[#00E0D1] uppercase mb-4 block">HILFECENTER</span>
+             <span className="text-[11px] font-bold tracking-[0.2em] text-gray-400 dark:text-gray-500 uppercase mb-4 block">HILFECENTER</span>
              <h1 className="text-[3rem] md:text-[4.5rem] font-medium tracking-tight font-logo text-gray-950 dark:text-white mb-8 leading-[1.05]">
-                Wie können wir<br />euch heute <span className="text-[#00E0D1]">unterstützen?</span>
+                Wie können wir<br />euch heute <span className="opacity-40">unterstützen?</span>
              </h1>
           </ScrollReveal>
           
@@ -93,9 +93,9 @@ export default function HelpPage() {
               <input 
                 type="text" 
                 placeholder="Suche nach Themen (z.B. Punkte, DSGVO, Import)..." 
-                className="w-full px-6 py-5 rounded-2xl bg-gray-50 border border-gray-200 dark:bg-white/5 dark:border-white/10 dark:text-white focus:outline-none focus:ring-4 focus:ring-[#00E0D1]/10 transition-all pl-14 font-medium"
+                className="w-full px-6 py-5 rounded-2xl bg-gray-50 border border-gray-200 dark:bg-white/5 dark:border-white/10 dark:text-white focus:outline-none focus:ring-4 focus:ring-white/10 transition-all pl-14 font-medium"
               />
-              <Search className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#00E0D1] transition-colors" />
+              <Search className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" />
             </div>
           </ScrollReveal>
         </div>
@@ -118,11 +118,11 @@ export default function HelpPage() {
                       }}
                       className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-medium ${
                         activeSection === section.id 
-                          ? "bg-[#00E0D1]/10 text-[#00E0D1] dark:bg-white/5 dark:text-white" 
+                          ? "bg-[#FFFFFF]/10 text-[#FFFFFF] dark:bg-white/5 dark:text-white" 
                           : "text-gray-500 dark:text-[#8A8A8A] hover:bg-gray-50 dark:hover:bg-white/[0.03] hover:text-black dark:hover:text-white"
                       }`}
                     >
-                      <div className={`p-2 rounded-lg transition-colors ${activeSection === section.id ? "bg-[#00E0D1]/20" : "bg-gray-100 dark:bg-white/5"}`}>
+                      <div className={`p-2 rounded-lg transition-colors ${activeSection === section.id ? "bg-[#FFFFFF]/20" : "bg-gray-100 dark:bg-white/5"}`}>
                         {section.icon}
                       </div>
                       <span className="text-[14px]">{section.title}</span>
@@ -137,7 +137,7 @@ export default function HelpPage() {
                {sections.map((section) => (
                  <div key={section.id} id={section.id} className="scroll-mt-32">
                     <div className="flex items-center gap-4 mb-10 pb-4 border-b border-gray-100 dark:border-white/5">
-                       <div className="w-12 h-12 rounded-2xl bg-[#00E0D1] flex items-center justify-center text-white">
+                       <div className="w-12 h-12 rounded-2xl bg-[#FFFFFF] flex items-center justify-center text-white">
                           {section.icon}
                        </div>
                        <h2 className="text-3xl font-bold font-logo text-gray-950 dark:text-white">{section.title}</h2>
@@ -146,7 +146,7 @@ export default function HelpPage() {
                     <div className="grid md:grid-cols-1 gap-10">
                        {section.items.map((item, j) => (
                          <div key={j} className="group flex flex-col gap-3">
-                            <h4 className="text-[18px] font-bold text-gray-900 dark:text-white group-hover:text-[#00E0D1] transition-colors">
+                            <h4 className="text-[18px] font-bold text-gray-900 dark:text-white group-hover:text-[#FFFFFF] transition-colors">
                                {item.q}
                             </h4>
                             <p className="text-[16px] text-gray-600 dark:text-[#8A8A8A] leading-relaxed font-poppins-regular">
@@ -160,7 +160,7 @@ export default function HelpPage() {
                
                {/* Contact CTA */}
                <div className="bg-[#080808] dark:bg-[#101010] rounded-[40px] p-8 md:p-14 text-center mt-12 relative overflow-hidden border border-white/5">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-[#00E0D1]/10 rounded-full blur-[80px] -mr-32 -mt-32" />
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFFFFF]/10 rounded-full blur-[80px] -mr-32 -mt-32" />
                   <div className="relative z-10">
                      <h3 className="text-2xl md:text-4xl font-bold text-white mb-6 font-logo">Immer noch unsicher?</h3>
                      <p className="text-gray-400 mb-10 text-lg max-w-lg mx-auto">Unser Team steht euch Mo-Fr von 09:00 bis 18:00 Uhr zur Verfügung.</p>
@@ -188,15 +188,15 @@ export default function HelpPage() {
               {[
                 { title: "Video Tutorials", desc: "Lernt Talo in unter 5 Minuten kennen.", icon: <Zap className="text-yellow-500" /> },
                 { title: "Admin Handbuch", desc: "Alle Funktionen im Detail erklärt.", icon: <FileText className="text-blue-500" /> },
-                { title: "Zertifizierung", desc: "Wie Talo eure IT-Sicherheit stärkt.", icon: <ShieldCheck className="text-green-500" /> },
+                { title: "Zertifizierung", desc: "Wie Talo eure IT-Sicherheit stärkt.", icon: <ShieldCheck className="text-gray-400" /> },
               ].map((res, i) => (
-                <div key={i} className="p-8 rounded-[32px] bg-gray-50 dark:bg-[#0c0c0c] border border-gray-100 dark:border-white/5 hover:border-[#00E0D1]/30 transition-all cursor-pointer group">
+                <div key={i} className="p-8 rounded-[32px] bg-gray-50 dark:bg-[#0c0c0c] border border-gray-100 dark:border-white/5 hover:border-[#FFFFFF]/30 transition-all cursor-pointer group">
                    <div className="w-12 h-12 rounded-2xl bg-white dark:bg-white/5 flex items-center justify-center mb-6 shadow-sm">
                       {res.icon}
                    </div>
                    <h4 className="text-xl font-bold text-gray-950 dark:text-white mb-2">{res.title}</h4>
                    <p className="text-sm text-gray-500 dark:text-[#8A8A8A] mb-4">{res.desc}</p>
-                   <div className="flex items-center gap-2 text-xs font-bold text-[#00E0D1]">
+                   <div className="flex items-center gap-2 text-xs font-bold text-[#FFFFFF]">
                       Ansehen <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                    </div>
                 </div>

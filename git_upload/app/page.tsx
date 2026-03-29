@@ -57,7 +57,7 @@ export default function Home() {
         </div>
 
         {/* Ambient background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-[#34C759]/5 dark:bg-[#34C759]/10 opacity-30 blur-[160px] pointer-events-none -z-10" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-gray-500/5 dark:bg-white/5 opacity-30 blur-[160px] pointer-events-none -z-10" />
       </section>
 
       {/* ─── TRUST SECTION ───────────────────────────────────────── */}
@@ -65,7 +65,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-12 text-center md:text-left">
              <div className="max-w-md">
-                <h3 className="text-[12px] font-black tracking-[0.2em] text-[#34C759] uppercase mb-3">SICHER & KONFORM</h3>
+                <h3 className="text-[12px] font-black tracking-[0.2em] text-gray-400 dark:text-gray-500 uppercase mb-3 text-center md:text-left">SICHER & KONFORM</h3>
                 <p className="text-xl font-bold text-gray-950 dark:text-white font-logo">EU-Server. DSGVO-Sicher. <br />Vereins-geprüft.</p>
              </div>
              <div className="flex flex-wrap items-center justify-center gap-12 opacity-40 grayscale contrast-125 font-bold">
@@ -87,9 +87,9 @@ export default function Home() {
              <div className="flex-1 order-2 lg:order-1 self-stretch">
                 <ScrollReveal direction="left">
                    <div className="bg-[#f0f9f1] dark:bg-[#0c0c0c] rounded-[48px] p-6 md:p-12 border border-gray-100 dark:border-white/5 flex justify-center relative group min-h-[500px] h-full items-center">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#34C759]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="w-full max-w-[280px] aspect-[9/19.5] bg-white dark:bg-[#121212] rounded-[32px] border-[6px] border-gray-950 dark:border-white/10 shadow-2xl flex flex-col items-center justify-center p-6 text-center">
-                         <div className="w-12 h-12 rounded-full bg-[#34C759]/10 flex items-center justify-center text-[#34C759] mb-4">
+                         <div className="w-12 h-12 rounded-full bg-[#8A8A8A]/10 flex items-center justify-center text-[#8A8A8A] mb-4">
                             <Sparkles size={24} />
                          </div>
                          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">SCREENSHOT</p>
@@ -100,7 +100,7 @@ export default function Home() {
              </div>
              <div className="flex-1 order-1 lg:order-2">
                 <ScrollReveal direction="right" delay={0.2}>
-                   <div className="w-14 h-14 rounded-2xl bg-[#34C759]/10 flex items-center justify-center text-[#34C759] mb-8">
+                   <div className="w-14 h-14 rounded-2xl bg-white/10 dark:bg-white/5 border border-white/10 flex items-center justify-center text-gray-900 dark:text-white mb-8">
                       <Zap size={28} />
                    </div>
                    <h2 className="text-[2.5rem] md:text-[4rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[1.1] mb-8">
@@ -127,7 +127,7 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-32">
              <div className="flex-1">
                 <ScrollReveal direction="left">
-                   <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-8">
+                   <div className="w-14 h-14 rounded-2xl bg-white/10 dark:bg-white/5 border border-white/10 flex items-center justify-center text-gray-950 dark:text-white mb-8">
                       <ShieldCheck size={28} />
                    </div>
                    <h2 className="text-[2.5rem] md:text-[4rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[1.1] mb-8">
@@ -146,7 +146,7 @@ export default function Home() {
                          <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Fehlerrate</div>
                       </div>
                    </div>
-                   <Link href="/funktionen" className="inline-flex items-center gap-3 text-[14px] font-bold text-blue-500 hover:gap-5 transition-all group">
+                   <Link href="/funktionen" className="inline-flex items-center gap-3 text-[14px] font-bold text-gray-950 dark:text-white hover:gap-5 transition-all group">
                       Prozess ansehen <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                    </Link>
                 </ScrollReveal>
@@ -185,7 +185,7 @@ export default function Home() {
              </div>
              <div className="flex-1 order-1 lg:order-2">
                 <ScrollReveal direction="right" delay={0.2}>
-                   <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500 mb-8">
+                   <div className="w-14 h-14 rounded-2xl bg-white/10 dark:bg-white/5 border border-white/10 flex items-center justify-center text-gray-950 dark:text-white mb-8">
                       <BarChart3 size={28} />
                    </div>
                    <h2 className="text-[2.5rem] md:text-[4rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[1.1] mb-8">
@@ -194,7 +194,7 @@ export default function Home() {
                    <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-10">
                       Am Ende der Saison generiert Talo mit nur einem Klick alle relevanten Berichte für den Vorstand, das Finanzamt oder die Mitgliederversammlung. 
                    </p>
-                   <Link href="/funktionen" className="inline-flex items-center gap-3 text-[14px] font-bold text-purple-500 hover:gap-5 transition-all group">
+                   <Link href="/funktionen" className="inline-flex items-center gap-3 text-[14px] font-bold text-gray-950 dark:text-white hover:gap-5 transition-all group">
                       Export-Optionen <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                    </Link>
                 </ScrollReveal>
@@ -209,7 +209,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <ScrollReveal direction="up">
             <h2 className="text-xl md:text-2xl text-center font-medium text-gray-900 dark:text-white mb-10 md:mb-16">
-              Recent highlights from our <Link href="/blog" className="text-[#34C759] hover:opacity-80 transition-opacity">blog</Link>
+              Neueste Highlights aus unserem <Link href="/blog" className="text-gray-950 dark:text-white underline decoration-[#8A8A8A]/30 underline-offset-4 hover:decoration-[#8A8A8A] transition-colors">Blog</Link>
             </h2>
           </ScrollReveal>
 
@@ -252,7 +252,7 @@ export default function Home() {
       {/* ─── CTA BANNER (FLOATING) ───────────────────────────────── */}
       {showBanner && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-auto max-w-[90vw]">
-          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5 p-1.5 pr-4">
+          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5 p-2 pr-6">
             <Link 
                href={`/blog/${blogPosts[0].slug}`}
                className="flex items-center gap-3 transition-all outline-none"
@@ -265,8 +265,8 @@ export default function Home() {
                   />
                 </div>
                 
-                <span className="text-[13px] font-semibold tracking-tight whitespace-nowrap flex items-center gap-2 mr-2">
-                   Neu im Blog: <span className="opacity-60 font-medium">{blogPosts[0].title}</span>
+                <span className="text-[14px] font-bold tracking-tight whitespace-nowrap flex items-center gap-2">
+                   {blogPosts[0].title}
                 </span>
                 
                 {/* Tail Icons Container */}

@@ -204,7 +204,7 @@ function ListView({ members, entries, requiredPoints }: { members: Member[]; ent
                      const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
                      const target = calculateTargetPoints(member, requiredPoints);
                      const progress = target > 0 ? Math.min(1, approved / target) : 1;
-                     const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF3B30";
+                     const color = progress >= 1 ? "#8A8A8A" : progress >= 0.5 ? "#8A8A8A" : "#333333";
 
                      return (
                         <tr key={member.id} className="group hover:bg-white/[0.02] transition-colors cursor-pointer">
@@ -215,7 +215,7 @@ function ListView({ members, entries, requiredPoints }: { members: Member[]; ent
                                     <span className="text-[16px] font-poppins font-bold text-white group-hover:underline underline-offset-4 decoration-white/20">{member.firstName} {member.lastName}</span>
                                     <div className="flex items-center gap-2 mt-0.5">
                                        <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">{member.memberType}</span>
-                                       {member.isAdmin && <Shield size={10} className="text-[#34C759]" />}
+                                       {member.isAdmin && <Shield size={10} className="text-[#8A8A8A]" />}
                                     </div>
                                  </div>
                               </Link>
@@ -293,7 +293,7 @@ function LeaderboardView({ data }: { data: { member: Member; approved: number; t
                <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest mt-1">{item.member.memberType}</span>
             </div>
             <div className="flex flex-col items-end mr-4">
-               <span className="text-[22px] font-mono font-black text-[#34C759]">+{item.approved.toFixed(1)}</span>
+               <span className="text-[22px] font-mono font-black text-[#8A8A8A]">+{item.approved.toFixed(1)}</span>
                <span className="text-[9px] font-black text-gray-700 uppercase tracking-widest whitespace-nowrap">GESAMTPUNKTE</span>
             </div>
             <ChevronRight className="text-gray-800 group-hover:text-white transition-colors" size={20} />
