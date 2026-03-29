@@ -27,7 +27,7 @@ export default function Home() {
           
           <ScrollReveal direction="up" delay={0.2}>
             <h1 className="text-[2.2rem] leading-[1.05] sm:text-[4rem] md:text-[5.5rem] lg:text-[7rem] font-medium tracking-tight font-logo mb-6 sm:mb-10 max-w-7xl mx-auto text-gray-950 dark:text-white">
-              Die Plattform für euer<br /><span>Vereinsengagement</span>
+              Die Plattform für euer<br /><span>Vereinsengagement.</span>
             </h1>
           </ScrollReveal>
 
@@ -273,7 +273,7 @@ export default function Home() {
       {/* ─── CTA BANNER (FLOATING) ───────────────────────────────── */}
       {showBanner && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-auto max-w-[90vw]">
-          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5">
+          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5">
             <Link 
                href="#demo"
                className="flex items-center gap-3 pl-4 pr-12 py-2.5 transition-all"
