@@ -97,7 +97,7 @@ ${adminName} · ${clubName}
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
               <td>
-                <span style="font-size:20px;font-weight:800;color:#F0F0FF;letter-spacing:-0.5px;">Talo</span>
+                <span style="font-size:20px;font-weight:800;color:#F0F0FF;letter-spacing:4px;text-transform:uppercase;">TALO</span>
                 <span style="font-size:20px;font-weight:300;color:#505060;"> · Jeder Beitrag zaehlt</span>
               </td>
             </tr>

@@ -143,7 +143,7 @@ export default function Navbar() {
               />
             </div>
             <span className="font-logo font-medium text-[19px] tracking-[0.2em] text-[#080808] dark:text-white uppercase">
-              Talo
+              TALO
             </span>
           </Link>
 

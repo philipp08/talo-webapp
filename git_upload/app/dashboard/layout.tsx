@@ -99,7 +99,7 @@ export default function DashboardLayout({
                 </div>
                 <div className="flex flex-col">
                    <span className="font-logo text-lg font-black tracking-[0.25em] text-white uppercase leading-none">TALO</span>
-                   <span className="text-[9px] font-black text-[#444] tracking-[0.3em] uppercase mt-1">Console</span>
+                   <span className="text-[9px] font-black text-gray-500 tracking-[0.3em] uppercase mt-1">Console</span>
                 </div>
              </Link>
           </div>
