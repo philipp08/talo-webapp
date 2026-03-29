@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowRight, Menu as MenuIcon, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppStore } from "@/lib/store/useAppStore";
-import { useDemo } from "../page";
+import { useDemo } from "@/lib/context/DemoContext";
 
 interface MenuItem {
   title: string;

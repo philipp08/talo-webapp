@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, createContext, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "./components/Navbar";
 import FeatureCard from "./components/FeatureCard";
 import StepCard from "./components/StepCard";
@@ -11,37 +11,26 @@ import Link from "next/link";
 import ContactForm from "./components/ContactForm";
 import { posts as blogPosts } from "./blog/page";
 import { motion, AnimatePresence } from "framer-motion";
-
-// ─── MODAL CONTEXT ───────────────────────────────────────────
-interface DemoContextType {
-  isDemoOpen: boolean;
-  openDemo: () => void;
-  closeDemo: () => void;
-}
-
-const DemoContext = createContext<DemoContextType | undefined>(undefined);
-
-export const useDemo = () => {
-  const context = useContext(DemoContext);
-  if (!context) throw new Error("useDemo must be used within a DemoProvider");
-  return context;
-};
+import { DemoProvider, useDemo } from "@/lib/context/DemoContext";
 
 export default function Home() {
   const [showBanner, setShowBanner] = useState(true);
   const [isBannerVisible, setIsBannerVisible] = useState(true);
-  const [isDemoOpen, setIsDemoOpen] = useState(false);
 
-  const openDemo = () => setIsDemoOpen(true);
-  const closeDemo = () => setIsDemoOpen(false);
+  return (
+    <DemoProvider>
+      <HomeContent 
+        showBanner={showBanner} 
+        isBannerVisible={isBannerVisible} 
+        setShowBanner={setShowBanner} 
+        setIsBannerVisible={setIsBannerVisible} 
+      />
+    </DemoProvider>
+  );
+}
 
-  useEffect(() => {
-    if (isDemoOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-  }, [isDemoOpen]);
+function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVisible }: any) {
+  const { isDemoOpen, openDemo, closeDemo } = useDemo();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,9 +54,8 @@ export default function Home() {
   }, []);
 
   return (
-    <DemoContext.Provider value={{ isDemoOpen, openDemo, closeDemo }}>
-      <main className="relative min-h-screen bg-white dark:bg-[#080808]">
-        <Navbar />
+    <main className="relative min-h-screen bg-white dark:bg-[#080808]">
+      <Navbar />
 
         {/* ─── DEMO MODAL ────────────────────────────────────────── */}
         <AnimatePresence>
@@ -475,7 +463,6 @@ export default function Home() {
       )}
 
       <Footer />
-      </main>
-    </DemoContext.Provider>
+    </main>
   );
 }
