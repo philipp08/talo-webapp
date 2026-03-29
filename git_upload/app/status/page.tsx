@@ -14,8 +14,8 @@ export default function StatusPage() {
   }, []);
 
   const systems = [
-    { name: "TALO™ Web Platform", status: "operational", uptime: "99.98%", description: "Die Hauptplattform für Vereine." },
-    { name: "TALO™ Console (Dashboard)", status: "operational", uptime: "99.95%", description: "Das Verwaltungs-Backend der Vereine." },
+    { name: "TALO Web Platform", status: "operational", uptime: "99.98%", description: "Die Hauptplattform für Vereine." },
+    { name: "TALO Console (Dashboard)", status: "operational", uptime: "99.95%", description: "Das Verwaltungs-Backend der Vereine." },
     { name: "Authentifizierungs-Service", status: "operational", uptime: "100%", description: "Login & Mitglieder-Auth via Firebase." },
     { name: "E-Mail Zustellung (SendGrid)", status: "operational", uptime: "99.9%", description: "Versand von Einladungen & Demo-Anfragen." },
     { name: "Datenbank (Firestore)", status: "operational", uptime: "100%", description: "Echtzeit-Datenstruktur & Speicherung." },
@@ -37,7 +37,7 @@ export default function StatusPage() {
                Systemstatus.
             </h1>
             <p className="text-lg text-gray-500 dark:text-[#8A8A8A] max-w-xl mx-auto leading-relaxed">
-               Transparenz ist unser Versprechen. Hier findest du den aktuellen Status aller TALO™ Infrastruktur-Dienste.
+               Transparenz ist unser Versprechen. Hier findest du den aktuellen Status aller TALO Infrastruktur-Dienste.
             </p>
           </ScrollReveal>
         </div>
