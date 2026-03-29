@@ -276,7 +276,7 @@ export default function Home() {
           <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5">
             <Link 
                href="#demo"
-               className="flex items-center gap-3 pl-4 pr-12 py-2.5 transition-all"
+               className="flex items-center gap-3 pl-4 pr-12 py-2.5 transition-all outline-none"
             >
                 <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white relative shadow-lg shrink-0">
                    <Sparkles size={14} />
@@ -284,7 +284,7 @@ export default function Home() {
                 </span>
                 <span className="text-[13px] font-semibold tracking-tight whitespace-nowrap flex items-center gap-2">
                    Talo ist jetzt live: <span className="opacity-60 font-medium italic">Fordern Sie eine Demo an</span>
-                   <span className="group-hover:translate-x-1 transition-transform ml-1" aria-hidden="true">
+                   <span className="transition-all duration-300 group-hover:-translate-x-7 ml-1" aria-hidden="true">
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
                       </svg>
@@ -295,7 +295,7 @@ export default function Home() {
               type="button"
               onClick={() => setShowBanner(false)}
               aria-label="Schließen"
-              className="absolute right-3 w-8 h-8 flex items-center justify-center rounded-full text-white/40 dark:text-black/40 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/5 transition-all"
+              className="absolute right-3 w-8 h-8 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 text-white/40 dark:text-black/40 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/5 transition-all duration-300"
             >
               <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"></path>
