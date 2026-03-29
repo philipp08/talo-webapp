@@ -13,6 +13,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Member, MemberType, calculateTargetPoints, Entry } from "@/lib/firebase/models";
 import { AuthService } from "@/lib/firebase/authService";
+import { EmailService } from "@/lib/firebase/emailService";
 import { TAvatar, GlassSection, TLine, AmbientBackground, TSearchBar, TBadge, TButton } from "@/app/components/ui/NativeUI";
 
 const memberTypeOrder = [
@@ -48,6 +49,8 @@ export default function MembersPage() {
   const [inviteType, setInviteType] = useState<MemberType>(MemberType.Active);
   const [isCopied, setIsCopied] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isSendingMail, setIsSendingMail] = useState(false);
+  const [mailSent, setMailSent] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
   const [createdUid, setCreatedUid] = useState<string | null>(null);
@@ -234,20 +237,48 @@ export default function MembersPage() {
 
                           <div className="flex flex-col gap-3">
                             <button 
-                              onClick={() => {
-                                const subject = `Willkommen bei ${currentClub?.name} – Deine Zugangsdaten`;
-                                const body = `Hallo ${inviteFirstName},\n\nherzlich willkommen bei ${currentClub?.name}!\n\nDu wurdest als Mitglied registriert und kannst ab sofort die Talo-App nutzen, um deine Vereinsstunden zu erfassen.\n\nDEINE ZUGANGSDATEN\n──────────────────\nE-Mail:   ${inviteEmail}\nPasswort: ${generatedPassword}\n\nSO GEHT'S\n──────────────────\n1. App herunterladen: https://apps.apple.com/app/talo/id000000000\n2. Auf "Anmelden" tippen\n3. E-Mail und Passwort eingeben\n4. Loslegen und Punkte sammeln!\n\nTipp: Bitte ändere dein Passwort nach dem ersten Login in den Einstellungen.\n\nBei Fragen: support@talo-app.de\n\nViele Grüße\n${currentMember?.firstName} ${currentMember?.lastName} · ${currentClub?.name}`;
-                                window.location.href = `mailto:${inviteEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                              onClick={async () => {
+                                if (!currentClub || !currentMember) return;
+                                setIsSendingMail(true);
+                                setErrorMessage(null);
+                                try {
+                                  await EmailService.sendWelcomeMail({
+                                    to: inviteEmail,
+                                    name: `${inviteFirstName} ${inviteLastName}`,
+                                    subject: `Willkommen bei ${currentClub.name} – Deine Zugangsdaten`,
+                                    memberName: inviteFirstName,
+                                    password: generatedPassword!,
+                                    clubName: currentClub.name,
+                                    adminName: `${currentMember.firstName} ${currentMember.lastName}`
+                                  });
+                                  setMailSent(true);
+                                } catch (err: any) {
+                                  setErrorMessage(err.message || "E-Mail konnte nicht gesendet werden.");
+                                } finally {
+                                  setIsSendingMail(false);
+                                }
                               }}
-                              className="w-full h-14 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-2xl active:scale-95"
+                              disabled={isSendingMail || mailSent}
+                              className="w-full h-14 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-2xl active:scale-95 disabled:opacity-50"
                             >
-                              <Mail size={18} /> Willkommens-Mail senden
+                              {isSendingMail ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
+                              ) : mailSent ? (
+                                <>
+                                  <Check size={18} /> Mail gesendet ✓
+                                </>
+                              ) : (
+                                <>
+                                  <Mail size={18} /> Willkommens-Mail senden
+                                </>
+                              )}
                             </button>
                             <button 
                               onClick={() => {
                                 setIsInviteOpen(false);
                                 setGeneratedPassword(null);
                                 setCreatedUid(null);
+                                setMailSent(false);
                               }}
                               className="w-full h-12 rounded-xl text-gray-500 font-black text-[10px] uppercase tracking-[0.2em] hover:text-white transition-all"
                             >
