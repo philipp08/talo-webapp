@@ -129,11 +129,11 @@ export default function Navbar() {
         <nav
           className={`container mx-auto max-w-[1300px] flex items-center justify-between transition-all duration-500 transform-gpu border ${
             scrolled || mobileOpen
-              ? "bg-[#F5F5F7]/80 dark:bg-[#0A0A0A]/80 backdrop-blur-2xl border-black/[0.08] dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+              ? "bg-[rgba(245,245,247,0.8)] dark:bg-[#0A0A0A]/80 backdrop-blur-[8px] border-[rgb(234,236,239)] dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.04)]"
               : "bg-transparent border-transparent"
           } ${
-            mobileOpen ? "rounded-[24px]" : "rounded-full md:rounded-[20px]"
-          } px-4 md:px-6 py-2`}
+            mobileOpen ? "rounded-[32px] md:rounded-[20px]" : "rounded-[100px] md:rounded-[20px]"
+          } px-4 md:px-6 py-2 md:py-3`}
         >
           <Link href="/" className="flex items-center gap-3 transition-transform hover:scale-[1.02] active:scale-[0.98]">
             <div className="relative w-8 h-8 flex items-center justify-center">
@@ -145,7 +145,7 @@ export default function Navbar() {
                 className="invert dark:invert-0 object-contain transition-all"
               />
             </div>
-            <span className="font-logo font-medium text-[19px] tracking-[0.2em] text-[#080808] dark:text-white uppercase leading-none hidden md:block">
+            <span className="font-logo font-medium text-[19px] tracking-[0.2em] text-[#080808] dark:text-white uppercase leading-none">
               TALO
             </span>
           </Link>
@@ -260,17 +260,17 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Navigation Trigger (Pill Style) */}
+          {/* Mobile Navigation Trigger (GivingJoy Style) */}
           <div className="md:hidden flex items-center gap-2">
             <button
               onClick={openDemo}
-              className="text-[13px] font-semibold px-4 py-2 rounded-full bg-black dark:bg-white text-white dark:text-black transition-all active:scale-95 shadow-sm"
+              className="text-[14px] font-medium px-4 py-[8px] rounded-[24px] bg-[rgb(0,0,0)] dark:bg-[rgb(255,255,255)] text-[rgb(255,255,255)] dark:text-[rgb(0,0,0)] transition-all border-none"
             >
               Demo anfragen
             </button>
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="group flex items-center justify-center w-10 h-10 rounded-[18px] bg-white dark:bg-[#1A1A1A] text-[#080808] dark:text-white shadow-sm border border-black/5 dark:border-white/10 transition-all active:scale-95"
+              className="flex items-center justify-center w-[36px] h-[36px] rounded-[20px] bg-[rgb(255,255,255)] dark:bg-white/10 text-[rgb(26,26,26)] dark:text-white shadow-sm border border-black/5 dark:border-none transition-all"
               aria-label={mobileOpen ? "Menü schließen" : "Menü öffnen"}
             >
               {mobileOpen ? <X size={20} className="transition-transform duration-300 rotate-90" /> : <MenuIcon size={20} />}
@@ -279,15 +279,15 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Dropdown (Framer Style) */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[70] bg-white/90 dark:bg-[#080808]/90 backdrop-blur-2xl flex flex-col p-6 pt-28"
+            initial={{ opacity: 0, scale: 0.98, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: -10 }}
+            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+            className="fixed inset-x-4 top-[84px] md:hidden z-[50] rounded-[32px] bg-[rgba(245,245,247,0.95)] dark:bg-[#0A0A0A]/95 backdrop-blur-[12px] border border-[rgb(234,236,239)] dark:border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col p-6 overflow-hidden max-h-[calc(100vh-100px)] overflow-y-auto"
           >
             <div className="flex flex-col gap-0">
               {menus.map((menu) => (
@@ -316,7 +316,7 @@ export default function Navbar() {
                                 key={idx}
                                 href={item.href}
                                 onClick={() => setMobileOpen(false)}
-                                className="text-[15px] font-medium text-gray-500 dark:text-gray-400 pl-4 border-l border-black/[0.05] dark:border-white/[0.05]"
+                                className="text-[15px] font-medium text-gray-500 dark:text-gray-400 pl-4 border-l border-black/[0.1] dark:border-white/[0.1]"
                               >
                                 {item.title}
                               </Link>
@@ -338,17 +338,17 @@ export default function Navbar() {
               ))}
             </div>
 
-            <div className="mt-auto flex flex-col gap-3 pb-8">
+            <div className="mt-8 flex flex-col gap-3 pb-4">
               <Link
                 href="/anmelden"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center w-full py-4 rounded-xl text-[16px] font-bold bg-black/[0.05] dark:bg-white/[0.05] text-[#080808] dark:text-white"
+                className="flex items-center justify-center w-full py-4 rounded-xl text-[16px] font-bold bg-white dark:bg-white/[0.05] shadow-sm border border-black/[0.05] dark:border-transparent text-[#080808] dark:text-white"
               >
                 Anmelden
               </Link>
               <button
                 onClick={() => { setMobileOpen(false); openDemo(); }}
-                className="flex items-center justify-center w-full py-4 rounded-xl text-[16px] font-bold bg-[#080808] dark:bg-white text-white dark:text-black shadow-xl mt-3"
+                className="flex items-center justify-center w-full py-4 rounded-xl text-[16px] font-bold bg-[#080808] dark:bg-white text-white dark:text-black shadow-xl mt-2"
               >
                 Demo anfragen
               </button>
