@@ -44,7 +44,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-5 sm:px-8 text-center relative z-10">
           <ScrollReveal direction="up" delay={0.1}>
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-[#8A8A8A] font-bold text-[11px] uppercase tracking-widest mb-8">
-               <Sparkles size={12} /> Talo ist jetzt live
+               <Sparkles size={12} /> TALO ist jetzt live
             </div>
           </ScrollReveal>
           
@@ -98,6 +98,73 @@ export default function Home() {
              </div>
           </div>
         </div>
+      </section>
+
+      {/* ─── DASHBOARD PREVIEW ───────────────────────────────────── */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+           <ScrollReveal direction="up">
+              <span className="text-[10px] font-black tracking-[0.3em] text-gray-500 uppercase mb-4 inline-block italic">Die Zentrale eures Vereins</span>
+              <h2 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-gray-950 to-gray-600 dark:from-white dark:to-gray-500 leading-[1.1] mb-16">
+                 Alles unter Kontrolle.<br /><span>In Echtzeit.</span>
+              </h2>
+           </ScrollReveal>
+
+           <ScrollReveal direction="up" delay={0.2}>
+              <div className="relative group perspective-2000">
+                 <div className="absolute inset-0 bg-blue-500/10 blur-[120px] rounded-full scale-75 opacity-0 group-hover:opacity-40 transition-all duration-1000" />
+                 <div className="relative rounded-[40px] overflow-hidden border border-gray-100 dark:border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.1)] dark:shadow-[0_40px_100px_rgba(0,0,0,0.6)] transform-gpu transition-all duration-700 hover:rotate-x-1">
+                    <img 
+                      src="/dashboard-mockup.png" 
+                      alt="TALO Dashboard Preview" 
+                      className="w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/10 dark:from-black/10 to-transparent pointer-events-none" />
+                 </div>
+              </div>
+           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ─── WHY TALO (VALUES) ───────────────────────────────────── */}
+      <section className="py-32 lg:py-48 bg-gray-50/50 dark:bg-white/[0.01] border-y border-gray-100 dark:border-white/5">
+         <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
+               <ScrollReveal direction="up" delay={0.1}>
+                  <div className="space-y-6">
+                     <div className="w-12 h-12 rounded-2xl bg-gray-950 dark:bg-white flex items-center justify-center text-white dark:text-black">
+                        <Lock size={20} />
+                     </div>
+                     <h3 className="text-2xl font-bold text-gray-950 dark:text-white font-logo tracking-tight">Sicherheit an<br />erster Stelle.</h3>
+                     <p className="text-[#8A8A8A] font-medium leading-relaxed">
+                        DSGVO-konforme Datenspeicherung auf deutschen Servern. Verschlüsselt, sicher und jederzeit exportierbar.
+                     </p>
+                  </div>
+               </ScrollReveal>
+               <ScrollReveal direction="up" delay={0.2}>
+                  <div className="space-y-6">
+                     <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-900 dark:text-white">
+                        <Globe size={20} />
+                     </div>
+                     <h3 className="text-2xl font-bold text-gray-950 dark:text-white font-logo tracking-tight">Transparenz für<br />alle Mitglieder.</h3>
+                     <p className="text-[#8A8A8A] font-medium leading-relaxed">
+                        Jeder sieht seine Fortschritte in Echtzeit. Keine Diskussionen mehr über Punkte – absolute Fairfield im Verein.
+                     </p>
+                  </div>
+               </ScrollReveal>
+               <ScrollReveal direction="up" delay={0.3}>
+                  <div className="space-y-6">
+                     <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-900 dark:text-white">
+                        <Cpu size={20} />
+                     </div>
+                     <h3 className="text-2xl font-bold text-gray-950 dark:text-white font-logo tracking-tight">KI-gestützte<br />Infrastruktur.</h3>
+                     <p className="text-[#8A8A8A] font-medium leading-relaxed">
+                        TALO lernt mit. Automatisierte Dokumentenscans und Predictive Analytics für eure Vereinsentwicklung.
+                     </p>
+                  </div>
+               </ScrollReveal>
+            </div>
+         </div>
       </section>
 
       {/* ─── FEATURES: THE CORE SYSTEM ────────────────────────────── */}
@@ -224,6 +291,29 @@ export default function Home() {
           </div>
 
         </div>
+      </section>
+
+      {/* ─── FINAL CTA ─────────────────────────────────────────── */}
+      <section className="py-32 lg:py-64 relative overflow-hidden">
+         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-blue-500/5 blur-[160px] pointer-events-none" />
+         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <ScrollReveal direction="up">
+               <h2 className="text-4xl md:text-7xl font-medium tracking-tighter leading-[1] text-gray-950 dark:text-white mb-10">
+                  Bereit für die Zukunft?<br /><span>Euer Verein. Unsere Tech.</span>
+               </h2>
+               <p className="text-xl text-gray-500 dark:text-[#8A8A8A] mb-14 font-medium max-w-2xl mx-auto">
+                  Schließt euch über 150 Vereinen an, die ihren administrativen Aufwand um über 90% reduziert haben.
+               </p>
+               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                  <Link href="/anmelden" className="w-full sm:w-auto px-12 py-6 rounded-full font-bold bg-black text-white dark:bg-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-black/20">
+                     Jetzt Account erstellen
+                  </Link>
+                  <Link href="mailto:hallo@talo.app" className="font-bold text-gray-500 hover:text-gray-950 dark:text-gray-400 dark:hover:text-white flex items-center gap-2 group">
+                     Fragen? Schreibt uns <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  </Link>
+               </div>
+            </ScrollReveal>
+         </div>
       </section>
 
       {/* ─── NEWS / INSIGHTS SECTION ─────────────────────────────── */}
