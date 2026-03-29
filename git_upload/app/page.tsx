@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Navbar from "./components/Navbar";
-import PhoneDemo from "./components/PhoneDemo";
 import FeatureCard from "./components/FeatureCard";
 import StepCard from "./components/StepCard";
 import Footer from "./components/Footer";
@@ -84,12 +83,16 @@ export default function Home() {
 
           {/* Feature 1: Modernisierung */}
           <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-32">
-             <div className="flex-1 order-2 lg:order-1">
+             <div className="flex-1 order-2 lg:order-1 self-stretch">
                 <ScrollReveal direction="left">
-                   <div className="bg-[#f0f9f1] dark:bg-[#0c0c0c] rounded-[48px] p-8 md:p-20 border border-gray-100 dark:border-white/5 flex justify-center relative group">
+                   <div className="bg-[#f0f9f1] dark:bg-[#0c0c0c] rounded-[48px] p-6 md:p-12 border border-gray-100 dark:border-white/5 flex justify-center relative group min-h-[500px] h-full items-center">
                       <div className="absolute inset-0 bg-gradient-to-br from-[#34C759]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="scale-90 md:scale-110 lg:scale-125 origin-center">
-                         <PhoneDemo initialScreen="entry" />
+                      <div className="w-full max-w-[280px] aspect-[9/19.5] bg-white dark:bg-[#121212] rounded-[32px] border-[6px] border-gray-950 dark:border-white/10 shadow-2xl flex flex-col items-center justify-center p-6 text-center">
+                         <div className="w-12 h-12 rounded-full bg-[#34C759]/10 flex items-center justify-center text-[#34C759] mb-4">
+                            <Sparkles size={24} />
+                         </div>
+                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">SCREENSHOT</p>
+                         <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">Hier erscheint bald die neue Punktevergabe</p>
                       </div>
                    </div>
                 </ScrollReveal>
@@ -147,12 +150,16 @@ export default function Home() {
                    </Link>
                 </ScrollReveal>
              </div>
-             <div className="flex-1">
+             <div className="flex-1 self-stretch">
                 <ScrollReveal direction="right" delay={0.2}>
-                   <div className="bg-[#f0f4f9] dark:bg-[#0c0c0c] rounded-[48px] p-8 md:p-20 border border-gray-100 dark:border-white/5 flex justify-center scale-x-[-1] relative group">
+                   <div className="bg-[#f0f4f9] dark:bg-[#0c0c0c] rounded-[48px] p-6 md:p-12 border border-gray-100 dark:border-white/5 flex justify-center relative group min-h-[500px] h-full items-center">
                       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                       <div className="scale-90 md:scale-110 lg:scale-125 origin-center scale-x-[-1]">
-                         <PhoneDemo initialScreen="approval" />
+                      <div className="w-full max-w-[280px] aspect-[9/19.5] bg-white dark:bg-[#121212] rounded-[32px] border-[6px] border-gray-950 dark:border-white/10 shadow-2xl flex flex-col items-center justify-center p-6 text-center">
+                         <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4">
+                            <ShieldCheck size={24} />
+                         </div>
+                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">SCREENSHOT</p>
+                         <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">Workflows im Überblick</p>
                       </div>
                    </div>
                 </ScrollReveal>
@@ -161,12 +168,16 @@ export default function Home() {
 
           {/* Feature 3: Abrechnung */}
           <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-32">
-             <div className="flex-1 order-2 lg:order-1">
+             <div className="flex-1 order-2 lg:order-1 self-stretch">
                 <ScrollReveal direction="left">
-                   <div className="bg-[#f2f1f5] dark:bg-[#0c0c0c] rounded-[48px] p-8 md:p-20 border border-gray-100 dark:border-white/5 flex justify-center relative group">
+                   <div className="bg-[#f2f1f5] dark:bg-[#0c0c0c] rounded-[48px] p-6 md:p-12 border border-gray-100 dark:border-white/5 flex justify-center relative group min-h-[500px] h-full items-center">
                       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                       <div className="scale-90 md:scale-110 lg:scale-125 origin-center">
-                         <PhoneDemo initialScreen="members" />
+                      <div className="w-full max-w-[280px] aspect-[9/19.5] bg-white dark:bg-[#121212] rounded-[32px] border-[6px] border-gray-950 dark:border-white/10 shadow-2xl flex flex-col items-center justify-center p-6 text-center">
+                         <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 mb-4">
+                            <BarChart3 size={24} />
+                         </div>
+                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">SCREENSHOT</p>
+                         <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">Präzise Mitgliederübersicht</p>
                       </div>
                    </div>
                 </ScrollReveal>

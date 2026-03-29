@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "next-themes";
-import { Moon, Sun, ChevronDown, ArrowRight, Menu as MenuIcon, X } from "lucide-react";
+import { ChevronDown, ArrowRight, Menu as MenuIcon, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppStore } from "@/lib/store/useAppStore";
 
@@ -39,7 +38,6 @@ export default function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { theme, setTheme } = useTheme();
   const user = useAppStore((state) => state.user);
   const isLoading = useAppStore((state) => state.isLoadingAuthedState);
 
@@ -251,15 +249,6 @@ export default function Navbar() {
 
           {/* Right side: Desktop CTAs + Mobile Burger */}
           <div className="flex items-center gap-3">
-            {/* Theme toggle – always visible */}
-            <button
-              onClick={() => mounted && setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-gray-400"
-              aria-label="Toggle Theme"
-            >
-              {mounted && theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-
             {/* Desktop CTAs */}
             <div className="hidden lg:flex items-center gap-3">
               {!isLoading && user ? (
