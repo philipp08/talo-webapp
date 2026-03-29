@@ -1,5 +1,4 @@
-"use client";
-
+import React from "react";
 import { motion } from "framer-motion";
 
 type Direction = "up" | "down" | "left" | "right" | "none";
@@ -14,6 +13,7 @@ interface ScrollRevealProps {
   className?: string;
   scale?: number;
   blur?: boolean;
+  key?: string | number; // Added to fix list mapping lints
 }
 
 const directionOffset = (direction: Direction, distance: number) => {
@@ -105,6 +105,7 @@ export function StaggerItem({
   className?: string;
   direction?: Direction;
   distance?: number;
+  key?: string | number; // Added to fix list mapping lints
 }) {
   const offsets = directionOffset(direction, distance);
 

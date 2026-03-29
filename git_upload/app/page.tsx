@@ -104,7 +104,7 @@ export default function Home() {
                       <Zap size={28} />
                    </div>
                    <h2 className="text-[2.5rem] md:text-[4rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[1.1] mb-8">
-                      Punktevergabe &<br /><span>Modernisierung</span>
+                      Punktevergabe &<br /><span>Modernisierung.</span>
                    </h2>
                    <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-10">
                       Eliminiert Excel-Tabellen und Zettelwirtschaft. Vergebt hunderte von Punkten parallel – für Training, Events & Engagement. Talo übernimmt die Arbeit, ihr habt die volle Übersicht.
@@ -249,32 +249,38 @@ export default function Home() {
       {/* ─── CTA BANNER (FLOATING) ───────────────────────────────── */}
       {showBanner && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-auto max-w-[90vw]">
-          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5">
+          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5 pl-4 pr-3 py-2.5">
             <Link 
                href="#demo"
-               className="flex items-center gap-3 pl-4 pr-12 py-2.5 transition-all outline-none"
+               className="flex items-center gap-3 transition-all outline-none"
             >
                 <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white relative shadow-lg shrink-0">
                    <Sparkles size={14} />
                    <div className="absolute inset-0 bg-white/20 rounded-full blur-[4px] animate-pulse" />
                 </span>
-                <span className="text-[13px] font-semibold tracking-tight whitespace-nowrap flex items-center gap-2">
+                <span className="text-[13px] font-semibold tracking-tight whitespace-nowrap flex items-center gap-2 mr-2">
                    Talo ist jetzt live: <span className="opacity-60 font-medium italic">Fordern Sie eine Demo an</span>
-                   <span className="transition-all duration-300 group-hover:-translate-x-7 ml-1" aria-hidden="true">
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                </span>
+                
+                {/* Tail Icons Container */}
+                <div className="flex items-center">
+                   {/* Arrow */}
+                   <span className="transition-all duration-300 group-hover:mr-8" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
                       </svg>
                    </span>
-                </span>
+                </div>
             </Link>
+
             <button 
               type="button"
               onClick={() => setShowBanner(false)}
               aria-label="Schließen"
-              className="absolute right-3 w-8 h-8 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 text-white/40 dark:text-black/40 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/5 transition-all duration-300"
+              className="absolute right-3 w-8 h-8 flex items-center justify-center rounded-lg opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 text-white/40 dark:text-black/40 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/5 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto"
             >
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"></path>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></path>
               </svg>
             </button>
           </div>
