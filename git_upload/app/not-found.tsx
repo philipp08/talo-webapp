@@ -14,14 +14,9 @@ export default function NotFound() {
         
         {/* Large Aesthetic 404 Display */}
         <div className="relative mb-8 flex items-center justify-center">
-          <h1 className="text-[12rem] md:text-[20rem] font-logo font-medium tracking-tighter text-gray-100/80 leading-none select-none">
+          <h1 className="text-[12rem] md:text-[22rem] font-logo font-medium tracking-tighter text-gray-100/80 leading-none select-none">
              404
           </h1>
-          <div className="absolute inset-0 flex items-center justify-center">
-             <div className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-[32px] md:rounded-[40px] shadow-[0_30px_60px_rgba(0,0,0,0.08)] flex items-center justify-center border border-gray-100 transform -rotate-6 hover:rotate-0 transition-transform duration-700">
-                <Compass size={48} className="text-gray-900 md:size-64" />
-             </div>
-          </div>
         </div>
 
         {/* Text Content */}
