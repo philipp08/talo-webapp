@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning className={`${poppins.variable} ${montserrat.variable}`}>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light">
           <AuthProvider>
             {children}
             <CookieBanner />
