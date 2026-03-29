@@ -149,7 +149,7 @@ export default function Navbar() {
             : "bg-transparent"
         }`}
       >
-        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 py-4 sm:py-5 flex items-center justify-between">
+        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 py-4 sm:py-5 flex items-center justify-between relative">
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
@@ -166,7 +166,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center">
+          <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center">
             <div className="flex items-center gap-1 border border-gray-200 dark:border-white/10 rounded-full px-1.5 py-1">
               {menus.map((menu) => (
                 <div
