@@ -205,43 +205,46 @@ export default function Home() {
       </section>
 
       {/* ─── NEWS / INSIGHTS SECTION ─────────────────────────────── */}
-      <section className="py-24 sm:py-48 bg-gray-50 dark:bg-[#0c0c0c] border-y border-gray-100 dark:border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-24 sm:py-32 px-6 bg-white dark:bg-[#080808]">
+        <div className="max-w-7xl mx-auto">
           <ScrollReveal direction="up">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20 sm:mb-24">
-              <div className="max-w-xl">
-                <span className="text-[11px] font-black tracking-[0.2em] text-[#8A8A8A] uppercase mb-4 block">NEWS & INSIGHTS</span>
-                <h2 className="text-[2.5rem] md:text-[4rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[1.05] mb-6">
-                   Neues aus der <span>Talo Schmiede</span>
-                </h2>
-                <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium font-logo">
-                   Wie Talo das Ehrenamt modernisiert und was als nächstes kommt.
-                </p>
-              </div>
-              <Link href="/blog" className="flex items-center gap-3 text-[14px] font-bold text-gray-950 dark:text-white group border-b-2 border-gray-950 dark:border-white pb-1 font-logo">
-                 Unsere Story <ArrowRight className="group-hover:translate-x-2 transition-all" />
-              </Link>
-            </div>
+            <h2 className="text-xl md:text-2xl text-center font-medium text-gray-900 dark:text-white mb-10 md:mb-16">
+              Recent highlights from our <Link href="/blog" className="text-[#34C759] hover:opacity-80 transition-opacity">blog</Link>
+            </h2>
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.slice(0, 3).map((post, i) => (
-              <ScrollReveal key={i} direction="up" delay={i * 0.15}>
-                <Link href={`/blog/${post.slug}`} className="group flex flex-col h-full bg-white dark:bg-[#121212] rounded-[40px] p-10 border border-gray-100 dark:border-white/5 hover:scale-[1.02] transition-all hover:shadow-2xl">
-                   <div className="flex items-center justify-between mb-8">
-                      <div className="px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-widest bg-gray-500">
-                         {post.category}
-                      </div>
-                      <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{post.date}</span>
-                   </div>
-                   <h1 className="text-2xl font-bold font-logo text-gray-950 dark:text-white mb-4 leading-tight transition-colors">{post.title}</h1>
-                   <p className="text-gray-500 dark:text-[#8A8A8A] leading-relaxed mb-10 flex-1 line-clamp-3">{post.excerpt}</p>
-                   <div className="flex items-center gap-2 text-xs font-black text-gray-400 dark:hover:text-white transition-colors uppercase tracking-widest font-logo">
-                      Vollständiger Artikel <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                   </div>
-                </Link>
-              </ScrollReveal>
-            ))}
+          <div className="flex flex-col gap-3 md:gap-4 max-w-[51rem] mx-auto">
+             {blogPosts.slice(0, 3).map((post, i) => (
+               <ScrollReveal key={i} direction="up" delay={i * 0.1}>
+                  <Link 
+                    href={`/blog/${post.slug}`}
+                    className="flex flex-col group rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-white/[0.01] p-6 md:p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-none dark:hover:bg-white/[0.03]"
+                  >
+                     <h3 className="text-xl md:text-2xl font-bold font-logo text-gray-950 dark:text-white leading-[1.15] group-hover:underline">
+                       {post.title}
+                     </h3>
+                     <p className="text-gray-500 dark:text-[#8A8A8A] mt-3 line-clamp-2 font-medium">
+                       {post.excerpt}
+                     </p>
+                     
+                     <div className="flex items-center justify-between gap-x-3 mt-8">
+                        <div className="flex items-center gap-x-3 min-w-0">
+                           <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold text-gray-500">
+                              {post.author.charAt(0)}
+                           </div>
+                           <span className="text-[12px] font-bold text-gray-900 dark:text-gray-300 truncate">{post.author}</span>
+                           <span className="text-[12px] text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                           <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 whitespace-nowrap">{post.date}</span>
+                        </div>
+                        <div className="flex-shrink-0">
+                           <span className="text-[10px] font-black uppercase tracking-widest bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 px-3 py-1.5 rounded-lg border border-gray-200/50 dark:border-white/5">
+                              {post.category}
+                           </span>
+                        </div>
+                     </div>
+                  </Link>
+               </ScrollReveal>
+             ))}
           </div>
         </div>
       </section>
