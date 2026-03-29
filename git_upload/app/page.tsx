@@ -421,9 +421,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           }`}
         >
           <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5 p-2 pr-6">
-            <Link 
+            <Link
                href={`/blog/${blogPosts[0].slug}`}
-               className="flex items-center gap-3 transition-all outline-none"
+               className="flex items-center gap-3 transition-all outline-none min-w-0 overflow-hidden"
             >
                 <div className="p-1 rounded-xl shrink-0">
                   <img 
@@ -433,7 +433,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                   />
                 </div>
                 
-                <span className="text-[14px] font-bold tracking-tight whitespace-nowrap flex items-center gap-2">
+                <span className="text-[14px] font-bold tracking-tight whitespace-nowrap overflow-hidden text-ellipsis min-w-0 flex items-center gap-2">
                    {blogPosts[0].title}
                 </span>
                 

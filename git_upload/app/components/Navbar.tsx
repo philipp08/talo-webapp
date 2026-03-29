@@ -126,14 +126,13 @@ export default function Navbar() {
             : "py-6 px-4 lg:px-10"
         }`}
       >
+        {/* DESKTOP NAVBAR */}
         <nav
-          className={`container mx-auto max-w-[1300px] flex items-center justify-between transition-all duration-500 transform-gpu border ${
-            scrolled || mobileOpen
+          className={`hidden md:flex container mx-auto max-w-[1300px] items-center justify-between transition-all duration-500 transform-gpu border ${
+            scrolled
               ? "bg-[rgba(245,245,247,0.8)] dark:bg-[#0A0A0A]/80 backdrop-blur-[8px] border-[rgb(234,236,239)] dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.04)]"
               : "bg-transparent border-transparent"
-          } ${
-            mobileOpen ? "rounded-[32px] md:rounded-[20px]" : "rounded-[100px] md:rounded-[20px]"
-          } px-4 md:px-6 py-2 md:py-3`}
+          } rounded-[24px] px-6 py-3`}
         >
           <Link href="/" className="flex items-center gap-3 transition-transform hover:scale-[1.02] active:scale-[0.98]">
             <div className="relative w-8 h-8 flex items-center justify-center">
@@ -151,7 +150,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav Items */}
-          <div className="hidden md:flex items-center ml-8">
+          <div className="flex items-center ml-8">
             <ul className="flex items-center gap-0.5">
               {menus.map((menu) => (
                 <li
@@ -233,8 +232,7 @@ export default function Navbar() {
             </ul>
           </div>
 
-          {/* Right Actions */}
-          <div className="hidden md:flex items-center gap-8 ml-auto">
+          <div className="flex items-center gap-8 ml-auto">
             {!isLoading && user ? (
               <Link
                 href="/dashboard"
@@ -259,102 +257,310 @@ export default function Navbar() {
               </>
             )}
           </div>
-
-          {/* Mobile Navigation Trigger (GivingJoy Style) */}
-          <div className="md:hidden flex items-center gap-2">
-            <button
-              onClick={openDemo}
-              className="text-[14px] font-medium px-4 py-[8px] rounded-[24px] bg-[rgb(0,0,0)] dark:bg-[rgb(255,255,255)] text-[rgb(255,255,255)] dark:text-[rgb(0,0,0)] transition-all border-none"
-            >
-              Demo anfragen
-            </button>
-            <button
-              onClick={() => setMobileOpen((v) => !v)}
-              className="flex items-center justify-center w-[36px] h-[36px] rounded-[20px] bg-[rgb(255,255,255)] dark:bg-white/10 text-[rgb(26,26,26)] dark:text-white shadow-sm border border-black/5 dark:border-none transition-all"
-              aria-label={mobileOpen ? "Menü schließen" : "Menü öffnen"}
-            >
-              {mobileOpen ? <X size={20} className="transition-transform duration-300 rotate-90" /> : <MenuIcon size={20} />}
-            </button>
-          </div>
         </nav>
+
+        {/* MOBILE NAVBAR (Joy_ Style – Pill morphs to expanded panel) */}
+        <motion.nav
+          initial={false}
+          animate={{
+            backgroundColor: (scrolled || mobileOpen)
+              ? "rgba(245,245,247,0.95)"
+              : "transparent",
+            borderColor: (scrolled || mobileOpen)
+              ? "rgb(234,236,239)"
+              : "transparent",
+            borderRadius: mobileOpen ? "32px" : "100px",
+            boxShadow: (scrolled || mobileOpen)
+              ? "0 12px 40px rgba(0,0,0,0.08)"
+              : "0 0 0 rgba(0,0,0,0)",
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 28,
+            mass: 0.9,
+          }}
+          className={`md:hidden flex flex-col mx-auto w-full max-w-full overflow-hidden border ${
+            (scrolled || mobileOpen) ? "backdrop-blur-[12px]" : ""
+          } dark:bg-[#0A0A0A]/95 dark:border-white/[0.08]`}
+        >
+          {/* Top Bar (Always Visible) */}
+          <div className="flex items-center justify-between px-4 py-3 relative z-10 w-full">
+            <Link href="/" className="flex items-center gap-3 pl-2 transition-transform hover:scale-[1.02] active:scale-[0.98]" onClick={() => setMobileOpen(false)}>
+              <div className="relative w-7 h-7 flex items-center justify-center">
+                <Image
+                  src="/talo-logo.png"
+                  alt="TALO logo"
+                  width={28}
+                  height={28}
+                  className="invert dark:invert-0 object-contain transition-all"
+                />
+              </div>
+              <span className="font-logo font-medium text-[19px] tracking-[0.2em] text-[#080808] dark:text-white uppercase leading-none">
+                TALO
+              </span>
+            </Link>
+
+            <div className="flex items-center gap-2">
+              {/* CTA pill – hides when menu is open, like Joy_ */}
+              <AnimatePresence mode="popLayout">
+                {!mobileOpen && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, scale: 0.8, filter: "blur(4px)" }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    onClick={openDemo}
+                    className="text-[13px] font-medium px-4 py-[8px] rounded-[24px] bg-[#000000] dark:bg-white text-white dark:text-black transition-all border-none whitespace-nowrap"
+                  >
+                    Demo anfragen
+                  </motion.button>
+                )}
+              </AnimatePresence>
+
+              {/* Hamburger / Close – white circle button like Joy_ */}
+              <motion.button
+                onClick={() => setMobileOpen((v) => !v)}
+                className="relative flex items-center justify-center w-[40px] h-[40px] rounded-[20px] bg-white dark:bg-white/10 text-[#1a1a1a] dark:text-white shadow-sm flex-shrink-0"
+                aria-label={mobileOpen ? "Menü schließen" : "Menü öffnen"}
+                whileTap={{ scale: 0.9 }}
+              >
+                <motion.div
+                  animate={{ rotate: mobileOpen ? 180 : 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    {mobileOpen ? (
+                      <motion.div
+                        key="close"
+                        initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
+                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                        exit={{ opacity: 0, scale: 0.5, rotate: 90 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <X size={20} strokeWidth={2} />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="menu"
+                        initial={{ opacity: 0, scale: 0.5, rotate: 90 }}
+                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                        exit={{ opacity: 0, scale: 0.5, rotate: -90 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <MenuIcon size={20} strokeWidth={2} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Expanded Menu Content – Joy_ style with staggered links */}
+          <AnimatePresence>
+            {mobileOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{
+                  height: { type: "spring", stiffness: 260, damping: 28, mass: 0.9 },
+                  opacity: { duration: 0.25 },
+                }}
+                className="overflow-hidden w-full"
+              >
+                <div className="flex flex-col px-6 pb-8 pt-2 w-full">
+                  {/* Divider line */}
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                    className="h-px bg-black/[0.08] dark:bg-white/[0.08] w-full origin-left mb-6"
+                  />
+
+                  {/* Main navigation links – large, staggered fade-in like Joy_ */}
+                  <div className="flex flex-col gap-1 w-full">
+                    {menus.map((menu, index) => (
+                      <motion.div
+                        key={menu.label}
+                        initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        transition={{
+                          delay: 0.08 + index * 0.06,
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 25,
+                        }}
+                        className="w-full"
+                      >
+                        {menu.items ? (
+                          <>
+                            <button
+                              onClick={() => toggleMobileExpanded(menu.label)}
+                              className="w-full flex items-center justify-between py-4 text-left group"
+                            >
+                              <span className="text-[28px] font-semibold text-[#1a1a1a] dark:text-white leading-tight tracking-[-0.02em]">
+                                {menu.label}
+                              </span>
+                              <motion.div
+                                animate={{ rotate: mobileExpanded === menu.label ? 45 : 0 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                className="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center flex-shrink-0"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-[#1a1a1a] dark:text-white">
+                                  <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                                </svg>
+                              </motion.div>
+                            </button>
+                            <AnimatePresence>
+                              {mobileExpanded === menu.label && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{
+                                    height: { type: "spring", stiffness: 300, damping: 28 },
+                                    opacity: { duration: 0.2 },
+                                  }}
+                                  className="overflow-hidden w-full"
+                                >
+                                  <div className="flex flex-col gap-3 pb-4 pl-1">
+                                    {menu.items.map((item, idx) => (
+                                      <motion.div
+                                        key={idx}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: idx * 0.04, duration: 0.25 }}
+                                      >
+                                        <Link
+                                          href={item.href}
+                                          onClick={() => setMobileOpen(false)}
+                                          className="block py-1.5 text-[16px] font-medium text-[#8a9199] dark:text-gray-400 hover:text-[#1a1a1a] dark:hover:text-white transition-colors"
+                                        >
+                                          {item.title}
+                                        </Link>
+                                      </motion.div>
+                                    ))}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </>
+                        ) : (
+                          <Link
+                            href={menu.href}
+                            onClick={() => setMobileOpen(false)}
+                            className="block py-4 text-[28px] font-semibold text-[#1a1a1a] dark:text-white leading-tight tracking-[-0.02em] hover:opacity-60 transition-opacity"
+                          >
+                            {menu.label}
+                          </Link>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Bottom section – CTAs + Social like Joy_ */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35, type: "spring", stiffness: 260, damping: 25 }}
+                    className="mt-8 flex flex-col gap-3 w-full"
+                  >
+                    {/* CTA Buttons – Ghost + Dark like Joy_ */}
+                    <div className="flex items-center gap-3 w-full">
+                      <Link
+                        href="/anmelden"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex-1 flex items-center justify-center py-[14px] rounded-[24px] text-[15px] font-medium border border-[#b6bcc2] dark:border-white/20 text-[#1a1a1a] dark:text-white active:scale-[0.97] transition-all"
+                      >
+                        Anmelden
+                      </Link>
+                      <button
+                        onClick={() => { setMobileOpen(false); openDemo(); }}
+                        className="flex-1 flex items-center justify-center py-[14px] rounded-[24px] text-[15px] font-medium bg-[#000000] dark:bg-white text-white dark:text-black active:scale-[0.97] transition-all"
+                      >
+                        Demo anfragen
+                      </button>
+                    </div>
+
+                    {/* Social icons row like Joy_ */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.45, duration: 0.3 }}
+                      className="flex items-center justify-center gap-5 pt-6"
+                    >
+                      {[
+                        {
+                          label: "LinkedIn",
+                          href: "https://linkedin.com",
+                          icon: (
+                            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M16.375 2.5H3.625A1.125 1.125 0 0 0 2.5 3.625v12.75A1.125 1.125 0 0 0 3.625 17.5h12.75a1.125 1.125 0 0 0 1.125-1.125V3.625A1.125 1.125 0 0 0 16.375 2.5ZM7 15.25H4.75V8.5H7v6.75ZM5.875 7.187a1.313 1.313 0 1 1 1.35-1.312 1.335 1.335 0 0 1-1.35 1.313Zm9.375 8.063H13v-3.555c0-1.065-.45-1.447-1.035-1.447a1.304 1.304 0 0 0-1.215 1.395.498.498 0 0 0 0 .104v3.503H8.5V8.5h2.175v.975a2.332 2.332 0 0 1 2.025-1.05c1.163 0 2.52.645 2.52 2.745l.03 4.08Z" />
+                            </svg>
+                          ),
+                        },
+                        {
+                          label: "GitHub",
+                          href: "https://github.com",
+                          icon: (
+                            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M10.001 1.625a8.331 8.331 0 0 1 8.334 8.334 8.346 8.346 0 0 1-5.677 7.906c-.417.083-.573-.177-.573-.396 0-.281.01-1.177.01-2.291 0-.782-.26-1.282-.562-1.542 1.854-.208 3.802-.917 3.802-4.115 0-.916-.323-1.656-.855-2.24.084-.208.375-1.062-.083-2.208 0 0-.698-.229-2.292.855a7.733 7.733 0 0 0-2.083-.282c-.708 0-1.417.094-2.083.282-1.594-1.073-2.292-.855-2.292-.855-.458 1.146-.167 2-.083 2.209a3.243 3.243 0 0 0-.854 2.24c0 3.187 1.937 3.906 3.791 4.114-.24.208-.458.573-.53 1.115-.48.218-1.678.572-2.428-.688-.156-.25-.625-.865-1.281-.854-.698.01-.282.396.01.552.354.198.76.937.854 1.177.167.469.709 1.365 2.802.98 0 .697.01 1.353.01 1.551 0 .219-.155.469-.572.396A8.329 8.329 0 0 1 1.668 9.96a8.331 8.331 0 0 1 8.333-8.334Z" />
+                            </svg>
+                          ),
+                        },
+                        {
+                          label: "YouTube",
+                          href: "https://youtube.com",
+                          icon: (
+                            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M16.837 3.34c.753.233 1.345.918 1.547 1.789.364 1.577.366 4.87.366 4.87s0 3.294-.366 4.872c-.202.871-.794 1.556-1.547 1.789-1.364.423-6.837.423-6.837.423s-5.473 0-6.837-.423c-.753-.233-1.345-.918-1.547-1.79C1.25 13.294 1.25 10 1.25 10s0-3.294.366-4.871c.202-.871.794-1.556 1.547-1.79C4.527 2.918 10 2.918 10 2.918s5.473 0 6.837.423ZM12.927 10l-4.762 2.75v-5.5L12.928 10Z" />
+                            </svg>
+                          ),
+                        },
+                        {
+                          label: "X",
+                          href: "https://x.com",
+                          icon: (
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M14.503 2.917h2.401l-5.246 6 6.172 8.166h-4.833l-3.785-4.952-4.332 4.952H2.477l5.612-6.418-5.921-7.748h4.956l3.421 4.526 3.958-4.526Zm-.843 12.728h1.33L6.4 4.279H4.974l8.687 11.366Z" />
+                            </svg>
+                          ),
+                        },
+                      ].map((social) => (
+                        <a
+                          key={social.label}
+                          href={social.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={social.label}
+                          className="text-[#8a9199] dark:text-gray-500 hover:text-[#1a1a1a] dark:hover:text-white transition-colors p-1"
+                        >
+                          {social.icon}
+                        </a>
+                      ))}
+                    </motion.div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.nav>
       </header>
 
-      {/* Mobile Menu Dropdown (Framer Style) */}
+      {/* Dimmed Overlay Background for Mobile */}
       <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: -10 }}
-            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-            className="fixed inset-x-4 top-[84px] md:hidden z-[50] rounded-[32px] bg-[rgba(245,245,247,0.95)] dark:bg-[#0A0A0A]/95 backdrop-blur-[12px] border border-[rgb(234,236,239)] dark:border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col p-6 overflow-hidden max-h-[calc(100vh-100px)] overflow-y-auto"
-          >
-            <div className="flex flex-col gap-0">
-              {menus.map((menu) => (
-                <div key={menu.label} className="border-b border-black/[0.05] dark:border-white/[0.05] last:border-none">
-                  {menu.items ? (
-                    <>
-                      <button
-                        onClick={() => toggleMobileExpanded(menu.label)}
-                        className="w-full flex items-center justify-between py-5 text-[18px] font-bold text-[#080808] dark:text-white"
-                      >
-                        {menu.label}
-                        <div className={`transition-transform duration-300 ${mobileExpanded === menu.label ? "rotate-180" : ""}`}>
-                          <DropdownArrow isOpen={false} />
-                        </div>
-                      </button>
-                      <AnimatePresence>
-                        {mobileExpanded === menu.label && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden flex flex-col gap-4 pb-6"
-                          >
-                            {menu.items.map((item, idx) => (
-                              <Link
-                                key={idx}
-                                href={item.href}
-                                onClick={() => setMobileOpen(false)}
-                                className="text-[15px] font-medium text-gray-500 dark:text-gray-400 pl-4 border-l border-black/[0.1] dark:border-white/[0.1]"
-                              >
-                                {item.title}
-                              </Link>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </>
-                  ) : (
-                    <Link
-                      href={menu.href}
-                      onClick={() => setMobileOpen(false)}
-                      className="block py-5 text-[18px] font-bold text-[#080808] dark:text-white"
-                    >
-                      {menu.label}
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 flex flex-col gap-3 pb-4">
-              <Link
-                href="/anmelden"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center w-full py-4 rounded-xl text-[16px] font-bold bg-white dark:bg-white/[0.05] shadow-sm border border-black/[0.05] dark:border-transparent text-[#080808] dark:text-white"
-              >
-                Anmelden
-              </Link>
-              <button
-                onClick={() => { setMobileOpen(false); openDemo(); }}
-                className="flex items-center justify-center w-full py-4 rounded-xl text-[16px] font-bold bg-[#080808] dark:bg-white text-white dark:text-black shadow-xl mt-2"
-              >
-                Demo anfragen
-              </button>
-            </div>
-          </motion.div>
-        )}
+         {mobileOpen && (
+            <motion.div
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               transition={{ duration: 0.3 }}
+               className="fixed inset-0 bg-black/10 dark:bg-black/60 z-[50] md:hidden"
+               onClick={() => setMobileOpen(false)}
+            />
+         )}
       </AnimatePresence>
     </>
   );
