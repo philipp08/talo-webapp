@@ -9,13 +9,13 @@ interface EmailParams {
 }
 
 export class EmailService {
-  private static readonly API_KEY = process.env.NEXT_PUBLIC_SENDGRID_API_KEY || "";
   private static readonly FROM_EMAIL = "philipp@pauli-one.com";
   private static readonly FROM_NAME = "Talo";
   private static readonly APP_STORE_URL = "https://apps.apple.com/app/talo/id000000000";
   private static readonly SUPPORT_EMAIL = "support@talo-app.de";
 
   static async sendWelcomeMail(params: EmailParams): Promise<void> {
+    // ... [existing logic for subject, plainText, and htmlContent remains unchanged]
     const { to, name, memberName, password, clubName, adminName } = params;
     const subject = `Willkommen bei ${clubName} – Deine Zugangsdaten`;
 
@@ -59,10 +59,9 @@ ${adminName} · ${clubName}
   }
 
   private static async sendRequest(payload: any): Promise<void> {
-    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+    const response = await fetch("/api/send-email", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${this.API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
@@ -70,7 +69,7 @@ ${adminName} · ${clubName}
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("SendGrid Error:", errorData);
+      console.error("API Error:", errorData);
       throw new Error("E-Mail konnte nicht gesendet werden.");
     }
   }
