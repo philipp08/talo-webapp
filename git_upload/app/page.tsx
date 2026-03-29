@@ -11,6 +11,7 @@ import Link from "next/link";
 import { posts as blogPosts } from "./blog/page";
 
 export default function Home() {
+  const [showBanner, setShowBanner] = useState(true);
 
   return (
     <main className="relative min-h-screen bg-white dark:bg-[#080808]">
@@ -245,67 +246,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── CTA BANNER (VERTICAL STICKY) ────────────────────────── */}
-      <div className="fixed top-8 right-8 bottom-8 w-14 z-[100] group hidden lg:block">
-        <Link 
-          href={`/blog/${blogPosts[0].slug}`}
-          className="block h-full w-full bg-white dark:bg-[#0c0c0c] rounded-[40px] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 dark:border-white/5 transition-all duration-700 hover:scale-[1.02] active:scale-95"
-        >
-          <div className="h-full w-full rounded-[32px] relative overflow-hidden flex flex-col items-center justify-center bg-gray-50 dark:bg-white/[0.02]">
-            {/* Background Image */}
-            <img 
-              src="https://i.ibb.co/v4Mm24PS/background-gradients.png" 
-              alt="Background" 
-              className="absolute inset-0 w-full h-full object-cover opacity-80 dark:opacity-40 group-hover:scale-110 transition-transform duration-1000"
-            />
-            
-            <div className="absolute inset-0 bg-white/10 dark:bg-black/20" />
+      {/* ─── CTA BANNER (FLOATING) ───────────────────────────────── */}
+      {showBanner && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-auto max-w-[90vw]">
+          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5 pl-4 pr-3 py-2.5">
+            <Link 
+               href="#demo"
+               className="flex items-center gap-3 transition-all outline-none"
+            >
+                <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white relative shadow-lg shrink-0">
+                   <Sparkles size={14} />
+                   <div className="absolute inset-0 bg-white/20 rounded-full blur-[4px] animate-pulse" />
+                </span>
+                <span className="text-[13px] font-semibold tracking-tight whitespace-nowrap flex items-center gap-2 mr-2">
+                   Talo ist jetzt live: <span className="opacity-60 font-medium italic">Fordern Sie eine Demo an</span>
+                </span>
+                
+                {/* Tail Icons Container */}
+                <div className="flex items-center">
+                   {/* Arrow */}
+                   <span className="transition-all duration-300 group-hover:mr-8" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+                      </svg>
+                   </span>
+                </div>
+            </Link>
 
-            {/* Content Container (Rotated) */}
-            <div className="relative z-10 flex flex-col items-center justify-between h-full py-10 w-full">
-              <div className="w-8 h-8 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shadow-lg mb-8 shrink-0">
-                <Sparkles size={14} className="animate-pulse" />
-              </div>
-
-              <div className="flex-1 flex items-center justify-center w-full overflow-hidden">
-                <p className="whitespace-nowrap text-[11px] font-black uppercase tracking-[0.3em] text-gray-950 dark:text-white [writing-mode:vertical-rl] rotate-180 flex items-center gap-4">
-                   <span className="opacity-40">LATEST NEWS:</span>
-                   {blogPosts[0].title}
-                </p>
-              </div>
-
-              <div className="mt-8 w-8 h-8 rounded-full border border-gray-950/10 dark:border-white/10 flex items-center justify-center text-gray-950 dark:text-white shrink-0 group-hover:bg-gray-950 group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-all">
-                <ArrowRight size={14} />
-              </div>
-            </div>
+            <button 
+              type="button"
+              onClick={() => setShowBanner(false)}
+              aria-label="Schließen"
+              className="absolute right-3 w-8 h-8 flex items-center justify-center rounded-lg opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 text-white/40 dark:text-black/40 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/5 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></path>
+              </svg>
+            </button>
           </div>
-        </Link>
-      </div>
-
-      {/* Mobile Version (Bottom Sticky) */}
-      <div className="fixed bottom-6 left-6 right-6 z-[100] lg:hidden">
-        <Link 
-          href={`/blog/${blogPosts[0].slug}`}
-          className="flex items-center gap-4 bg-white dark:bg-[#0c0c0c] rounded-[24px] p-1.5 shadow-2xl border border-gray-100 dark:border-white/5"
-        >
-          <div className="w-16 h-16 rounded-[18px] overflow-hidden shrink-0 relative">
-             <img 
-                src="https://i.ibb.co/v4Mm24PS/background-gradients.png" 
-                alt="Latest post" 
-                className="absolute inset-0 w-full h-full object-cover"
-             />
-             <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-                <Sparkles size={14} className="text-white" />
-             </div>
-          </div>
-          <div className="flex flex-col pr-4 min-w-0">
-             <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Neuigkeit</span>
-             <span className="text-xs font-bold text-gray-950 dark:text-white truncate">
-                {blogPosts[0].title}
-             </span>
-          </div>
-        </Link>
-      </div>
+        </div>
+      )}
 
       <Footer />
     </main>
