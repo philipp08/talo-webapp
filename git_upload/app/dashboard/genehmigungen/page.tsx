@@ -61,8 +61,6 @@ export default function ApprovalsPage() {
 
   return (
     <div className="relative min-h-screen">
-      <AmbientBackground />
-      
       <div className="relative z-10 p-6 flex flex-col gap-6 max-w-2xl mx-auto">
         {/* Native Header */}
         <motion.div 

@@ -52,7 +52,12 @@ export default function DashboardPage() {
     if (currentClub) {
       const unsubscribe = FirebaseManager.listenToEntries(currentClub.id, (allEntries) => {
         const userEntries = allEntries.filter((e) => e.memberId === currentMember?.id);
-        setEntries(userEntries.sort((a,b) => (b.date as any).toDate() - (a.date as any).toDate()));
+        const sorted = [...userEntries].sort((a, b) => {
+          const t1 = a.date instanceof Date ? a.date.getTime() : 0;
+          const t2 = b.date instanceof Date ? b.date.getTime() : 0;
+          return t2 - t1;
+        });
+        setEntries(sorted);
         setLoading(false);
       });
       return () => unsubscribe();

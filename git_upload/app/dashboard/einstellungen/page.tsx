@@ -104,8 +104,6 @@ export default function SettingsPage() {
 
   return (
     <div className="relative min-h-screen">
-      <AmbientBackground />
-      
       <div className="relative z-10 p-6 flex flex-col gap-8 max-w-2xl mx-auto pb-32">
         {/* Profile Hero Card */}
         <motion.div

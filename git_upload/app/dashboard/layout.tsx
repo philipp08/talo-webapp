@@ -21,7 +21,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const MobileBlocker = () => (
   <div className="fixed inset-0 z-[100] bg-[#080808] flex flex-col items-center justify-center p-8 text-center lg:hidden overflow-hidden">
-    <AmbientBackground />
     <div className="relative z-10 max-w-sm flex flex-col items-center">
       <div className="w-24 h-24 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center mb-10 shadow-2xl relative">
         <Smartphone size={48} className="text-white/20 absolute" />
@@ -91,7 +90,6 @@ export default function DashboardLayout({
 
         {/* DESKTOP SIDEBAR */}
         <aside className="hidden lg:flex w-[320px] flex-col border-r border-white/[0.03] bg-[#0c0c0c] relative overflow-hidden shrink-0">
-          <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
           
           {/* Brand Header */}
           <div className="px-10 py-12 flex items-center justify-between mb-4">

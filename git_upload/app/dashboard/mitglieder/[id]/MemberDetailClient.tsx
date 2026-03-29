@@ -74,9 +74,15 @@ export default function MemberDetailPage() {
       }
       setLoading(false);
     });
-    const unsub = FirebaseManager.listenToEntries(currentClub.id, (all) =>
-      setEntries(all.filter((e) => e.memberId === id).sort((a,b) => (b.date as any).toDate() - (a.date as any).toDate()))
-    );
+    const unsub = FirebaseManager.listenToEntries(currentClub.id, (all) => {
+      const filtered = all.filter((e) => e.memberId === id);
+      const sorted = [...filtered].sort((a, b) => {
+        const t1 = a.date instanceof Date ? a.date.getTime() : 0;
+        const t2 = b.date instanceof Date ? b.date.getTime() : 0;
+        return t2 - t1;
+      });
+      setEntries(sorted);
+    });
     return () => unsub();
   }, [currentClub, id]);
 
