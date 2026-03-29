@@ -101,28 +101,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── DASHBOARD PREVIEW ───────────────────────────────────── */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 text-center">
+      {/* ─── BRAND RESONANCE (EXPERIENCE TALO) ────────────────────── */}
+      <section className="py-32 lg:py-64 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-blue-500/[0.03] dark:bg-white/[0.03] blur-[160px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
            <ScrollReveal direction="up">
-              <span className="text-[10px] font-black tracking-[0.3em] text-gray-500 uppercase mb-4 inline-block italic">Die Zentrale eures Vereins</span>
-              <h2 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-gray-950 to-gray-600 dark:from-white dark:to-gray-500 leading-[1.1] mb-16">
-                 Alles unter Kontrolle.<br /><span>In Echtzeit.</span>
+              <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-8 inline-block italic">The TALO Experience</span>
+              <h2 className="text-[2.8rem] md:text-[6rem] lg:text-[7.5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-[0.95] mb-12">
+                 Engagement.<br /><span className="text-gray-300 dark:text-white/10 italic font-logo">Orchestriert.</span>
               </h2>
-           </ScrollReveal>
-
-           <ScrollReveal direction="up" delay={0.2}>
-              <div className="relative group perspective-2000">
-                 <div className="absolute inset-0 bg-blue-500/10 blur-[120px] rounded-full scale-75 opacity-0 group-hover:opacity-40 transition-all duration-1000" />
-                 <div className="relative rounded-[40px] overflow-hidden border border-gray-100 dark:border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.1)] dark:shadow-[0_40px_100px_rgba(0,0,0,0.6)] transform-gpu transition-all duration-700 hover:rotate-x-1">
-                    <img 
-                      src="/dashboard-mockup.png" 
-                      alt="TALO Dashboard Preview" 
-                      className="w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/10 dark:from-black/10 to-transparent pointer-events-none" />
-                 </div>
-              </div>
+              <p className="text-lg md:text-2xl text-[#8A8A8A] font-medium max-w-2xl mx-auto leading-relaxed">
+                 Die Essenz moderner Vereinsarbeit. Reduziert auf das <br className="hidden md:block" /> Wesentliche, konzipiert für maximales Wachstum.
+              </p>
            </ScrollReveal>
         </div>
       </section>
