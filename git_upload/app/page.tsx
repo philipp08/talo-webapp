@@ -13,25 +13,25 @@ import { posts as blogPosts } from "./blog/page";
 export default function Home() {
   const [showBanner, setShowBanner] = useState(true);
   const [isBannerVisible, setIsBannerVisible] = useState(true);
-  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
       if (typeof window !== "undefined") {
-        const currentScrollY = window.scrollY;
+        // Calculate distance from bottom
+        const scrollPosition = window.innerHeight + window.scrollY;
+        const bodyHeight = document.documentElement.scrollHeight;
         
-        // Hide when scrolling down, show when scrolling up
-        if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        // Hide the banner if within 250px of the absolute bottom (footer area)
+        if (bodyHeight - scrollPosition < 250) {
           setIsBannerVisible(false);
-        } else if (currentScrollY < lastScrollY.current || currentScrollY <= 100) {
+        } else {
           setIsBannerVisible(true);
         }
-        
-        lastScrollY.current = currentScrollY;
       }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Check initial scroll position
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 

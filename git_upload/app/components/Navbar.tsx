@@ -142,7 +142,7 @@ export default function Navbar() {
                 className="invert dark:invert-0 object-contain"
               />
             </div>
-            <span className="text-[17px] font-bold tracking-[-0.02em] text-[#080808] dark:text-white">
+            <span className="font-logo font-medium text-[19px] tracking-[0.2em] text-[#080808] dark:text-white uppercase">
               Talo
             </span>
           </Link>
