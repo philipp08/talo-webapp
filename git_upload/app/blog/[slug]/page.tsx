@@ -10,60 +10,50 @@ import { posts } from "../page";
 
 // Post Contents
 const postContents: Record<string, { content: React.ReactNode, subHeadline: string }> = {
-  "ki-agenten-ehrenamt-revolution": {
-    subHeadline: "Warum klassische Vereinssoftware ausgedient hat und wie KI-Agenten Vorstände entlasten.",
+  "die-zukunft-des-ehrenamts-digitalisierung-mit-talo": {
+    subHeadline: "Warum klassische Vereinssoftware ausgedient hat und wie Talo Vorstände durch Transparenz entlastet.",
     content: (
       <>
         <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-10 italic border-l-2 border-gray-200 dark:border-white/10 pl-6 py-2">
-          Die größte Hürde im Ehrenamt ist heute nicht mehr der Mangel an Visionen, sondern die schiere Last der Administration. Talo bricht diesen Teufelskreis mit einer Weltneuheit: Autonomen KI-Agenten für Vereine.
+          Die größte Hürde im Ehrenamt ist heute nicht mehr der Mangel an Visionen, sondern die schiere Last der Administration und das Gefühl mangelnder Wertschätzung. Talo bricht diesen Teufelskreis durch ein System, das Engagement sichtbar und Verwaltung einfach macht.
         </p>
         
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Stellen Sie sich vor, Sie müssten keine E-Mails mehr sortieren, keine Kassenberichte händisch abgleichen und keine Mitgliederlisten mehr pflegen. Das ist kein Zukunfts-Szenario, sondern der Kern der neuen Talo-Plattform. Wir haben KI-Agenten entwickelt, die nicht nur Fragen beantworten, sondern aktiv handeln.
+          Stellen Sie sich vor, Sie müssten keine Excel-Listen mehr führen, keine Punkte händisch zusammenzählen und keine Mitgliederlisten mehr mühsam abgleichen. Das ist der Kern der Talo-Plattform: Wir digitalisieren die Prozesse, die bisher Zeit und Nerven gekostet haben, damit Sie sich wieder auf das Wesentliche konzentrieren können – Ihre Gemeinschaft.
         </p>
         
-        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Was ist ein Talo-Agent?</h2>
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Sichtbarkeit schafft Wertschätzung</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Ein Talo-Agent ist ein spezialisierter digitaler Mitarbeiter innerhalb Ihres Vereins-Dashboards. Er kennt Ihre Satzung, Ihre Finanzstruktur und Ihre Mitgliederhistorie. Durch die Integration von LLMs (Large Language Models) kann er komplexe Zusammenhänge verstehen, die über einfache Filter-Logik weit hinausgehen.
+          Engagement im Verein findet oft im Stillen statt. Mit Talo machen wir diesen Einsatz sichtbar. Unser automatisiertes Punktesystem dokumentiert jede Helferstunde, jede Trainingseinheit und jedes organisierte Event. Mitglieder sehen ihren Beitrag in Echtzeit auf Leaderboards, was nicht nur motiviert, sondern auch eine neue Kultur der Anerkennung schafft.
         </p>
 
         <div className="grid md:grid-cols-2 gap-8 my-16">
           <div className="p-8 rounded-[32px] bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 shadow-sm group hover:border-[#34C759]/30 transition-all">
             <Sparkles className="text-blue-500 mb-4 group-hover:scale-110 transition-transform" size={24} />
-            <h4 className="text-xl font-bold mb-3">Autonome Analyse</h4>
-            <p className="text-gray-600 dark:text-gray-400">Erkennt Muster bei Beitragsrückständen oder Engagement-Einbrüchen, bevor sie zum Problem werden.</p>
+            <h4 className="text-xl font-bold mb-3">Faire Punktevergabe</h4>
+            <p className="text-gray-600 dark:text-gray-400">Ein klares Regelwerk sorgt dafür, dass jeder Einsatz nach den gleichen Kriterien gewürdigt wird.</p>
           </div>
           <div className="p-8 rounded-[32px] bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/10 shadow-sm group hover:border-[#34C759]/30 transition-all">
             <Clock className="text-[#34C759] mb-4 group-hover:scale-110 transition-transform" size={24} />
-            <h4 className="text-xl font-bold mb-3">Zeitersparnis</h4>
-            <p className="text-gray-600 dark:text-gray-400">Übernimmt bis zu 80% der repetitiven Board-Aufgaben, damit Sie sich auf Ihre Mitglieder konzentrieren können.</p>
+            <h4 className="text-xl font-bold mb-3">Maximale Zeitersparnis</h4>
+            <p className="text-gray-600 dark:text-gray-400">Automatisierte Prozesse übernehmen die repetitiven Aufgaben des Vorstands – effizient und fehlerfrei.</p>
           </div>
         </div>
 
-        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Modernisierung durch Punktevergabe</h2>
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-           Eines der Herzstücke von Talo ist das automatisierte Punktesystem. Statt mühsamer Excel-Tabellen bietet Talo ein Echtzeit-System für Engagement. Ob Trainingsteilnahme, Hilfe bei Events oder administrative Arbeit – Talo berechnet die Punkte basierend auf Ihren individuellen Regeln. Dies schafft nicht nur Transparenz, sondern motiviert Mitglieder durch Leaderboards, die den Einsatz der Gemeinschaft sichtbar machen.
-        </p>
-
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Intelligente Genehmigungsworkflows</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-           Genehmigungen sind oft der Flaschenhals in der Vereinsarbeit. Talo löst dieses Problem durch intelligente Plausibilitätsprüfungen. Wenn ein Trainer Punkte für eine Einheit vergibt, schlägt das System dem Administrator die Genehmigung vor, falls alle Parameter (Datum, Teilnehmerzahl, Ort) stimmig sind. Admins können so Hunderte von Einträgen pro Woche mit nur einem Klick orchestrieren, anstatt jeden einzeln prüfen zu müssen.
+           Genehmigungen sind oft der Flaschenhals in der Vereinsarbeit. Talo löst dieses Problem durch einen optimierten Workflow. Trainer oder Helfer tragen ihre Leistungen ein, und der Administrator erhält eine übersichtliche Liste zur Prüfung. Mit nur einem Wisch können hunderte Einträge pro Woche orchestriert werden. Das System prüft dabei im Hintergrund auf Plausibilität, sodass Fehler minimiert werden.
         </p>
 
-        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Automatisierte Abrechnung & Berichte</h2>
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Berichte auf Knopfdruck</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-           Am Ende einer Saison oder eines Geschäftsjahres steht oft die größte Last bevor: Die Berichterstattung. Talo generiert auf Knopfdruck präzise Berichte für den Vorstand, das Finanzamt oder die Mitgliederversammlung. Durch die lückenlose Dokumentation aller Vorgänge in der Cloud sind Sie jederzeit auskunftsfähig und rechtssicher aufgestellt.
-        </p>
-
-        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Sicherheit an erster Stelle</h2>
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-           Wir wissen um die Verantwortung im Umgang mit Mitgliederdaten. Deshalb operiert jeder KI-Agent innerhalb unserer proprietären Sicherheits-Architektur "Veto". Dies garantiert, dass Daten niemals unberechtigt nach außen dringen oder für das Training öffentlicher Modelle verwendet werden. Jede Aktion eines Agenten bleibt isoliert und nachvollziehbar. Ihr Verein bleibt Herr über seine Daten – DSGVO-konform auf EU-Servern.
+           Ob für die Mitgliederversammlung, den Vorstand oder das Finanzamt – Talo generiert präzise Berichte in Sekundenschnelle. Dank der Cloud-basierten Speicherung sind alle Daten jederzeit abrufbar, revisionssicher dokumentiert und DSGVO-konform auf EU-Servern gesichert.
         </p>
 
         <blockquote className="relative my-20 pl-12 pr-6 py-6 group">
            <Quote className="absolute -left-2 top-0 text-gray-200 dark:text-white/5 -z-10" size={80} />
            <p className="text-2xl font-logo font-medium text-gray-950 dark:text-white leading-snug italic">
-              "Talo ist nicht einfach ein Werkzeug – es ist das erste Betriebssystem für das moderne Ehrenamt, das wirklich versteht, wie Vereine ticken."
+              "Talo ist das Betriebssystem für das moderne Ehrenamt. Es sorgt dafür, dass Ehrenamt wieder Spaß macht, weil die Last der Zettelwirtschaft endlich wegfällt."
            </p>
            <footer className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">
               — Ihr Talo Development Team
@@ -72,7 +62,7 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
 
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Bereit für den Wandel?</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-           Die Digitalisierung im Verein darf nicht bei der PDF-Satzung aufhören. Sie muss den Menschen dort entlasten, wo es am meisten schmerzt: bei der Zeit. Talo bietet Ihnen dieses Zeitgeschenk. Testen Sie unsere KI-Agenten jetzt in der Beta-Phase und gestalten Sie die Zukunft Ihres Vereins aktiv mit.
+           Digitalisierung im Verein ist keine Frage der Technik, sondern der Einstellung. Talo bietet Ihnen die Werkzeuge, um Ihren Verein zukunftssicher aufzustellen. Starten Sie jetzt in die neue Ära der Vereinsverwaltung und schenken Sie sich und Ihrem Team mehr Zeit für das, was wirklich zählt.
         </p>
       </>
     )

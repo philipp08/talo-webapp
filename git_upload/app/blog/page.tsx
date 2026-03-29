@@ -8,13 +8,13 @@ import Link from "next/link";
 
 export const posts = [
   {
-    slug: "ki-agenten-ehrenamt-revolution",
-    title: "Künstliche Intelligenz im Ehrenamt: Wie Talo die Vereinsarbeit revolutioniert",
-    excerpt: "Die Digitalisierung im Verein darf nicht bei der PDF-Satzung aufhören. Erfahren Sie, wie autonome KI-Agenten Vorstände von bis zu 80% der administrativen Last befreien.",
-    category: "Innovation",
+    slug: "die-zukunft-des-ehrenamts-digitalisierung-mit-talo",
+    title: "Die Zukunft des Ehrenamts: Warum Talo die Vereinsarbeit neu definiert",
+    excerpt: "Digitalisierung im Verein muss einfach, fair und transparent sein. Erfahren Sie, wie Talo Vorstände entlastet und das Engagement der Mitglieder sichtbar macht.",
+    category: "Vereinsmanagement",
     author: "Talo Development Team",
     date: "29. März 2026",
-    readTime: "8 min",
+    readTime: "7 min",
     image: ""
   }
 ];

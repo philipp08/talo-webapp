@@ -215,11 +215,11 @@ export default function Home() {
                    Neues aus der <span>Talo Schmiede</span>
                 </h2>
                 <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium font-logo">
-                   Wie Talo das Ehrenamt digitalisiert und was als nächstes kommt.
+                   Wie Talo das Ehrenamt modernisiert und was als nächstes kommt.
                 </p>
               </div>
               <Link href="/blog" className="flex items-center gap-3 text-[14px] font-bold text-gray-950 dark:text-white group border-b-2 border-gray-950 dark:border-white pb-1 font-logo">
-                 Morgen gehört uns <ArrowRight className="group-hover:translate-x-2 transition-all" />
+                 Unsere Story <ArrowRight className="group-hover:translate-x-2 transition-all" />
               </Link>
             </div>
           </ScrollReveal>
