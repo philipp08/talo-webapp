@@ -18,13 +18,13 @@ export const posts = [
     image: ""
   },
   {
-    slug: "talo-app-2-natives-design-neue-aera",
-    title: "Talo App 2.0: Warum wir alles von Grund auf neu gebaut haben",
-    excerpt: "Native Performance, ein radikal vereinfachtes Interface und ein Designsystem, das Vereinsverwaltung erstmals wirklich intuitiv macht. Ein tiefer Einblick in das, was Talo App 2.0 so anders macht.",
+    slug: "talo-app-wie-wir-sie-bauen",
+    title: "Wie wir Talo bauen – und warum wir es anders machen",
+    excerpt: "Ein ehrlicher Einblick hinter die Kulissen: Wie die Talo App entsteht, welche Entscheidungen uns antreiben und warum wir glauben, dass Vereinsverwaltung endlich so gut aussehen kann wie die Apps, die wir täglich nutzen.",
     category: "Produkt",
     author: "Talo™ Development Team",
     date: "1. April 2026",
-    readTime: "10 min",
+    readTime: "9 min",
     image: ""
   }
 ];

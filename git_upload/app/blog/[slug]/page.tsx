@@ -10,26 +10,30 @@ import { posts } from "../page";
 
 // Post Contents
 const postContents: Record<string, { content: React.ReactNode, subHeadline: string }> = {
-  "talo-app-2-natives-design-neue-aera": {
-    subHeadline: "Zwei Jahre Entwicklung. Hunderte Gespräche mit Vereinsvorständen. Ein Ergebnis: Eine App, die sich anfühlt wie sie gebaut wurde, um wirklich genutzt zu werden.",
+  "talo-app-wie-wir-sie-bauen": {
+    subHeadline: "Kein Pitch, kein Marketing-Sprech. Nur ein ehrlicher Blick auf das, was wir gerade bauen, warum wir es so bauen – und was uns dabei antreibt.",
     content: (
       <>
         <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-12 italic border-l-4 border-[#8A8A8A] pl-8 py-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-r-3xl pr-6">
-          Es gibt Apps, die man benutzt. Und dann gibt es Apps, die man vermisst, wenn man sie nicht hat. Talo 2.0 wurde mit dem einzigen Ziel entwickelt, in die zweite Kategorie zu fallen – für Vereinsvorstände, Übungsleiter und Mitglieder gleichermaßen.
+          Talo ist gerade im Aufbau. Die App existiert noch nicht als fertiges Produkt – aber die Vision dahinter ist glasklar. Dieser Beitrag ist kein Launch-Announcement. Er ist ein Fenster in den Prozess. Weil wir glauben, dass die besten Produkte nicht im Verborgenen entstehen.
         </p>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Vor zwei Jahren haben wir Talo™ zum ersten Mal gelauncht. Die erste Version war solide – sie funktionierte, Vereine konnten Punkte vergeben, Mitglieder konnten sich einloggen, der Vorstand hatte endlich eine Übersicht. Aber ehrlich gesagt: Es war nicht schön. Es hat sich nicht gut angefühlt. Und gutes Gefühl ist nicht optional, wenn man möchte, dass 70-jährige Kassenwarte und 19-jährige Nachwuchsspieler dieselbe Software täglich nutzen.
+          Die meisten Software-Projekte für Vereine entstehen so: Jemand hat ein Problem, bastelt eine Lösung, baut Features auf Features – und irgendwann hat man ein Tool, das zwar alles kann, sich aber anfühlt wie ein Formular beim Finanzamt. Wir wollten das nicht. Von Anfang an nicht.
         </p>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Also haben wir aufgehört, Features zu stapeln. Und haben von vorne angefangen.
+          Deshalb haben wir uns vor dem ersten Commit eine einzige Frage gestellt: <strong className="text-gray-950 dark:text-white">Wie würde diese App aussehen, wenn Apple sie für Vereine bauen würde?</strong> Klare Antwort: Sie würde sich nicht nach Software anfühlen. Sie würde sich anfühlen wie ein Werkzeug, das man gerne in die Hand nimmt.
         </p>
 
-        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-20 mb-10">Das Problem mit den meisten Vereinsapps</h2>
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-20 mb-10">Woher die Idee kommt</h2>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Vereinssoftware wird meistens von Leuten gebaut, die Vereinssoftware bauen wollen – nicht von Leuten, die selbst im Verein sind. Das Resultat: Interfaces, die wie ein Excel-Formular aussehen, Menüpfade mit fünf Ebenen, und Funktionen, die zwar da sind, aber von niemandem gefunden werden. Wir haben in den letzten zwei Jahren mit über 200 Vereinsverantwortlichen gesprochen. Die häufigsten Klagen waren nicht fehlende Features. Sie waren: <em>„Ich finde nicht, was ich suche."</em> Und: <em>„Das sieht aus wie von 2012."</em>
+          Der Ausgangspunkt war eine simple Beobachtung aus dem echten Vereinsleben: Vorstände verbringen einen erschreckend großen Teil ihrer Freizeit damit, Dinge zu verwalten, die eigentlich automatisch laufen könnten. Arbeitsstunden-Nachweise per WhatsApp einsammeln. Punkte händisch in Excel-Tabellen eintragen. Am Jahresende alles nochmal zusammenrechnen, weil sich irgendwo ein Fehler eingeschlichen hat.
+        </p>
+
+        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+          Das ist keine Ausnahme – das ist der Standard in den meisten deutschen Vereinen. Und das, obwohl jedes Mitglied täglich Apps benutzt, die zeigen, wie gut Software sein kann, wenn man sie wirklich durchdenkt.
         </p>
 
         <div className="my-20 p-12 rounded-[48px] bg-[#8A8A8A]/5 border border-[#8A8A8A]/10 relative overflow-hidden">
@@ -39,42 +43,36 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
               <Sparkles size={40} />
             </div>
             <div>
-              <h4 className="text-2xl font-poppins font-black text-gray-950 dark:text-white mb-4 uppercase tracking-tight italic">Der Grundsatz von 2.0</h4>
+              <h4 className="text-2xl font-poppins font-black text-gray-950 dark:text-white mb-4 uppercase tracking-tight italic">Unser Designprinzip</h4>
               <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
-                Jede Funktion in Talo 2.0 musste drei Fragen bestehen: Ist sie in drei Sekunden auffindbar? Ist sie in zwei Klicks erledigt? Und würde sich ein Mitglied ohne Einführung zurechtfinden? Wer das nicht bestand, kam nicht rein.
+                Jede Funktion in Talo muss drei Fragen bestehen: Ist sie in drei Sekunden auffindbar? Ist sie in zwei Klicks erledigt? Und würde sich ein Mitglied ohne Einführung zurechtfinden? Wer das nicht besteht, kommt nicht rein.
               </p>
             </div>
           </div>
         </div>
 
-        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Natives Design: Was das überhaupt bedeutet</h2>
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Was wir bauen – und was bewusst nicht</h2>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          „Nativ" ist ein oft missbrauchter Begriff. Für uns bedeutet er konkret: Die App verhält sich so, wie das Betriebssystem es erwartet. Animationen laufen mit 120 fps. Swipe-Gesten fühlen sich physisch an. Das Keyboard erscheint und verschwindet ohne Layout-Sprünge. Farben passen sich dem Dark Mode des Systems an – automatisch, ohne einen Toggle suchen zu müssen. Klingt selbstverständlich. Ist es aber nicht, wenn man sich anschaut, wie die Konkurrenz aussieht.
-        </p>
-
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Wir haben das neue Designsystem von Grund auf mit einem einzigen Leitsatz entwickelt: <strong className="text-gray-950 dark:text-white">Die App soll sich anfühlen wie etwas, das Apple oder Google selbst gebaut hätte – aber für Vereine.</strong> Klare Typografie, großzügige Weißräume, konsequente Hierarchien. Kein Rauschen, keine Ablenkung.
-        </p>
-
-        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Die drei größten Änderungen in 2.0</h2>
-
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-          <strong className="text-gray-950 dark:text-white">1. Das neue Dashboard.</strong> In der alten Version hatte das Dashboard 14 Kacheln. In 2.0 hat es drei. Die wichtigste Information – der aktuelle Punktestand und die nächste offene Aktion – ist der erste Blick, der einem begegnet. Kein Scrollen, kein Suchen. Einfach öffnen und wissen, wo man steht.
+          Talo ist eine App zur Punktevergabe und Mitgliederverwaltung für Vereine. Klingt simpel – und das ist Absicht. Wir bauen keine All-in-One-Plattform, die auch Buchhaltung, Webseite und Newsletter kann. Wir bauen das eine Ding, das Vereine am meisten Zeit kostet, und bauen es so gut, dass es sich nach nichts anfühlt.
         </p>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-          <strong className="text-gray-950 dark:text-white">2. Der neue Genehmigungsflow.</strong> Vorstände haben uns gesagt, dass der Genehmigungsprozess für eingereichte Nachweise der nervenaufreibendste Teil ihres Vereinsalltags war. In 2.0 ist das ein einziger Wisch. Nachweis eingetroffen – Detailansicht – Bestätigen oder Ablehnen mit optionalem Kommentar. Fertig. Was früher Minuten dauerte, dauert jetzt Sekunden.
+          <strong className="text-gray-950 dark:text-white">Für Mitglieder</strong> bedeutet das: einen Blick auf die App, und ich weiß, wo ich stehe. Mein Punktestand, meine letzten Aktivitäten, was noch aussteht. Kein Login-Chaos, kein Suchen im Menü.
+        </p>
+
+        <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+          <strong className="text-gray-950 dark:text-white">Für Vorstände</strong> bedeutet das: eingereichte Nachweise in Sekunden genehmigen oder ablehnen. Exportfähige Berichte auf Knopfdruck. Nie wieder Jahresende-Stress wegen fehlender Daten.
         </p>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          <strong className="text-gray-950 dark:text-white">3. Push-Benachrichtigungen, die man nicht stumm schaltet.</strong> Wir haben die Notifications von Grund auf überarbeitet. In 2.0 bekommst du nur dann eine Benachrichtigung, wenn du wirklich gefordert bist. Kein Spam, keine Info-Flut. Dafür aber: smarte Erinnerungen an nahende Fristen, ein wöchentliches Highlight deiner Vereinsaktivität und direkte Deep Links in die relevante Sektion der App.
+          <strong className="text-gray-950 dark:text-white">Für den Verein als Ganzes</strong> bedeutet das: Transparenz. Jeder sieht, was geleistet wurde. Wertschätzung entsteht nicht mehr durch Zufall oder Lautstärke, sondern durch Daten.
         </p>
 
         <blockquote className="relative my-24 pl-12 pr-6 py-12 group">
           <Quote className="absolute -left-4 top-0 text-[#8A8A8A]/10 -z-10" size={160} />
           <p className="text-3xl md:text-4xl font-logo font-medium text-gray-950 dark:text-white leading-tight italic relative z-10">
-            "Wir haben nicht eine einzige neue Funktion hinzugefügt. Wir haben alle bestehenden so gebaut, dass man sie endlich benutzen will."
+            "Vereinsverwaltung soll sich nicht nach Verwaltung anfühlen. Es soll sich anfühlen wie etwas, das man gerne macht."
           </p>
           <footer className="mt-10 text-gray-400 font-black uppercase tracking-[0.4em] text-[11px] italic flex items-center gap-4">
             <div className="w-12 h-[1px] bg-gray-200 dark:bg-white/10" />
@@ -82,20 +80,24 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
           </footer>
         </blockquote>
 
-        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Für alle. Wirklich.</h2>
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Der aktuelle Stand</h2>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Das klingt nach einer Marketingphrase, aber wir meinen es technisch. Talo 2.0 hat eine Barrierefreiheits-Bewertung von 98/100 im Lighthouse-Audit. Alle interaktiven Elemente sind Screen-Reader-kompatibel. Schriftgrößen sind systemweit skalierbar. Der Kontrast wurde nach WCAG 2.1 AA geprüft. Und die gesamte App funktioniert mit einer Hand – weil niemand beim Aufbauen von Tischen sein Telefon mit beiden Händen hält.
+          Wir sind mitten drin. Das Designsystem steht, die Kern-Architektur ist aufgebaut, die ersten Flows sind implementiert. Wir testen intern und sammeln Feedback von einer kleinen Gruppe an Pilotvereinen. Das gibt uns etwas, das man nicht kaufen kann: echte Reaktionen von echten Menschen, die das Tool unter echten Bedingungen benutzen.
+        </p>
+
+        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+          Was dabei auffällt: Die Dinge, auf die wir am stolzesten sind, werden gar nicht als Features wahrgenommen. Die schnellen Animationen. Dass der Dark Mode automatisch greift. Dass man nie „Zurück" suchen muss. Das ist gutes Design – es verschwindet. Und genau das war das Ziel.
         </p>
 
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Was als nächstes kommt</h2>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          2.0 ist kein Endpunkt. Es ist die Grundlage, auf der wir jetzt wirklich bauen können. Im Roadmap für die nächsten 12 Monate stehen: ein nativer Kalender für Vereinstermine, eine offene API für Drittanbieter-Integrationen, ein Kiosk-Modus für die Anwesenheitserfassung vor Ort – und einiges mehr, das wir noch nicht verraten. Der Unterschied zu früher: Jetzt haben wir eine Architektur, die das trägt.
+          Der Launch rückt näher. Bevor wir live gehen, werden noch weitere Pilotvereine ongeboardet, der Genehmigungsflow wird verfeinert und die Export-Funktion für Steuer und Jahresbericht kommt als letztes großes Feature dazu. Wer jetzt Teil der Early-Access-Liste wird, bekommt als erstes Zugang – und hat direkten Einfluss darauf, wie das fertige Produkt aussieht.
         </p>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-12 leading-relaxed">
-          Wenn ihr Talo 2.0 noch nicht ausprobiert habt, ist jetzt der richtige Zeitpunkt. Nicht weil wir das sagen. Sondern weil eure Zeit zu wertvoll ist für Software, die sich nicht gut anfühlt.
+          Wir bauen Talo, weil wir überzeugt sind, dass das Ehrenamt bessere Werkzeuge verdient. Nicht irgendwann. Jetzt.
         </p>
       </>
     )
