@@ -9,33 +9,33 @@ import Link from "next/link";
 export const posts = [
   {
     slug: "introducing-veto-security-for-associations",
-    title: "Introducing Veto: Security for the next era of software",
+    title: "Veto: Sicherheit für das nächste Zeitalter der Vereinssoftware",
     excerpt: "Wir stellen Veto vor: Unser neues Kernel-Level Security Framework, das KI-Agenten und Vereinsdaten in einer geschützten Umgebung isoliert.",
-    category: "Security",
-    author: "Johannes Landgraf",
+    category: "Sicherheit",
+    author: "Talo Development Team",
     date: "28. März 2026",
     readTime: "5 min",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2070"
+    image: ""
   },
   {
     slug: "the-future-of-volunteer-management",
     title: "Die Zukunft des Ehrenamts: Warum klassische Verwaltung nicht mehr ausreicht",
     excerpt: "Wie generative KI und autonome Agenten den Vorständen helfen, sich wieder auf das Wesentliche zu konzentrieren: Die Gemeinschaft.",
-    category: "Insights",
-    author: "Christian Weichel",
+    category: "Einblicke",
+    author: "Talo Development Team",
     date: "24. März 2026",
     readTime: "8 min",
-    image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2070"
+    image: ""
   },
   {
     slug: "why-digitalization-matters-for-local-clubs",
     title: "Warum Digitalisierung für lokale Vereine überlebenswichtig ist",
     excerpt: "Ein detaillierter Guide, wie kleine Vereine durch moderne Tools Mitglieder binden und neue Talente für das Ehrenamt begeistern.",
-    category: "Best Practice",
-    author: "Talo Team",
+    category: "Praxis",
+    author: "Talo Development Team",
     date: "20. März 2026",
     readTime: "6 min",
-    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=2070"
+    image: ""
   }
 ];
 
@@ -46,12 +46,12 @@ export default function BlogPage() {
     <main className="relative min-h-screen bg-white dark:bg-[#080808]">
       <Navbar />
 
-      {/* Hero Header (Ona Style) */}
+      {/* Hero Header */}
       <section className="relative pt-[180px] pb-16 lg:pb-32 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <ScrollReveal direction="up" delay={0.1}>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-medium tracking-tight text-gray-950 dark:text-white mb-8">
-              Stories.
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-logo font-medium tracking-tight text-gray-950 dark:text-white mb-8">
+              Storys.
             </h1>
             <p className="text-xl text-gray-500 dark:text-[#8A8A8A] max-w-2xl mx-auto leading-relaxed">
               Updates, Insights und Best Practices für das moderne Vereinswesen. Erfahren Sie, wie wir die Zukunft des Ehrenamts gestalten.
@@ -64,7 +64,7 @@ export default function BlogPage() {
       <section className="border-y border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/[0.01]">
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-8">
            <div className="flex items-center gap-6 overflow-x-auto no-scrollbar w-full md:w-auto">
-              {["Alle", "Security", "AI", "Insights", "Product"].map((cat) => (
+              {["Alle", "Sicherheit", "KI", "Einblicke", "Produkt"].map((cat) => (
                 <button key={cat} className="text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-colors">
                   {cat}
                 </button>
@@ -81,18 +81,17 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* Featured Post Card */}
+      {/* Featured Post Card (Text Only) */}
       <section className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
            <ScrollReveal direction="up">
-              <Link href={`/blog/${featuredPost.slug}`} className="group relative block aspect-[21/10] rounded-[40px] overflow-hidden bg-gray-100">
-                 <img src={featuredPost.image} alt={featuredPost.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-8 lg:p-16 flex flex-col justify-end">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-4">{featuredPost.category}</span>
-                    <h2 className="text-3xl md:text-5xl font-serif text-white max-w-3xl leading-[1.1] mb-6">
+              <Link href={`/blog/${featuredPost.slug}`} className="group relative block p-12 lg:p-20 rounded-[40px] border border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.02] hover:bg-gray-100 dark:hover:bg-white/[0.04] transition-all">
+                 <div className="flex flex-col">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-6">{featuredPost.category}</span>
+                    <h2 className="text-3xl md:text-5xl lg:text-6xl font-logo font-medium text-gray-950 dark:text-white max-w-4xl leading-[1.1] mb-8">
                        {featuredPost.title}
                     </h2>
-                    <div className="flex items-center gap-4 text-white/80 font-medium">
+                    <div className="flex items-center gap-4 text-gray-500 dark:text-[#8A8A8A] font-medium">
                        <span>{featuredPost.author}</span>
                        <span className="opacity-30">/</span>
                        <span>{featuredPost.date}</span>
@@ -109,23 +108,19 @@ export default function BlogPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
             {posts.slice(1).map((post, i) => (
               <ScrollReveal key={post.slug} direction="up" delay={i * 0.1}>
-                <Link href={`/blog/${post.slug}`} className="group flex flex-col h-full bg-white dark:bg-[#080808] border border-gray-100 dark:border-white/5 rounded-3xl overflow-hidden hover:shadow-2xl transition-all">
-                  <div className="aspect-[16/10] overflow-hidden">
-                    <img src={post.image} alt={post.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-transform duration-700 group-hover:scale-110" />
-                  </div>
-                  
-                  <div className="p-8 flex flex-col flex-1">
+                <Link href={`/blog/${post.slug}`} className="group flex flex-col h-full bg-white dark:bg-[#080808] border border-gray-100 dark:border-white/5 rounded-3xl p-8 hover:shadow-2xl transition-all">
+                  <div className="flex flex-col h-full">
                     <div className="flex gap-2 mb-6">
                        <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 rounded text-[9px] font-black uppercase tracking-widest text-gray-500">
                           {post.category}
                        </span>
                     </div>
                     
-                    <h2 className="text-xl lg:text-2xl font-serif font-medium text-gray-950 dark:text-white mb-4 leading-snug group-hover:underline transition-all">
+                    <h2 className="text-xl lg:text-2xl font-logo font-medium text-gray-950 dark:text-white mb-4 leading-snug group-hover:underline transition-all">
                       {post.title}
                     </h2>
                     
-                    <p className="text-sm text-gray-500 dark:text-[#8A8A8A] leading-relaxed mb-8 flex-1 line-clamp-3">
+                    <p className="text-sm text-gray-500 dark:text-[#8A8A8A] leading-relaxed mb-8 flex-1 line-clamp-4">
                       {post.excerpt}
                     </p>
                     
@@ -141,11 +136,11 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* Global Newsletter (Ona Style) */}
+      {/* Global Newsletter */}
       <section className="bg-gray-950 py-32 lg:py-48 text-white px-6">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
            <ScrollReveal direction="up">
-              <h2 className="text-4xl md:text-6xl font-serif font-medium mb-8">Join the inner circle.</h2>
+              <h2 className="text-4xl md:text-6xl font-logo font-medium mb-8">Werden Sie Teil der Community.</h2>
               <p className="text-xl text-white/60 max-w-xl mx-auto mb-12">
                  Exklusive Einblicke und News direkt in Ihr Postfach. Kein Spam, nur Relevanz.
               </p>
@@ -156,7 +151,7 @@ export default function BlogPage() {
                     className="flex-1 px-8 py-5 rounded-2xl bg-white/5 border border-white/10 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all text-lg"
                  />
                  <button className="px-10 py-5 bg-white text-black font-black uppercase tracking-widest rounded-2xl hover:bg-gray-200 transition-colors">
-                    Join
+                    Senden
                  </button>
               </form>
            </ScrollReveal>
@@ -167,4 +162,5 @@ export default function BlogPage() {
     </main>
   );
 }
+
 
