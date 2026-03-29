@@ -88,7 +88,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
         </AnimatePresence>
 
       {/* ─── HERO ─────────────────────────────────────────────────── */}
-      <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 md:pt-48 md:pb-32 overflow-hidden">
+      <section className="relative pt-36 pb-16 sm:pt-44 sm:pb-24 md:pt-52 md:pb-32 overflow-hidden">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 text-center relative z-10">
           <ScrollReveal direction="up" delay={0.1}>
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-[#8A8A8A] font-bold text-[11px] uppercase tracking-widest mb-8">
