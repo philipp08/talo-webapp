@@ -6,8 +6,9 @@ import FeatureCard from "./components/FeatureCard";
 import StepCard from "./components/StepCard";
 import Footer from "./components/Footer";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "./components/ScrollReveal";
-import { Star, ShieldCheck, ArrowRight, Zap, Globe, Lock, Cpu, Sparkles, Megaphone, ChevronRight, BarChart3, Users } from "lucide-react";
+import { Star, ShieldCheck, ArrowRight, Zap, Globe, Lock, Cpu, Sparkles, Megaphone, ChevronRight, BarChart3, Users, Send } from "lucide-react";
 import Link from "next/link";
+import ContactForm from "./components/ContactForm";
 import { posts as blogPosts } from "./blog/page";
 
 export default function Home() {
@@ -293,26 +294,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── FINAL CTA ─────────────────────────────────────────── */}
-      <section className="py-32 lg:py-64 relative overflow-hidden">
-         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-blue-500/5 blur-[160px] pointer-events-none" />
-         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-            <ScrollReveal direction="up">
-               <h2 className="text-4xl md:text-7xl font-medium tracking-tighter leading-[1] text-gray-950 dark:text-white mb-10">
-                  Bereit für die Zukunft?<br /><span>Euer Verein. Unsere Tech.</span>
-               </h2>
-               <p className="text-xl text-gray-500 dark:text-[#8A8A8A] mb-14 font-medium max-w-2xl mx-auto">
-                  Schließt euch über 150 Vereinen an, die ihren administrativen Aufwand um über 90% reduziert haben.
-               </p>
-               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                  <Link href="/anmelden" className="w-full sm:w-auto px-12 py-6 rounded-full font-bold bg-black text-white dark:bg-white dark:text-black hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-black/20">
-                     Jetzt Account erstellen
-                  </Link>
-                  <Link href="mailto:hallo@talo.app" className="font-bold text-gray-500 hover:text-gray-950 dark:text-gray-400 dark:hover:text-white flex items-center gap-2 group">
-                     Fragen? Schreibt uns <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                  </Link>
-               </div>
-            </ScrollReveal>
+      {/* ─── CONTACT SECTION (DEMO REQUEST) ───────────────────────── */}
+      <section id="demo" className="py-32 lg:py-64 relative overflow-hidden bg-white dark:bg-[#080808]">
+         <div className="absolute top-0 right-[20%] w-[800px] h-[800px] bg-blue-500/5 blur-[160px] pointer-events-none" />
+         <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center gap-24">
+            
+            <div className="flex-1 max-w-2xl">
+               <ScrollReveal direction="left">
+                  <span className="text-[12px] font-black tracking-[0.3em] text-gray-500 uppercase mb-6 inline-block italic">Interesse an TALO?</span>
+                  <h2 className="text-[2.5rem] md:text-[5.5rem] font-medium tracking-tighter leading-[1] text-gray-950 dark:text-white mb-10">
+                     Sichere dir eine<br /><span className="text-gray-400 dark:text-[#8A8A8A]">persönliche Demo.</span>
+                  </h2>
+                  <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-14 max-w-xl">
+                     Schließe dich über 150 Vereinen an, die ihren administrativen Aufwand bereits heute um über 90% reduziert haben. Wir zeigen dir TALO in Action.
+                  </p>
+                  
+                  <div className="flex flex-col gap-6">
+                     <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 dark:text-gray-500">
+                           <ShieldCheck size={20} />
+                        </div>
+                        <span className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest italic">DSGVO-Sicher & Made in Germany</span>
+                     </div>
+                  </div>
+               </ScrollReveal>
+            </div>
+
+            <div className="flex-1 w-full max-w-xl">
+               <ScrollReveal direction="right" delay={0.2}>
+                  <ContactForm />
+               </ScrollReveal>
+            </div>
+
          </div>
       </section>
 

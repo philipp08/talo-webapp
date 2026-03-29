@@ -8,6 +8,13 @@ interface EmailParams {
   adminName: string;
 }
 
+interface ContactParams {
+  name: string;
+  email: string;
+  club: string;
+  message: string;
+}
+
 export class EmailService {
   private static readonly FROM_EMAIL = "philipp@pauli-one.com";
   private static readonly FROM_NAME = "Talo";
@@ -54,6 +61,31 @@ ${adminName} · ${clubName}
       content: [
         { type: "text/plain", value: plainText },
         { type: "text/html", value: htmlContent }
+      ]
+    });
+  }
+
+  static async sendContactMail(params: ContactParams): Promise<void> {
+    const { name, email, club, message } = params;
+    const subject = `Neue Demo/Kontakt-Anfrage: ${club}`;
+
+    const plainText = `
+Neue Kontaktanfrage über die Website:
+
+Name:    ${name}
+E-Mail:  ${email}
+Verein:  ${club}
+
+Nachricht:
+${message}
+    `.trim();
+
+    await this.sendRequest({
+      personalizations: [{ to: [{ email: "philipp@pauli-one.de", name: "Philipp Pauli" }], subject }],
+      from: { email: this.FROM_EMAIL, name: this.FROM_NAME },
+      reply_to: { email: email, name: name },
+      content: [
+        { type: "text/plain", value: plainText }
       ]
     });
   }
