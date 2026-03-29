@@ -302,21 +302,23 @@ export default function Navbar() {
             </Link>
 
             <div className="flex items-center gap-2">
-              {/* CTA pill – hides when menu is open, like Joy_ */}
-              <AnimatePresence mode="popLayout">
-                {!mobileOpen && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.8, filter: "blur(4px)" }}
-                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, scale: 0.8, filter: "blur(4px)" }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    onClick={openDemo}
-                    className="text-[13px] font-medium px-4 py-[8px] rounded-[24px] bg-[#000000] dark:bg-white text-white dark:text-black transition-all border-none whitespace-nowrap"
-                  >
-                    Demo anfragen
-                  </motion.button>
-                )}
-              </AnimatePresence>
+              {/* CTA pill – fades out in place when menu opens, no layout shift */}
+              <motion.button
+                animate={{
+                  opacity: mobileOpen ? 0 : 1,
+                  scale: mobileOpen ? 0.8 : 1,
+                  width: mobileOpen ? 0 : "auto",
+                  marginRight: mobileOpen ? 0 : undefined,
+                  filter: mobileOpen ? "blur(4px)" : "blur(0px)",
+                }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                onClick={openDemo}
+                className="text-[13px] font-medium px-4 py-[8px] rounded-[24px] bg-[#000000] dark:bg-white text-white dark:text-black border-none whitespace-nowrap overflow-hidden"
+                style={{ pointerEvents: mobileOpen ? "none" : "auto" }}
+                tabIndex={mobileOpen ? -1 : 0}
+              >
+                Demo anfragen
+              </motion.button>
 
               {/* Hamburger / Close – white circle button like Joy_ */}
               <motion.button
