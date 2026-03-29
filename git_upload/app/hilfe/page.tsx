@@ -118,11 +118,11 @@ export default function HelpPage() {
                       }}
                       className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-medium ${
                         activeSection === section.id 
-                          ? "bg-[#FFFFFF]/10 text-[#FFFFFF] dark:bg-white/5 dark:text-white" 
+                          ? "bg-black/90 text-white dark:bg-white/10 dark:text-white shadow-lg" 
                           : "text-gray-500 dark:text-[#8A8A8A] hover:bg-gray-50 dark:hover:bg-white/[0.03] hover:text-black dark:hover:text-white"
                       }`}
                     >
-                      <div className={`p-2 rounded-lg transition-colors ${activeSection === section.id ? "bg-[#FFFFFF]/20" : "bg-gray-100 dark:bg-white/5"}`}>
+                      <div className={`p-2 rounded-lg transition-colors ${activeSection === section.id ? "bg-white/20" : "bg-gray-100 dark:bg-white/5"}`}>
                         {section.icon}
                       </div>
                       <span className="text-[14px]">{section.title}</span>

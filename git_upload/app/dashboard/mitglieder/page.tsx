@@ -262,14 +262,28 @@ export default function MembersPage() {
                          <button 
                            onClick={() => {
                              const url = `${window.location.origin}/anmelden?clubId=${currentClub?.id}&type=${inviteType}&first=${encodeURIComponent(inviteFirstName)}&last=${encodeURIComponent(inviteLastName)}&email=${encodeURIComponent(inviteEmail)}`;
+                             
+                             const subject = `Willkommen bei ${currentClub?.name} – Deine Zugangsdaten`;
+                             const body = `Hallo ${inviteFirstName},\n\nherzlich willkommen bei ${currentClub?.name}!\n\nDu wurdest als Mitglied registriert und kannst ab sofort die Talo-App nutzen, um deine Vereinsstunden zu erfassen.\n\nDEINE ZUGANGSDATEN\n──────────────────\nE-Mail:   ${inviteEmail}\nRegistrierung: ${url}\n\nSO GEHT'S\n──────────────────\n1. App herunterladen: https://apps.apple.com/app/talo/id000000000\n2. Auf "Anmelden" tippen\n3. E-Mail und Passwort (nach Registrierung) eingeben\n4. Loslegen und Punkte sammeln!\n\nTipp: Bitte wähle nach dem ersten Login ein sicheres Passwort in den Einstellungen.\n\nBei Fragen: support@talo-app.de\n\nViele Grüße\n${currentMember?.firstName} ${currentMember?.lastName} · ${currentClub?.name}`;
+                             
+                             window.location.href = `mailto:${inviteEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                           }}
+                           className="w-full h-14 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-2xl shadow-white/5 active:scale-95"
+                         >
+                            <Mail size={18} /> Direkt per E-Mail einladen
+                         </button>
+                         
+                         <button 
+                           onClick={() => {
+                             const url = `${window.location.origin}/anmelden?clubId=${currentClub?.id}&type=${inviteType}&first=${encodeURIComponent(inviteFirstName)}&last=${encodeURIComponent(inviteLastName)}&email=${encodeURIComponent(inviteEmail)}`;
                              navigator.clipboard.writeText(url);
                              setIsCopied(true);
                              setTimeout(() => setIsCopied(false), 2000);
                            }}
-                           className="w-full h-14 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-2xl shadow-white/5 active:scale-95"
+                           className="w-full h-12 rounded-xl bg-white/5 text-white/60 font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-white/10 hover:text-white transition-all active:scale-95 border border-white/5"
                          >
-                            {isCopied ? <Check size={18} /> : <Copy size={18} />}
-                            {isCopied ? "Link kopiert!" : "Einladungslink generieren"}
+                            {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                            {isCopied ? "Link kopiert!" : "Nur Einladungslink kopieren"}
                          </button>
                          <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest text-center px-8 leading-relaxed italic">
                             Das Mitglied erhält den Link und kann sein Profil vervollständigen.
