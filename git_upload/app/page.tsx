@@ -412,55 +412,93 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ─── CTA BANNER (FLOATING) ───────────────────────────────── */}
-      {showBanner && (
-        <div 
-          className={`fixed bottom-10 left-1/2 z-[100] w-auto max-w-[90vw] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${
-            isBannerVisible 
-              ? "-translate-x-1/2 translate-y-0 opacity-100" 
-              : "-translate-x-1/2 translate-y-24 opacity-0 pointer-events-none"
-          }`}
-        >
-          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5 p-2 pr-6">
-            <Link
-               href={`/blog/${blogPosts[0].slug}`}
-               className="flex items-center gap-3 transition-all outline-none min-w-0 overflow-hidden"
-            >
-                <div className="p-1 rounded-xl shrink-0">
-                  <img 
-                    src="https://i.ibb.co/G4rrPn4n/klein-banner.png" 
-                    alt="Latest Blog"
-                    className="w-8 h-8 rounded-lg object-cover"
+      <AnimatePresence>
+        {showBanner && (
+          <motion.div
+            initial={{ y: 100, opacity: 0, scale: 0.92 }}
+            animate={{
+              y: isBannerVisible ? 0 : 100,
+              opacity: isBannerVisible ? 1 : 0,
+              scale: isBannerVisible ? 1 : 0.92,
+              pointerEvents: isBannerVisible ? "auto" : "none",
+            }}
+            exit={{ y: 100, opacity: 0, scale: 0.92 }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 28,
+              mass: 0.9,
+              delay: isBannerVisible ? 1.2 : 0,
+            }}
+            className="fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-[100] w-[calc(100vw-32px)] sm:w-auto sm:max-w-[640px]"
+          >
+            <div className="relative flex items-center justify-between bg-[#080808] dark:bg-white text-white dark:text-black rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.35)] group p-2 pl-2 pr-2 sm:pr-3 gap-2">
+
+              {/* Left: label + title */}
+              <Link
+                href={`/blog/${blogPosts[blogPosts.length - 1].slug}`}
+                className="flex items-center gap-3 min-w-0 flex-1 outline-none"
+              >
+                {/* Thumbnail */}
+                <div className="shrink-0 p-0.5 rounded-[12px]">
+                  <img
+                    src="https://i.ibb.co/G4rrPn4n/klein-banner.png"
+                    alt="Neuster Post"
+                    className="w-9 h-9 rounded-[10px] object-cover"
                   />
                 </div>
-                
-                <span className="text-[14px] font-bold tracking-tight whitespace-nowrap overflow-hidden text-ellipsis min-w-0 flex items-center gap-2">
-                   {blogPosts[0].title}
-                </span>
-                
-                {/* Tail Icons Container */}
-                <div className="flex items-center">
-                   {/* Arrow */}
-                   <span className="transition-all duration-300 group-hover:mr-8" aria-hidden="true">
-                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-                      </svg>
-                   </span>
-                </div>
-            </Link>
 
-            <button 
-              type="button"
-              onClick={() => setShowBanner(false)}
-              aria-label="Schließen"
-              className="absolute right-3 w-8 h-8 flex items-center justify-center rounded-lg opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 text-white/40 dark:text-black/40 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/5 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto"
-            >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
+                {/* Text */}
+                <div className="flex flex-col min-w-0 pr-1">
+                  <span className="text-[10px] font-black uppercase tracking-[0.12em] text-white/40 dark:text-black/40 leading-none mb-0.5">
+                    Neuster Beitrag
+                  </span>
+                  <span className="text-[13px] sm:text-[14px] font-semibold leading-snug line-clamp-1 text-white dark:text-black">
+                    {blogPosts[blogPosts.length - 1].title}
+                  </span>
+                </div>
+              </Link>
+
+              {/* Right: CTA + Close */}
+              <div className="flex items-center gap-1 shrink-0 ml-1">
+                {/* Read CTA pill */}
+                <Link
+                  href={`/blog/${blogPosts[blogPosts.length - 1].slug}`}
+                  className="hidden sm:flex items-center gap-1.5 text-[12px] font-bold px-3.5 py-2 rounded-[10px] bg-white/10 dark:bg-black/8 hover:bg-white/20 dark:hover:bg-black/15 transition-colors whitespace-nowrap"
+                >
+                  Lesen
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="none">
+                    <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </Link>
+
+                {/* Mobile: arrow only */}
+                <Link
+                  href={`/blog/${blogPosts[blogPosts.length - 1].slug}`}
+                  className="sm:hidden flex items-center justify-center w-8 h-8 rounded-[10px] bg-white/10 dark:bg-black/8"
+                  aria-label="Lesen"
+                >
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                    <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </Link>
+
+                {/* Close button */}
+                <button
+                  type="button"
+                  onClick={() => setShowBanner(false)}
+                  aria-label="Schließen"
+                  className="flex items-center justify-center w-8 h-8 rounded-[10px] text-white/30 dark:text-black/30 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/8 transition-all"
+                >
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                    <path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </main>
