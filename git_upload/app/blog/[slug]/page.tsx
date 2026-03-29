@@ -61,61 +61,6 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
         </p>
       </>
     )
-  },
-  "introducing-veto-security-for-associations": {
-    subHeadline: "Sicherheit für Agenten ist der Engpass für die Skalierung Ihrer KI-Belegschaft.",
-    content: (
-      <>
-        <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 italic border-l-2 border-blue-500 pl-6">
-          Wir freuen uns, Veto heute in der Talo-Plattform vorzustellen – unsere Kernel-Level Enforcement Engine für absolute Datensicherheit.
-        </p>
-        
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-          Sicherheit im Vereinswesen war noch nie so wichtig wie heute. Mit der Einführung von Veto setzen wir neue Maßstäbe für den Schutz von sensiblen Mitgliederdaten in der Ära der Künstlichen Intelligenz.
-        </p>
-        
-        <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mt-12 mb-6">Defense-in-depth</h2>
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-          Wir betrachten Sicherheit als "Defense in Depth" über den gesamten Stack hinweg. Dies garantiert, dass Daten niemals unberechtigt verarbeitet werden.
-        </p>
-        
-        <div className="p-8 rounded-[32px] bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 my-10 relative overflow-hidden">
-           <div className="absolute top-0 right-0 p-4 opacity-5 font-logo text-8xl">01</div>
-           <h4 className="font-bold text-xl mb-4">Ihre Vorteile durch Veto:</h4>
-           <ul className="space-y-4 text-lg text-gray-600 dark:text-[#8A8A8A]">
-              <li className="flex gap-3">
-                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2.5 shrink-0" />
-                 <span><strong>Isolierung:</strong> KI-Agenten arbeiten nur in ihrem zugewiesenen Bereich.</span>
-              </li>
-              <li className="flex gap-3">
-                 <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2.5 shrink-0" />
-                 <span><strong>Audit-Trails:</strong> Jede Aktion wird unveränderlich protokolliert.</span>
-              </li>
-           </ul>
-        </div>
-      </>
-    )
-  },
-  "the-future-of-volunteer-management": {
-    subHeadline: "Von der Verwaltung zur Gestaltung: Wie Autonomie das Spiel verändert.",
-    content: (
-      <>
-        <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 italic border-l-2 border-gray-200 pl-6">
-          Die Art und Weise, wie wir uns engagieren, verändert sich. Klassische Vereinsverwaltung stößt an ihre Grenzen.
-        </p>
-        <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mt-12 mb-6">Vom Verwalten zum Gestalten</h2>
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-           In den letzten Jahrzehnten bestand die Arbeit im Vorstand oft zu 80% aus Administration und nur zu 20% aus eigentlicher Vereinsgestaltung. Talo kehrt dieses Verhältnis um.
-        </p>
-        <blockquote className="border-l-4 border-blue-500 pl-8 my-12 text-2xl font-logo text-gray-900 dark:text-white italic leading-relaxed">
-           "Künstliche Intelligenz im Verein bedeutet nicht, den Menschen zu ersetzen, sondern ihm den Rücken für das Wesentliche freizuhalten."
-        </blockquote>
-        <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mt-12 mb-6">Menschliche Zentrierung</h2>
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-           Am Ende geht es im Verein immer um Menschen. Digitalisierung darf nie Selbstzweck sein. Bei Talo steht das Mitglied im Mittelpunkt.
-        </p>
-      </>
-    )
   }
 };
 
@@ -202,24 +147,26 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
       </section>
 
       {/* Related Posts */}
-      <section className="py-24 lg:py-48 px-6">
-        <div className="max-w-7xl mx-auto">
-           <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mb-16 text-center">Weitere Storys</h2>
-           <div className="grid md:grid-cols-3 gap-8">
-              {posts.filter(p => p.slug !== post.slug).slice(0, 3).map((related) => (
-                <Link key={related.slug} href={`/blog/${related.slug}`} className="group flex flex-col p-8 rounded-[38px] border border-gray-100 dark:border-white/5 bg-white dark:bg-[#121212] hover:shadow-2xl hover:scale-[1.02] transition-all">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-6">{related.category}</span>
-                  <h3 className="text-xl font-logo font-bold text-gray-950 dark:text-white mb-4 leading-snug group-hover:underline">{related.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-[#8A8A8A] line-clamp-3 mb-8">{related.excerpt}</p>
-                  <div className="mt-auto pt-6 border-t border-gray-50 dark:border-white/5 flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                     <span>{related.author}</span>
-                     <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
-              ))}
-           </div>
-        </div>
-      </section>
+      {posts.filter(p => p.slug !== post.slug).length > 0 && (
+        <section className="py-24 lg:py-48 px-6 border-t border-gray-100 dark:border-white/5">
+          <div className="max-w-7xl mx-auto">
+             <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mb-16 text-center">Weitere Storys</h2>
+             <div className="grid md:grid-cols-3 gap-8">
+                {posts.filter(p => p.slug !== post.slug).slice(0, 3).map((related) => (
+                  <Link key={related.slug} href={`/blog/${related.slug}`} className="group flex flex-col p-8 rounded-[38px] border border-gray-100 dark:border-white/5 bg-white dark:bg-[#121212] hover:shadow-2xl hover:scale-[1.02] transition-all">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-6">{related.category}</span>
+                    <h3 className="text-xl font-logo font-bold text-gray-950 dark:text-white mb-4 leading-snug group-hover:underline">{related.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-[#8A8A8A] line-clamp-3 mb-8">{related.excerpt}</p>
+                    <div className="mt-auto pt-6 border-t border-gray-50 dark:border-white/5 flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                       <span>{related.author}</span>
+                       <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </Link>
+                ))}
+             </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </main>

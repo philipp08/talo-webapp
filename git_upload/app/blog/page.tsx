@@ -16,26 +16,6 @@ export const posts = [
     date: "29. März 2026",
     readTime: "8 min",
     image: ""
-  },
-  {
-    slug: "introducing-veto-security-for-associations",
-    title: "Veto: Sicherheit für das nächste Zeitalter der Vereinssoftware",
-    excerpt: "Wir stellen Veto vor: Unser neues Kernel-Level Security Framework, das KI-Agenten und Vereinsdaten in einer geschützten Umgebung isoliert.",
-    category: "Sicherheit",
-    author: "Talo Development Team",
-    date: "28. März 2026",
-    readTime: "5 min",
-    image: ""
-  },
-  {
-    slug: "the-future-of-volunteer-management",
-    title: "Die Zukunft des Ehrenamts: Warum klassische Verwaltung nicht mehr ausreicht",
-    excerpt: "Wie generative KI und autonome Agenten den Vorständen helfen, sich wieder auf das Wesentliche zu konzentrieren: Die Gemeinschaft.",
-    category: "Einblicke",
-    author: "Talo Development Team",
-    date: "24. März 2026",
-    readTime: "8 min",
-    image: ""
   }
 ];
 
