@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Member, MemberType, calculateTargetPoints, Entry } from "@/lib/firebase/models";
+import { AuthService } from "@/lib/firebase/authService";
 import { TAvatar, GlassSection, TLine, AmbientBackground, TSearchBar, TBadge, TButton } from "@/app/components/ui/NativeUI";
 
 const memberTypeOrder = [
@@ -46,6 +47,10 @@ export default function MembersPage() {
   const [inviteLastName, setInviteLastName] = useState("");
   const [inviteType, setInviteType] = useState<MemberType>(MemberType.Active);
   const [isCopied, setIsCopied] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+  const [createdUid, setCreatedUid] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentClub) return;
@@ -168,7 +173,7 @@ export default function MembersPage() {
         )}
       </div>
 
-      {/* Invite Member Modal */}
+       {/* Invite Member Modal */}
       <AnimatePresence>
         {isInviteOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
@@ -186,109 +191,196 @@ export default function MembersPage() {
                       {/* Header */}
                       <div className="flex items-start justify-between">
                          <div className="flex flex-col gap-2">
-                            <h2 className="text-2xl font-poppins font-black text-white tracking-tight italic">MITGLIED EINLADEN</h2>
-                            <p className="text-gray-500 font-bold text-[10px] uppercase tracking-[0.2em]">Füge ein neues Teammitglied hinzu</p>
+                            <h2 className="text-2xl font-poppins font-black text-white tracking-tight italic">MITGLIED ANLEGEN</h2>
+                            <p className="text-gray-500 font-bold text-[10px] uppercase tracking-[0.2em]">Konto erstellen und Zugangsdaten senden</p>
                          </div>
                          <button 
-                           onClick={() => setIsInviteOpen(false)}
+                           onClick={() => {
+                             setIsInviteOpen(false);
+                             setGeneratedPassword(null);
+                             setCreatedUid(null);
+                             setErrorMessage(null);
+                           }}
                            className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 hover:text-white transition-all"
                          >
                             <X size={20} />
                          </button>
                       </div>
 
-                      {/* Form */}
-                      <div className="grid grid-cols-2 gap-4">
-                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">Vorname</label>
-                            <div className="relative">
-                               <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
-                               <input 
-                                 value={inviteFirstName}
-                                 onChange={(e) => setInviteFirstName(e.target.value)}
-                                 placeholder="z.B. Max"
-                                 className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-white focus:outline-none focus:border-white/10 transition-all"
-                               />
+                      {generatedPassword ? (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex flex-col gap-8 text-center py-4"
+                        >
+                          <div className="flex flex-col gap-2">
+                            <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-2 border border-white/10">
+                              <Check className="text-[#8A8A8A]" size={32} />
                             </div>
-                         </div>
-                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">Nachname</label>
-                            <input 
-                              value={inviteLastName}
-                              onChange={(e) => setInviteLastName(e.target.value)}
-                              placeholder="Mustermann"
-                              className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 px-4 text-sm font-poppins text-white focus:outline-none focus:border-white/10 transition-all"
-                            />
-                         </div>
-                         <div className="flex flex-col gap-2 col-span-2">
-                            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">E-Mail Adresse</label>
-                            <div className="relative">
-                               <Mail size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
-                               <input 
-                                 type="email"
-                                 value={inviteEmail}
-                                 onChange={(e) => setInviteEmail(e.target.value)}
-                                 placeholder="name@beispiel.de"
-                                 className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-white focus:outline-none focus:border-white/10 transition-all"
-                               />
+                            <h3 className="text-xl font-bold text-white">Mitglied erfolgreich angelegt!</h3>
+                            <p className="text-sm text-gray-500">Das Konto wurde erstellt. Hier sind die Zugangsdaten:</p>
+                          </div>
+
+                          <div className="bg-white/5 rounded-3xl p-6 border border-white/10 flex flex-col gap-4">
+                            <div className="flex flex-col items-start gap-1">
+                              <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1">E-Mail Adresse</span>
+                              <div className="w-full bg-black/20 rounded-xl p-3 text-sm text-white font-mono border border-white/5">{inviteEmail}</div>
                             </div>
-                         </div>
-                      </div>
+                            <div className="flex flex-col items-start gap-1">
+                              <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1">Passwort</span>
+                              <div className="w-full bg-black/20 rounded-xl p-3 text-xl text-white font-mono font-bold border border-white/5 tracking-[0.2em]">{generatedPassword}</div>
+                            </div>
+                          </div>
 
-                      <TLine />
+                          <div className="flex flex-col gap-3">
+                            <button 
+                              onClick={() => {
+                                const subject = `Willkommen bei ${currentClub?.name} – Deine Zugangsdaten`;
+                                const body = `Hallo ${inviteFirstName},\n\nherzlich willkommen bei ${currentClub?.name}!\n\nDu wurdest als Mitglied registriert und kannst ab sofort die Talo-App nutzen, um deine Vereinsstunden zu erfassen.\n\nDEINE ZUGANGSDATEN\n──────────────────\nE-Mail:   ${inviteEmail}\nPasswort: ${generatedPassword}\n\nSO GEHT'S\n──────────────────\n1. App herunterladen: https://apps.apple.com/app/talo/id000000000\n2. Auf "Anmelden" tippen\n3. E-Mail und Passwort eingeben\n4. Loslegen und Punkte sammeln!\n\nTipp: Bitte ändere dein Passwort nach dem ersten Login in den Einstellungen.\n\nBei Fragen: support@talo-app.de\n\nViele Grüße\n${currentMember?.firstName} ${currentMember?.lastName} · ${currentClub?.name}`;
+                                window.location.href = `mailto:${inviteEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                              }}
+                              className="w-full h-14 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-2xl active:scale-95"
+                            >
+                              <Mail size={18} /> Willkommens-Mail senden
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setIsInviteOpen(false);
+                                setGeneratedPassword(null);
+                                setCreatedUid(null);
+                              }}
+                              className="w-full h-12 rounded-xl text-gray-500 font-black text-[10px] uppercase tracking-[0.2em] hover:text-white transition-all"
+                            >
+                              Schließen
+                            </button>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <>
+                          {/* Form */}
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">Vorname</label>
+                                <div className="relative">
+                                  <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
+                                  <input 
+                                    value={inviteFirstName}
+                                    onChange={(e) => setInviteFirstName(e.target.value)}
+                                    placeholder="z.B. Max"
+                                    className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-white focus:outline-none focus:border-white/10 transition-all"
+                                  />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">Nachname</label>
+                                <input 
+                                  value={inviteLastName}
+                                  onChange={(e) => setInviteLastName(e.target.value)}
+                                  placeholder="Mustermann"
+                                  className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 px-4 text-sm font-poppins text-white focus:outline-none focus:border-white/10 transition-all"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2 col-span-2">
+                                <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">E-Mail Adresse</label>
+                                <div className="relative">
+                                  <Mail size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
+                                  <input 
+                                    type="email"
+                                    value={inviteEmail}
+                                    onChange={(e) => setInviteEmail(e.target.value)}
+                                    placeholder="name@beispiel.de"
+                                    className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-white focus:outline-none focus:border-white/10 transition-all"
+                                  />
+                                </div>
+                            </div>
+                          </div>
 
-                      {/* Member Type Selection */}
-                      <div className="flex flex-col gap-4">
-                         <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">Mitgliedstyp</label>
-                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                            {memberTypeOrder.map((type) => (
-                               <button
-                                 key={type}
-                                 onClick={() => setInviteType(type)}
-                                 className={`py-3 px-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                                   inviteType === type 
-                                     ? "bg-white text-black border-white" 
-                                     : "bg-white/5 text-gray-500 border-white/5 hover:border-white/10"
-                                 }`}
-                               >
-                                  {type}
-                               </button>
-                            ))}
-                         </div>
-                      </div>
+                          <TLine />
 
-                      {/* Footer Actions */}
-                      <div className="flex flex-col gap-3 pt-4">
-                         <button 
-                           onClick={() => {
-                             const url = `${window.location.origin}/anmelden?clubId=${currentClub?.id}&type=${inviteType}&first=${encodeURIComponent(inviteFirstName)}&last=${encodeURIComponent(inviteLastName)}&email=${encodeURIComponent(inviteEmail)}`;
-                             
-                             const subject = `Willkommen bei ${currentClub?.name} – Deine Zugangsdaten`;
-                             const body = `Hallo ${inviteFirstName},\n\nherzlich willkommen bei ${currentClub?.name}!\n\nDu wurdest als Mitglied registriert und kannst ab sofort die Talo-App nutzen, um deine Vereinsstunden zu erfassen.\n\nDEINE ZUGANGSDATEN\n──────────────────\nE-Mail:   ${inviteEmail}\nRegistrierung: ${url}\n\nSO GEHT'S\n──────────────────\n1. App herunterladen: https://apps.apple.com/app/talo/id000000000\n2. Auf "Anmelden" tippen\n3. E-Mail und Passwort (nach Registrierung) eingeben\n4. Loslegen und Punkte sammeln!\n\nTipp: Bitte wähle nach dem ersten Login ein sicheres Passwort in den Einstellungen.\n\nBei Fragen: support@talo-app.de\n\nViele Grüße\n${currentMember?.firstName} ${currentMember?.lastName} · ${currentClub?.name}`;
-                             
-                             window.location.href = `mailto:${inviteEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                           }}
-                           className="w-full h-14 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-2xl shadow-white/5 active:scale-95"
-                         >
-                            <Mail size={18} /> Direkt per E-Mail einladen
-                         </button>
-                         
-                         <button 
-                           onClick={() => {
-                             const url = `${window.location.origin}/anmelden?clubId=${currentClub?.id}&type=${inviteType}&first=${encodeURIComponent(inviteFirstName)}&last=${encodeURIComponent(inviteLastName)}&email=${encodeURIComponent(inviteEmail)}`;
-                             navigator.clipboard.writeText(url);
-                             setIsCopied(true);
-                             setTimeout(() => setIsCopied(false), 2000);
-                           }}
-                           className="w-full h-12 rounded-xl bg-white/5 text-white/60 font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-white/10 hover:text-white transition-all active:scale-95 border border-white/5"
-                         >
-                            {isCopied ? <Check size={14} /> : <Copy size={14} />}
-                            {isCopied ? "Link kopiert!" : "Nur Einladungslink kopieren"}
-                         </button>
-                         <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest text-center px-8 leading-relaxed italic">
-                            Das Mitglied erhält den Link und kann sein Profil vervollständigen.
-                         </p>
-                      </div>
+                          {/* Member Type Selection */}
+                          <div className="flex flex-col gap-4">
+                            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">Mitgliedstyp</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                {memberTypeOrder.map((type) => (
+                                  <button
+                                    key={type}
+                                    onClick={() => setInviteType(type)}
+                                    className={`py-3 px-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                                      inviteType === type 
+                                        ? "bg-white text-black border-white" 
+                                        : "bg-white/5 text-gray-500 border-white/5 hover:border-white/10"
+                                    }`}
+                                  >
+                                      {type}
+                                  </button>
+                                ))}
+                            </div>
+                          </div>
+
+                          {errorMessage && (
+                            <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
+                              {errorMessage}
+                            </div>
+                          )}
+
+                          {/* Footer Actions */}
+                          <div className="flex flex-col gap-3 pt-4">
+                            <button 
+                              onClick={async () => {
+                                if (!inviteFirstName || !inviteLastName || !inviteEmail) {
+                                  setErrorMessage("Bitte alle Felder ausfüllen.");
+                                  return;
+                                }
+                                setIsCreating(true);
+                                setErrorMessage(null);
+                                try {
+                                  // 1. Create User via REST
+                                  // Use the web app's firebase API key
+                                  const apiKey = "AIzaSyAIe0tYGLYgnbI2Evd6jr_Q3kXzzTIwU9E";
+                                  const { uid, password } = await AuthService.createMemberAuth(inviteEmail, inviteFirstName, inviteLastName, apiKey);
+                                  
+                                  // 2. Create FireStore Document
+                                  const clubId = currentClub?.id;
+                                  if (!clubId) throw new Error("Kein Verein ausgewählt.");
+                                  
+                                  const newMember = {
+                                    firstName: inviteFirstName,
+                                    lastName: inviteLastName,
+                                    email: inviteEmail,
+                                    memberType: inviteType,
+                                    isAdmin: false,
+                                    isTrainer: false,
+                                    clubId: clubId,
+                                    clubIds: [clubId]
+                                  };
+                                  
+                                  await FirebaseManager.updateMember(uid, newMember);
+                                  
+                                  setGeneratedPassword(password);
+                                  setCreatedUid(uid);
+                                } catch (err: any) {
+                                  setErrorMessage(err.message || "Fehler beim Anlegen.");
+                                } finally {
+                                  setIsCreating(false);
+                                }
+                              }}
+                              disabled={isCreating}
+                              className="w-full h-14 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-2xl shadow-white/5 active:scale-95 disabled:opacity-50"
+                            >
+                                {isCreating ? (
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
+                                ) : (
+                                  <>
+                                    <UserPlus size={18} /> Mitglied anlegen
+                                  </>
+                                )}
+                            </button>
+                            <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest text-center px-8 leading-relaxed italic">
+                                Das Konto wird sofort erstellt und kann genutzt werden.
+                            </p>
+                          </div>
+                        </>
+                      )}
                    </div>
                 </GlassSection>
              </motion.div>
