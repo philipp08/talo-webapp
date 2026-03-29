@@ -3,7 +3,7 @@ import { createUserWithEmailAndPassword, deleteUser, signInWithEmailAndPassword,
 import { FirebaseManager } from "./firebaseManager";
 
 export class AuthService {
-  static generatePassword(length: Int = 12): string {
+  static generatePassword(length: number = 12): string {
     const lower = "abcdefghjkmnpqrstuvwxyz";
     const upper = "ABCDEFGHJKMNPQRSTUVWXYZ";
     const digits = "23456789";
