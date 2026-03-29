@@ -354,7 +354,7 @@ export default function MembersPage() {
                                     clubIds: [clubId]
                                   };
                                   
-                                  await FirebaseManager.updateMember(uid, newMember);
+                                  await FirebaseManager.setMember(uid, newMember);
                                   
                                   setGeneratedPassword(password);
                                   setCreatedUid(uid);

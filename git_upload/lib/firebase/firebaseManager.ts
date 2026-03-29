@@ -281,11 +281,18 @@ export class FirebaseManager {
   }
 
   // === MEMBER (write) ===
+  static async setMember(
+    memberId: string,
+    member: Omit<Member, "id">
+  ): Promise<void> {
+    await setDoc(doc(db, "members", memberId), member);
+  }
+
   static async updateMember(
     memberId: string,
     updates: Partial<Omit<Member, "id">>
   ): Promise<void> {
-    await updateDoc(doc(db, "members", memberId), updates);
+    await setDoc(doc(db, "members", memberId), updates, { merge: true });
   }
 
   // === ENTRIES (write) ===
