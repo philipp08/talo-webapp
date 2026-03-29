@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "./components/Navbar";
 import FeatureCard from "./components/FeatureCard";
 import StepCard from "./components/StepCard";
@@ -12,6 +12,28 @@ import { posts as blogPosts } from "./blog/page";
 
 export default function Home() {
   const [showBanner, setShowBanner] = useState(true);
+  const [isBannerVisible, setIsBannerVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (typeof window !== "undefined") {
+        const currentScrollY = window.scrollY;
+        
+        // Hide when scrolling down, show when scrolling up
+        if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+          setIsBannerVisible(false);
+        } else if (currentScrollY < lastScrollY.current || currentScrollY <= 100) {
+          setIsBannerVisible(true);
+        }
+        
+        lastScrollY.current = currentScrollY;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <main className="relative min-h-screen bg-white dark:bg-[#080808]">
@@ -251,7 +273,13 @@ export default function Home() {
 
       {/* ─── CTA BANNER (FLOATING) ───────────────────────────────── */}
       {showBanner && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-auto max-w-[90vw]">
+        <div 
+          className={`fixed bottom-10 left-1/2 z-[100] w-auto max-w-[90vw] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+            isBannerVisible 
+              ? "-translate-x-1/2 translate-y-0 opacity-100" 
+              : "-translate-x-1/2 translate-y-24 opacity-0 pointer-events-none"
+          }`}
+        >
           <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5 p-2 pr-6">
             <Link 
                href={`/blog/${blogPosts[0].slug}`}
