@@ -249,17 +249,21 @@ export default function Home() {
       {/* ─── CTA BANNER (FLOATING) ───────────────────────────────── */}
       {showBanner && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-auto max-w-[90vw]">
-          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5 pl-4 pr-3 py-2.5">
+          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5 p-1.5 pr-4">
             <Link 
-               href="#demo"
+               href={`/blog/${blogPosts[0].slug}`}
                className="flex items-center gap-3 transition-all outline-none"
             >
-                <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white relative shadow-lg shrink-0">
-                   <Sparkles size={14} />
-                   <div className="absolute inset-0 bg-white/20 rounded-full blur-[4px] animate-pulse" />
-                </span>
+                <div className="p-1 rounded-xl bg-white/5 dark:bg-black/5 shrink-0">
+                  <img 
+                    src="https://i.ibb.co/v4Mm24PS/background-gradients.png" 
+                    alt="Latest Blog"
+                    className="w-8 h-8 rounded-lg object-cover shadow-lg"
+                  />
+                </div>
+                
                 <span className="text-[13px] font-semibold tracking-tight whitespace-nowrap flex items-center gap-2 mr-2">
-                   Talo ist jetzt live: <span className="opacity-60 font-medium italic">Fordern Sie eine Demo an</span>
+                   Neu im Blog: <span className="opacity-60 font-medium">{blogPosts[0].title}</span>
                 </span>
                 
                 {/* Tail Icons Container */}
