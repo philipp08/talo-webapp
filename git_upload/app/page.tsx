@@ -8,6 +8,7 @@ import Footer from "./components/Footer";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "./components/ScrollReveal";
 import { Star, ShieldCheck, ArrowRight, Zap, Globe, Lock, Cpu, Sparkles, Megaphone, ChevronRight, BarChart3, Users } from "lucide-react";
 import Link from "next/link";
+import { posts as blogPosts } from "./blog/page";
 
 export default function Home() {
   const [showBanner, setShowBanner] = useState(true);
@@ -213,54 +214,29 @@ export default function Home() {
                 <h2 className="text-[2.5rem] md:text-[4rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[1.05] mb-6">
                    Neues aus der <span>Talo Schmiede</span>
                 </h2>
-                <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium">
+                <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium font-logo">
                    Wie Talo das Ehrenamt digitalisiert und was als nächstes kommt.
                 </p>
               </div>
-              <Link href="/blog" className="flex items-center gap-3 text-[14px] font-bold text-gray-950 dark:text-white group border-b-2 border-gray-950 dark:border-white pb-1">
+              <Link href="/blog" className="flex items-center gap-3 text-[14px] font-bold text-gray-950 dark:text-white group border-b-2 border-gray-950 dark:border-white pb-1 font-logo">
                  Morgen gehört uns <ArrowRight className="group-hover:translate-x-2 transition-all" />
               </Link>
             </div>
           </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Introducing Veto – Sicherheit für Vereine",
-                excerpt: "Wir stellen Veto vor: Das neue Sicherheits-Framework für eure Vereinsdaten. Konform, sicher und zukunftsorientiert.",
-                cat: "Update",
-                date: "HEUTE",
-                color: "bg-blue-500",
-                link: "/blog/introducing-veto"
-              },
-              {
-                title: "Vision: Engagement vor Finanzen",
-                excerpt: "Warum wir glauben, dass Wertschätzung am Ende mehr zählt als jede Buchhaltungstabelle. Die Talo Philosophie.",
-                cat: "Insights",
-                date: "28. MÄRZ",
-                color: "bg-purple-500",
-                link: "/blog/vision"
-              },
-              {
-                title: "Best-Practice: 400% mehr Engagement",
-                excerpt: "Wie der SV Musterstadt durch Talo seine Helferstunden vervierfacht hat. Ein Case Study über Fairness.",
-                cat: "Case Study",
-                date: "24. MÄRZ",
-                color: "bg-[#34C759]",
-                link: "/blog/mitgliederbindung"
-              }
-            ].map((post, i) => (
+            {blogPosts.slice(0, 3).map((post, i) => (
               <ScrollReveal key={i} direction="up" delay={i * 0.15}>
-                <Link href={post.link} className="group flex flex-col h-full bg-white dark:bg-[#121212] rounded-[40px] p-10 border border-gray-100 dark:border-white/5 hover:scale-[1.02] transition-all hover:shadow-2xl">
+                <Link href={`/blog/${post.slug}`} className="group flex flex-col h-full bg-white dark:bg-[#121212] rounded-[40px] p-10 border border-gray-100 dark:border-white/5 hover:scale-[1.02] transition-all hover:shadow-2xl">
                    <div className="flex items-center justify-between mb-8">
-                      <div className={`px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-widest ${post.color}`}>
-                         {post.cat}
+                      <div className="px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-widest bg-gray-500">
+                         {post.category}
                       </div>
                       <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{post.date}</span>
                    </div>
-                   <h1 className="text-2xl font-bold text-gray-950 dark:text-white mb-4 leading-tight transition-colors">{post.title}</h1>
-                   <p className="text-gray-500 dark:text-[#8A8A8A] leading-relaxed mb-10 flex-1">{post.excerpt}</p>
-                   <div className="flex items-center gap-2 text-xs font-black text-gray-400 dark:hover:text-white transition-colors uppercase tracking-widest">
+                   <h1 className="text-2xl font-bold font-logo text-gray-950 dark:text-white mb-4 leading-tight transition-colors">{post.title}</h1>
+                   <p className="text-gray-500 dark:text-[#8A8A8A] leading-relaxed mb-10 flex-1 line-clamp-3">{post.excerpt}</p>
+                   <div className="flex items-center gap-2 text-xs font-black text-gray-400 dark:hover:text-white transition-colors uppercase tracking-widest font-logo">
                       Vollständiger Artikel <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                    </div>
                 </Link>

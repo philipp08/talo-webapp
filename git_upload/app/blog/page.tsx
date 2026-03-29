@@ -8,6 +8,16 @@ import Link from "next/link";
 
 export const posts = [
   {
+    slug: "ki-agenten-ehrenamt-revolution",
+    title: "Künstliche Intelligenz im Ehrenamt: Wie Talo die Vereinsarbeit revolutioniert",
+    excerpt: "Die Digitalisierung im Verein darf nicht bei der PDF-Satzung aufhören. Erfahren Sie, wie autonome KI-Agenten Vorstände von bis zu 80% der administrativen Last befreien.",
+    category: "Innovation",
+    author: "Talo Development Team",
+    date: "29. März 2026",
+    readTime: "8 min",
+    image: ""
+  },
+  {
     slug: "introducing-veto-security-for-associations",
     title: "Veto: Sicherheit für das nächste Zeitalter der Vereinssoftware",
     excerpt: "Wir stellen Veto vor: Unser neues Kernel-Level Security Framework, das KI-Agenten und Vereinsdaten in einer geschützten Umgebung isoliert.",
@@ -25,16 +35,6 @@ export const posts = [
     author: "Talo Development Team",
     date: "24. März 2026",
     readTime: "8 min",
-    image: ""
-  },
-  {
-    slug: "why-digitalization-matters-for-local-clubs",
-    title: "Warum Digitalisierung für lokale Vereine überlebenswichtig ist",
-    excerpt: "Ein detaillierter Guide, wie kleine Vereine durch moderne Tools Mitglieder binden und neue Talente für das Ehrenamt begeistern.",
-    category: "Praxis",
-    author: "Talo Development Team",
-    date: "20. März 2026",
-    readTime: "6 min",
     image: ""
   }
 ];

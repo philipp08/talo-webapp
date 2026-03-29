@@ -4,18 +4,70 @@ import { use } from "react";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import ScrollReveal from "@/app/components/ScrollReveal";
-import { ArrowLeft, Clock, Calendar, User, Share2, Sparkles, ChevronRight } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, User, Share2, Sparkles, ChevronRight, Quote } from "lucide-react";
 import Link from "next/link";
 import { posts } from "../page";
 
 // Post Contents
 const postContents: Record<string, { content: React.ReactNode, subHeadline: string }> = {
+  "ki-agenten-ehrenamt-revolution": {
+    subHeadline: "Warum klassische Vereinssoftware ausgedient hat und wie KI-Agenten Vorstände entlasten.",
+    content: (
+      <>
+        <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-10 italic border-l-2 border-gray-200 dark:border-white/10 pl-6 py-2">
+          Die größte Hürde im Ehrenamt ist heute nicht mehr der Mangel an Visionen, sondern die schiere Last der Administration. Talo bricht diesen Teufelskreis mit einer Weltneuheit: Autonomen KI-Agenten für Vereine.
+        </p>
+        
+        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+          Stellen Sie sich vor, Sie müssten keine E-Mails mehr sortieren, keine Kassenberichte händisch abgleichen und keine Mitgliederlisten mehr pflegen. Das ist kein Zukunfts-Szenario, sondern der Kern der neuen Talo-Plattform. Wir haben KI-Agenten entwickelt, die nicht nur Fragen beantworten, sondern aktiv handeln.
+        </p>
+        
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Was ist ein Talo-Agent?</h2>
+        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+          Ein Talo-Agent ist ein spezialisierter digitaler Mitarbeiter innerhalb Ihres Vereins-Dashboards. Er kennt Ihre Satzung, Ihre Finanzstruktur und Ihre Mitgliederhistorie. Durch die Integration von LLMs (Large Language Models) kann er komplexe Zusammenhänge verstehen, die über einfache Filter-Logik weit hinausgehen.
+        </p>
+
+        <div className="grid md:grid-cols-2 gap-8 my-16">
+          <div className="p-8 rounded-[32px] bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5">
+            <Sparkles className="text-blue-500 mb-4" size={24} />
+            <h4 className="text-xl font-bold mb-3">Autonome Analyse</h4>
+            <p className="text-gray-600 dark:text-gray-400">Erkennt Muster bei Beitragsrückständen oder Engagement-Einbrüchen, bevor sie zum Problem werden.</p>
+          </div>
+          <div className="p-8 rounded-[32px] bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/10">
+            <Clock className="text-[#34C759] mb-4" size={24} />
+            <h4 className="text-xl font-bold mb-3">Zeitersparnis</h4>
+            <p className="text-gray-600 dark:text-gray-400">Übernimmt bis zu 80% der repetitiven Board-Aufgaben, damit Sie sich auf Ihre Mitglieder konzentrieren können.</p>
+          </div>
+        </div>
+
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Sicherheit an erster Stelle</h2>
+        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+           Wir wissen um die Verantwortung im Umgang mit Mitgliederdaten. Deshalb operiert jeder KI-Agent innerhalb unserer proprietären Sicherheits-Architektur "Veto". Dies garantiert, dass Daten niemals unberechtigt nach außen dringen oder für das Training öffentlicher Modelle verwendet werden. Ihr Verein bleibt Herr über seine Daten.
+        </p>
+
+        <blockquote className="relative my-20 pl-12 pr-6 py-6 group">
+           <Quote className="absolute -left-2 top-0 text-gray-200 dark:text-white/5 -z-10" size={80} />
+           <p className="text-2xl font-logo font-medium text-gray-950 dark:text-white leading-snug italic">
+              "Talo ist nicht einfach ein Werkzeug – es ist das erste Betriebssystem für das moderne Ehrenamt, das wirklich versteht, wie Vereine ticken."
+           </p>
+           <footer className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">
+              — Ihr Talo Development Team
+           </footer>
+        </blockquote>
+
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Bereit für die Zukunft?</h2>
+        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+           Die Digitalisierung im Verein darf nicht bei der PDF-Satzung aufhören. Sie muss den Menschen dort entlasten, wo es am meisten schmerzt: bei der Zeit. Talo bietet Ihnen dieses Zeitgeschenk. Testen Sie unsere KI-Agenten jetzt in der Beta-Phase und gestalten Sie die Zukunft Ihres Vereins aktiv mit.
+        </p>
+      </>
+    )
+  },
   "introducing-veto-security-for-associations": {
     subHeadline: "Sicherheit für Agenten ist der Engpass für die Skalierung Ihrer KI-Belegschaft.",
     content: (
       <>
-        <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 italic">
-          \"Wir freuen uns, Veto heute in der Ona-Plattform im Early Access vorzustellen – unsere Kernel-Level Enforcement Engine.\"
+        <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 italic border-l-2 border-blue-500 pl-6">
+          Wir freuen uns, Veto heute in der Talo-Plattform vorzustellen – unsere Kernel-Level Enforcement Engine für absolute Datensicherheit.
         </p>
         
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
@@ -24,32 +76,23 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
         
         <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mt-12 mb-6">Defense-in-depth</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-          In den letzten sechs Monaten haben wir die täglichen Agenten-Interaktionen in den Netzwerken von Fortune-500-Banken, Versicherern und Pharmaunternehmen um das 24-fache gesteigert. Wir betrachten Sicherheit als "Defense in Depth" über den gesamten Stack hinweg, den wir besitzen.
+          Wir betrachten Sicherheit als "Defense in Depth" über den gesamten Stack hinweg. Dies garantiert, dass Daten niemals unberechtigt verarbeitet werden.
         </p>
         
-        <div className="p-8 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 my-10 relative overflow-hidden">
-           <div className="absolute top-0 right-0 p-4 opacity-10 font-logo text-6xl">01</div>
-           <h4 className="font-bold text-xl mb-4">Warum das für Vereine wichtig ist:</h4>
+        <div className="p-8 rounded-[32px] bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 my-10 relative overflow-hidden">
+           <div className="absolute top-0 right-0 p-4 opacity-5 font-logo text-8xl">01</div>
+           <h4 className="font-bold text-xl mb-4">Ihre Vorteile durch Veto:</h4>
            <ul className="space-y-4 text-lg text-gray-600 dark:text-[#8A8A8A]">
               <li className="flex gap-3">
                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2.5 shrink-0" />
-                 <span><strong>Isolierung:</strong> KI-Agenten haben keinen Zugriff auf Daten außerhalb ihres zugewiesenen Bereichs.</span>
+                 <span><strong>Isolierung:</strong> KI-Agenten arbeiten nur in ihrem zugewiesenen Bereich.</span>
               </li>
               <li className="flex gap-3">
                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2.5 shrink-0" />
-                 <span><strong>Audit-Trails:</strong> Jede Aktion eines Agenten wird unveränderlich protokolliert.</span>
-              </li>
-              <li className="flex gap-3">
-                 <div className="w-1.5 h-1.5 rounded-full bg-[#34C759] mt-2.5 shrink-0" />
-                 <span><strong>Berechtigungen:</strong> Ihr kontrolliert, welche Tools und Netzwerke ein Agent nutzen darf.</span>
+                 <span><strong>Audit-Trails:</strong> Jede Aktion wird unveränderlich protokolliert.</span>
               </li>
            </ul>
         </div>
-
-        <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mt-12 mb-6">Kernel-Level Enforcement</h2>
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-           Wir wissen, dass viele Vereinsvorstände skeptisch gegenüber Cloud-Lösungen sind. Veto wurde entwickelt, um dieses Misstrauen durch beweisbare Sicherheit zu entkräften. Durch die Integration von feingliedrigen Policies und einer strikten Trennung der Umgebungen garantieren wir, dass Talo die sicherste Plattform für moderne Vereinsarbeit bleibt.
-        </p>
       </>
     )
   },
@@ -57,46 +100,20 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
     subHeadline: "Von der Verwaltung zur Gestaltung: Wie Autonomie das Spiel verändert.",
     content: (
       <>
-        <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 italic">
-          \"Die Art und Weise, wie wir uns engagieren, verändert sich. Klassische Vereinsverwaltung stößt an ihre Grenzen.\"
+        <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 italic border-l-2 border-gray-200 pl-6">
+          Die Art und Weise, wie wir uns engagieren, verändert sich. Klassische Vereinsverwaltung stößt an ihre Grenzen.
         </p>
         <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mt-12 mb-6">Vom Verwalten zum Gestalten</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-           In den letzten Jahrzehnten bestand die Arbeit im Vorstand oft zu 80% aus Administration und nur zu 20% aus eigentlicher Vereinsgestaltung. Excel-Listen, Zettelwirtschaft und endlose E-Mail-Ketten haben das Ehrenamt belastet. Doch die Vision von Talo ist es, dieses Verhältnis umzukehren.
+           In den letzten Jahrzehnten bestand die Arbeit im Vorstand oft zu 80% aus Administration und nur zu 20% aus eigentlicher Vereinsgestaltung. Talo kehrt dieses Verhältnis um.
         </p>
         <blockquote className="border-l-4 border-blue-500 pl-8 my-12 text-2xl font-logo text-gray-900 dark:text-white italic leading-relaxed">
-           \"Künstliche Intelligenz im Verein bedeutet nicht, den Menschen zu ersetzen, sondern ihm den Rücken für das Wesentliche freizuhalten.\"
+           "Künstliche Intelligenz im Verein bedeutet nicht, den Menschen zu ersetzen, sondern ihm den Rücken für das Wesentliche freizuhalten."
         </blockquote>
         <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mt-12 mb-6">Menschliche Zentrierung</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-           Am Ende geht es im Verein immer um Menschen. Digitalisierung darf nie Selbstzweck sein. Bei Talo steht das Mitglied im Mittelpunkt. Durch einfache mobile Interfaces und transparente Wertschätzung schaffen wir eine Umgebung, in der sich jeder gesehen fühlt.
+           Am Ende geht es im Verein immer um Menschen. Digitalisierung darf nie Selbstzweck sein. Bei Talo steht das Mitglied im Mittelpunkt.
         </p>
-      </>
-    )
-  },
-  "why-digitalization-matters-for-local-clubs": {
-    subHeadline: "Drei Schritte zum Erfolg für kleine Vereine im digitalen Zeitalter.",
-    content: (
-      <>
-        <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-8 italic">
-          \"Kleine Vereine stehen oft vor der größten Hürde bei der Digitalisierung. Dabei ist sie gerade für sie der Schlüssel zum Überleben.\"
-        </p>
-        <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mt-12 mb-6">Drei Schritte zum Erfolg</h2>
-        <div className="grid gap-12 my-12">
-          {[
-            { n: 1, title: "Tools konsolidieren", desc: "Statt fünf verschiedener WhatsApp-Gruppen und einer alten Dropbox, nutzt eine zentrale Plattform wie Talo." },
-            { n: 2, title: "Wertschätzung sichtbar machen", desc: "Nutzt Punkte-Systeme, um auch das stille Engagement im Hintergrund zu honorieren." },
-            { n: 3, title: "Offen kommunizieren", desc: "Nehmt die Mitglieder mit auf die Reise. Erklärt den Mehrwert, statt nur neue Regeln einzuführen." }
-          ].map(step => (
-            <div key={step.n} className="flex gap-6 items-start">
-              <span className="text-4xl font-logo text-gray-200 dark:text-white/10 leading-none">{step.n.toString().padStart(2, '0')}</span>
-              <div>
-                 <h4 className="text-xl font-bold mb-2">{step.title}</h4>
-                 <p className="text-lg text-gray-600 dark:text-[#8A8A8A]">{step.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
       </>
     )
   }
@@ -123,32 +140,27 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
       <Navbar />
 
       {/* Hero Header */}
-      <section className="flex flex-col items-center justify-center px-6 pt-32 pb-16 lg:pt-48 lg:pb-24 max-w-5xl mx-auto text-center">
+      <section className="flex flex-col items-center justify-center px-6 pt-40 pb-16 lg:pt-56 lg:pb-24 max-w-5xl mx-auto text-center">
         <ScrollReveal direction="up" delay={0.1}>
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-8 text-sm font-medium text-gray-500 dark:text-[#8A8A8A]">
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-10 text-xs font-bold uppercase tracking-widest text-gray-400">
             <div className="flex items-center gap-2">
                <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center">
-                  <User size={14} />
+                  <User size={12} className="text-gray-600 dark:text-gray-400" />
                </div>
-               <span className="font-bold text-gray-900 dark:text-white">{post.author}</span>
+               <span className="text-gray-900 dark:text-white">{post.author}</span>
             </div>
             <span className="opacity-30">/</span>
             <span>{post.date}</span>
-            <div className="flex gap-2 ml-2">
-               <span className="px-3 py-1 bg-gray-100 dark:bg-white/5 rounded-md text-[10px] font-black uppercase tracking-widest">
-                  {post.category}
-               </span>
-               <span className="px-3 py-1 bg-gray-100 dark:bg-white/5 rounded-md text-[10px] font-black uppercase tracking-widest">
-                  Produkt
-               </span>
-            </div>
+            <span className="px-3 py-1 bg-gray-100 dark:bg-white/5 rounded-full text-[10px] text-gray-950 dark:text-white ml-2">
+               {post.category}
+            </span>
           </div>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-logo font-medium tracking-tight text-gray-950 dark:text-white leading-[1] mb-6 max-w-4xl mx-auto">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-logo font-bold tracking-tight text-gray-950 dark:text-white leading-[1] mb-10 max-w-4xl mx-auto">
             {post.title}
           </h1>
           
-          <p className="text-xl text-gray-500 dark:text-[#8A8A8A] max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-gray-500 dark:text-[#8A8A8A] max-w-2xl mx-auto leading-relaxed font-logo">
             {content.subHeadline}
           </p>
         </ScrollReveal>
@@ -156,9 +168,9 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
 
       {/* Article Content */}
       <section className="pb-32 lg:pb-48">
-        <div className="max-w-3xl mx-auto px-6 lg:px-0">
+        <div className="max-w-3xl mx-auto px-6">
            <ScrollReveal direction="up" delay={0.3}>
-              <div className="prose prose-xl prose-gray dark:prose-invert max-w-none">
+              <div className="prose prose-xl prose-slate dark:prose-invert max-w-none prose-headings:font-logo prose-blockquote:border-none prose-blockquote:p-0">
                  {content.content}
               </div>
            </ScrollReveal>
@@ -170,18 +182,18 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
         <div className="max-w-7xl mx-auto px-6">
            <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
               <div>
-                 <h3 className="text-3xl font-logo font-medium mb-4">Bleiben Sie auf dem Laufenden.</h3>
-                 <p className="text-lg text-gray-500 dark:text-[#8A8A8A]">
-                    Schließen Sie sich hunderten von Vorständen an, die monatlich Einblicke in die Modernisierung des Ehrenamts erhalten.
+                 <h3 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mb-4 leading-tight">Bleiben Sie auf dem Laufenden.</h3>
+                 <p className="text-lg text-gray-500 dark:text-[#8A8A8A] leading-relaxed">
+                    Schließen Sie sich hunderten von Vorständen an, die monatlich exklusive Einblicke in Talo erhalten.
                  </p>
               </div>
               <form className="flex flex-col sm:flex-row gap-3">
                  <input 
                     type="email" 
                     placeholder="E-Mail Adresse" 
-                    className="flex-1 px-6 py-4 rounded-xl bg-white dark:bg-[#121212] border border-gray-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                    className="flex-1 px-6 py-4 rounded-2xl bg-white dark:bg-[#121212] border border-gray-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
                  />
-                 <button className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-xl hover:opacity-90 transition-opacity">
+                 <button className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-2xl hover:opacity-90 active:scale-95 transition-all">
                     Abonnieren
                  </button>
               </form>
@@ -192,13 +204,14 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
       {/* Related Posts */}
       <section className="py-24 lg:py-48 px-6">
         <div className="max-w-7xl mx-auto">
-           <h2 className="text-2xl font-logo font-medium mb-12 text-center">Ähnliche Artikel</h2>
-           <div className="grid md:grid-cols-3 gap-6">
+           <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mb-16 text-center">Weitere Storys</h2>
+           <div className="grid md:grid-cols-3 gap-8">
               {posts.filter(p => p.slug !== post.slug).slice(0, 3).map((related) => (
-                <Link key={related.slug} href={`/blog/${related.slug}`} className="group flex flex-col p-6 rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-[#121212] hover:shadow-xl transition-all">
-                  <h3 className="text-lg font-bold mb-3 leading-snug group-hover:underline">{related.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-[#8A8A8A] line-clamp-2 mb-6">{related.excerpt}</p>
-                  <div className="mt-auto pt-6 border-t border-gray-50 dark:border-white/5 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-gray-400">
+                <Link key={related.slug} href={`/blog/${related.slug}`} className="group flex flex-col p-8 rounded-[38px] border border-gray-100 dark:border-white/5 bg-white dark:bg-[#121212] hover:shadow-2xl hover:scale-[1.02] transition-all">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-6">{related.category}</span>
+                  <h3 className="text-xl font-logo font-bold text-gray-950 dark:text-white mb-4 leading-snug group-hover:underline">{related.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-[#8A8A8A] line-clamp-3 mb-8">{related.excerpt}</p>
+                  <div className="mt-auto pt-6 border-t border-gray-50 dark:border-white/5 flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-gray-400">
                      <span>{related.author}</span>
                      <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </div>
