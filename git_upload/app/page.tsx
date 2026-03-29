@@ -254,11 +254,11 @@ export default function Home() {
                href={`/blog/${blogPosts[0].slug}`}
                className="flex items-center gap-3 transition-all outline-none"
             >
-                <div className="p-1 rounded-xl bg-white/5 dark:bg-black/5 shrink-0">
+                <div className="p-1 rounded-xl shrink-0">
                   <img 
-                    src="https://i.ibb.co/v4Mm24PS/background-gradients.png" 
+                    src="https://i.ibb.co/G4rrPn4n/klein-banner.png" 
                     alt="Latest Blog"
-                    className="w-8 h-8 rounded-lg object-cover shadow-lg"
+                    className="w-8 h-8 rounded-lg object-cover"
                   />
                 </div>
                 
