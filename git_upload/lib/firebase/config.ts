@@ -3,12 +3,13 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: "AIzaSyAIe0tYGLYgnbI2Evd6jr_Q3kXzzTIwU9E",
+  authDomain: "talo-def0d.firebaseapp.com",
+  projectId: "talo-def0d",
+  storageBucket: "talo-def0d.firebasestorage.app",
+  messagingSenderId: "917279212839",
+  appId: "1:917279212839:web:45007fe8be197150c25502",
+  measurementId: "G-NP5SXYBQ6E",
 };
 
 // Initialize Firebase normally. If API keys are set, this works safely across SSR and Client.
