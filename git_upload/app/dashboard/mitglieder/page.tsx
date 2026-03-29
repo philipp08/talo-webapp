@@ -5,13 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, Trophy, List, Crown, Medal, Award, 
   ChevronRight, Shield, Dumbbell, UserPlus, 
-  ArrowUpRight, Target, Filter, MoreVertical
+  ArrowUpRight, Target, Filter, MoreVertical,
+  X, Mail, User, Check, Copy
 } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Member, MemberType, calculateTargetPoints, Entry } from "@/lib/firebase/models";
-import { TAvatar, GlassSection, TLine, AmbientBackground, TSearchBar, TBadge } from "@/app/components/ui/NativeUI";
+import { TAvatar, GlassSection, TLine, AmbientBackground, TSearchBar, TBadge, TButton } from "@/app/components/ui/NativeUI";
 
 const memberTypeOrder = [
   MemberType.Active,
@@ -37,6 +38,14 @@ export default function MembersPage() {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("administration");
+  
+  // Invite member state
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteFirstName, setInviteFirstName] = useState("");
+  const [inviteLastName, setInviteLastName] = useState("");
+  const [inviteType, setInviteType] = useState<MemberType>(MemberType.Active);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     if (!currentClub) return;
@@ -110,8 +119,11 @@ export default function MembersPage() {
                   </button>
                 ))}
               </div>
-              <button className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-6 py-3.5 rounded-2xl border border-white/10 transition-all font-black text-[11px] uppercase tracking-widest">
-                 <UserPlus size={16} /> Einladen
+              <button 
+                onClick={() => setIsInviteOpen(true)}
+                className="flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-6 py-3.5 rounded-2xl border border-white/10 transition-all font-black text-[11px] uppercase tracking-widest shadow-xl shadow-white/5"
+              >
+                 <UserPlus size={16} /> Mitglied hinzufügen
               </button>
            </div>
         </div>
@@ -155,6 +167,120 @@ export default function MembersPage() {
           </AnimatePresence>
         )}
       </div>
+
+      {/* Invite Member Modal */}
+      <AnimatePresence>
+        {isInviteOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
+             <motion.div
+               initial={{ opacity: 0, scale: 0.95, y: 20 }}
+               animate={{ opacity: 1, scale: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.95, y: 20 }}
+               className="w-full max-w-lg"
+             >
+                <GlassSection className="relative overflow-hidden border-white/10 shadow-3xl">
+                   {/* Gradient Glow */}
+                   <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/5 rounded-full blur-[80px]" />
+                   
+                   <div className="p-8 flex flex-col gap-8">
+                      {/* Header */}
+                      <div className="flex items-start justify-between">
+                         <div className="flex flex-col gap-2">
+                            <h2 className="text-2xl font-poppins font-black text-white tracking-tight italic">MITGLIED EINLADEN</h2>
+                            <p className="text-gray-500 font-bold text-[10px] uppercase tracking-[0.2em]">Füge ein neues Teammitglied hinzu</p>
+                         </div>
+                         <button 
+                           onClick={() => setIsInviteOpen(false)}
+                           className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 hover:text-white transition-all"
+                         >
+                            <X size={20} />
+                         </button>
+                      </div>
+
+                      {/* Form */}
+                      <div className="grid grid-cols-2 gap-4">
+                         <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">Vorname</label>
+                            <div className="relative">
+                               <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
+                               <input 
+                                 value={inviteFirstName}
+                                 onChange={(e) => setInviteFirstName(e.target.value)}
+                                 placeholder="z.B. Max"
+                                 className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-white focus:outline-none focus:border-white/10 transition-all"
+                               />
+                            </div>
+                         </div>
+                         <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">Nachname</label>
+                            <input 
+                              value={inviteLastName}
+                              onChange={(e) => setInviteLastName(e.target.value)}
+                              placeholder="Mustermann"
+                              className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 px-4 text-sm font-poppins text-white focus:outline-none focus:border-white/10 transition-all"
+                            />
+                         </div>
+                         <div className="flex flex-col gap-2 col-span-2">
+                            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">E-Mail Adresse</label>
+                            <div className="relative">
+                               <Mail size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
+                               <input 
+                                 type="email"
+                                 value={inviteEmail}
+                                 onChange={(e) => setInviteEmail(e.target.value)}
+                                 placeholder="name@beispiel.de"
+                                 className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-white focus:outline-none focus:border-white/10 transition-all"
+                               />
+                            </div>
+                         </div>
+                      </div>
+
+                      <TLine />
+
+                      {/* Member Type Selection */}
+                      <div className="flex flex-col gap-4">
+                         <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest pl-1 italic">Mitgliedstyp</label>
+                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {memberTypeOrder.map((type) => (
+                               <button
+                                 key={type}
+                                 onClick={() => setInviteType(type)}
+                                 className={`py-3 px-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                                   inviteType === type 
+                                     ? "bg-white text-black border-white" 
+                                     : "bg-white/5 text-gray-500 border-white/5 hover:border-white/10"
+                                 }`}
+                               >
+                                  {type}
+                               </button>
+                            ))}
+                         </div>
+                      </div>
+
+                      {/* Footer Actions */}
+                      <div className="flex flex-col gap-3 pt-4">
+                         <button 
+                           onClick={() => {
+                             const url = `${window.location.origin}/anmelden?clubId=${currentClub?.id}&type=${inviteType}&first=${encodeURIComponent(inviteFirstName)}&last=${encodeURIComponent(inviteLastName)}&email=${encodeURIComponent(inviteEmail)}`;
+                             navigator.clipboard.writeText(url);
+                             setIsCopied(true);
+                             setTimeout(() => setIsCopied(false), 2000);
+                           }}
+                           className="w-full h-14 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-2xl shadow-white/5 active:scale-95"
+                         >
+                            {isCopied ? <Check size={18} /> : <Copy size={18} />}
+                            {isCopied ? "Link kopiert!" : "Einladungslink generieren"}
+                         </button>
+                         <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest text-center px-8 leading-relaxed italic">
+                            Das Mitglied erhält den Link und kann sein Profil vervollständigen.
+                         </p>
+                      </div>
+                   </div>
+                </GlassSection>
+             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
