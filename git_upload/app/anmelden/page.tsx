@@ -201,8 +201,8 @@ export default function LoginPage() {
           transition={{ type: "spring", duration: 0.85, bounce: 0.45 }}
           className="mb-12 flex flex-col items-center"
         >
-          <img src="/talo-logo.png" alt="Talo Logo" className="mb-4 h-16 w-16 invert dark:invert-0" />
-          <h1 className="font-logo text-3xl text-gray-900 dark:text-white tracking-[0.35em] uppercase">TALO</h1>
+          <img src="/talo-logo.png" alt="Talo™ Logo" className="mb-4 h-16 w-16 invert dark:invert-0" />
+          <h1 className="font-logo text-3xl text-gray-900 dark:text-white tracking-[0.35em] uppercase">TALO™</h1>
           <p className="mt-2 text-sm text-gray-500 dark:text-[#9CA3AF] font-poppins">Jeder Beitrag zählt.</p>
         </motion.div>
 

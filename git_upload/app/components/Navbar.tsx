@@ -89,7 +89,7 @@ export default function Navbar() {
       ],
       featured: {
         label: "NEU",
-        title: "Talo App 2.0 ist da – jetzt mit nativem Design",
+        title: "Talo™ App 2.0 ist da – jetzt mit nativem Design",
         cta: "Zum Changelog",
         ctaHref: "/blog",
       },

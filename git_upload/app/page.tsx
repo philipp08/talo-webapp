@@ -92,7 +92,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
         <div className="max-w-7xl mx-auto px-5 sm:px-8 text-center relative z-10">
           <ScrollReveal direction="up" delay={0.1}>
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-[#8A8A8A] font-bold text-[11px] uppercase tracking-widest mb-8">
-               <Sparkles size={12} /> TALO ist jetzt live
+               <Sparkles size={12} /> TALO™ ist jetzt live
             </div>
           </ScrollReveal>
           
@@ -142,18 +142,18 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 <div className="text-2xl tracking-tighter">GDPR</div>
                 <div className="text-3xl tracking-tighter">SOC2</div>
                 <div className="text-2xl tracking-tighter">ISO27001</div>
-                <div className="text-3xl tracking-tighter">TALO AI</div>
+                <div className="text-3xl tracking-tighter">TALO™ AI</div>
              </div>
           </div>
         </div>
       </section>
 
-      {/* ─── BRAND RESONANCE (EXPERIENCE TALO) ────────────────────── */}
+      {/* ─── BRAND RESONANCE (EXPERIENCE TALO™) ────────────────────── */}
       <section className="py-32 lg:py-64 relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-blue-500/[0.03] dark:bg-white/[0.03] blur-[160px] pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
            <ScrollReveal direction="up">
-              <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-8 inline-block italic">The TALO Experience</span>
+              <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-8 inline-block italic">The TALO™ Experience</span>
               <h2 className="text-[2.8rem] md:text-[6rem] lg:text-[7.5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-[0.95] mb-12">
                  Engagement.<br /><span className="text-gray-300 dark:text-white/10 italic font-logo">Orchestriert.</span>
               </h2>
@@ -164,7 +164,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
         </div>
       </section>
 
-      {/* ─── WHY TALO (VALUES) ───────────────────────────────────── */}
+      {/* ─── WHY TALO™ (VALUES) ───────────────────────────────────── */}
       <section className="py-32 lg:py-48 bg-gray-50/50 dark:bg-white/[0.01] border-y border-gray-100 dark:border-white/5">
          <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
@@ -197,7 +197,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                      </div>
                      <h3 className="text-2xl font-bold text-gray-950 dark:text-white font-logo tracking-tight">KI-gestützte<br />Infrastruktur.</h3>
                      <p className="text-[#8A8A8A] font-medium leading-relaxed">
-                        TALO lernt mit. Automatisierte Dokumentenscans und Predictive Analytics für eure Vereinsentwicklung.
+                        TALO™ lernt mit. Automatisierte Dokumentenscans und Predictive Analytics für eure Vereinsentwicklung.
                      </p>
                   </div>
                </ScrollReveal>
@@ -234,7 +234,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                       Punktevergabe &<br /><span>Modernisierung.</span>
                    </h2>
                    <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-10">
-                      Eliminiert Excel-Tabellen und Zettelwirtschaft. Vergebt hunderte von Punkten parallel – für Training, Events & Engagement. Talo übernimmt die Arbeit, ihr habt die volle Übersicht.
+                      Eliminiert Excel-Tabellen und Zettelwirtschaft. Vergebt hunderte von Punkten parallel – für Training, Events & Engagement. Talo™ übernimmt die Arbeit, ihr habt die volle Übersicht.
                    </p>
                    <ul className="space-y-4 mb-12">
                       {["Automatisierte Berechnung", "Echtzeit-Leaderboards", "Transparenz für Mitglieder"].map((t, i) => (
@@ -261,7 +261,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                       Intelligente<br /><span>Genehmigung</span>
                    </h2>
                    <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-10">
-                      Talo schlägt Genehmigungen vor und prüft auf Plausibilität. Admins und Trainer können mit nur einem Wisch hunderte Einträge pro Woche orchestrirere.
+                      Talo™ schlägt Genehmigungen vor und prüft auf Plausibilität. Admins und Trainer können mit nur einem Wisch hunderte Einträge pro Woche orchestrirere.
                    </p>
                    <div className="grid grid-cols-2 gap-4 mb-12">
                       <div className="p-6 rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5">
@@ -319,7 +319,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                       Automatisierte<br /><span>Abrechnung</span>
                    </h2>
                    <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-10">
-                      Am Ende der Saison generiert Talo mit nur einem Klick alle relevanten Berichte für den Vorstand, das Finanzamt oder die Mitgliederversammlung. 
+                      Am Ende der Saison generiert Talo™ mit nur einem Klick alle relevanten Berichte für den Vorstand, das Finanzamt oder die Mitgliederversammlung. 
                    </p>
                    <Link href="/funktionen" className="inline-flex items-center gap-3 text-[14px] font-bold text-gray-950 dark:text-white hover:gap-5 transition-all group">
                       Export-Optionen <ArrowRight className="group-hover:translate-x-1 transition-transform" />
@@ -338,12 +338,12 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             
             <div className="flex-1 max-w-2xl">
                <ScrollReveal direction="left">
-                  <span className="text-[12px] font-black tracking-[0.3em] text-gray-500 uppercase mb-6 inline-block italic">Interesse an TALO?</span>
+                  <span className="text-[12px] font-black tracking-[0.3em] text-gray-500 uppercase mb-6 inline-block italic">Interesse an TALO™?</span>
                   <h2 className="text-[2.5rem] md:text-[5.5rem] font-medium tracking-tighter leading-[1] text-gray-950 dark:text-white mb-10">
                      Sichere dir eine<br /><span className="text-gray-400 dark:text-[#8A8A8A]">persönliche Demo.</span>
                   </h2>
                   <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-14 max-w-xl">
-                     Schließe dich über 150 Vereinen an, die ihren administrativen Aufwand bereits heute um über 90% reduziert haben. Wir zeigen dir TALO in Action.
+                     Schließe dich über 150 Vereinen an, die ihren administrativen Aufwand bereits heute um über 90% reduziert haben. Wir zeigen dir TALO™ in Action.
                   </p>
                   
                   <div className="flex flex-col gap-6">

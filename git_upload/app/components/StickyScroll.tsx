@@ -51,7 +51,7 @@ const stickyItems: StickyItem[] = [
     id: "pruefung",
     label: "Intelligente Prüfung",
     title: "Der Admin-Assistent in der Cloud.",
-    description: "Talo scannt eingereichte Beiträge auf Plausibilität. Überschneidungen werden markiert, Punkte automatisch berechnet. Du behältst die volle Kontrolle ohne den manuellen Aufwand.",
+    description: "Talo™ scannt eingereichte Beiträge auf Plausibilität. Überschneidungen werden markiert, Punkte automatisch berechnet. Du behältst die volle Kontrolle ohne den manuellen Aufwand.",
     icon: <ShieldCheck className="w-5 h-5" />,
     accent: "#3B82F6",
     visual: (
@@ -101,7 +101,7 @@ const stickyItems: StickyItem[] = [
     id: "abrechnung",
     label: "Automatisierte Abrechnung",
     title: "Exports auf Knopfdruck.",
-    description: "Kein Zettelchaos am Saisonende. Talo generiert fertige Listen für die Buchhaltung, exportiert CSV-Dateien für die Mitgliederverwaltung und berechnet Belastungen automatisch.",
+    description: "Kein Zettelchaos am Saisonende. Talo™ generiert fertige Listen für die Buchhaltung, exportiert CSV-Dateien für die Mitgliederverwaltung und berechnet Belastungen automatisch.",
     icon: <FileOutput className="w-5 h-5" />,
     accent: "#A855F7",
     visual: (

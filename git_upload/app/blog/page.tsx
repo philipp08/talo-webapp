@@ -9,10 +9,10 @@ import Link from "next/link";
 export const posts = [
   {
     slug: "digitalisierung-im-ehrenamt-wie-talo-die-vereinsarbeit-revolutioniert",
-    title: "Digitalisierung im Ehrenamt: Wie Talo die Vereinsarbeit revolutioniert",
-    excerpt: "Die Verwaltung eines Vereins kann eine Herkulesaufgabe sein. Erfahren Sie, wie Talo die Brücke zwischen traditionellem Engagement und moderner Effizienz schlägt – ohne komplizierte Technik, dafür mit maximalem Fokus auf die Mitglieder.",
+    title: "Digitalisierung im Ehrenamt: Wie Talo™ die Vereinsarbeit revolutioniert",
+    excerpt: "Die Verwaltung eines Vereins kann eine Herkulesaufgabe sein. Erfahren Sie, wie Talo™ die Brücke zwischen traditionellem Engagement und moderner Effizienz schlägt – ohne komplizierte Technik, dafür mit maximalem Fokus auf die Mitglieder.",
     category: "Vereinsmanagement",
-    author: "Talo Development Team",
+    author: "Talo™ Development Team",
     date: "29. März 2026",
     readTime: "12 min",
     image: ""

@@ -50,7 +50,7 @@ export default function NotFound() {
 
         {/* Branding Footer */}
         <div className="mt-24 opacity-30">
-           <span className="font-logo font-black text-sm tracking-[0.3em] text-white uppercase">TALO</span>
+           <span className="font-logo font-black text-sm tracking-[0.3em] text-white uppercase">TALO™</span>
         </div>
 
       </div>

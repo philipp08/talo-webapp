@@ -23,7 +23,7 @@ export default function FeaturesPage() {
 
           <ScrollReveal direction="up" delay={0.3} duration={0.8} blur>
             <p className="text-lg md:text-xl font-poppins-regular leading-relaxed text-gray-600 dark:text-[#8A8A8A] max-w-2xl mx-auto mb-10">
-              Talo ist mehr als nur eine Punkte-Liste. Es ist das digitale Rückgrat für modernes Vereinsengagement.
+              Talo™ ist mehr als nur eine Punkte-Liste. Es ist das digitale Rückgrat für modernes Vereinsengagement.
             </p>
           </ScrollReveal>
         </div>
@@ -154,7 +154,7 @@ export default function FeaturesPage() {
             <StaggerItem>
               <FeatureCard 
                 title="PWA & Mobile Ready" 
-                description="Talo funktioniert als Web-App perfekt auf jedem Smartphone – ohne App-Store Zwang."
+                description="Talo™ funktioniert als Web-App perfekt auf jedem Smartphone – ohne App-Store Zwang."
                 icon={<Share2 className="w-5 h-5" />}
               />
             </StaggerItem>

@@ -12,8 +12,8 @@ const sections = [
     title: "Einrichtung & Setup",
     icon: <Zap className="w-5 h-5" />,
     items: [
-      { q: "Wie erstelle ich einen neuen Verein?", a: "Nach der Registrierung kannst du über 'Verein erstellen' deinen Verein anlegen. Du benötigst lediglich den Namen und optional ein Logo. Talo generiert dann automatisch deine Vereins-ID." },
-      { q: "Wie lade ich Mitglieder ein?", a: "Im Dashboard unter 'Mitglieder' findest du den Button 'Neues Mitglied'. Du kannst Mitglieder einzeln per E-Mail einladen oder eine CSV-Liste importieren. Talo versendet automatisch die Zugangsdaten." },
+      { q: "Wie erstelle ich einen neuen Verein?", a: "Nach der Registrierung kannst du über 'Verein erstellen' deinen Verein anlegen. Du benötigst lediglich den Namen und optional ein Logo. Talo™ generiert dann automatisch deine Vereins-ID." },
+      { q: "Wie lade ich Mitglieder ein?", a: "Im Dashboard unter 'Mitglieder' findest du den Button 'Neues Mitglied'. Du kannst Mitglieder einzeln per E-Mail einladen oder eine CSV-Liste importieren. Talo™ versendet automatisch die Zugangsdaten." },
       { q: "Was ist der Vereins-Code?", a: "Der Vereins-Code ist ein eindeutiger 6-stelliger Schlüssel, mit dem sich Mitglieder direkt in der App deinem Verein zuordnen können, ohne dass du sie manuell anlegen musst." },
       { q: "Kann ich bestehende Daten importieren?", a: "Ja, wir unterstützen den CSV-Import für Mitglieder und historische Tätigkeiten. Vorlagen dafür findest du direkt in der Import-Funktion im Admin-Bereich." }
     ]
@@ -23,7 +23,7 @@ const sections = [
     title: "Engagement & Punkte",
     icon: <Sparkles className="w-5 h-5" />,
     items: [
-      { q: "Wie funktioniert das Punktesystem?", a: "Talo basiert auf Kategorien (A, B, C, S). Du definierst, wie viele Punkte pro Stunde oder Pauschal pro Tätigkeit vergeben werden. Mitglieder erfassen ihre Zeit, Admins genehmigen." },
+      { q: "Wie funktioniert das Punktesystem?", a: "Talo™ basiert auf Kategorien (A, B, C, S). Du definierst, wie viele Punkte pro Stunde oder Pauschal pro Tätigkeit vergeben werden. Mitglieder erfassen ihre Zeit, Admins genehmigen." },
       { q: "Was bedeuten die Kategorien A, B, C und S?", a: "Diese sind frei konfigurierbar. Standardmäßig: A (Training/Regelbetrieb), B (Events/Helfen), C (Material/Sonstiges), S (Sonderaufgaben/Vorstand). Jede Kategorie kann einen eigenen Stundensatz haben." },
       { q: "Wann werden die Punkte gutgeschrieben?", a: "Punkte erscheinen als 'ausstehend', sobald das Mitglied sie einträgt. Erst nach der Genehmigung durch einen Trainer oder Admin zählen sie für das Leaderboard und die Jahressumme." },
       { q: "Können Punkte verfallen?", a: "Standardmäßig werden Punkte am Ende einer Saison (Kalenderjahr) archiviert. Du kannst jedoch Überträge ins nächste Jahr in den Einstellungen aktivieren." }
@@ -34,7 +34,7 @@ const sections = [
     title: "Rollen & Rechte",
     icon: <Users className="w-5 h-5" />,
     items: [
-      { q: "Welche Rollen gibt es in Talo?", a: "Administrator (voller Zugriff), Trainer (darf Beiträge der eigenen Gruppe genehmigen) und Mitglied (darf eigene Beiträge erfassen und Statistiken sehen)." },
+      { q: "Welche Rollen gibt es in Talo™?", a: "Administrator (voller Zugriff), Trainer (darf Beiträge der eigenen Gruppe genehmigen) und Mitglied (darf eigene Beiträge erfassen und Statistiken sehen)." },
       { q: "Kann ich eigene Rollen erstellen?", a: "In der Pro-Version kannst du individuelle Berechtigungen vergeben, z.B. einen 'Kassenwart', der nur Zugriff auf die Export-Funktionen hat." },
       { q: "Wie ändere ich die Rolle eines Mitglieds?", a: "Gehe auf das Profil des Mitglieds im Dashboard. Dort kannst du über die Schalter 'Admin' oder 'Trainer' die Rechte sofort anpassen." }
     ]
@@ -45,7 +45,7 @@ const sections = [
     icon: <ShieldCheck className="w-5 h-5" />,
     items: [
       { q: "Wo werden die Daten gespeichert?", a: "Alle Daten werden auf ISO-zertifizierten Servern in Frankfurt am Main (Deutschland) gespeichert. Wir erfüllen alle Anforderungen der DSGVO." },
-      { q: "Werden Daten für Werbung genutzt?", a: "Absolut nicht. Talo ist ein werbefreies SaaS-Produkt. Deine Daten gehören ausschließlich deinem Verein und werden niemals an Dritte verkauft." },
+      { q: "Werden Daten für Werbung genutzt?", a: "Absolut nicht. Talo™ ist ein werbefreies SaaS-Produkt. Deine Daten gehören ausschließlich deinem Verein und werden niemals an Dritte verkauft." },
       { q: "Was passiert, wenn ich meinen Verein lösche?", a: "Beim Löschen eines Vereins werden alle verknüpften Mitgliederdaten, Einträge und Bilder unwiderruflich von unseren Servern entfernt (gemäß Löschkonzept)." }
     ]
   },
@@ -54,8 +54,8 @@ const sections = [
     title: "Preise & Abrechnung",
     icon: <CreditCard className="w-5 h-5" />,
     items: [
-      { q: "Was kostet Talo?", a: "Für Vereine bis 20 Mitglieder ist Talo dauerhaft kostenlos (Free Plan). Darüber hinaus gibt es faire monatliche oder jährliche Pauschalpreise je nach Vereinsgröße." },
-      { q: "Gibt es Rabatte für Gemeinnützigkeit?", a: "Talo ist speziell für ehrenamtliche Strukturen gebaut. Unsere Preise sind bereits so kalkuliert, dass sie auch für kleine Spartenvereine erschwinglich sind." },
+      { q: "Was kostet Talo™?", a: "Für Vereine bis 20 Mitglieder ist Talo™ dauerhaft kostenlos (Free Plan). Darüber hinaus gibt es faire monatliche oder jährliche Pauschalpreise je nach Vereinsgröße." },
+      { q: "Gibt es Rabatte für Gemeinnützigkeit?", a: "Talo™ ist speziell für ehrenamtliche Strukturen gebaut. Unsere Preise sind bereits so kalkuliert, dass sie auch für kleine Spartenvereine erschwinglich sind." },
       { q: "Wie kann ich kündigen?", a: "Du kannst monatlich im Admin-Bereich kündigen. Es gibt keine Knebelverträge. Nach Ablauf des Zeitraums wird dein Konto automatisch auf den Free-Plan herabgestuft." }
     ]
   },
@@ -64,9 +64,9 @@ const sections = [
     title: "Technik & Probleme",
     icon: <Settings2 className="w-5 h-5" />,
     items: [
-      { q: "Gibt es eine native App?", a: "Ja! Talo ist als native iOS- und Android-App verfügbar. Zudem ist die Web-Plattform voll responsiv und kann auf jedem Gerät genutzt werden." },
+      { q: "Gibt es eine native App?", a: "Ja! Talo™ ist als native iOS- und Android-App verfügbar. Zudem ist die Web-Plattform voll responsiv und kann auf jedem Gerät genutzt werden." },
       { q: "Die App lädt nicht – was tun?", a: "Prüfe deine Internetverbindung. Meist hilft ein einfacher Neustart der App oder das Leeren des Browser-Caches. Bei permanenten Problemen kontaktiere unseren Support." },
-      { q: "Kann ich Talo offline nutzen?", a: "Die native App erlaubt das Erfassen von Beiträgen im Offline-Modus. Sobald du wieder online bist, synchronisiert Talo die Daten automatisch mit der Cloud." }
+      { q: "Kann ich Talo™ offline nutzen?", a: "Die native App erlaubt das Erfassen von Beiträgen im Offline-Modus. Sobald du wieder online bist, synchronisiert Talo™ die Daten automatisch mit der Cloud." }
     ]
   }
 ];
@@ -186,9 +186,9 @@ export default function HelpPage() {
            <h3 className="text-[10px] font-bold tracking-[0.2em] text-gray-400 dark:text-gray-500 uppercase mb-12 text-center">WEITERE RESSOURCEN</h3>
            <div className="grid md:grid-cols-3 gap-8">
               {[
-                { title: "Video Tutorials", desc: "Lernt Talo in unter 5 Minuten kennen.", icon: <Zap className="text-yellow-500" /> },
+                { title: "Video Tutorials", desc: "Lernt Talo™ in unter 5 Minuten kennen.", icon: <Zap className="text-yellow-500" /> },
                 { title: "Admin Handbuch", desc: "Alle Funktionen im Detail erklärt.", icon: <FileText className="text-blue-500" /> },
-                { title: "Zertifizierung", desc: "Wie Talo eure IT-Sicherheit stärkt.", icon: <ShieldCheck className="text-gray-400" /> },
+                { title: "Zertifizierung", desc: "Wie Talo™ eure IT-Sicherheit stärkt.", icon: <ShieldCheck className="text-gray-400" /> },
               ].map((res, i) => (
                 <div key={i} className="p-8 rounded-[32px] bg-gray-50 dark:bg-[#0c0c0c] border border-gray-100 dark:border-white/5 hover:border-[#FFFFFF]/30 transition-all cursor-pointer group">
                    <div className="w-12 h-12 rounded-2xl bg-white dark:bg-white/5 flex items-center justify-center mb-6 shadow-sm">

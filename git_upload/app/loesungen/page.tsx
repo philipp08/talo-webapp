@@ -39,7 +39,7 @@ const solutions = [
   {
     icon: <Users className="w-8 h-8" />,
     title: "Quartiers- & Bürgervereine",
-    desc: "Förderung von Nachbarschaftshilfe und Engagement im Kiez. Talo hilft, die Beiträge der Bürger transparent zu machen.",
+    desc: "Förderung von Nachbarschaftshilfe und Engagement im Kiez. Talo™ hilft, die Beiträge der Bürger transparent zu machen.",
     features: ["Nachbarschafts-Punkte", "Kiez-Leaderboard", "Transparenzbericht"]
   }
 ];
@@ -58,7 +58,7 @@ export default function SolutionsPage() {
           </ScrollReveal>
           <ScrollReveal direction="up" delay={0.3}>
             <p className="text-lg md:text-xl text-gray-600 dark:text-[#8A8A8A] max-w-2xl mx-auto">
-              Egal welche Art von Gemeinschaft ihr seid – Talo passt sich euren Bedürfnissen an und macht Engagement sichtbar.
+              Egal welche Art von Gemeinschaft ihr seid – Talo™ passt sich euren Bedürfnissen an und macht Engagement sichtbar.
             </p>
           </ScrollReveal>
         </div>
@@ -100,7 +100,7 @@ export default function SolutionsPage() {
               <div className="ambient-blob w-[400px] h-[400px] opacity-[0.2] bg-purple-500 blur-[120px] absolute -top-[200px] -right-[200px]" />
               <h2 className="text-4xl md:text-5xl font-bold font-logo mb-6 relative z-10">Dein Verein ist anders?</h2>
               <p className="text-xl text-gray-400 mb-10 relative z-10">
-                Lass uns sprechen. Wir passen Talo gerne an deine speziellen Anforderungen an.
+                Lass uns sprechen. Wir passen Talo™ gerne an deine speziellen Anforderungen an.
               </p>
               <a href="/kontakt" className="inline-block px-8 py-4 bg-white text-black font-bold rounded-2xl hover:scale-105 transition-transform relative z-10">
                 Kontakt aufnehmen
