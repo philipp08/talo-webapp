@@ -28,21 +28,36 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
         </p>
 
         <div className="grid md:grid-cols-2 gap-8 my-16">
-          <div className="p-8 rounded-[32px] bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5">
-            <Sparkles className="text-blue-500 mb-4" size={24} />
+          <div className="p-8 rounded-[32px] bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 shadow-sm group hover:border-[#34C759]/30 transition-all">
+            <Sparkles className="text-blue-500 mb-4 group-hover:scale-110 transition-transform" size={24} />
             <h4 className="text-xl font-bold mb-3">Autonome Analyse</h4>
             <p className="text-gray-600 dark:text-gray-400">Erkennt Muster bei Beitragsrückständen oder Engagement-Einbrüchen, bevor sie zum Problem werden.</p>
           </div>
-          <div className="p-8 rounded-[32px] bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/10">
-            <Clock className="text-[#34C759] mb-4" size={24} />
+          <div className="p-8 rounded-[32px] bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/10 shadow-sm group hover:border-[#34C759]/30 transition-all">
+            <Clock className="text-[#34C759] mb-4 group-hover:scale-110 transition-transform" size={24} />
             <h4 className="text-xl font-bold mb-3">Zeitersparnis</h4>
             <p className="text-gray-600 dark:text-gray-400">Übernimmt bis zu 80% der repetitiven Board-Aufgaben, damit Sie sich auf Ihre Mitglieder konzentrieren können.</p>
           </div>
         </div>
 
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Modernisierung durch Punktevergabe</h2>
+        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+           Eines der Herzstücke von Talo ist das automatisierte Punktesystem. Statt mühsamer Excel-Tabellen bietet Talo ein Echtzeit-System für Engagement. Ob Trainingsteilnahme, Hilfe bei Events oder administrative Arbeit – Talo berechnet die Punkte basierend auf Ihren individuellen Regeln. Dies schafft nicht nur Transparenz, sondern motiviert Mitglieder durch Leaderboards, die den Einsatz der Gemeinschaft sichtbar machen.
+        </p>
+
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Intelligente Genehmigungsworkflows</h2>
+        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+           Genehmigungen sind oft der Flaschenhals in der Vereinsarbeit. Talo löst dieses Problem durch intelligente Plausibilitätsprüfungen. Wenn ein Trainer Punkte für eine Einheit vergibt, schlägt das System dem Administrator die Genehmigung vor, falls alle Parameter (Datum, Teilnehmerzahl, Ort) stimmig sind. Admins können so Hunderte von Einträgen pro Woche mit nur einem Klick orchestrieren, anstatt jeden einzeln prüfen zu müssen.
+        </p>
+
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Automatisierte Abrechnung & Berichte</h2>
+        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+           Am Ende einer Saison oder eines Geschäftsjahres steht oft die größte Last bevor: Die Berichterstattung. Talo generiert auf Knopfdruck präzise Berichte für den Vorstand, das Finanzamt oder die Mitgliederversammlung. Durch die lückenlose Dokumentation aller Vorgänge in der Cloud sind Sie jederzeit auskunftsfähig und rechtssicher aufgestellt.
+        </p>
+
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Sicherheit an erster Stelle</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-           Wir wissen um die Verantwortung im Umgang mit Mitgliederdaten. Deshalb operiert jeder KI-Agent innerhalb unserer proprietären Sicherheits-Architektur "Veto". Dies garantiert, dass Daten niemals unberechtigt nach außen dringen oder für das Training öffentlicher Modelle verwendet werden. Ihr Verein bleibt Herr über seine Daten.
+           Wir wissen um die Verantwortung im Umgang mit Mitgliederdaten. Deshalb operiert jeder KI-Agent innerhalb unserer proprietären Sicherheits-Architektur "Veto". Dies garantiert, dass Daten niemals unberechtigt nach außen dringen oder für das Training öffentlicher Modelle verwendet werden. Jede Aktion eines Agenten bleibt isoliert und nachvollziehbar. Ihr Verein bleibt Herr über seine Daten – DSGVO-konform auf EU-Servern.
         </p>
 
         <blockquote className="relative my-20 pl-12 pr-6 py-6 group">
@@ -55,7 +70,7 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
            </footer>
         </blockquote>
 
-        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Bereit für die Zukunft?</h2>
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Bereit für den Wandel?</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
            Die Digitalisierung im Verein darf nicht bei der PDF-Satzung aufhören. Sie muss den Menschen dort entlasten, wo es am meisten schmerzt: bei der Zeit. Talo bietet Ihnen dieses Zeitgeschenk. Testen Sie unsere KI-Agenten jetzt in der Beta-Phase und gestalten Sie die Zukunft Ihres Vereins aktiv mit.
         </p>
