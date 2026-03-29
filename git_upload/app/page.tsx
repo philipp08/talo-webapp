@@ -257,22 +257,20 @@ export default function Home() {
       </section>
 
       {/* ─── CTA BANNER (FLOATING) ───────────────────────────────── */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-3rem)] sm:w-auto">
+      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-auto max-w-[90vw]">
         <ScrollReveal direction="up" delay={1.5} distance={10}>
            <Link 
-             href="/blog/introducing-veto"
-             className="flex items-center gap-4 bg-[#080808] dark:bg-white text-white dark:text-black px-6 py-4 rounded-[28px] shadow-2xl border border-white/10 dark:border-black/5 hover:scale-105 transition-transform group"
+             href="#demo"
+             className="flex items-center gap-3 bg-[#080808]/90 dark:bg-white/90 text-white dark:text-black px-4 py-2.5 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 hover:scale-[1.02] active:scale-95 transition-all group"
            >
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 flex items-center justify-center text-white relative">
-                 <ShieldCheck size={24} />
-                 <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white relative shadow-lg">
+                 <Sparkles size={14} />
+                 <div className="absolute inset-0 bg-white/20 rounded-full blur-[4px] animate-pulse" />
               </div>
-              <div className="flex flex-col min-w-0 pr-2">
-                 <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-50">NEU: TALO VETO</span>
-                 <span className="text-[14px] font-bold truncate flex items-center gap-2">
-                    Sicherheit für Vereine neu gedacht <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                 </span>
-              </div>
+              <p className="text-[13px] font-semibold tracking-tight whitespace-nowrap pr-1 flex items-center gap-2">
+                 Talo ist jetzt live: <span className="opacity-60 font-medium italic">Fordern Sie eine Demo an</span>
+                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform ml-1" />
+              </p>
            </Link>
         </ScrollReveal>
       </div>
