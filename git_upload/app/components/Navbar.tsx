@@ -230,7 +230,7 @@ export default function Navbar() {
           </div>
 
           {/* Right Actions */}
-          <div className="hidden md:flex items-center gap-4 ml-auto">
+          <div className="hidden md:flex items-center gap-8 ml-auto">
             {!isLoading && user ? (
               <Link
                 href="/dashboard"
