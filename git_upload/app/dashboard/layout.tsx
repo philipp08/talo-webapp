@@ -129,31 +129,8 @@ export default function DashboardLayout({
              })}
           </nav>
 
-          {/* Sidebar Footer / Blog Banner & User Profile */}
-          <div className="p-6 flex flex-col gap-6">
-             <Link href="/blog/digitalisierung-im-ehrenamt-wie-talo-die-vereinsarbeit-revolutioniert" className="block group">
-                <div className="rounded-[32px] bg-white/[0.03] border border-white/5 p-2 transition-all hover:bg-white/[0.05] hover:border-white/10 group-active:scale-95 shadow-2xl">
-                   <div className="rounded-[24px] overflow-hidden relative aspect-[1.4/1] flex flex-col justify-end p-5">
-                      <img 
-                        src="https://i.ibb.co/v4Mm24PS/background-gradients.png" 
-                        className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-110 duration-1000" 
-                        alt="Blog Background"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      
-                      <div className="relative z-10 flex flex-col gap-2">
-                         <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#00E0D1]" />
-                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#00E0D1]">News</span>
-                         </div>
-                         <p className="text-[13px] font-poppins font-bold text-white leading-snug">
-                            Digitalisierung im Ehrenamt: Wie Talo die Vereinsarbeit revolutioniert
-                         </p>
-                      </div>
-                   </div>
-                </div>
-             </Link>
-
+          {/* Sidebar Footer / User Profile */}
+          <div className="p-6">
              <div className="rounded-[32px] bg-white/[0.02] border border-white/5 p-5 relative overflow-hidden group">
                 <div className="flex items-center gap-4 relative z-10">
                    <TAvatar 

@@ -246,44 +246,71 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── CTA BANNER (FLOATING) ───────────────────────────────── */}
+      {/* ─── BLOG BANNER (FIXED RIGHT) ───────────────────────────── */}
       {showBanner && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-auto max-w-[90vw]">
-          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5 pl-4 pr-3 py-2.5">
-            <Link 
-               href="#demo"
-               className="flex items-center gap-3 transition-all outline-none"
-            >
-                <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white relative shadow-lg shrink-0">
-                   <Sparkles size={14} />
-                   <div className="absolute inset-0 bg-white/20 rounded-full blur-[4px] animate-pulse" />
-                </span>
-                <span className="text-[13px] font-semibold tracking-tight whitespace-nowrap flex items-center gap-2 mr-2">
-                   Talo ist jetzt live: <span className="opacity-60 font-medium italic">Fordern Sie eine Demo an</span>
-                </span>
-                
-                {/* Tail Icons Container */}
-                <div className="flex items-center">
-                   {/* Arrow */}
-                   <span className="transition-all duration-300 group-hover:mr-8" aria-hidden="true">
-                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-                      </svg>
-                   </span>
-                </div>
-            </Link>
+        <div className="fixed top-6 right-6 bottom-6 w-[340px] z-[100] hidden xl:block">
+           <div className="h-full rounded-[32px] bg-white/[0.03] dark:bg-[#0c0c0c]/80 border border-gray-100/50 dark:border-white/10 p-2 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] group transition-all duration-500 animate-in fade-in slide-in-from-right-10">
+              <div className="h-full rounded-[24px] overflow-hidden relative flex flex-col justify-end p-8">
+                 <img 
+                   src="https://i.ibb.co/v4Mm24PS/background-gradients.png" 
+                   className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-110 duration-1000" 
+                   alt="Blog Update"
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+                 
+                 <div className="relative z-10 flex flex-col gap-6">
+                    <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-[#34C759] shadow-[0_0_10px_#34C759]" />
+                          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white">Latest Story</span>
+                       </div>
+                       <button 
+                         onClick={() => setShowBanner(false)}
+                         className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 border border-white/10 text-white hover:bg-white/20 transition-all shadow-xl"
+                       >
+                         <svg width="14" height="14" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                           <path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></path>
+                         </svg>
+                       </button>
+                    </div>
 
-            <button 
-              type="button"
-              onClick={() => setShowBanner(false)}
-              aria-label="Schließen"
-              className="absolute right-3 w-8 h-8 flex items-center justify-center rounded-lg opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 text-white/40 dark:text-black/40 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/5 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto"
-            >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></path>
-              </svg>
-            </button>
-          </div>
+                    <div className="space-y-4">
+                       <h3 className="text-2xl font-logo font-bold text-white leading-[1.2] tracking-tight">
+                          Digitalisierung im Ehrenamt: Wie Talo die Vereinsarbeit revolutioniert
+                       </h3>
+                       <p className="text-sm text-white/50 font-medium leading-relaxed line-clamp-3">
+                          Erfahre, wie wir die Brücke zwischen traditionellem Engagement und moderner Effizienz schlagen.
+                       </p>
+                    </div>
+
+                    <Link 
+                       href="/blog/digitalisierung-im-ehrenamt-wie-talo-die-vereinsarbeit-revolutioniert"
+                       className="flex items-center justify-center gap-3 w-full bg-white text-black py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:bg-[#34C759] hover:text-white transition-all shadow-xl"
+                    >
+                       Jetzt lesen <ArrowRight size={14} />
+                    </Link>
+                 </div>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* Mobile-only CTA (Bottom) */}
+      {showBanner && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[90vw] xl:hidden">
+           <Link 
+              href="/blog/digitalisierung-im-ehrenamt-wie-talo-die-vereinsarbeit-revolutioniert"
+              className="flex items-center gap-4 bg-black dark:bg-white text-white dark:text-black p-4 rounded-2xl shadow-2xl border border-white/10"
+           >
+              <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                 <img src="https://i.ibb.co/v4Mm24PS/background-gradients.png" className="w-full h-full object-cover" alt="" />
+              </div>
+              <div className="flex flex-col min-w-0 flex-1">
+                 <span className="text-[9px] font-black uppercase tracking-widest opacity-50">Latest Story</span>
+                 <span className="text-[13px] font-bold truncate">Digitalisierung im Ehrenamt...</span>
+              </div>
+              <ChevronRight size={18} className="mr-2" />
+           </Link>
         </div>
       )}
 
