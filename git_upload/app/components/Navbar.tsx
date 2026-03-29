@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight, Menu as MenuIcon, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppStore } from "@/lib/store/useAppStore";
+import { useDemo } from "../page";
 
 interface MenuItem {
   title: string;
@@ -45,6 +46,7 @@ export default function Navbar() {
 
   const user = useAppStore((state) => state.user);
   const isLoading = useAppStore((state) => state.isLoadingAuthedState);
+  const { openDemo } = useDemo();
 
   useEffect(() => {
     setMounted(true);
@@ -246,12 +248,12 @@ export default function Navbar() {
                 >
                   Anmelden
                 </Link>
-                <Link
-                  href="/anmelden"
+                <button
+                  onClick={openDemo}
                   className="text-[14px] font-bold px-6 py-2.5 rounded-full bg-[#080808] dark:bg-white text-white dark:text-black hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-black/5"
                 >
-                  Kostenlos testen
-                </Link>
+                  Demo anfragen
+                </button>
               </>
             )}
           </div>
@@ -333,13 +335,12 @@ export default function Navbar() {
               >
                 Anmelden
               </Link>
-              <Link
-                href="/anmelden"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center w-full py-4 rounded-xl text-[16px] font-bold bg-[#080808] dark:bg-white text-white dark:text-black"
+              <button
+                onClick={() => { setMobileOpen(false); openDemo(); }}
+                className="flex items-center justify-center w-full py-4 rounded-xl text-[16px] font-bold bg-[#080808] dark:bg-white text-white dark:text-black shadow-xl mt-3"
               >
-                Kostenlos testen
-              </Link>
+                Demo anfragen
+              </button>
             </div>
           </motion.div>
         )}

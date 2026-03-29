@@ -1,19 +1,45 @@
-"use client";
-
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, createContext, useContext } from "react";
 import Navbar from "./components/Navbar";
 import FeatureCard from "./components/FeatureCard";
 import StepCard from "./components/StepCard";
 import Footer from "./components/Footer";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "./components/ScrollReveal";
-import { Star, ShieldCheck, ArrowRight, Zap, Globe, Lock, Cpu, Sparkles, Megaphone, ChevronRight, BarChart3, Users, Send } from "lucide-react";
+import { Star, ShieldCheck, ArrowRight, Zap, Globe, Lock, Cpu, Sparkles, Megaphone, ChevronRight, BarChart3, Users, Send, X } from "lucide-react";
 import Link from "next/link";
 import ContactForm from "./components/ContactForm";
 import { posts as blogPosts } from "./blog/page";
+import { motion, AnimatePresence } from "framer-motion";
+
+// ─── MODAL CONTEXT ───────────────────────────────────────────
+interface DemoContextType {
+  isDemoOpen: boolean;
+  openDemo: () => void;
+  closeDemo: () => void;
+}
+
+const DemoContext = createContext<DemoContextType | undefined>(undefined);
+
+export const useDemo = () => {
+  const context = useContext(DemoContext);
+  if (!context) throw new Error("useDemo must be used within a DemoProvider");
+  return context;
+};
 
 export default function Home() {
   const [showBanner, setShowBanner] = useState(true);
   const [isBannerVisible, setIsBannerVisible] = useState(true);
+  const [isDemoOpen, setIsDemoOpen] = useState(false);
+
+  const openDemo = () => setIsDemoOpen(true);
+  const closeDemo = () => setIsDemoOpen(false);
+
+  useEffect(() => {
+    if (isDemoOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isDemoOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,8 +63,39 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="relative min-h-screen bg-white dark:bg-[#080808]">
-      <Navbar />
+    <DemoContext.Provider value={{ isDemoOpen, openDemo, closeDemo }}>
+      <main className="relative min-h-screen bg-white dark:bg-[#080808]">
+        <Navbar />
+
+        {/* ─── DEMO MODAL ────────────────────────────────────────── */}
+        <AnimatePresence>
+          {isDemoOpen && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={closeDemo}
+                className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-xl z-10"
+              >
+                <button 
+                  onClick={closeDemo}
+                  className="absolute -top-12 right-0 text-white/50 hover:text-white transition-colors flex items-center gap-2 group font-bold text-xs uppercase tracking-widest"
+                >
+                  Schließen <X size={20} className="group-hover:rotate-90 transition-transform" />
+                </button>
+                <ContactForm />
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
       {/* ─── HERO ─────────────────────────────────────────────────── */}
       <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 md:pt-48 md:pb-32 overflow-hidden">
@@ -69,12 +126,12 @@ export default function Home() {
               >
                 Kostenlos starten
               </Link>
-              <Link
-                href="#demo"
+              <button
+                onClick={openDemo}
                 className="w-full sm:w-auto px-10 py-5 rounded-full font-bold text-sm bg-white dark:bg-transparent text-gray-900 dark:text-white border border-gray-200 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-center"
               >
                 Demo anfragen
-              </Link>
+              </button>
             </div>
           </ScrollReveal>
         </div>
@@ -416,6 +473,7 @@ export default function Home() {
       )}
 
       <Footer />
-    </main>
+      </main>
+    </DemoContext.Provider>
   );
 }
