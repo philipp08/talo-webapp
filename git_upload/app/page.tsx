@@ -72,7 +72,7 @@ export default function Home() {
                 href="#demo"
                 className="w-full sm:w-auto px-10 py-5 rounded-full font-bold text-sm bg-white dark:bg-transparent text-gray-900 dark:text-white border border-gray-200 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-center"
               >
-                Demo ansehen
+                Demo anfragen
               </Link>
             </div>
           </ScrollReveal>
