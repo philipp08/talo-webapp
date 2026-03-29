@@ -94,8 +94,8 @@ export default function DashboardLayout({
           {/* Brand Header */}
           <div className="px-10 py-12 flex items-center justify-between mb-4">
              <Link href="/" className="flex items-center gap-3.5 group">
-                <div className="w-10 h-10 rounded-[14px] bg-white flex items-center justify-center transition-all group-hover:rotate-6 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                   <img src="/talo-logo.png" alt="Talo" className="w-7 h-7 invert" />
+                <div className="w-10 h-10 flex items-center justify-center transition-all group-hover:scale-110">
+                   <img src="/talo-logo.png" alt="TALO" className="w-8 h-8" />
                 </div>
                 <div className="flex flex-col">
                    <span className="font-logo text-lg font-black tracking-[0.25em] text-white uppercase leading-none">TALO</span>

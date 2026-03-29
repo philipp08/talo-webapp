@@ -131,18 +131,17 @@ export default function Navbar() {
               : "bg-transparent border-transparent"
           }`}
         >
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-3 transition-transform hover:scale-[1.02] active:scale-[0.98]">
-            <div className="relative w-8 h-8 rounded-lg overflow-hidden glass-card flex items-center justify-center border-none">
+            <div className="relative w-8 h-8 flex items-center justify-center">
               <Image
                 src="/talo-logo.png"
-                alt="Talo logo"
-                width={24}
-                height={24}
-                className="invert dark:invert-0 object-contain"
+                alt="TALO logo"
+                width={28}
+                height={28}
+                className="invert dark:invert-0 object-contain transition-all"
               />
             </div>
-            <span className="font-logo font-medium text-[19px] tracking-[0.2em] text-[#080808] dark:text-white uppercase">
+            <span className="font-logo font-medium text-[19px] tracking-[0.2em] text-[#080808] dark:text-white uppercase leading-none">
               TALO
             </span>
           </Link>
