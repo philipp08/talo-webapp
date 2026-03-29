@@ -89,7 +89,7 @@ export default function Navbar() {
       ],
       featured: {
         label: "NEU",
-        title: "Talo™ App 2.0 ist da – jetzt mit nativem Design",
+        title: "Talo App 2.0 ist da – jetzt mit nativem Design",
         cta: "Zum Changelog",
         ctaHref: "/blog",
       },
@@ -127,11 +127,13 @@ export default function Navbar() {
         }`}
       >
         <nav
-          className={`container mx-auto max-w-[1300px] flex items-center justify-between rounded-[20px] px-6 py-2 transition-all duration-500 transform-gpu border ${
+          className={`container mx-auto max-w-[1300px] flex items-center justify-between transition-all duration-500 transform-gpu border ${
             scrolled || mobileOpen
-              ? "bg-white/70 dark:bg-[#0A0A0A]/70 backdrop-blur-2xl border-black/[0.08] dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+              ? "bg-[#F5F5F7]/80 dark:bg-[#0A0A0A]/80 backdrop-blur-2xl border-black/[0.08] dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
               : "bg-transparent border-transparent"
-          }`}
+          } ${
+            mobileOpen ? "rounded-[24px]" : "rounded-full md:rounded-[20px]"
+          } px-4 md:px-6 py-2`}
         >
           <Link href="/" className="flex items-center gap-3 transition-transform hover:scale-[1.02] active:scale-[0.98]">
             <div className="relative w-8 h-8 flex items-center justify-center">
@@ -143,7 +145,7 @@ export default function Navbar() {
                 className="invert dark:invert-0 object-contain transition-all"
               />
             </div>
-            <span className="font-logo font-medium text-[19px] tracking-[0.2em] text-[#080808] dark:text-white uppercase leading-none">
+            <span className="font-logo font-medium text-[19px] tracking-[0.2em] text-[#080808] dark:text-white uppercase leading-none hidden md:block">
               TALO
             </span>
           </Link>
@@ -258,13 +260,22 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Trigger */}
-          <button
-            onClick={() => setMobileOpen((v) => !v)}
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-black/[0.05] dark:bg-white/[0.05] text-[#080808] dark:text-white"
-          >
-            {mobileOpen ? <X size={20} /> : <MenuIcon size={20} />}
-          </button>
+          {/* Mobile Navigation Trigger (Pill Style) */}
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={openDemo}
+              className="text-[13px] font-semibold px-4 py-2 rounded-full bg-black dark:bg-white text-white dark:text-black transition-all active:scale-95 shadow-sm"
+            >
+              Demo anfragen
+            </button>
+            <button
+              onClick={() => setMobileOpen((v) => !v)}
+              className="group flex items-center justify-center w-10 h-10 rounded-[18px] bg-white dark:bg-[#1A1A1A] text-[#080808] dark:text-white shadow-sm border border-black/5 dark:border-white/10 transition-all active:scale-95"
+              aria-label={mobileOpen ? "Menü schließen" : "Menü öffnen"}
+            >
+              {mobileOpen ? <X size={20} className="transition-transform duration-300 rotate-90" /> : <MenuIcon size={20} />}
+            </button>
+          </div>
         </nav>
       </header>
 

@@ -58,8 +58,8 @@ export default function Footer() {
     },
   ];
 
-  const taloAiQuery = encodeURIComponent(`Als potenzieller Kunde möchte ich konkret verstehen, was ich bei Talo™ (talo.app) erhalte.
-Beschreibe Schritt für Schritt, was der Service beinhaltet: was Talo™ ist, wie das digitale Punktesystem für Vereine funktioniert, wie es die Mitgliederverwaltung automatisiert, welche Sicherheits- und DSGVO-Features es gibt und wie es Vorständen hilft, Zeit zu sparen.
+  const taloAiQuery = encodeURIComponent(`Als potenzieller Kunde möchte ich konkret verstehen, was ich bei Talo (talo.app) erhalte.
+Beschreibe Schritt für Schritt, was der Service beinhaltet: was Talo ist, wie das digitale Punktesystem für Vereine funktioniert, wie es die Mitgliederverwaltung automatisiert, welche Sicherheits- und DSGVO-Features es gibt und wie es Vorständen hilft, Zeit zu sparen.
 Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreiben.`);
 
   const aiProviders = [
@@ -110,7 +110,7 @@ Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreibe
                 className="rounded-lg invert dark:invert-0 h-10 w-10 md:h-12.5 md:w-12.5"
               />
               <span className="font-logo font-medium text-[19px] tracking-[0.2em] text-[#080808] dark:text-white uppercase hidden md:block">
-                Talo™
+                Talo
               </span>
             </Link>
           </div>
@@ -172,7 +172,7 @@ Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreibe
 
           {/* Bottom Middle: AI Section */}
           <div className="col-span-3 md:col-span-10 lg:col-span-6 mt-12 mb-4 lg:mb-0 md:mt-16 lg:mt-24 order-2 lg:order-2 flex flex-col items-start lg:items-center gap-3 border-t border-gray-100 dark:border-white/5 pt-8 lg:border-t-0 lg:pt-0">
-            <span className="text-[0.75rem] opacity-60 font-medium whitespace-nowrap">KI über Talo™ fragen</span>
+            <span className="text-[0.75rem] opacity-60 font-medium whitespace-nowrap">KI über Talo fragen</span>
             <ul className="flex gap-4">
               {aiProviders.map((ai) => (
                 <li key={ai.name}>
@@ -181,7 +181,7 @@ Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreibe
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 dark:bg-white/5 text-[18px] opacity-60 hover:opacity-100 transition-all hover:scale-110 grayscale hover:grayscale-0"
-                    title={`Frage ${ai.name} über Talo™`}
+                    title={`Frage ${ai.name} über Talo`}
                   >
                     {ai.icon}
                   </a>
