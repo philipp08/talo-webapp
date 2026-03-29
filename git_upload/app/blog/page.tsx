@@ -16,6 +16,16 @@ export const posts = [
     date: "29. März 2026",
     readTime: "12 min",
     image: ""
+  },
+  {
+    slug: "mitglieder-wachstum-durch-transparenz",
+    title: "Mitglieder-Wachstum durch Transparenz: Die neue Währung der Vereine",
+    excerpt: "Wie moderne Vereine durch digitale Sichtbarkeit von Leistungen attraktiver für Neumitglieder werden. Erfahren Sie, warum Transparenz heute wichtiger ist als jede Werbekampagne.",
+    category: "Wachstum",
+    author: "Talo™ Team",
+    date: "30. März 2026",
+    readTime: "8 min",
+    image: ""
   }
 ];
 

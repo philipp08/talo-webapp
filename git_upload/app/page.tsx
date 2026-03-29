@@ -370,7 +370,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       <section className="py-24 sm:py-32 px-6 bg-white dark:bg-[#080808]">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal direction="up">
-            <h2 className="text-xl md:text-2xl text-center font-medium text-gray-900 dark:text-white mb-10 md:mb-16">
+            <h2 className="text-3xl md:text-5xl text-center font-medium text-gray-950 dark:text-white mb-16 md:mb-24 tracking-tighter max-w-4xl mx-auto leading-[1.1]">
               Neueste Highlights aus unserem <Link href="/blog" className="text-gray-950 dark:text-white underline decoration-[#8A8A8A]/30 underline-offset-4 hover:decoration-[#8A8A8A] transition-colors">Blog</Link>
             </h2>
           </ScrollReveal>
