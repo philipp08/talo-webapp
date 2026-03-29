@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Navbar from "./components/Navbar";
 import PhoneDemo from "./components/PhoneDemo";
 import FeatureCard from "./components/FeatureCard";
@@ -10,6 +11,8 @@ import { Star, ShieldCheck, ArrowRight, Zap, Globe, Lock, Cpu, Sparkles, Megapho
 import Link from "next/link";
 
 export default function Home() {
+  const [showBanner, setShowBanner] = useState(true);
+
   return (
     <main className="relative min-h-screen bg-white dark:bg-[#080808]">
       <Navbar />
@@ -257,23 +260,39 @@ export default function Home() {
       </section>
 
       {/* ─── CTA BANNER (FLOATING) ───────────────────────────────── */}
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-auto max-w-[90vw]">
-        <ScrollReveal direction="up" delay={1.5} distance={10}>
-           <Link 
-             href="#demo"
-             className="flex items-center gap-3 bg-[#080808]/90 dark:bg-white/90 text-white dark:text-black px-4 py-2.5 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 hover:scale-[1.02] active:scale-95 transition-all group"
-           >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white relative shadow-lg">
-                 <Sparkles size={14} />
-                 <div className="absolute inset-0 bg-white/20 rounded-full blur-[4px] animate-pulse" />
-              </div>
-              <p className="text-[13px] font-semibold tracking-tight whitespace-nowrap pr-1 flex items-center gap-2">
-                 Talo ist jetzt live: <span className="opacity-60 font-medium italic">Fordern Sie eine Demo an</span>
-                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform ml-1" />
-              </p>
-           </Link>
-        </ScrollReveal>
-      </div>
+      {showBanner && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-auto max-w-[90vw]">
+          <div className="relative flex items-center bg-[#080808] dark:bg-white text-white dark:text-black rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md border border-white/10 dark:border-black/5 group transition-all duration-500 animate-in fade-in slide-in-from-bottom-5">
+            <Link 
+               href="#demo"
+               className="flex items-center gap-3 pl-4 pr-12 py-2.5 transition-all"
+            >
+                <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white relative shadow-lg shrink-0">
+                   <Sparkles size={14} />
+                   <div className="absolute inset-0 bg-white/20 rounded-full blur-[4px] animate-pulse" />
+                </span>
+                <span className="text-[13px] font-semibold tracking-tight whitespace-nowrap flex items-center gap-2">
+                   Talo ist jetzt live: <span className="opacity-60 font-medium italic">Fordern Sie eine Demo an</span>
+                   <span className="group-hover:translate-x-1 transition-transform ml-1" aria-hidden="true">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                      </svg>
+                   </span>
+                </span>
+            </Link>
+            <button 
+              type="button"
+              onClick={() => setShowBanner(false)}
+              aria-label="Schließen"
+              className="absolute right-3 w-8 h-8 flex items-center justify-center rounded-full text-white/40 dark:text-black/40 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/5 transition-all"
+            >
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </main>
