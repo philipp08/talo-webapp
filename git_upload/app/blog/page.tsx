@@ -18,13 +18,13 @@ export const posts = [
     image: ""
   },
   {
-    slug: "mitglieder-wachstum-durch-transparenz",
-    title: "Mitglieder-Wachstum durch Transparenz: Die neue Währung der Vereine",
-    excerpt: "Wie moderne Vereine durch digitale Sichtbarkeit von Leistungen attraktiver für Neumitglieder werden. Erfahren Sie, warum Transparenz heute wichtiger ist als jede Werbekampagne.",
-    category: "Wachstum",
-    author: "Talo™ Team",
-    date: "30. März 2026",
-    readTime: "8 min",
+    slug: "talo-app-2-natives-design-neue-aera",
+    title: "Talo App 2.0: Warum wir alles von Grund auf neu gebaut haben",
+    excerpt: "Native Performance, ein radikal vereinfachtes Interface und ein Designsystem, das Vereinsverwaltung erstmals wirklich intuitiv macht. Ein tiefer Einblick in das, was Talo App 2.0 so anders macht.",
+    category: "Produkt",
+    author: "Talo™ Development Team",
+    date: "1. April 2026",
+    readTime: "10 min",
     image: ""
   }
 ];
