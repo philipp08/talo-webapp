@@ -128,7 +128,7 @@ export default function Navbar() {
       >
         {/* DESKTOP NAVBAR */}
         <nav
-          className={`hidden md:flex container mx-auto max-w-[1300px] items-center justify-between transition-all duration-500 transform-gpu border ${
+          className={`hidden xl:flex container mx-auto max-w-[1300px] items-center justify-between transition-all duration-500 transform-gpu border ${
             scrolled
               ? "bg-[rgba(245,245,247,0.8)] dark:bg-[#0A0A0A]/80 backdrop-blur-[8px] border-[rgb(234,236,239)] dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.04)]"
               : "bg-transparent border-transparent"
@@ -280,7 +280,7 @@ export default function Navbar() {
             damping: 28,
             mass: 0.9,
           }}
-          className={`md:hidden flex flex-col mx-auto w-full max-w-full overflow-hidden border ${
+          className={`xl:hidden flex flex-col mx-auto w-full max-w-full overflow-hidden border ${
             (scrolled || mobileOpen) ? "backdrop-blur-[12px]" : ""
           } dark:bg-[#0A0A0A]/95 dark:border-white/[0.08]`}
         >
@@ -562,7 +562,7 @@ export default function Navbar() {
                animate={{ opacity: 1 }}
                exit={{ opacity: 0 }}
                transition={{ duration: 0.3 }}
-               className="fixed inset-0 bg-black/10 dark:bg-black/60 z-[50] md:hidden"
+               className="fixed inset-0 bg-black/10 dark:bg-black/60 z-[50] xl:hidden"
                onClick={() => setMobileOpen(false)}
             />
          )}
