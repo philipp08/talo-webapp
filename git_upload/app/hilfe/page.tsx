@@ -114,7 +114,6 @@ export default function HelpPage() {
                       key={section.id}
                       onClick={() => {
                         setActiveSection(section.id);
-                        document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }}
                       className={`flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3.5 rounded-xl transition-all font-medium whitespace-nowrap lg:whitespace-normal ${
                         activeSection === section.id 
@@ -133,9 +132,9 @@ export default function HelpPage() {
             </div>
 
             {/* Content Area */}
-            <div className="lg:w-3/4 flex flex-col gap-24">
-                {sections.map((section) => (
-                 <div key={section.id} id={section.id} className="scroll-mt-32">
+            <div className="lg:w-3/4 flex flex-col gap-24 min-h-[400px]">
+                {sections.filter(s => s.id === activeSection).map((section) => (
+                 <ScrollReveal key={section.id} direction="up" delay={0.1}>
                     <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 mb-10 pb-4 border-b border-gray-100 dark:border-white/5">
                        <div className="w-12 h-12 rounded-2xl bg-black dark:bg-white/10 flex items-center justify-center text-white">
                           {section.icon}
@@ -155,8 +154,8 @@ export default function HelpPage() {
                          </div>
                        ))}
                     </div>
-                 </div>
-               ))}
+                 </ScrollReveal>
+                ))}
                
                {/* Contact CTA */}
                <div className="bg-[#080808] dark:bg-[#101010] rounded-[40px] p-8 md:p-14 text-center mt-12 relative overflow-hidden border border-white/5">
