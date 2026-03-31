@@ -111,9 +111,9 @@ const stickyItems: StickyItem[] = [
     accent: "#8b5cf6",
     visual: (
       <div className="w-full h-full bg-purple-50 dark:bg-purple-950/20 flex items-center justify-center p-8 lg:p-12">
-        <div className="relative">
+        <div className="relative scale-75 sm:scale-90 lg:scale-100 origin-center flex items-center justify-center">
            {/* Phone Frame */}
-           <div className="w-[200px] h-[400px] bg-white dark:bg-[#0c0c0c] rounded-[38px] border-[2px] border-gray-900 dark:border-[#222] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] overflow-hidden relative flex flex-col">
+           <div className="w-[200px] h-[360px] bg-white dark:bg-[#0c0c0c] rounded-[38px] border-[2px] border-gray-900 dark:border-[#222] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] overflow-hidden relative flex flex-col">
               {/* Status Bar / Notch */}
               <div className="h-7 w-full flex items-center justify-center px-4 relative">
                  <div className="w-20 h-4 bg-gray-900 rounded-b-2xl absolute top-0" />
@@ -187,8 +187,8 @@ const stickyItems: StickyItem[] = [
     icon: <FileOutput className="w-5 h-5" />,
     accent: "#f43f5e",
     visual: (
-      <div className="w-full h-full bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center p-8 lg:p-12">
-        <div className="w-full max-w-[400px] bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-rose-100 dark:border-rose-500/10 p-6 lg:p-8">
+      <div className="w-full h-full bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center p-6 sm:p-8 lg:p-12">
+        <div className="w-full max-w-[340px] sm:max-w-none bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-rose-100 dark:border-rose-500/10 p-5 sm:p-8">
            <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-4 min-w-0">
                  <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
@@ -302,9 +302,9 @@ export default function StickyScroll() {
             </div>
 
             {/* Layout Box */}
-            <div className="bg-gray-50 dark:bg-white/1 overflow-hidden border border-gray-100 dark:border-white/5 rounded-[2.5rem] lg:grid lg:grid-cols-2 items-stretch h-full min-h-[340px]">
+            <div className="bg-gray-50 dark:bg-white/1 overflow-hidden border border-gray-100 dark:border-white/5 rounded-[2.5rem] sm:grid sm:grid-cols-2 items-stretch h-full min-h-[340px]">
               {/* Text Side */}
-              <div className="p-8 lg:p-12 flex flex-col justify-between">
+              <div className="p-6 sm:p-8 lg:p-12 flex flex-col justify-between">
                 <div>
                   <h3 className="text-2xl lg:text-3xl font-medium tracking-tight text-gray-900 dark:text-white leading-tight mb-6">
                     {item.title}
@@ -316,7 +316,7 @@ export default function StickyScroll() {
                 
                 <Link 
                   href="/anmelden"
-                  className="inline-flex items-center gap-2 font-medium mt-10 lg:mt-0 transition-opacity hover:opacity-70"
+                  className="inline-flex items-center gap-2 font-medium mt-6 sm:mt-10 lg:mt-0 transition-opacity hover:opacity-70"
                   style={{ color: item.accent }}
                 >
                   Loslegen <ArrowRight className="w-4 h-4" />
@@ -324,7 +324,7 @@ export default function StickyScroll() {
               </div>
 
               {/* Visual Side */}
-              <div className="h-64 lg:h-auto overflow-hidden relative">
+              <div className="h-80 sm:h-auto overflow-hidden relative">
                 {item.visual}
               </div>
             </div>
