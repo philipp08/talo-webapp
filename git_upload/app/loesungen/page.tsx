@@ -109,7 +109,11 @@ const smallScenarios = [
   }
 ];
 
+import { useDemo } from "@/lib/context/DemoContext";
+
 export default function SolutionsPage() {
+  const { openDemo } = useDemo();
+
   return (
     <main className="relative min-h-screen bg-white dark:bg-[#080808]">
       <Navbar />
@@ -296,7 +300,10 @@ export default function SolutionsPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-              <button className="px-12 py-6 bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all text-lg shadow-2xl">
+              <button 
+                onClick={openDemo}
+                className="px-12 py-6 bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all text-lg shadow-2xl"
+              >
                 Demo anfragen
               </button>
               <Link href="/ueber-uns" className="text-gray-900 dark:text-white font-bold text-sm uppercase tracking-widest hover:opacity-70 transition-opacity flex items-center gap-3">

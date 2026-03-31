@@ -25,6 +25,9 @@ export const metadata: Metadata = {
   keywords: ["Verein", "Ehrenamt", "Punkte", "Vereinsverwaltung", "Mitglieder"],
 };
 
+import { DemoProvider } from "@/lib/context/DemoContext";
+import DemoModal from "./components/DemoModal";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,8 +38,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light">
           <AuthProvider>
-            {children}
-            <CookieBanner />
+            <DemoProvider>
+              {children}
+              <DemoModal />
+              <CookieBanner />
+            </DemoProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
