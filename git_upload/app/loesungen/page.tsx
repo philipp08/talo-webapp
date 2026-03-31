@@ -115,194 +115,192 @@ export default function SolutionsPage() {
       <Navbar />
 
       {/* ─── HERO SECTION ────────────────────────────────────────── */}
-      <section className="relative pt-[180px] pb-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="max-w-3xl">
-            <ScrollReveal direction="up" delay={0.1}>
-              <span className="inline-block px-4 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-sm font-semibold text-gray-500 dark:text-gray-400 mb-6">
-                Einsatzgebiete
-              </span>
-            </ScrollReveal>
-            <ScrollReveal direction="up" delay={0.2}>
-              <h1 className="text-[3.5rem] leading-[1.05] md:text-[5.5rem] font-medium tracking-tight font-logo text-gray-900 dark:text-white mb-8">
-                Talo passt sich <br /><span className="text-gray-400">deinem Verein an.</span>
-              </h1>
-            </ScrollReveal>
-            <ScrollReveal direction="up" delay={0.3}>
-              <p className="text-xl md:text-2xl text-gray-600 dark:text-[#8A8A8A] leading-relaxed mb-12">
-                Wir haben Talo so flexibel entwickelt, dass jede Gemeinschaft – vom kleinen Förderverein bis zur großen Hilfsorganisation – ihr Engagement perfekt abbilden kann.
-              </p>
-            </ScrollReveal>
-          </div>
+      <section className="relative pt-[200px] pb-32 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
+          <ScrollReveal direction="up" delay={0.1}>
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-[#8A8A8A] font-bold text-[11px] uppercase tracking-widest mb-8">
+               Branchen-Lösungen
+            </div>
+          </ScrollReveal>
+          <ScrollReveal direction="up" delay={0.2}>
+            <h1 className="text-[3rem] leading-[1.05] md:text-[6rem] lg:text-[7.5rem] font-medium tracking-tight font-logo text-gray-900 dark:text-white mb-10 max-w-5xl mx-auto">
+              Für jede Form des <br /><span className="text-gray-400 dark:text-white/20 italic">Engagements.</span>
+            </h1>
+          </ScrollReveal>
+          <ScrollReveal direction="up" delay={0.3}>
+            <p className="text-xl md:text-2xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed max-w-3xl mx-auto">
+              Talo ist hochgradig modular. Wir orchestrieren eure Prozesse – vom kleinen Förderverein bis zur komplexen Hilfsorganisation.
+            </p>
+          </ScrollReveal>
         </div>
         
-        {/* Decorative background element */}
-        <div className="absolute top-[20%] right-[-10%] w-[60%] h-[60%] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
+        {/* Background glow */}
+        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[80%] h-[60%] bg-blue-500/[0.02] dark:bg-white/[0.02] blur-[140px] pointer-events-none -z-10" />
       </section>
 
-      {/* ─── DETAILED SOLUTIONS ───────────────────────────────────── */}
-      <section className="pb-32">
-        <div className="max-w-7xl mx-auto px-6 space-y-32">
+      {/* ─── DETAILED SOLUTIONS: THE GRID ─────────────────────────── */}
+      <section className="pb-32 border-t border-gray-100 dark:border-white/5 pt-32">
+        <div className="max-w-7xl mx-auto px-6 space-y-48">
           {detailedSolutions.map((solution, index) => (
             <div 
               key={solution.id} 
               id={solution.id}
-              className={`flex flex-col ${index % 2 === 1 ? 'lg:flex-row-reverse' : 'lg:flex-row'} gap-16 items-center`}
+              className="space-y-20"
             >
-              <div className="flex-1 w-full text-left">
-                <ScrollReveal direction={index % 2 === 1 ? "right" : "left"} delay={0.1}>
-                  <div className="flex items-center gap-4 mb-6">
-                    <div 
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-lg"
+              {/* Header & Intro */}
+              <div className="grid lg:grid-cols-2 gap-16 items-start">
+                <ScrollReveal direction="up">
+                   <div 
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-8 shadow-xl"
                       style={{ backgroundColor: solution.accent }}
                     >
                       {solution.icon}
                     </div>
-                    <div>
-                      <h2 className="text-[2.5rem] font-bold font-logo text-gray-900 dark:text-white leading-tight">
-                        {solution.title}
-                      </h2>
-                      <p className="text-lg font-medium text-gray-500 dark:text-gray-400">
-                        {solution.subtitle}
+                    <h2 className="text-[3rem] md:text-[4.5rem] font-medium tracking-tighter text-gray-900 dark:text-white leading-[1] mb-8 font-logo">
+                      {solution.title}
+                    </h2>
+                    <p className="text-xl font-bold text-gray-400 uppercase tracking-[0.2em] mb-8">
+                       {solution.subtitle}
+                    </p>
+                </ScrollReveal>
+                
+                <ScrollReveal direction="up" delay={0.2}>
+                  <div className="pt-4">
+                    <p className="text-xl md:text-2xl text-gray-600 dark:text-[#8A8A8A] leading-relaxed mb-10">
+                      {solution.desc}
+                    </p>
+                    <div className="flex flex-wrap gap-8">
+                       <div className="space-y-1">
+                          <p className="text-[11px] font-black uppercase tracking-widest text-gray-400">Effizienz</p>
+                          <p className="text-2xl font-bold text-gray-900 dark:text-white">~12h / PK</p>
+                       </div>
+                       <div className="w-px h-10 bg-gray-200 dark:bg-white/10" />
+                       <div className="space-y-1">
+                          <p className="text-[11px] font-black uppercase tracking-widest text-gray-400">Präzision</p>
+                          <p className="text-2xl font-bold text-gray-900 dark:text-white">100%</p>
+                       </div>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </div>
+
+              {/* Benefits Section - No Cards */}
+              <div className="grid md:grid-cols-3 gap-12 lg:gap-24 relative">
+                {/* Horizontal Divider Line */}
+                <div className="absolute -top-10 left-0 right-0 h-px bg-gray-100 dark:bg-white/5" />
+                
+                {solution.useCases.map((useCase, idx) => (
+                  <ScrollReveal key={idx} direction="up" delay={0.1 + idx * 0.1}>
+                    <div className="space-y-6">
+                      <div className="text-[3.5rem] font-black text-gray-100 dark:text-white/[0.03] leading-none mb-2">
+                        0{idx + 1}
+                      </div>
+                      <h4 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+                        {useCase.title}
+                      </h4>
+                      <p className="text-lg text-gray-500 dark:text-[#8A8A8A] leading-relaxed">
+                        {useCase.description}
                       </p>
                     </div>
-                  </div>
-                </ScrollReveal>
-
-                <ScrollReveal direction="up" delay={0.2}>
-                  <p className="text-lg text-gray-600 dark:text-[#8A8A8A] mb-10 leading-relaxed">
-                    {solution.desc}
-                  </p>
-                </ScrollReveal>
-
-                <div className="space-y-6">
-                  {solution.useCases.map((useCase, idx) => (
-                    <ScrollReveal key={idx} direction="up" delay={0.3 + idx * 0.1}>
-                      <div className="group flex gap-5 p-5 rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.05] hover:border-gray-200 dark:hover:border-white/[0.1] transition-all">
-                        <div className="mt-1">
-                          <CheckCircle2 className="w-6 h-6" style={{ color: solution.accent }} />
-                        </div>
-                        <div>
-                          <h4 className="text-[1.1rem] font-bold text-gray-900 dark:text-white mb-1">
-                            {useCase.title}
-                          </h4>
-                          <p className="text-gray-500 dark:text-[#8A8A8A] leading-snug">
-                            {useCase.description}
-                          </p>
-                        </div>
-                      </div>
-                    </ScrollReveal>
-                  ))}
-                </div>
+                  </ScrollReveal>
+                ))}
               </div>
 
-              <div className="flex-1 w-full">
-                <ScrollReveal direction={index % 2 === 1 ? "left" : "right"} delay={0.2}>
-                  <div className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent z-10 rounded-[2.5rem] overflow-hidden" />
-                    <img 
+              {/* Visualization */}
+              <ScrollReveal direction="up" delay={0.3}>
+                <div className="relative group overflow-hidden rounded-[40px] border border-gray-100 dark:border-white/5">
+                   <img 
                       src={solution.image} 
                       alt={solution.title}
-                      className="w-full h-[500px] object-cover rounded-[2.5rem] shadow-2xl transition-transform duration-700 group-hover:scale-105"
+                      className="w-full h-[400px] md:h-[650px] object-cover transition-transform duration-[2s] group-hover:scale-105"
                     />
-                    {/* Glassy Stats overlay */}
-                    <div className="absolute bottom-8 left-8 right-8 z-20 glass-card p-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20">
-                      <div className="flex justify-between items-center">
-                        <div className="flex gap-4">
-                          <div className="text-white">
-                            <p className="text-[10px] uppercase tracking-widest font-bold opacity-60">Zeitersparnis</p>
-                            <p className="text-2xl font-bold">~12h / PK</p>
-                          </div>
-                          <div className="w-px h-10 bg-white/20" />
-                          <div className="text-white">
-                            <p className="text-[10px] uppercase tracking-widest font-bold opacity-60">Genauigkeit</p>
-                            <p className="text-2xl font-bold">100%</p>
-                          </div>
-                        </div>
-                        <ArrowRight className="text-white w-6 h-6 opacity-40" />
-                      </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className="absolute bottom-12 left-12">
+                       <span className="px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white font-bold text-sm uppercase tracking-widest">
+                          Application View
+                       </span>
                     </div>
-                  </div>
-                </ScrollReveal>
-              </div>
+                </div>
+              </ScrollReveal>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ─── FURTHER SCENARIOS ───────────────────────────────────── */}
-      <section className="py-32 bg-gray-50 dark:bg-[#0c0c0c] border-y border-gray-100 dark:border-white/5">
+      {/* ─── FURTHER SCENARIOS: BEYOND CARDS ─────────────────────── */}
+      <section className="py-48 bg-gray-50/50 dark:bg-white/[0.01] border-y border-gray-100 dark:border-white/5">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-20">
-            <ScrollReveal direction="up">
-              <h2 className="text-[2.5rem] font-bold font-logo text-gray-900 dark:text-white mb-6">Weitere Anwendungsfälle</h2>
-              <p className="text-gray-500 dark:text-[#8A8A8A] text-lg">
-                Talo ist modular aufgebaut und lässt sich für nahezu jede Form von wiederkehrenden Aktivitäten konfigurieren.
-              </p>
+          <div className="flex flex-col md:flex-row justify-between items-end gap-12 mb-32">
+            <div className="max-w-2xl">
+              <ScrollReveal direction="up">
+                <h2 className="text-[2.5rem] md:text-[4rem] font-medium font-logo text-gray-900 dark:text-white leading-[1.1] mb-8">
+                  Vielseitig <span className="text-gray-400">einsetzbar.</span>
+                </h2>
+                <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium">
+                  Talo ist modular aufgebaut und lässt sich für nahezu jede Form von wiederkehrenden Aktivitäten konfigurieren.
+                </p>
+              </ScrollReveal>
+            </div>
+            <ScrollReveal direction="up" delay={0.2}>
+               <Link href="/anmelden" className="px-8 py-4 bg-gray-950 dark:bg-white text-white dark:text-gray-950 rounded-2xl font-bold text-sm tracking-widest uppercase hover:scale-105 transition-all">
+                  Alle Features
+               </Link>
             </ScrollReveal>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-2 gap-x-32 gap-y-16">
             {smallScenarios.map((scenario, idx) => (
               <ScrollReveal key={idx} direction="up" delay={idx * 0.1}>
-                <div className="glass-card p-8 rounded-3xl bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-white/10 hover:shadow-xl transition-all">
-                  <div className="w-12 h-12 rounded-xl bg-black/[0.03] dark:bg-white/[0.05] flex items-center justify-center mb-6 text-gray-700 dark:text-gray-300">
+                <div className="group flex gap-8 pb-12 border-b border-gray-200 dark:border-white/10 last:border-0 lg:last:border-b">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
                     {scenario.icon}
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{scenario.title}</h3>
-                  <p className="text-gray-500 dark:text-[#8A8A8A]">{scenario.description}</p>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">{scenario.title}</h3>
+                    <p className="text-lg text-gray-500 dark:text-[#8A8A8A] leading-relaxed max-w-md">{scenario.description}</p>
+                  </div>
                 </div>
               </ScrollReveal>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── PRINCIPLES / WHY TALO ────────────────────────────────── */}
-      <section className="py-32">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
-            {[
-              { icon: <Clock />, title: "Echtzeit-Tracking", text: "Stunden werden sofort erfasst, kein Nachtragen am Monatsende nötig." },
-              { icon: <ShieldCheck />, title: "DSGVO-Konform", text: "Höchste Sicherheitsstandards für sensible Mitgliederdaten aus Deutschland." },
-              { icon: <BarChart3 />, title: "Transparenz", text: "Jedes Mitglied sieht seinen Beitrag und den Erfolg der Gemeinschaft." },
-              { icon: <Users />, title: "Wertschätzung", text: "Engagement wird objektiv messbar und damit besser anerkennbar." }
-            ].map((p, i) => (
-              <ScrollReveal key={i} direction="up" delay={i * 0.05}>
-                <div className="flex flex-col items-start">
-                  <div className="w-10 h-10 text-gray-400 mb-6">{p.icon}</div>
-                  <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{p.title}</h4>
-                  <p className="text-gray-500 dark:text-[#8A8A8A] text-sm leading-relaxed">{p.text}</p>
-                </div>
-              </ScrollReveal>
-            ))}
+            
+            {/* Principles Recap (Integrated instead of separate section) */}
+            <div className="lg:col-span-2 mt-24">
+               <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
+                  {[
+                    { icon: <Clock size={20} />, title: "Echtzeit" },
+                    { icon: <ShieldCheck size={20} />, title: "Sicher" },
+                    { icon: <BarChart3 size={20} />, title: "Transparent" },
+                    { icon: <Users size={20} />, title: "Fokus" }
+                  ].map((p, i) => (
+                    <div key={i} className="flex flex-col items-center text-center gap-4">
+                       <div className="w-12 h-12 flex items-center justify-center text-gray-400">{p.icon}</div>
+                       <span className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500">{p.title}</span>
+                    </div>
+                  ))}
+               </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ─── CALL TO ACTION ────────────────────────────────────────── */}
-      <section className="pb-32 px-6">
-        <div className="max-w-5xl mx-auto">
+      <section className="py-48 px-6 text-center">
+        <div className="max-w-4xl mx-auto">
           <ScrollReveal direction="up">
-            <div className="rounded-[3rem] bg-[#0c0c0c] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl">
-              <div className="ambient-blob w-[500px] h-[500px] opacity-[0.25] bg-blue-600 blur-[140px] absolute -top-[250px] -right-[250px] pointer-events-none" />
-              <div className="ambient-blob w-[500px] h-[500px] opacity-[0.15] bg-purple-600 blur-[140px] absolute -bottom-[250px] -left-[250px] pointer-events-none" />
-              
-              <h2 className="text-4xl md:text-6xl font-bold font-logo mb-8 relative z-10">
-                Dein Verein ist <br /><span className="text-gray-400">einzigartig?</span>
-              </h2>
-              <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto relative z-10 leading-relaxed font-medium">
-                Wir helfen dir dabei, das perfekte System für deine Gemeinschaft aufzusetzen. Unverbindlich und persönlich.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
-                <button className="px-10 py-5 bg-white text-black font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all text-lg shadow-lg">
-                  Demo anfragen
-                </button>
-                <Link href="/ueber-uns" className="text-white font-semibold hover:opacity-70 transition-opacity flex items-center gap-2">
-                  Über unser Team erfahren <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
+            <h2 className="text-[3rem] md:text-[5.5rem] font-medium tracking-tight font-logo text-gray-900 dark:text-white mb-10 leading-[1.1]">
+              Bereit für die <br /><span className="italic text-gray-400">Transformation?</span>
+            </h2>
+            <p className="text-xl md:text-2xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-16 max-w-2xl mx-auto">
+              Wir helfen dir dabei, das perfekte System für deine Gemeinschaft aufzusetzen. Unverbindlich und persönlich.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
+              <button className="px-12 py-6 bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all text-lg shadow-2xl">
+                Demo anfragen
+              </button>
+              <Link href="/ueber-uns" className="text-gray-900 dark:text-white font-bold text-sm uppercase tracking-widest hover:opacity-70 transition-opacity flex items-center gap-3">
+                Team kennenlernen <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           </ScrollReveal>
         </div>
