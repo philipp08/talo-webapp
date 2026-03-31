@@ -343,6 +343,111 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
          </div>
       </section>
 
+      {/* ─── TESTIMONIALS: STIMMEN AUS DEM EHRENAMT ───────────────── */}
+      <section className="py-32 lg:py-48 px-6 bg-white dark:bg-[#080808]">
+        <div className="max-w-7xl mx-auto">
+          <ScrollReveal direction="up">
+            <div className="text-center mb-24">
+              <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-6 inline-block italic">Referenzen</span>
+              <h2 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-tight font-logo">
+                Stimmen aus dem<br /><span className="text-gray-400 italic">Ehrenamt.</span>
+              </h2>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+            {[
+              {
+                quote: "Endlich verbringe ich meine Sonntage nicht mehr mit Excel-Listen. Talo hat unseren Verwaltungsaufwand halbiert.",
+                author: "Markus Weber",
+                role: "1. Vorsitzender, SV Grün-Weiß",
+                image: "https://i.pravatar.cc/150?u=markus"
+              },
+              {
+                quote: "Die Mitglieder lieben die App. Jeder sieht sofort, was er beigetragen hat – das motiviert ungemein.",
+                author: "Sarah Schneider",
+                role: "Schatzmeisterin, Musikverein Lyra",
+                image: "https://i.pravatar.cc/150?u=sarah"
+              },
+              {
+                quote: "Rechtssicher, einfach und modern. Talo ist genau das, worauf wir im Rettungsdienst gewartet haben.",
+                author: "Thomas Meyer",
+                role: "Bereitschaftsleiter, DRK Ortsverein",
+                image: "https://i.pravatar.cc/150?u=thomas"
+              }
+            ].map((t, i) => (
+              <ScrollReveal key={i} direction="up" delay={i * 0.1}>
+                <div className="p-10 rounded-[32px] bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 h-full flex flex-col justify-between">
+                  <p className="text-xl font-medium text-gray-600 dark:text-[#8A8A8A] leading-relaxed italic mb-10">
+                    "{t.quote}"
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <img src={t.image} alt={t.author} className="w-12 h-12 rounded-full grayscale" />
+                    <div>
+                      <p className="text-sm font-bold text-gray-950 dark:text-white">{t.author}</p>
+                      <p className="text-[11px] font-medium text-gray-400 uppercase tracking-widest">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── STATS: TALO IN ZAHLEN ───────────────────────────────── */}
+      <section className="py-48 lg:py-64 relative bg-[#f2f4f7] dark:bg-white/[0.03] [clip-path:polygon(0_5%,100%_0,100%_95%,0_100%)]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-24 text-center">
+             {[
+               { label: "Vereine", value: "150+" },
+               { label: "Mitglieder", value: "12k+" },
+               { label: "Punkte vergeben", value: "1.2M" },
+               { label: "Zeit gespart", value: "90%" }
+             ].map((s, i) => (
+               <ScrollReveal key={i} direction="up" delay={i * 0.1}>
+                 <p className="text-4xl md:text-6xl lg:text-7xl font-medium tracking-tighter text-gray-950 dark:text-white mb-2 md:mb-4">{s.value}</p>
+                 <p className="text-[11px] md:text-sm font-black text-gray-400 uppercase tracking-widest">{s.label}</p>
+               </ScrollReveal>
+             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FAQ SECTION ─────────────────────────────────────────── */}
+      <section className="py-32 lg:py-48 px-6 bg-white dark:bg-[#080808]">
+        <div className="max-w-3xl mx-auto text-center mb-24">
+          <ScrollReveal direction="up">
+            <h2 className="text-[2.5rem] md:text-5xl font-medium tracking-tighter text-gray-950 dark:text-white mb-6 font-logo">Häufige Fragen.</h2>
+            <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium">Was du über TALO wissen musst.</p>
+          </ScrollReveal>
+        </div>
+
+        <div className="max-w-3xl mx-auto space-y-4">
+          {[
+            {
+              q: "Ist Talo DSGVO-konform?",
+              a: "Ja, zu 100%. Unsere Server stehen ausschließlich in Deutschland und wir arbeiten mit modernen Verschlüsselungsstandards."
+            },
+            {
+              q: "Wie lange dauert die Einrichtung?",
+              a: "Die meisten Vereine sind in weniger als 15 Minuten startklar. Unser Assistent führt dich Schritt für Schritt durch den Prozess."
+            },
+            {
+              q: "Was kostet Talo?",
+              a: "Wir haben faire Pakete für jede Vereinsgröße. Kleine Vereine starten oft völlig kostenfrei oder mit minimalen Gebühren."
+            }
+          ].map((faq, i) => (
+            <ScrollReveal key={i} direction="up" delay={i * 0.05}>
+              <div className="p-8 rounded-2xl border border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.01]">
+                <h3 className="text-lg font-bold text-gray-950 dark:text-white mb-3">{faq.q}</h3>
+                <p className="text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed">{faq.a}</p>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
+
       {/* ─── NEWS / INSIGHTS SECTION ─────────────────────────────── */}
       <section className="py-24 sm:py-32 px-6 bg-white dark:bg-[#080808]">
         <div className="max-w-7xl mx-auto">
