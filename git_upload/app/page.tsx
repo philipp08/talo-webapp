@@ -142,7 +142,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ─── WHY TALO (VALUES) ───────────────────────────────────── */}
-      <section className="py-48 lg:py-64 relative z-10 bg-[#f2f4f7] dark:bg-white/[0.04] [clip-path:polygon(0_5%,100%_0,100%_95%,0_100%)]">
+      <section className="py-24 md:py-48 px-6 bg-white dark:bg-[#080808]">
          <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
                <ScrollReveal direction="up" delay={0.1}>
