@@ -10,7 +10,8 @@ import {
   ArrowRight,
   MousePointer2,
   Cpu,
-  LayoutDashboard
+  LayoutDashboard,
+  X
 } from "lucide-react";
 import Link from "next/link";
 
@@ -111,24 +112,68 @@ const stickyItems: StickyItem[] = [
     visual: (
       <div className="w-full h-full bg-purple-50 dark:bg-purple-950/20 flex items-center justify-center p-8 lg:p-12">
         <div className="relative">
-           <div className="w-[190px] h-[380px] bg-white dark:bg-[#0c0c0c] rounded-[48px] border-[8px] border-gray-900 dark:border-[#222] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] p-6 relative flex flex-col items-center">
-              <div className="w-16 h-1 bg-gray-200 dark:bg-white/10 rounded-full mb-8" />
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500 mb-6">
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
-              <div className="h-3 w-2/3 bg-gray-100 dark:bg-white/5 rounded-full mb-2" />
-              <div className="h-2 w-1/2 bg-gray-50 dark:bg-white/5 rounded-full mb-10" />
-              
-              <div className="w-full space-y-3">
-                <div className="h-3 w-full bg-emerald-500/80 rounded-lg flex items-center justify-center text-[8px] font-black italic text-white uppercase tracking-widest shadow-lg shadow-emerald-500/20">Genehmigen</div>
-                <div className="h-3 w-full border border-gray-100 dark:border-white/5 rounded-lg flex items-center justify-center text-[8px] font-black italic text-gray-400 uppercase tracking-widest">Ablehnen</div>
+           {/* Phone Frame */}
+           <div className="w-[200px] h-[400px] bg-white dark:bg-[#0c0c0c] rounded-[38px] border-[2px] border-gray-900 dark:border-[#222] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] overflow-hidden relative flex flex-col">
+              {/* Status Bar / Notch */}
+              <div className="h-7 w-full flex items-center justify-center px-4 relative">
+                 <div className="w-20 h-4 bg-gray-900 rounded-b-2xl absolute top-0" />
+                 <div className="flex justify-between w-full mt-1">
+                    <div className="text-[8px] font-bold">9:41</div>
+                    <div className="flex gap-1">
+                       <div className="w-2 h-2 rounded-full border-[0.5px] border-current opacity-40" />
+                       <div className="w-2 h-2 rounded-sm bg-current opacity-40" />
+                    </div>
+                 </div>
               </div>
 
-              <div className="absolute bottom-6 w-1/3 h-1 bg-gray-200 dark:bg-white/10 rounded-full" />
+              {/* App Header */}
+              <div className="px-4 py-3 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                <div className="w-8 h-2 bg-gray-100 dark:bg-white/5 rounded-full" />
+                <LayoutDashboard className="w-3 h-3 text-purple-500" />
+              </div>
+
+              {/* Feed */}
+              <div className="p-4 space-y-3 flex-1 overflow-y-auto custom-scrollbar">
+                {[
+                  { name: "P. Müller", val: "2.5h", col: "bg-emerald-500", task: "Training" },
+                  { name: "L. Schmidt", val: "1.0h", col: "bg-purple-500", task: "Event" },
+                  { name: "K. Weber", val: "4.0h", col: "bg-emerald-500", task: "Vorstand" }
+                ].map((req, i) => (
+                  <motion.div 
+                    key={i} 
+                    initial={{ x: -10, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="p-3 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm"
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                       <span className="text-[10px] font-bold dark:text-white">{req.name}</span>
+                       <span className="text-[9px] font-medium text-emerald-500">{req.val}</span>
+                    </div>
+                    <div className="text-[8px] text-gray-400 mb-3">{req.task}</div>
+                    <div className="flex gap-2">
+                       <div className="h-7 flex-1 bg-emerald-500 text-white text-[7px] font-black flex items-center justify-center rounded-lg shadow-sm shadow-emerald-500/20 uppercase tracking-tighter">Approve</div>
+                       <div className="h-7 w-10 bg-gray-50 dark:bg-white/10 flex items-center justify-center rounded-lg border border-gray-100 dark:border-white/5">
+                          <X className="w-2.5 h-2.5 text-gray-400" />
+                       </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Bottom Nav */}
+              <div className="h-12 border-t border-gray-100 dark:border-white/5 flex items-center justify-around px-4">
+                 <div className="w-6 h-1 bg-gray-200 dark:bg-white/10 rounded-full" />
+              </div>
            </div>
-           <div className="absolute -right-12 top-1/4 w-32 p-4 bg-white dark:bg-[#111] rounded-2xl shadow-xl border border-gray-100 dark:border-white/5 scale-90 blur-[1px]">
-              <div className="h-2 w-1/2 bg-gray-100 dark:bg-white/5 rounded-full mb-2" />
-              <div className="h-1 w-full bg-gray-50 dark:bg-white/5 rounded-full" />
+
+           {/* Floating Badge */}
+           <div className="absolute -right-8 top-1/4 p-3 bg-white dark:bg-[#111] rounded-2xl shadow-xl border border-gray-100 dark:border-white/5 scale-90">
+              <div className="flex items-center gap-2 mb-2">
+                 <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                 <div className="h-1.5 w-12 bg-gray-100 dark:bg-white/5 rounded-full" />
+              </div>
+              <div className="h-1 w-16 bg-gray-50 dark:bg-white/5 rounded-full" />
            </div>
         </div>
       </div>
@@ -143,18 +188,18 @@ const stickyItems: StickyItem[] = [
     accent: "#f43f5e",
     visual: (
       <div className="w-full h-full bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center p-8 lg:p-12">
-        <div className="w-full max-w-[420px] bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-rose-100 dark:border-rose-500/10 p-8">
-           <div className="flex items-center justify-between mb-10">
-              <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500">
+        <div className="w-full max-w-[400px] bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-rose-100 dark:border-rose-500/10 p-6 lg:p-8">
+           <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-4 min-w-0">
+                 <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
                     <FileOutput className="w-6 h-6" />
                  </div>
-                 <div>
-                    <div className="text-sm font-bold text-gray-900 dark:text-white">Jahresbericht_2024.pdf</div>
-                    <div className="text-[10px] text-gray-400 uppercase tracking-widest">Saisonabschluss • 4.2 MB</div>
-                 </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-bold text-gray-900 dark:text-white truncate">Jahresbericht_2024.pdf</div>
+                    <div className="text-[10px] text-gray-400 uppercase tracking-widest truncate">Saisonabschluss • 4.2 MB</div>
+                  </div>
               </div>
-              <div className="w-8 h-8 rounded-full border border-gray-100 dark:border-white/5 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full border border-gray-100 dark:border-white/5 flex items-center justify-center shrink-0">
                  <ArrowRight className="w-4 h-4 text-gray-400" />
               </div>
            </div>
@@ -167,9 +212,9 @@ const stickyItems: StickyItem[] = [
                 </div>
               ))}
            </div>
-           <div className="mt-10 pt-6 border-t border-gray-100 dark:border-white/5 flex justify-between items-center">
-              <div className="h-4 w-24 bg-gray-100 dark:bg-white/5 rounded-full" />
-              <div className="h-8 w-24 bg-rose-500 rounded-xl flex items-center justify-center text-[10px] font-black text-white italic tracking-widest">DOWNLOAD</div>
+           <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 flex justify-between items-center">
+              <div className="h-3 w-20 bg-gray-100 dark:bg-white/5 rounded-full" />
+              <div className="h-9 px-4 bg-gray-950 dark:bg-white text-white dark:text-black rounded-xl flex items-center justify-center text-[10px] font-black italic tracking-widest">DOWNLOAD</div>
            </div>
         </div>
       </div>
