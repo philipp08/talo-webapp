@@ -41,7 +41,7 @@ const detailedSolutions = [
       }
     ],
     accent: "#3B82F6",
-    image: "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=800"
+    image: "https://i.ibb.co/FqXdb3Fk/IMG-8972.jpg"
   },
   {
     id: "kultur",
