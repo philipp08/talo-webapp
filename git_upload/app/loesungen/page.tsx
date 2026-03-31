@@ -1,7 +1,7 @@
 "use client";
 
 import Navbar from "@/app/components/Navbar";
-import ScrollReveal from "@/app/components/ScrollReveal";
+import ScrollReveal, { StaggerContainer, StaggerItem } from "@/app/components/ScrollReveal";
 import Footer from "@/app/components/Footer";
 import { 
   Trophy, 
@@ -122,12 +122,12 @@ export default function SolutionsPage() {
                Branchen-Lösungen
             </div>
           </ScrollReveal>
-          <ScrollReveal direction="up" delay={0.2}>
-            <h1 className="text-[2rem] sm:text-[3.2rem] md:text-[6rem] lg:text-[7.5rem] leading-[1.05] font-medium tracking-tight font-logo text-gray-900 dark:text-white mb-10 max-w-5xl mx-auto">
-              <span className="block whitespace-nowrap">Für jede Form des</span> 
-              <span className="text-gray-400 dark:text-white/20 italic block whitespace-nowrap">Engagements.</span>
-            </h1>
-          </ScrollReveal>
+            <ScrollReveal direction="up" delay={0.2} blur={true} duration={1}>
+              <h1 className="text-[2rem] sm:text-[3.2rem] md:text-[6rem] lg:text-[7.5rem] leading-[1.05] font-medium tracking-tight font-logo text-gray-900 dark:text-white mb-10 max-w-5xl mx-auto">
+                <span className="block whitespace-nowrap">Für jede Form des</span> 
+                <span className="text-gray-400 dark:text-white/20 italic block whitespace-nowrap">Engagements.</span>
+              </h1>
+            </ScrollReveal>
           <ScrollReveal direction="up" delay={0.3}>
             <p className="text-xl md:text-2xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed max-w-3xl mx-auto">
               Talo ist hochgradig modular. Wir orchestrieren eure Prozesse – vom kleinen Förderverein bis zur komplexen Hilfsorganisation.
@@ -150,7 +150,7 @@ export default function SolutionsPage() {
             >
               {/* Header & Intro */}
               <div className="grid lg:grid-cols-2 gap-16 items-start">
-                <ScrollReveal direction="up">
+                <ScrollReveal direction="up" blur={true}>
                    <div 
                       className="w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-8 shadow-xl"
                       style={{ backgroundColor: solution.accent }}
@@ -186,12 +186,12 @@ export default function SolutionsPage() {
               </div>
 
               {/* Benefits Section - No Cards */}
-              <div className="grid md:grid-cols-3 gap-12 lg:gap-24 relative">
+              <StaggerContainer className="grid md:grid-cols-3 gap-12 lg:gap-24 relative">
                 {/* Horizontal Divider Line */}
                 <div className="absolute -top-10 left-0 right-0 h-px bg-gray-100 dark:bg-white/5" />
                 
                 {solution.useCases.map((useCase, idx) => (
-                  <ScrollReveal key={idx} direction="up" delay={0.1 + idx * 0.1}>
+                  <StaggerItem key={idx} direction="up" distance={20}>
                     <div className="space-y-6">
                       <div className="text-[3.5rem] font-black text-gray-100 dark:text-white/[0.03] leading-none mb-2">
                         0{idx + 1}
@@ -203,12 +203,12 @@ export default function SolutionsPage() {
                         {useCase.description}
                       </p>
                     </div>
-                  </ScrollReveal>
+                  </StaggerItem>
                 ))}
-              </div>
+              </StaggerContainer>
 
               {/* Visualization */}
-              <ScrollReveal direction="up" delay={0.3}>
+              <ScrollReveal direction="up" delay={0.3} blur={true} scale={0.97} duration={1.2}>
                 <div className="relative group overflow-hidden rounded-[40px] border border-gray-100 dark:border-white/5">
                    <img 
                       src={solution.image} 
