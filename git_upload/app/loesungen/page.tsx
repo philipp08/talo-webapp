@@ -119,7 +119,7 @@ export default function SolutionsPage() {
       <Navbar />
 
       {/* ─── HERO SECTION ────────────────────────────────────────── */}
-      <section className="relative pt-[200px] pb-32 overflow-hidden">
+      <section className="relative pt-[140px] md:pt-[200px] pb-16 md:pb-32 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
           <ScrollReveal direction="up" delay={0.1}>
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-[#8A8A8A] font-bold text-[11px] uppercase tracking-widest mb-8">
@@ -144,8 +144,8 @@ export default function SolutionsPage() {
       </section>
 
       {/* ─── DETAILED SOLUTIONS: THE GRID ─────────────────────────── */}
-      <section className="pb-32 border-t border-gray-100 dark:border-white/5 pt-32">
-        <div className="max-w-7xl mx-auto px-6 space-y-48">
+      <section className="pb-32 border-t border-gray-100 dark:border-white/5 pt-16 md:pt-32">
+        <div className="max-w-7xl mx-auto px-6 space-y-24 md:space-y-48">
           {detailedSolutions.map((solution, index) => (
             <div 
               key={solution.id} 
@@ -161,10 +161,10 @@ export default function SolutionsPage() {
                     >
                       {solution.icon}
                     </div>
-                    <h2 className="text-[3rem] md:text-[4.5rem] font-medium tracking-tighter text-gray-900 dark:text-white leading-[1] mb-8 font-logo">
+                    <h2 className="text-[2.2rem] md:text-[4.5rem] font-medium tracking-tighter text-gray-900 dark:text-white leading-[1] mb-6 md:mb-8 font-logo">
                       {solution.title}
                     </h2>
-                    <p className="text-xl font-bold text-gray-400 uppercase tracking-[0.2em] mb-8">
+                    <p className="text-lg md:text-xl font-bold text-gray-400 uppercase tracking-[0.2em] mb-8">
                        {solution.subtitle}
                     </p>
                 </ScrollReveal>
@@ -213,15 +213,15 @@ export default function SolutionsPage() {
 
               {/* Visualization */}
               <ScrollReveal direction="up" delay={0.3} blur={true} scale={0.97} duration={1.2}>
-                <div className="relative group overflow-hidden rounded-[40px] border border-gray-100 dark:border-white/5">
+                <div className="relative group overflow-hidden rounded-[24px] md:rounded-[40px] border border-gray-100 dark:border-white/5">
                    <img 
                       src={solution.image} 
                       alt={solution.title}
                       className="w-full aspect-video md:h-[650px] object-cover transition-transform duration-[2s] group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                    <div className="absolute bottom-12 left-12">
-                       <span className="px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white font-bold text-sm uppercase tracking-widest">
+                    <div className="absolute bottom-6 left-6 md:bottom-12 md:left-12">
+                       <span className="px-5 py-2 md:px-6 md:py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white font-bold text-[10px] md:text-sm uppercase tracking-widest">
                           Talo im Einsatz
                        </span>
                     </div>
@@ -233,15 +233,15 @@ export default function SolutionsPage() {
       </section>
 
       {/* ─── FURTHER SCENARIOS: BEYOND CARDS ─────────────────────── */}
-      <section className="py-48 bg-gray-50/50 dark:bg-white/[0.01] border-y border-gray-100 dark:border-white/5">
+      <section className="py-24 md:py-48 bg-gray-50/50 dark:bg-white/[0.01] border-y border-gray-100 dark:border-white/5">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end gap-12 mb-32">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 md:gap-12 mb-16 md:mb-32">
             <div className="max-w-2xl">
               <ScrollReveal direction="up">
-                <h2 className="text-[2.5rem] md:text-[4rem] font-medium font-logo text-gray-900 dark:text-white leading-[1.1] mb-8">
+                <h2 className="text-[2.2rem] md:text-[4rem] font-medium font-logo text-gray-900 dark:text-white leading-[1.1] mb-6 md:mb-8">
                   Vielseitig <span className="text-gray-400">einsetzbar.</span>
                 </h2>
-                <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium">
+                <p className="text-lg md:text-xl text-gray-500 dark:text-[#8A8A8A] font-medium">
                   Talo ist modular aufgebaut und lässt sich für nahezu jede Form von wiederkehrenden Aktivitäten konfigurieren.
                 </p>
               </ScrollReveal>
@@ -256,13 +256,13 @@ export default function SolutionsPage() {
           <div className="grid lg:grid-cols-2 gap-x-32 gap-y-16">
             {smallScenarios.map((scenario, idx) => (
               <ScrollReveal key={idx} direction="up" delay={idx * 0.1}>
-                <div className="group flex gap-8 pb-12 border-b border-gray-200 dark:border-white/10 last:border-0 lg:last:border-b">
-                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
+                <div className="group flex flex-col sm:flex-row gap-6 md:gap-8 pb-10 md:pb-12 border-b border-gray-200 dark:border-white/10 last:border-0">
+                  <div className="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-xl md:rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
                     {scenario.icon}
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">{scenario.title}</h3>
-                    <p className="text-lg text-gray-500 dark:text-[#8A8A8A] leading-relaxed max-w-md">{scenario.description}</p>
+                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2 md:mb-3">{scenario.title}</h3>
+                    <p className="text-base md:text-lg text-gray-500 dark:text-[#8A8A8A] leading-relaxed max-w-md">{scenario.description}</p>
                   </div>
                 </div>
               </ScrollReveal>
@@ -289,13 +289,13 @@ export default function SolutionsPage() {
       </section>
 
       {/* ─── CALL TO ACTION ────────────────────────────────────────── */}
-      <section className="py-48 px-6 text-center">
+      <section className="py-24 md:py-48 px-6 text-center">
         <div className="max-w-4xl mx-auto">
           <ScrollReveal direction="up">
-            <h2 className="text-[3rem] md:text-[5.5rem] font-medium tracking-tight font-logo text-gray-900 dark:text-white mb-10 leading-[1.1]">
+            <h2 className="text-[2.2rem] md:text-[5.5rem] font-medium tracking-tight font-logo text-gray-900 dark:text-white mb-6 md:text-10 leading-[1.1]">
               Bereit für die <br /><span className="italic text-gray-400">Transformation?</span>
             </h2>
-            <p className="text-xl md:text-2xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-16 max-w-2xl mx-auto">
+            <p className="text-lg md:text-2xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-10 md:mb-16 max-w-2xl mx-auto">
               Wir helfen dir dabei, das perfekte System für deine Gemeinschaft aufzusetzen. Unverbindlich und persönlich.
             </p>
             
