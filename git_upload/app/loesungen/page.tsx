@@ -87,7 +87,7 @@ const detailedSolutions = [
       }
     ],
     accent: "#EF4444",
-    image: "https://images.unsplash.com/photo-1582213706173-fb6b1bed468e?auto=format&fit=crop&q=80&w=800"
+    image: "https://i.ibb.co/TMVDDwbs/IMG-8976.jpg"
   }
 ];
 
@@ -213,7 +213,7 @@ export default function SolutionsPage() {
                    <img 
                       src={solution.image} 
                       alt={solution.title}
-                      className="w-full h-[400px] md:h-[650px] object-cover transition-transform duration-[2s] group-hover:scale-105"
+                      className="w-full aspect-video md:h-[650px] object-cover transition-transform duration-[2s] group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <div className="absolute bottom-12 left-12">
