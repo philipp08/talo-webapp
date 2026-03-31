@@ -140,10 +140,10 @@ Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreibe
           </div>
 
           {/* Bottom Left: Legal */}
-          <div className="col-span-3 md:col-span-10 lg:col-span-10 mt-12 md:mt-16 lg:mt-24 order-4 lg:order-1 border-t border-gray-100 dark:border-white/5 pt-8">
-            <ul className="text-[0.75rem] sm:text-[0.725rem] lg:text-[0.75rem] md:gap-x-[1.5em] gap-y-3 flex flex-col md:flex-row flex-wrap">
-              <li className="mb-2 md:mb-0 md:order-[-1]">
-                <span className="opacity-60 text-gray-500 font-medium">© {currentYear} Talo</span>
+          <div className="col-span-3 md:col-span-12 lg:col-span-10 mt-12 md:mt-16 lg:mt-24 order-4 lg:order-1 border-t border-gray-100 dark:border-white/5 pt-8">
+            <ul className="text-[0.75rem] sm:text-[0.725rem] lg:text-[0.75rem] flex flex-wrap items-center gap-x-[1.5em] gap-y-3">
+              <li className="flex items-center">
+                <span className="opacity-60 text-gray-500 font-medium leading-[1]">© {currentYear} Talo</span>
               </li>
               {[
                 { name: "Status", href: "/hilfe" },
@@ -153,7 +153,7 @@ Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreibe
                 { name: "Datenschutz", href: "/datenschutz" },
                 { name: "Cookie-Richtlinie", href: "/datenschutz" },
               ].map((link) => (
-                <li key={link.name} className="flex flex-col">
+                <li key={link.name} className="flex items-center">
                   <Link 
                     href={link.href} 
                     className="leading-[1] text-gray-400 hover:text-black dark:text-gray-500 dark:hover:text-white transition-colors"
@@ -162,7 +162,7 @@ Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreibe
                   </Link>
                 </li>
               ))}
-              <li>
+              <li className="flex items-center">
                 <button className="leading-[1] text-gray-400 hover:text-black dark:text-gray-500 dark:hover:text-white cursor-pointer transition-colors">
                   Cookie-Präferenzen
                 </button>
