@@ -79,17 +79,17 @@ export default function HelpPage() {
       <Navbar />
 
       {/* Hero Header */}
-      <section className="relative pt-[160px] pb-12 lg:pb-20 border-b border-gray-100 dark:border-white/5">
-        <div className="max-w-6xl mx-auto px-6 w-full">
+      <section className="relative pt-32 lg:pt-[160px] pb-12 lg:pb-20 border-b border-gray-100 dark:border-white/5">
+        <div className="max-w-6xl mx-auto px-6 w-full text-center lg:text-left">
           <ScrollReveal direction="up" delay={0.1}>
              <span className="text-[11px] font-bold tracking-[0.2em] text-gray-400 dark:text-gray-500 uppercase mb-4 block">HILFECENTER</span>
-             <h1 className="text-[3rem] md:text-[4.5rem] font-medium tracking-tight font-logo text-gray-950 dark:text-white mb-8 leading-[1.05]">
-                Wie können wir<br />euch heute <span className="opacity-40">unterstützen?</span>
+             <h1 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tight font-logo text-gray-950 dark:text-white mb-8 leading-[1.1] md:leading-[1.05]">
+                Wie können wir<br className="hidden md:block" /> euch heute <span className="opacity-40">unterstützen?</span>
              </h1>
           </ScrollReveal>
           
           <ScrollReveal direction="up" delay={0.25}>
-            <div className="max-w-xl relative group">
+            <div className="max-w-xl mx-auto lg:mx-0 relative group">
               <input 
                 type="text" 
                 placeholder="Suche nach Themen (z.B. Punkte, DSGVO, Import)..." 
@@ -106,9 +106,9 @@ export default function HelpPage() {
           <div className="flex flex-col lg:flex-row gap-16">
             
             {/* Sidebar Navigation */}
-            <div className="lg:w-1/4 shrink-0">
-               <div className="sticky top-32 space-y-2">
-                  <h3 className="text-[10px] font-bold tracking-[0.15em] text-gray-400 dark:text-gray-500 uppercase mb-6 px-4">KATEGORIEN</h3>
+            <div className="lg:w-1/4 shrink-0 overflow-x-auto lg:overflow-visible -mx-6 px-6 lg:mx-0 lg:px-0">
+               <div className="sticky top-32 flex lg:flex-col gap-2 lg:space-y-2 pb-4 lg:pb-0 min-w-max lg:min-w-0">
+                  <h3 className="hidden lg:block text-[10px] font-bold tracking-[0.15em] text-gray-400 dark:text-gray-500 uppercase mb-6 px-4">KATEGORIEN</h3>
                   {sections.map((section) => (
                     <button 
                       key={section.id}
@@ -116,17 +116,17 @@ export default function HelpPage() {
                         setActiveSection(section.id);
                         document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }}
-                      className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-medium ${
+                      className={`flex items-center gap-2 lg:gap-3 px-4 py-2.5 lg:py-3.5 rounded-xl transition-all font-medium whitespace-nowrap lg:whitespace-normal ${
                         activeSection === section.id 
                           ? "bg-black/90 text-white dark:bg-white/10 dark:text-white shadow-lg" 
                           : "text-gray-500 dark:text-[#8A8A8A] hover:bg-gray-50 dark:hover:bg-white/[0.03] hover:text-black dark:hover:text-white"
                       }`}
                     >
-                      <div className={`p-2 rounded-lg transition-colors ${activeSection === section.id ? "bg-white/20" : "bg-gray-100 dark:bg-white/5"}`}>
+                      <div className={`p-1.5 lg:p-2 rounded-lg transition-colors ${activeSection === section.id ? "bg-white/20" : "bg-gray-100 dark:bg-white/5"}`}>
                         {section.icon}
                       </div>
-                      <span className="text-[14px]">{section.title}</span>
-                      {activeSection === section.id && <ChevronRight className="w-4 h-4 ml-auto" />}
+                      <span className="text-[13px] lg:text-[14px]">{section.title}</span>
+                      {activeSection === section.id && <ChevronRight className="hidden lg:block w-4 h-4 ml-auto" />}
                     </button>
                   ))}
                </div>
@@ -134,19 +134,19 @@ export default function HelpPage() {
 
             {/* Content Area */}
             <div className="lg:w-3/4 flex flex-col gap-24">
-               {sections.map((section) => (
+                {sections.map((section) => (
                  <div key={section.id} id={section.id} className="scroll-mt-32">
-                    <div className="flex items-center gap-4 mb-10 pb-4 border-b border-gray-100 dark:border-white/5">
-                       <div className="w-12 h-12 rounded-2xl bg-[#FFFFFF] flex items-center justify-center text-white">
+                    <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 mb-10 pb-4 border-b border-gray-100 dark:border-white/5">
+                       <div className="w-12 h-12 rounded-2xl bg-black dark:bg-white/10 flex items-center justify-center text-white">
                           {section.icon}
                        </div>
-                       <h2 className="text-3xl font-bold font-logo text-gray-950 dark:text-white">{section.title}</h2>
+                       <h2 className="text-2xl md:text-3xl font-bold font-logo text-gray-950 dark:text-white text-center lg:text-left">{section.title}</h2>
                     </div>
 
                     <div className="grid md:grid-cols-1 gap-10">
                        {section.items.map((item, j) => (
-                         <div key={j} className="group flex flex-col gap-3">
-                            <h4 className="text-[18px] font-bold text-gray-900 dark:text-white group-hover:text-[#FFFFFF] transition-colors">
+                         <div key={j} className="group flex flex-col gap-3 text-center lg:text-left">
+                            <h4 className="text-[18px] font-bold text-gray-900 dark:text-white group-hover:text-black dark:group-hover:text-white transition-colors">
                                {item.q}
                             </h4>
                             <p className="text-[16px] text-gray-600 dark:text-[#8A8A8A] leading-relaxed font-poppins-regular">
@@ -185,18 +185,18 @@ export default function HelpPage() {
         <div className="max-w-6xl mx-auto px-6">
            <h3 className="text-[10px] font-bold tracking-[0.2em] text-gray-400 dark:text-gray-500 uppercase mb-12 text-center">WEITERE RESSOURCEN</h3>
            <div className="grid md:grid-cols-3 gap-8">
-              {[
+               {[
                 { title: "Video Tutorials", desc: "Lernt Talo™ in unter 5 Minuten kennen.", icon: <Zap className="text-yellow-500" /> },
                 { title: "Admin Handbuch", desc: "Alle Funktionen im Detail erklärt.", icon: <FileText className="text-blue-500" /> },
                 { title: "Zertifizierung", desc: "Wie Talo™ eure IT-Sicherheit stärkt.", icon: <ShieldCheck className="text-gray-400" /> },
               ].map((res, i) => (
-                <div key={i} className="p-8 rounded-[32px] bg-gray-50 dark:bg-[#0c0c0c] border border-gray-100 dark:border-white/5 hover:border-[#FFFFFF]/30 transition-all cursor-pointer group">
+                <div key={i} className="p-8 rounded-[32px] bg-gray-50 dark:bg-[#0c0c0c] border border-gray-100 dark:border-white/5 hover:border-black/10 dark:hover:border-white/20 transition-all cursor-pointer group flex flex-col items-center lg:items-start text-center lg:text-left">
                    <div className="w-12 h-12 rounded-2xl bg-white dark:bg-white/5 flex items-center justify-center mb-6 shadow-sm">
                       {res.icon}
                    </div>
                    <h4 className="text-xl font-bold text-gray-950 dark:text-white mb-2">{res.title}</h4>
                    <p className="text-sm text-gray-500 dark:text-[#8A8A8A] mb-4">{res.desc}</p>
-                   <div className="flex items-center gap-2 text-xs font-bold text-[#FFFFFF]">
+                   <div className="flex items-center gap-2 text-xs font-bold text-black dark:text-white">
                       Ansehen <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                    </div>
                 </div>
