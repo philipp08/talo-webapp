@@ -29,21 +29,37 @@ const stickyItems: StickyItem[] = [
     id: "erfassung",
     label: "Schnelle Erfassung",
     title: "Beiträge einreichen in Sekunden.",
-    description: "Mitglieder erfassen ihr Engagement direkt über die mobile App. Ob Training, Event oder Vorstandsarbeit – ein Foto vom Protokoll oder ein kurzer Text genügt.",
+    description: "Mitglieder erfassen ihr Engagement direkt über die mobile App. Ob Training, Event oder Vorstandsarbeit – ein kurzes Foto vom Protokoll oder ein Text genügen. Talo übernimmt die Klassifizierung.",
     icon: <Zap className="w-5 h-5" />,
-    accent: "#8A8A8A",
+    accent: "#10b981",
     visual: (
-      <div className="w-full h-full bg-[#E4F3E8] dark:bg-[#1A261F] flex items-center justify-center p-12">
-        <div className="w-full max-w-[280px] bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-gray-100 dark:border-white/5 p-6 space-y-4">
-           <div className="h-4 w-1/3 bg-gray-100 dark:bg-white/5 rounded-full" />
-           <div className="h-32 w-full bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center">
-             <Zap className="w-8 h-8 text-[#8A8A8A] opacity-20" />
-           </div>
-           <div className="flex gap-2">
-             <div className="h-8 flex-1 bg-[#8A8A8A] rounded-xl" />
-             <div className="h-8 w-8 bg-gray-100 dark:bg-white/5 rounded-xl" />
-           </div>
-        </div>
+      <div className="w-full h-full bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-center p-8 lg:p-12">
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          className="w-full max-w-[260px] bg-white dark:bg-[#0c0c0c] rounded-[32px] shadow-2xl border border-emerald-100 dark:border-emerald-500/10 p-6 space-y-6 relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full" />
+          <div className="flex items-center justify-between">
+            <div className="h-2 w-12 bg-gray-100 dark:bg-white/5 rounded-full" />
+            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <Zap className="w-4 h-4 text-emerald-500" />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="h-10 w-full bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5 px-3 flex items-center text-[10px] text-gray-400 font-bold tracking-widest uppercase">Kategorie wählen...</div>
+            <div className="h-24 w-full bg-gray-50 dark:bg-white/5 rounded-2xl border border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center text-gray-300">
+               <Zap className="w-6 h-6 mb-2 opacity-20" />
+               <span className="text-[10px] font-bold uppercase tracking-widest">Foto hochladen</span>
+            </div>
+          </div>
+          <motion.div 
+            whileHover={{ scale: 1.02 }}
+            className="h-12 w-full bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xs font-black tracking-[0.2em] shadow-lg shadow-emerald-500/20 cursor-pointer"
+          >
+            EINREICHEN
+          </motion.div>
+        </motion.div>
       </div>
     )
   },
@@ -51,22 +67,33 @@ const stickyItems: StickyItem[] = [
     id: "pruefung",
     label: "Intelligente Prüfung",
     title: "Der Admin-Assistent in der Cloud.",
-    description: "Talo™ scannt eingereichte Beiträge auf Plausibilität. Überschneidungen werden markiert, Punkte automatisch berechnet. Du behältst die volle Kontrolle ohne den manuellen Aufwand.",
+    description: "Talo scannt eingereichte Beiträge auf Plausibilität. Überschneidungen werden markiert, Punkte automatisch berechnet. Du behältst die volle Kontrolle ohne den manuellen Aufwand.",
     icon: <ShieldCheck className="w-5 h-5" />,
-    accent: "#3B82F6",
+    accent: "#3b82f6",
     visual: (
-      <div className="w-full h-full bg-[#DEE7FF] dark:bg-[#1A1F2E] flex items-center justify-center p-12">
-        <div className="w-full max-w-[340px] bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-gray-100 dark:border-white/5 p-6 overflow-hidden">
-          <div className="flex items-center justify-between mb-8">
-            <div className="h-4 w-24 bg-gray-100 dark:bg-white/5 rounded-full" />
-            <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-500/20" />
+      <div className="w-full h-full bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center p-8 lg:p-12">
+        <div className="w-full max-w-[380px] bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-blue-100 dark:border-blue-500/10 overflow-hidden">
+          <div className="bg-gray-50/50 dark:bg-white/[0.02] border-b border-gray-100 dark:border-white/5 p-4 flex items-center justify-between">
+            <div className="flex gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+            </div>
+            <div className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase tracking-widest">Live Check</div>
           </div>
-          <div className="space-y-3">
-             {[1, 2, 3].map(i => (
-               <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-50 dark:border-white/5">
-                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/5 flex-shrink-0" />
-                 <div className="h-3 flex-1 bg-gray-50 dark:bg-white/5 rounded-full" />
-                 <CheckCircle2 className="w-4 h-4 text-[#8A8A8A]" />
+          <div className="p-5 space-y-4">
+             {[
+               { name: "M. Weber", pts: "15 Pkt", status: "ok" },
+               { name: "S. Schneider", pts: "125 Pkt", status: "warning" },
+               { name: "T. Meyer", pts: "10 Pkt", status: "ok" }
+             ].map((u, i) => (
+               <div key={i} className="flex items-center gap-4 p-3 rounded-2xl border border-gray-50 dark:border-white/5 group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                 <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/10 flex items-center justify-center text-xs font-bold text-gray-400">{u.name[0]}</div>
+                 <div className="flex-1">
+                   <div className="text-xs font-bold text-gray-900 dark:text-white mb-0.5">{u.name}</div>
+                   <div className="text-[10px] text-gray-400">{u.pts} • Training</div>
+                 </div>
+                 <div className={`w-2 h-2 rounded-full ${u.status === 'ok' ? 'bg-emerald-500' : 'bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.5)] animate-pulse'}`} />
                </div>
              ))}
           </div>
@@ -76,22 +103,32 @@ const stickyItems: StickyItem[] = [
   },
   {
     id: "genehmigung",
-    label: "Einfache Genehmigung",
-    title: "Mit einem Tap alles erledigt.",
-    description: "Trainer und Fachleiter erhalten Push-Benachrichtigungen und können Beiträge direkt im Dashboard oder per App freigeben. Transparenz für alle Beteiligten.",
-    icon: <CheckCircle2 className="w-5 h-5" />,
-    accent: "#8A8A8A",
+    label: "Trainer Dashboard",
+    title: "Mit einem Swipe alles erledigt.",
+    description: "Trainer und Fachleiter erhalten Push-Benachrichtigungen und können Beiträge direkt im mobilen Dashboard freigeben. Transparenz für alle Beteiligten.",
+    icon: <LayoutDashboard className="w-5 h-5" />,
+    accent: "#8b5cf6",
     visual: (
-      <div className="w-full h-full bg-[#FCE7F3] dark:bg-[#2E1A23] flex items-center justify-center p-12">
+      <div className="w-full h-full bg-purple-50 dark:bg-purple-950/20 flex items-center justify-center p-8 lg:p-12">
         <div className="relative">
-           <div className="w-[180px] h-[360px] bg-white dark:bg-[#0c0c0c] rounded-[40px] border-[6px] border-gray-900 dark:border-[#222] shadow-2xl p-4 overflow-hidden">
-              <div className="h-5 w-1/2 bg-gray-100 dark:bg-white/5 rounded-full mb-8 mt-4 mx-auto" />
-              <div className="space-y-4">
-                <div className="h-24 w-full bg-pink-50 dark:bg-pink-500/10 rounded-2xl flex items-center justify-center">
-                   <MousePointer2 className="w-6 h-6 text-[#8A8A8A]" />
-                </div>
-                <div className="h-8 w-full bg-[#8A8A8A] rounded-xl text-white text-[10px] flex items-center justify-center font-bold">GENEHMIGEN</div>
+           <div className="w-[190px] h-[380px] bg-white dark:bg-[#0c0c0c] rounded-[48px] border-[8px] border-gray-900 dark:border-[#222] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] p-6 relative flex flex-col items-center">
+              <div className="w-16 h-1 bg-gray-200 dark:bg-white/10 rounded-full mb-8" />
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500 mb-6">
+                <CheckCircle2 className="w-6 h-6" />
               </div>
+              <div className="h-3 w-2/3 bg-gray-100 dark:bg-white/5 rounded-full mb-2" />
+              <div className="h-2 w-1/2 bg-gray-50 dark:bg-white/5 rounded-full mb-10" />
+              
+              <div className="w-full space-y-3">
+                <div className="h-3 w-full bg-emerald-500/80 rounded-lg flex items-center justify-center text-[8px] font-black italic text-white uppercase tracking-widest shadow-lg shadow-emerald-500/20">Genehmigen</div>
+                <div className="h-3 w-full border border-gray-100 dark:border-white/5 rounded-lg flex items-center justify-center text-[8px] font-black italic text-gray-400 uppercase tracking-widest">Ablehnen</div>
+              </div>
+
+              <div className="absolute bottom-6 w-1/3 h-1 bg-gray-200 dark:bg-white/10 rounded-full" />
+           </div>
+           <div className="absolute -right-12 top-1/4 w-32 p-4 bg-white dark:bg-[#111] rounded-2xl shadow-xl border border-gray-100 dark:border-white/5 scale-90 blur-[1px]">
+              <div className="h-2 w-1/2 bg-gray-100 dark:bg-white/5 rounded-full mb-2" />
+              <div className="h-1 w-full bg-gray-50 dark:bg-white/5 rounded-full" />
            </div>
         </div>
       </div>
@@ -99,26 +136,40 @@ const stickyItems: StickyItem[] = [
   },
   {
     id: "abrechnung",
-    label: "Automatisierte Abrechnung",
-    title: "Exports auf Knopfdruck.",
-    description: "Kein Zettelchaos am Saisonende. Talo™ generiert fertige Listen für die Buchhaltung, exportiert CSV-Dateien für die Mitgliederverwaltung und berechnet Belastungen automatisch.",
+    label: "Exports & Buchhaltung",
+    title: "Am Saisonende tiefenentspannt.",
+    description: "Kein Zettelchaos mehr. Talo generiert fertige Listen für die Buchhaltung, exportiert CSV-Dateien für die Mitgliederverwaltung und berechnet automatisierte Berichte.",
     icon: <FileOutput className="w-5 h-5" />,
-    accent: "#A855F7",
+    accent: "#f43f5e",
     visual: (
-      <div className="w-full h-full bg-[#F0EBFF] dark:bg-[#211D2E] flex items-center justify-center p-12">
-        <div className="w-full max-w-[400px] bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-gray-100 dark:border-white/5 p-8 flex flex-col gap-6">
-           <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center">
-                 <FileOutput className="w-6 h-6 text-[#A855F7]" />
+      <div className="w-full h-full bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center p-8 lg:p-12">
+        <div className="w-full max-w-[420px] bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-rose-100 dark:border-rose-500/10 p-8">
+           <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500">
+                    <FileOutput className="w-6 h-6" />
+                 </div>
+                 <div>
+                    <div className="text-sm font-bold text-gray-900 dark:text-white">Jahresbericht_2024.pdf</div>
+                    <div className="text-[10px] text-gray-400 uppercase tracking-widest">Saisonabschluss • 4.2 MB</div>
+                 </div>
               </div>
-              <div className="flex-1">
-                 <div className="h-4 w-32 bg-gray-100 dark:bg-white/5 rounded-full mb-2" />
-                 <div className="h-2 w-24 bg-gray-50 dark:bg-white/5 rounded-full" />
+              <div className="w-8 h-8 rounded-full border border-gray-100 dark:border-white/5 flex items-center justify-center">
+                 <ArrowRight className="w-4 h-4 text-gray-400" />
               </div>
            </div>
-           <div className="grid grid-cols-2 gap-3">
-              <div className="h-20 bg-gray-50 dark:bg-white/5 rounded-2xl" />
-              <div className="h-20 bg-gray-50 dark:bg-white/5 rounded-2xl" />
+           <div className="grid grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="space-y-2">
+                   <div className="h-1 bg-rose-200 dark:bg-rose-500/20 rounded-full w-full" />
+                   <div className="h-1 bg-rose-50 dark:bg-rose-500/5 rounded-full w-2/3" />
+                   <div className="h-1 bg-rose-50 dark:bg-rose-500/5 rounded-full w-3/4" />
+                </div>
+              ))}
+           </div>
+           <div className="mt-10 pt-6 border-t border-gray-100 dark:border-white/5 flex justify-between items-center">
+              <div className="h-4 w-24 bg-gray-100 dark:bg-white/5 rounded-full" />
+              <div className="h-8 w-24 bg-rose-500 rounded-xl flex items-center justify-center text-[10px] font-black text-white italic tracking-widest">DOWNLOAD</div>
            </div>
         </div>
       </div>
@@ -195,7 +246,7 @@ export default function StickyScroll() {
           <div 
             key={item.id} 
             className="sticky-content-section flex flex-col min-h-[50vh] lg:min-h-[70vh] justify-center transition-opacity duration-500"
-            style={{ opacity: 1 }} // Managed by global scroll highlight but could add more refined opacity
+            style={{ opacity: 1 }}
           >
             {/* Mobile Header (Hidden on Desktop) */}
             <div className="flex items-center gap-4 lg:hidden mb-8">
