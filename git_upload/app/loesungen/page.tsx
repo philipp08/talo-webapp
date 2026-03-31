@@ -64,7 +64,7 @@ const detailedSolutions = [
       }
     ],
     accent: "#8B5CF6",
-    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800"
+    image: "https://i.ibb.co/gFfXqzLk/IMG-8974.jpg"
   },
   {
     id: "feuerwehr",
