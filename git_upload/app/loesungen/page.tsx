@@ -218,7 +218,7 @@ export default function SolutionsPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <div className="absolute bottom-12 left-12">
                        <span className="px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white font-bold text-sm uppercase tracking-widest">
-                          Application View
+                          Talo im Einsatz
                        </span>
                     </div>
                 </div>
