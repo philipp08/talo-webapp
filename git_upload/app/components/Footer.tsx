@@ -146,7 +146,7 @@ Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreibe
                 <span className="opacity-60 text-gray-500 font-medium leading-[1]">© {currentYear} Talo</span>
               </li>
               {[
-                { name: "Status", href: "/hilfe" },
+                { name: "Status", href: "/status" },
                 { name: "Sicherheit", href: "/hilfe" },
                 { name: "Impressum", href: "/impressum" },
                 { name: "AGB", href: "/datenschutz" },
