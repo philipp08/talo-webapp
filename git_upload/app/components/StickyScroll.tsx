@@ -190,11 +190,11 @@ export default function StickyScroll() {
       </div>
 
       {/* ─── RIGHT CONTENT (SCROLLING) ─── */}
-      <div className="flex flex-col col-span-12 lg:col-start-9 gap-y-20 lg:gap-y-40">
+      <div className="flex flex-col col-span-12 lg:col-start-9 gap-y-20 lg:gap-y-24">
         {stickyItems.map((item, index) => (
           <div 
             key={item.id} 
-            className="sticky-content-section flex flex-col min-h-[50vh] lg:min-h-screen justify-center transition-opacity duration-500"
+            className="sticky-content-section flex flex-col min-h-[50vh] lg:min-h-[70vh] justify-center transition-opacity duration-500"
             style={{ opacity: 1 }} // Managed by global scroll highlight but could add more refined opacity
           >
             {/* Mobile Header (Hidden on Desktop) */}
@@ -206,7 +206,7 @@ export default function StickyScroll() {
             </div>
 
             {/* Layout Box */}
-            <div className="bg-gray-50 dark:bg-white/1 overflow-hidden border border-gray-100 dark:border-white/5 rounded-[2.5rem] lg:grid lg:grid-cols-2 items-stretch h-full min-h-[400px]">
+            <div className="bg-gray-50 dark:bg-white/1 overflow-hidden border border-gray-100 dark:border-white/5 rounded-[2.5rem] lg:grid lg:grid-cols-2 items-stretch h-full min-h-[340px]">
               {/* Text Side */}
               <div className="p-8 lg:p-12 flex flex-col justify-between">
                 <div>
