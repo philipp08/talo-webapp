@@ -127,17 +127,19 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ─── BRAND RESONANCE (EXPERIENCE TALO) ────────────────────── */}
-      <section className="py-48 lg:py-72 relative bg-[#f2f4f7] dark:bg-white/[0.04] [clip-path:polygon(0_5%,100%_0,100%_95%,0_100%)] -mt-20">
-        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
-           <ScrollReveal direction="up">
-              <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-8 inline-block italic">The TALO Experience</span>
-              <h2 className="text-[2.8rem] md:text-[6rem] lg:text-[7.5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-[0.95] mb-12">
-                 Engagement.<br /><span className="text-gray-300 dark:text-white/10 italic font-logo">Orchestriert.</span>
-              </h2>
-              <p className="text-lg md:text-2xl text-[#8A8A8A] font-medium max-w-2xl mx-auto leading-relaxed">
-                 Die Essenz moderner Vereinsarbeit. Reduziert auf das <br className="hidden md:block" /> Wesentliche, konzipiert für maximales Wachstum.
-              </p>
-           </ScrollReveal>
+      <section className="px-4 md:px-10 lg:px-16 -mt-10 mb-10">
+        <div className="py-48 lg:py-72 relative bg-[#f2f4f7] dark:bg-white/[0.04] rounded-[64px] md:rounded-[140px] overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+             <ScrollReveal direction="up">
+                <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-8 inline-block italic">The TALO Experience</span>
+                <h2 className="text-[2.8rem] md:text-[6rem] lg:text-[7.5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-[0.95] mb-12">
+                   Engagement.<br /><span className="text-gray-300 dark:text-white/10 italic font-logo">Orchestriert.</span>
+                </h2>
+                <p className="text-lg md:text-2xl text-[#8A8A8A] font-medium max-w-2xl mx-auto leading-relaxed">
+                   Die Essenz moderner Vereinsarbeit. Reduziert auf das <br className="hidden md:block" /> Wesentliche, konzipiert für maximales Wachstum.
+                </p>
+             </ScrollReveal>
+          </div>
         </div>
       </section>
 
@@ -396,20 +398,22 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ─── STATS: TALO IN ZAHLEN ───────────────────────────────── */}
-      <section className="py-48 lg:py-64 relative bg-[#f2f4f7] dark:bg-white/[0.03] [clip-path:polygon(0_5%,100%_0,100%_95%,0_100%)]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-24 text-center">
-             {[
-               { label: "Vereine", value: "150+" },
-               { label: "Mitglieder", value: "12k+" },
-               { label: "Punkte vergeben", value: "1.2M" },
-               { label: "Zeit gespart", value: "90%" }
-             ].map((s, i) => (
-               <ScrollReveal key={i} direction="up" delay={i * 0.1}>
-                 <p className="text-4xl md:text-6xl lg:text-7xl font-medium tracking-tighter text-gray-950 dark:text-white mb-2 md:mb-4">{s.value}</p>
-                 <p className="text-[11px] md:text-sm font-black text-gray-400 uppercase tracking-widest">{s.label}</p>
-               </ScrollReveal>
-             ))}
+      <section className="px-4 md:px-10 lg:px-16 my-10 lg:my-20">
+        <div className="py-48 lg:py-64 relative bg-[#f2f4f7] dark:bg-white/[0.03] rounded-[64px] md:rounded-[140px] overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-24 text-center">
+               {[
+                 { label: "Vereine", value: "150+" },
+                 { label: "Mitglieder", value: "12k+" },
+                 { label: "Punkte vergeben", value: "1.2M" },
+                 { label: "Zeit gespart", value: "90%" }
+               ].map((s, i) => (
+                 <ScrollReveal key={i} direction="up" delay={i * 0.1}>
+                   <p className="text-4xl md:text-6xl lg:text-7xl font-medium tracking-tighter text-gray-950 dark:text-white mb-2 md:mb-4">{s.value}</p>
+                   <p className="text-[11px] md:text-sm font-black text-gray-400 uppercase tracking-widest">{s.label}</p>
+                 </ScrollReveal>
+               ))}
+            </div>
           </div>
         </div>
       </section>
