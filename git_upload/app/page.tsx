@@ -109,7 +109,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ─── TRUST SECTION ───────────────────────────────────────── */}
-      <section className="py-20 border-t border-gray-100 dark:border-white/5">
+      <section className="py-24 md:py-48 border-t border-gray-100 dark:border-white/5">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-12 text-center md:text-left">
              <div className="max-w-md">
@@ -127,7 +127,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ─── BRAND RESONANCE (EXPERIENCE TALO) ────────────────────── */}
-      <section className="py-48 lg:py-72 relative bg-[#f8f9fa] dark:bg-white/[0.02] [clip-path:polygon(0_5%,100%_0,100%_95%,0_100%)] -mt-20">
+      <section className="py-48 lg:py-72 relative bg-[#f2f4f7] dark:bg-white/[0.04] [clip-path:polygon(0_5%,100%_0,100%_95%,0_100%)] -mt-20">
         <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
            <ScrollReveal direction="up">
               <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-8 inline-block italic">The TALO Experience</span>
@@ -142,7 +142,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ─── WHY TALO (VALUES) ───────────────────────────────────── */}
-      <section className="py-32 lg:py-48 bg-gray-50/50 dark:bg-white/[0.01] border-y border-gray-100 dark:border-white/5 [clip-path:polygon(0_5%,100%_0,100%_95%,0_100%)]">
+      <section className="py-48 lg:py-64 relative z-10 bg-[#f2f4f7] dark:bg-white/[0.04] [clip-path:polygon(0_5%,100%_0,100%_95%,0_100%)]">
          <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
                <ScrollReveal direction="up" delay={0.1}>
