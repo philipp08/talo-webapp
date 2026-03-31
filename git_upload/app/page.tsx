@@ -345,6 +345,72 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
          </div>
       </section>
 
+      {/* ─── PLATFORM ECOSYSTEM: DAS TALO ÖKOSYSTEM ──────────────── */}
+      <section className="px-4 md:px-10 lg:px-16 my-24 lg:my-48 relative z-10">
+        <div className="py-32 lg:py-48 bg-[#f2f4f7] dark:bg-white/[0.03] rounded-[64px] md:rounded-[120px] overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6">
+            <ScrollReveal direction="up">
+              <div className="max-w-3xl mb-24">
+                <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-6 inline-block italic">Mehr als nur Punkte</span>
+                <h2 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-tight font-logo mb-8">
+                  Ein komplettes<br /><span className="text-gray-400 italic">Ökosystem</span> für euren Verein.
+                </h2>
+                <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed">
+                  Talo ist das Betriebssystem für modernes Vereinsleben. Wir haben jedes Detail durchdacht, um eure Verwaltung unsichtbar zu machen.
+                </p>
+              </div>
+            </ScrollReveal>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                {
+                  title: "Digitale Mitgliederakte",
+                  desc: "Zentralisierte Speicherung aller relevanten Daten, Dokumente und Historien – alles DSGVO-konform und in Sekunden auffindbar.",
+                  icon: <Globe className="text-blue-500" size={24} />
+                },
+                {
+                  title: "Automatisierte Mailings",
+                  desc: "Verschickt personalisierte Benachrichtigungen, Erinnerungen und Bestätigungen basierend auf Aktivitäten – vollautomatisch.",
+                  icon: <Zap className="text-amber-500" size={24} />
+                },
+                {
+                  title: "Rollen & Berechtigungen",
+                  desc: "Ein präzises Rechtesystem ermöglicht es euch, genau zu steuern, wer auf welche Daten zugreifen kann – vom Vorstand bis zum Trainer.",
+                  icon: <Lock className="text-emerald-500" size={24} />
+                },
+                {
+                  title: "Deep Analytics",
+                  desc: "Versteht das Engagement eurer Mitglieder durch KI-gestützte Berichte. Erkennt Trends, bevor sie entstehen.",
+                  icon: <Cpu className="text-purple-500" size={24} />
+                },
+                {
+                  title: "Nahtlose Exporte",
+                  desc: "Egal ob DATEV, Excel oder PDF – exportiert eure Daten in allen gängigen Formaten für eure nächste Prüfung oder Sitzung.",
+                  icon: <ArrowRight className="text-rose-500" size={24} />
+                },
+                {
+                  title: "API & Integrationen",
+                  desc: "Verbindet Talo mit eurer bestehenden Website oder anderen Software-Lösungen über unsere moderne REST-Schnittstelle.",
+                  icon: <Sparkles className="text-indigo-500" size={24} />
+                }
+              ].map((item, i) => (
+                <ScrollReveal key={i} direction="up" delay={i * 0.05}>
+                  <div className="p-10 rounded-[32px] bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 h-full group hover:shadow-xl hover:shadow-black/5 transition-all">
+                    <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                      {item.icon}
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-950 dark:text-white mb-4">{item.title}</h3>
+                    <p className="text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── TESTIMONIALS: STIMMEN AUS DEM EHRENAMT ───────────────── */}
       <section className="py-32 lg:py-48 px-6 bg-white dark:bg-[#080808]">
         <div className="max-w-7xl mx-auto">
