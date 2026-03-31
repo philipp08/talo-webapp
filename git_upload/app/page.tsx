@@ -127,8 +127,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ─── BRAND RESONANCE (EXPERIENCE TALO) ────────────────────── */}
-      <section className="py-32 lg:py-64 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-blue-500/[0.03] dark:bg-white/[0.03] blur-[160px] pointer-events-none" />
+      <section className="py-48 lg:py-72 relative bg-[#f8f9fa] dark:bg-white/[0.02] [clip-path:polygon(0_5%,100%_0,100%_95%,0_100%)] -mt-20">
         <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
            <ScrollReveal direction="up">
               <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-8 inline-block italic">The TALO Experience</span>
@@ -143,7 +142,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ─── WHY TALO (VALUES) ───────────────────────────────────── */}
-      <section className="py-32 lg:py-48 bg-gray-50/50 dark:bg-white/[0.01] border-y border-gray-100 dark:border-white/5">
+      <section className="py-32 lg:py-48 bg-gray-50/50 dark:bg-white/[0.01] border-y border-gray-100 dark:border-white/5 [clip-path:polygon(0_5%,100%_0,100%_95%,0_100%)]">
          <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
                <ScrollReveal direction="up" delay={0.1}>
@@ -242,11 +241,11 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                       Talo schlägt Genehmigungen vor und prüft auf Plausibilität. Admins und Trainer können mit nur einem Wisch hunderte Einträge pro Woche orchestrirere.
                    </p>
                    <div className="grid grid-cols-2 gap-4 mb-12">
-                      <div className="p-6 rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5">
+                      <div className="p-6 rounded-3xl bg-gray-100 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5">
                          <div className="text-2xl font-bold text-gray-950 dark:text-white mb-1">94%</div>
                          <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Zeit gespart</div>
                       </div>
-                      <div className="p-6 rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5">
+                      <div className="p-6 rounded-3xl bg-gray-100 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5">
                          <div className="text-2xl font-bold text-gray-950 dark:text-white mb-1">0%</div>
                          <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Fehlerrate</div>
                       </div>
@@ -258,7 +257,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
              </div>
              <div className="flex-1 self-stretch">
                 <ScrollReveal direction="right" delay={0.2}>
-                   <div className="bg-[#f0f4f9] dark:bg-[#0c0c0c] rounded-[48px] p-6 md:p-12 border border-gray-100 dark:border-white/5 flex justify-center relative group min-h-[500px] h-full items-center">
+                   <div className="bg-[#f2f4f7] dark:bg-[#0c0c0c] rounded-[48px] p-6 md:p-12 border border-gray-100 dark:border-white/5 flex justify-center relative group min-h-[500px] h-full items-center">
                       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="w-full max-w-[280px] aspect-[9/19.5] bg-white dark:bg-[#121212] rounded-[32px] border-[6px] border-gray-950 dark:border-white/10 shadow-2xl flex flex-col items-center justify-center p-6 text-center">
                          <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4">
