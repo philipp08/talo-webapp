@@ -123,9 +123,9 @@ export default function SolutionsPage() {
             </div>
           </ScrollReveal>
           <ScrollReveal direction="up" delay={0.2}>
-            <h1 className="text-[2.6rem] sm:text-[3.2rem] md:text-[6rem] lg:text-[7.5rem] leading-[1.05] font-medium tracking-tight font-logo text-gray-900 dark:text-white mb-10 max-w-5xl mx-auto">
-              <span className="block">Für jede Form des</span> 
-              <span className="text-gray-400 dark:text-white/20 italic block">Engagements.</span>
+            <h1 className="text-[2rem] sm:text-[3.2rem] md:text-[6rem] lg:text-[7.5rem] leading-[1.05] font-medium tracking-tight font-logo text-gray-900 dark:text-white mb-10 max-w-5xl mx-auto">
+              <span className="block whitespace-nowrap">Für jede Form des</span> 
+              <span className="text-gray-400 dark:text-white/20 italic block whitespace-nowrap">Engagements.</span>
             </h1>
           </ScrollReveal>
           <ScrollReveal direction="up" delay={0.3}>
