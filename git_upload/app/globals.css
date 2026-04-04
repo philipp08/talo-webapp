@@ -2,8 +2,28 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
-  /* Dark-first – exakt wie die native App (DesignSystem.swift) */
+  /* Light theme – Landing Page */
   :root {
+    --t-bg: #FFFFFF;
+    --t-bg-soft: #F5F5F7;
+    --t-bg-card: #FAFAFA;
+    --t-bg-muted: #F0F0F0;
+    --t-text: #1A1A1A;
+    --t-text-sub: #6B6B6B;
+    --t-text-muted: #ADADAD;
+    --t-border: #E5E5E5;
+    --t-glass-card-bg: rgba(255, 255, 255, 0.85);
+    --t-glass-card-border: rgba(0, 0, 0, 0.06);
+    /* Semantic Farben – identisch mit native app */
+    --t-pink:   #E87AA0;
+    --t-green:  #34C759;
+    --t-orange: #FF9500;
+    --t-red:    #FF453A;
+    --mega-featured-bg: #F5F5F7;
+  }
+
+  /* Dark theme – Dashboard (via hardcoded inline styles, aber auch hier definiert) */
+  .dark {
     --t-bg: #080808;
     --t-bg-soft: #0D0D0D;
     --t-bg-card: #101010;
@@ -14,11 +34,6 @@
     --t-border: #242424;
     --t-glass-card-bg: rgba(16, 16, 16, 0.85);
     --t-glass-card-border: rgba(255, 255, 255, 0.06);
-    /* Semantic Farben – identisch mit native app */
-    --t-pink:   #E87AA0;
-    --t-green:  #34C759;
-    --t-orange: #FF9500;
-    --t-red:    #FF453A;
     --mega-featured-bg: #111111;
   }
 
