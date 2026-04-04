@@ -1,227 +1,282 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, Pencil, Trash2, Info, CheckSquare, Search } from "lucide-react";
+import { CheckCircle, XCircle, X, Sparkles, Calendar, Pencil, Check } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Entry, ActivityCategory } from "@/lib/firebase/models";
-import { TCatBadge, GlassSection, TLine, TButton, TSearchBar, AmbientBackground } from "@/app/components/ui/NativeUI";
+import { Entry, Member, getMemberFullName } from "@/lib/firebase/models";
+import { GlassSection, TLine, TCatBadge, TAvatar, TButton, TStatusBadge } from "@/app/components/ui/NativeUI";
 
-export default function ApprovalsPage() {
-  const currentClub = useAppStore((state) => state.currentClub);
-  const currentMember = useAppStore((state) => state.currentMember);
-  const [pendingEntries, setPendingEntries] = useState<Entry[]>([]);
-  const [members, setMembers] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
-  const [rejectId, setRejectId] = useState<string | null>(null);
+export default function GenehmigungPage() {
+  const currentMember = useAppStore((s) => s.currentMember);
+  const currentClub   = useAppStore((s) => s.currentClub);
+
+  const [entries,  setEntries]  = useState<Entry[]>([]);
+  const [members,  setMembers]  = useState<Member[]>([]);
+  const [loading,  setLoading]  = useState(true);
+
+  // Reject modal
+  const [rejectTarget, setRejectTarget] = useState<Entry | null>(null);
   const [rejectReason, setRejectReason] = useState("");
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [saving,       setSaving]       = useState(false);
+
+  const isAdmin = currentMember?.isAdmin === true;
 
   useEffect(() => {
     if (!currentClub) return;
-
-    const unsub = FirebaseManager.listenToEntries(currentClub.id, (all) => {
-      setPendingEntries(all.filter((e) => e.status === "Ausstehend"));
+    const unsubEntries = FirebaseManager.listenToEntries(currentClub.id, (e) => {
+      setEntries(e);
       setLoading(false);
     });
-
-    const unsubMembers = FirebaseManager.listenToMembers(currentClub.id, (ms) => {
-      const map: Record<string, string> = {};
-      ms.forEach((m) => { map[m.id] = `${m.firstName} ${m.lastName}`; });
-      setMembers(map);
-    });
-
-    return () => { unsub(); unsubMembers(); };
+    const unsubMembers = FirebaseManager.listenToMembers(currentClub.id, setMembers);
+    return () => { unsubEntries(); unsubMembers(); };
   }, [currentClub]);
 
-  const approve = async (entry: Entry) => {
+  const memberMap = useMemo(() => {
+    const m = new Map<string, Member>();
+    members.forEach((mem) => m.set(mem.id, mem));
+    return m;
+  }, [members]);
+
+  const pending = useMemo(
+    () => entries.filter((e) => e.status === "Ausstehend"),
+    [entries]
+  );
+
+  async function approve(entry: Entry) {
     if (!currentClub) return;
-    setProcessingId(entry.id);
     await FirebaseManager.updateEntryStatus(currentClub.id, entry.id, "Genehmigt");
-    setProcessingId(null);
-  };
+  }
 
-  const reject = async (id: string) => {
-    if (!currentClub) return;
-    setProcessingId(id);
-    await FirebaseManager.updateEntryStatus(currentClub.id, id, "Abgelehnt", rejectReason);
-    setRejectId(null);
-    setRejectReason("");
-    setProcessingId(null);
-  };
+  async function rejectConfirm() {
+    if (!currentClub || !rejectTarget) return;
+    setSaving(true);
+    try {
+      await FirebaseManager.updateEntryStatus(
+        currentClub.id,
+        rejectTarget.id,
+        "Abgelehnt",
+        rejectReason.trim() || undefined
+      );
+      setRejectTarget(null);
+      setRejectReason("");
+    } finally {
+      setSaving(false);
+    }
+  }
 
-  if (!currentMember?.isAdmin) {
+  if (!isAdmin) {
     return (
-      <div className="flex items-center justify-center h-full p-8">
-        <p className="text-[#8A8A8A] font-poppins">Kein Zugriff. Nur für Administratoren.</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p style={{ color: "#8A8A8A" }} className="font-poppins text-sm">
+          Nur Admins können Genehmigungen verwalten.
+        </p>
       </div>
     );
   }
 
   return (
     <div className="relative min-h-screen">
-      <div className="relative z-10 p-6 flex flex-col gap-6 max-w-2xl mx-auto">
-        {/* Native Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 16 }} 
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col gap-1"
-        >
-          <h1 className="text-[26px] font-poppins font-bold text-white tracking-tight">Genehmigung</h1>
-          <p className="text-[#8A8A8A] font-poppins text-sm">
-            {loading ? "Laden…" : `${pendingEntries.length} ausstehende Einträge`}
+      <div className="relative z-10 p-6 max-w-2xl mx-auto flex flex-col gap-5 pb-24">
+
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="flex items-end justify-between mb-1">
+            <h1 className="text-[24px] font-poppins font-bold text-white tracking-tight">
+              Genehmigungen
+            </h1>
+            {pending.length > 0 && (
+              <span className="text-[11px] font-poppins font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: "rgba(255,149,0,0.15)", color: "#FF9500" }}>
+                {pending.length} ausstehend
+              </span>
+            )}
+          </div>
+          <p className="text-[12px] font-poppins" style={{ color: "#555" }}>
+            Einträge prüfen und freigeben
           </p>
         </motion.div>
 
+        {/* Loading */}
         {loading ? (
-          <div className="flex items-center justify-center p-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-white border-t-transparent opacity-20" />
+          <div className="flex justify-center py-20">
+            <div className="w-7 h-7 rounded-full border-2 border-white/10 border-t-white animate-spin" />
           </div>
-        ) : pendingEntries.length === 0 ? (
-          /* Native Empty State */
+
+        ) : pending.length === 0 ? (
+          /* Empty state */
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-20 gap-5 text-center"
+            className="flex flex-col items-center justify-center py-24 text-center"
           >
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-[#8A8A8A]/10 blur-xl absolute inset-0" />
-              <div className="w-20 h-20 rounded-full bg-[#8A8A8A]/10 flex items-center justify-center relative border border-[#8A8A8A]/20">
-                <CheckSquare size={40} className="text-[#8A8A8A]" strokeWidth={1.5} />
-              </div>
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
+                 style={{ background: "rgba(52,199,89,0.1)" }}>
+              <Sparkles size={28} style={{ color: "#34C759" }} />
             </div>
-            <div className="flex flex-col gap-1">
-              <h2 className="font-poppins font-bold text-xl text-white">Alles erledigt!</h2>
-              <p className="text-[#8A8A8A] font-poppins text-[15px]">Keine ausstehenden Einträge.</p>
-            </div>
+            <p className="font-poppins font-bold text-[18px] text-white mb-2">Alles erledigt!</p>
+            <p className="text-[13px]" style={{ color: "#8A8A8A" }}>
+              Keine ausstehenden Einträge.
+            </p>
           </motion.div>
+
         ) : (
-          <div className="flex flex-col gap-3.5 pb-20">
-            <AnimatePresence mode="popLayout">
-              {pendingEntries.map((entry, idx) => (
+          /* Entry list */
+          <AnimatePresence mode="popLayout">
+            {pending.map((entry, idx) => {
+              const member = memberMap.get(entry.memberId);
+              const dateStr = entry.date instanceof Date
+                ? entry.date.toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })
+                : "–";
+
+              return (
                 <motion.div
                   key={entry.id}
                   layout
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                  transition={{ type: "spring", duration: 0.5, delay: idx * 0.05 }}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0, transition: { delay: idx * 0.04 } }}
+                  exit={{ opacity: 0, scale: 0.95 }}
                 >
-                  <GlassSection className="p-4 sm:p-5 flex flex-col gap-4">
-                    {/* Header: Cat + Name + Points */}
-                    <div className="flex items-start gap-4">
-                      <TCatBadge category={entry.activityCategory as string} />
-                      <div className="flex flex-col flex-1 min-w-0">
-                        <span className="font-poppins font-semibold text-[15px] text-white truncate leading-tight">
-                          {entry.activityName}
-                        </span>
-                        <span className="text-[13px] font-poppins text-[#8A8A8A] mt-1 truncate">
-                          {members[entry.memberId] ?? "Unbekannt"}
-                        </span>
-                      </div>
-                      <div className="flex flex-col items-end gap-1 shrink-0">
-                        <span className="font-mono font-bold text-white text-[15px]">
-                          {entry.points.toFixed(1)} Pkt.
-                        </span>
-                        <span className="text-[11px] font-poppins text-[#8A8A8A]">
-                          {new Date(entry.date as any).toLocaleDateString("de-DE", { day: '2-digit', month: 'short' })}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Notes */}
-                    {entry.notes && (
-                      <div className="flex gap-2.5 items-start">
-                        <Info size={14} className="text-[#555] shrink-0 mt-0.5" />
-                        <p className="text-[13px] font-poppins text-[#8A8A8A] leading-relaxed line-clamp-3">
-                          {entry.notes}
+                  <GlassSection>
+                    {/* Top: Member + activity info */}
+                    <div className="flex items-start gap-3.5 p-4">
+                      {member ? (
+                        <TAvatar name={getMemberFullName(member)} id={member.id} size={40} />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full shrink-0"
+                             style={{ background: "rgba(255,255,255,0.06)" }} />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-poppins font-semibold text-[14px] text-white leading-tight truncate">
+                          {member ? getMemberFullName(member) : "Unbekanntes Mitglied"}
+                        </p>
+                        <p className="text-[11px] mt-0.5" style={{ color: "#8A8A8A" }}>
+                          {member?.memberType ?? ""}
                         </p>
                       </div>
+                      <TStatusBadge status={entry.status as string} />
+                    </div>
+
+                    <TLine />
+
+                    {/* Activity row */}
+                    <div className="flex items-center gap-3 px-4 py-3.5">
+                      <TCatBadge category={entry.activityCategory as string} size={36} />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-poppins font-semibold text-[14px] text-white truncate">
+                          {entry.activityName}
+                        </p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Calendar size={11} style={{ color: "#555" }} />
+                          <span className="text-[11px]" style={{ color: "#8A8A8A" }}>{dateStr}</span>
+                        </div>
+                      </div>
+                      <span className="font-mono font-black text-[20px] text-white shrink-0">
+                        +{entry.points.toFixed(1)}
+                      </span>
+                    </div>
+
+                    {/* Notes (wenn vorhanden) */}
+                    {entry.notes && (
+                      <>
+                        <TLine />
+                        <div className="px-4 py-3">
+                          <p className="text-[12px] font-poppins italic" style={{ color: "#8A8A8A" }}>
+                            „{entry.notes}"
+                          </p>
+                        </div>
+                      </>
                     )}
 
                     <TLine />
 
-                    {/* Actions: Replay the native Layout */}
-                    <div className="flex items-center gap-2">
-                       <button className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-poppins font-semibold text-[#8A8A8A] bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
-                        <Pencil size={12} />
-                        Bearb.
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 p-3">
+                      {/* Ablehnen */}
+                      <button
+                        onClick={() => { setRejectTarget(entry); setRejectReason(""); }}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-[14px] font-poppins font-semibold text-[13px] transition-all hover:opacity-80"
+                        style={{ background: "rgba(255,69,58,0.1)", color: "#FF453A" }}
+                      >
+                        <XCircle size={15} />
+                        Ablehnen
                       </button>
-                      
-                      <div className="ml-auto flex items-center gap-2">
-                        <button 
-                          onClick={() => setRejectId(entry.id)}
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-poppins font-semibold text-[#333333] bg-[#333333]/10 border border-[#333333]/20 hover:bg-[#333333]/20 transition-all"
-                        >
-                          <XCircle size={12} />
-                          Ablehnen
-                        </button>
-                        <button 
-                          onClick={() => approve(entry)}
-                          disabled={processingId === entry.id}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-poppins font-bold text-[#071212] bg-[#FFFFFF] hover:bg-[#FFFFFF]/90 transition-all shadow-lg shadow-[#FFFFFF]/20 disabled:opacity-50"
-                        >
-                          {processingId === entry.id ? (
-                            <div className="h-3 w-3 animate-spin rounded-full border border-[#071212] border-t-transparent" />
-                          ) : (
-                            <CheckCircle size={12} />
-                          )}
-                          Genehmigen
-                        </button>
-                      </div>
+
+                      {/* Genehmigen */}
+                      <button
+                        onClick={() => approve(entry)}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-[14px] font-poppins font-semibold text-[13px] transition-all hover:opacity-80"
+                        style={{ background: "rgba(52,199,89,0.12)", color: "#34C759" }}
+                      >
+                        <CheckCircle size={15} />
+                        Genehmigen
+                      </button>
                     </div>
                   </GlassSection>
                 </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
+              );
+            })}
+          </AnimatePresence>
         )}
       </div>
 
-      {/* Rejection Sheet Overlay (Desktop Modal) */}
+      {/* ── Reject Modal ──────────────────────────────────────────── */}
       <AnimatePresence>
-        {rejectId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
+        {rejectTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+               style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: 0.94 }}
               className="w-full max-w-sm"
             >
-              <GlassSection className="p-6 flex flex-col gap-5 border-[#333333]/20">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-14 h-14 rounded-full bg-[#333333]/10 flex items-center justify-center">
-                    <XCircle size={28} className="text-[#333333]" />
-                  </div>
-                  <h3 className="font-poppins font-bold text-white text-lg">Eintrag ablehnen</h3>
+              <GlassSection className="p-6 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <p className="font-poppins font-bold text-[17px] text-white">Eintrag ablehnen</p>
+                  <button onClick={() => setRejectTarget(null)}>
+                    <X size={18} style={{ color: "#8A8A8A" }} />
+                  </button>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="text-[11px] font-poppins font-bold text-[#8A8A8A] uppercase tracking-widest pl-1">
-                    Grund für die Ablehnung
+                <p className="text-[13px]" style={{ color: "#8A8A8A" }}>
+                  <span className="text-white font-semibold">{rejectTarget.activityName}</span>
+                  {" – "}
+                  {memberMap.get(rejectTarget.memberId)
+                    ? getMemberFullName(memberMap.get(rejectTarget.memberId)!)
+                    : "Unbekannt"}
+                </p>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest pl-0.5"
+                         style={{ color: "#555" }}>
+                    Ablehnungsgrund (optional)
                   </label>
                   <textarea
-                    autoFocus
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
-                    placeholder="Optionaler Grund…"
-                    className="w-full h-24 rounded-2xl bg-white/5 border border-white/10 p-3 font-poppins text-sm text-white placeholder-[#444] focus:outline-none focus:border-white/20 resize-none"
+                    placeholder="z.B. Nachweis fehlt"
+                    rows={3}
+                    className="w-full rounded-2xl px-4 py-3 text-[14px] font-poppins text-white placeholder-[#444] focus:outline-none resize-none transition-all"
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
                   />
                 </div>
 
-                <div className="flex flex-col gap-2 pt-2">
-                  <TButton 
-                    label="Ablehnen bestätigen" 
-                    variant="danger" 
-                    onClick={() => reject(rejectId)}
-                    disabled={processingId === rejectId}
-                  />
-                  <TButton 
-                    label="Abbrechen" 
-                    variant="ghost" 
-                    onClick={() => setRejectId(null)} 
-                  />
+                <div className="flex gap-2 pt-1">
+                  <TButton label="Abbrechen" variant="ghost" onClick={() => setRejectTarget(null)} className="flex-1" />
+                  <button
+                    onClick={rejectConfirm}
+                    disabled={saving}
+                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full font-poppins font-semibold text-[14px] transition-all disabled:opacity-40"
+                    style={{ background: "rgba(255,69,58,0.15)", color: "#FF453A" }}
+                  >
+                    <XCircle size={15} />
+                    {saving ? "Wird abgelehnt…" : "Ablehnen"}
+                  </button>
                 </div>
               </GlassSection>
             </motion.div>

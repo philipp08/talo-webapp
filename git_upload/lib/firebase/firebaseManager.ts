@@ -296,6 +296,37 @@ export class FirebaseManager {
   }
 
   // === ENTRIES (write) ===
+
+  /** Legt einen neuen Eintrag an (mit vorgegebener ID via setDoc). */
+  static async addEntry(
+    clubId: string,
+    entryId: string,
+    data: {
+      memberId: string;
+      date: Date;
+      notes: string;
+      points: number;
+      status: string;
+      activityName: string;
+      activityCategory: string;
+      rejectionReason?: string;
+    }
+  ): Promise<void> {
+    const payload: Record<string, unknown> = {
+      memberId:         data.memberId,
+      date:             Timestamp.fromDate(data.date),
+      notes:            data.notes,
+      points:           data.points,
+      status:           data.status,
+      activityName:     data.activityName,
+      activityCategory: data.activityCategory,
+    };
+    if (data.rejectionReason !== undefined) {
+      payload.rejectionReason = data.rejectionReason;
+    }
+    await setDoc(doc(db, `clubs/${clubId}/entries`, entryId), payload);
+  }
+
   static async updateEntry(
     clubId: string,
     entry: Entry
