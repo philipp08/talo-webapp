@@ -164,7 +164,7 @@ export default function MemberDetailPage() {
 
   return (
     <div className="relative min-h-screen bg-[#080808]">
-      <div className="max-w-[1600px] mx-auto py-12 px-1 flex flex-col gap-12">
+      <div className="max-w-[1600px] mx-auto py-12 px-10 flex flex-col gap-12">
         
         {/* TOP BAR / BREADCRUMBS */}
         <div className="flex items-center justify-between border-b border-white/5 pb-8">
