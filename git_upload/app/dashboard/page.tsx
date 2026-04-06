@@ -89,6 +89,14 @@ export default function DashboardPage() {
     <div className="relative min-h-screen" style={{ background: "#080808" }}>
       <div className="relative z-10 p-6 flex flex-col gap-10 max-w-[1400px] mx-auto">
 
+        {/* Page Header */}
+        <div className="flex items-center justify-between border-b border-white/5 pb-8">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Dashboard</h1>
+            <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Dein Überblick</p>
+          </div>
+        </div>
+
         {loading ? (
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="w-8 h-8 animate-spin rounded-full border-[3px] border-white/5 border-t-white" />

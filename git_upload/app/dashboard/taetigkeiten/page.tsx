@@ -91,19 +91,18 @@ export default function ActivitiesPage() {
     <div className="relative min-h-screen">
       <div className="relative z-10 p-6 flex flex-col gap-6 max-w-2xl mx-auto">
         {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 16 }} 
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col gap-1"
-        >
-          <div className="flex items-end justify-between">
-            <h1 className="text-[26px] font-poppins font-bold text-white tracking-tight">Tätigkeiten</h1>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="flex items-center justify-between border-b border-white/5 pb-8 mb-2">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Tätigkeiten</h1>
+              <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">Aktivitätskatalog verwalten</p>
+            </div>
             {isAdmin && (
-              <button 
+              <button
                 onClick={openAdd}
-                className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all"
+                className="flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
               >
-                <Plus size={18} />
+                <Plus size={16} /> Neu
               </button>
             )}
           </div>

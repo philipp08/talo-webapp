@@ -82,20 +82,18 @@ export default function GenehmigungPage() {
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-end justify-between mb-1">
-            <h1 className="text-[24px] font-poppins font-bold text-white tracking-tight">
-              Genehmigungen
-            </h1>
+          <div className="flex items-center justify-between border-b border-white/5 pb-8 mb-2">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Genehmigungen</h1>
+              <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">Einträge prüfen und freigeben</p>
+            </div>
             {pending.length > 0 && (
-              <span className="text-[11px] font-poppins font-bold px-2.5 py-1 rounded-full"
+              <span className="text-[11px] font-poppins font-bold px-3 py-1.5 rounded-full"
                     style={{ background: "rgba(255,149,0,0.15)", color: "#FF9500" }}>
                 {pending.length} ausstehend
               </span>
             )}
           </div>
-          <p className="text-[12px] font-poppins" style={{ color: "#555" }}>
-            Einträge prüfen und freigeben
-          </p>
         </motion.div>
 
         {/* Loading */}

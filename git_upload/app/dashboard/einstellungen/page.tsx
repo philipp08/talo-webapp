@@ -105,6 +105,14 @@ export default function SettingsPage() {
   return (
     <div className="relative min-h-screen">
       <div className="relative z-10 p-6 flex flex-col gap-8 max-w-2xl mx-auto pb-32">
+        {/* Page Header */}
+        <div className="flex items-center justify-between border-b border-white/5 pb-8 mb-2">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Einstellungen</h1>
+            <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">Konto & Verein</p>
+          </div>
+        </div>
+
         {/* Profile Hero Card */}
         <motion.div
            initial={{ opacity: 0, y: 20 }}
