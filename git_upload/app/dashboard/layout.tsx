@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   LayoutGrid, Users, ClipboardList,
   Settings, Megaphone, LogOut,
-  ShieldCheck, Monitor, Smartphone, Download,
+  ShieldCheck, Smartphone, Download,
   ArrowRight, PenLine, CheckSquare
 } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
@@ -80,7 +80,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <AuthGuard>
-      <div className="flex h-screen w-full text-white selection:bg-white selection:text-black"
+      <div className="flex h-dvh w-full text-white selection:bg-white selection:text-black"
            style={{ background: "#080808" }}>
 
         {/* MOBILE OVERLAY */}
@@ -184,35 +184,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* MAIN */}
         <main className="flex-1 relative overflow-hidden" style={{ background: "#080808" }}>
-          {/* Header */}
-          <header
-            className="h-[76px] flex items-center justify-between px-10 relative z-10"
-            style={{
-              borderBottom: "1px solid rgba(255,255,255,0.04)",
-              background: "rgba(8,8,8,0.8)",
-              backdropFilter: "blur(24px)",
-              WebkitBackdropFilter: "blur(24px)",
-            }}
-          >
-            <h2 className="font-logo font-bold text-[18px] text-white tracking-wide">
-              {navItems.find((n) => n.href === pathname)?.label ?? "Dashboard"}
-            </h2>
-            <div
-              className="flex items-center gap-2.5 px-4 py-2 rounded-full cursor-default"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              <Monitor size={13} style={{ color: "#555" }} />
-              <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#555" }}>
-                Desktop Modus
-              </span>
-            </div>
-          </header>
-
           {/* Content */}
-          <div className="absolute inset-0 top-[76px] overflow-y-auto no-scrollbar">
+          <div className="absolute inset-0 overflow-y-auto no-scrollbar">
             <ScrollReveal direction="up" delay={0.05}>
               {children}
             </ScrollReveal>
