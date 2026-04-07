@@ -104,47 +104,48 @@ export default function SettingsPage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="relative z-10 p-6 flex flex-col gap-8 max-w-2xl mx-auto pb-32">
+      <div className="relative z-10 max-w-[1600px] mx-auto py-8 px-6 lg:px-10 pb-16">
         {/* Page Header */}
-        <div className="flex items-center justify-between border-b border-white/5 pb-8 mb-2">
+        <div className="flex items-center justify-between border-b border-white/5 pb-8 mb-10">
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Einstellungen</h1>
             <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">Konto & Verein</p>
           </div>
         </div>
 
-        {/* Profile Hero Card */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+
+        {/* LEFT: Profile Hero Card */}
         <motion.div
            initial={{ opacity: 0, y: 20 }}
            animate={{ opacity: 1, y: 0 }}
            transition={{ duration: 0.6 }}
+           className="lg:sticky lg:top-6"
         >
           <GlassSection className="relative overflow-hidden">
-             {/* Suble Glow Background */}
              <div className="absolute inset-0 bg-white/5 opacity-40" />
-             
+
              <div className="relative z-10 flex flex-col items-center">
-                {/* Avatar + Progress Ring */}
                 <div className="pt-8 pb-4 relative">
                    <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-[120px] h-[120px] rounded-full blur-2xl opacity-20" style={{ background: progressColor }} />
                    </div>
-                   
+
                    <div className="relative w-[104px] h-[104px] rounded-full flex items-center justify-center">
                       <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
-                        <motion.circle 
+                        <motion.circle
                           cx="50" cy="50" r="46" fill="none" stroke={progressColor} strokeWidth="4" strokeLinecap="round"
                           initial={{ strokeDasharray: "0, 289" }}
                           animate={{ strokeDasharray: `${progress * 289}, 289` }}
                           transition={{ duration: 1.2, delay: 0.3 }}
                         />
                       </svg>
-                      <TAvatar 
-                        name={`${currentMember.firstName} ${currentMember.lastName}`} 
-                        id={currentMember.id} 
-                        size={88} 
-                        imageUrl={currentMember.profileImageUrl} 
+                      <TAvatar
+                        name={`${currentMember.firstName} ${currentMember.lastName}`}
+                        id={currentMember.id}
+                        size={88}
+                        imageUrl={currentMember.profileImageUrl}
                       />
                    </div>
                 </div>
@@ -154,8 +155,8 @@ export default function SettingsPage() {
                       {currentMember.firstName} {currentMember.lastName}
                    </h2>
                    <p className="text-[13px] font-poppins text-[#8A8A8A] leading-none mb-2">{currentMember.email}</p>
-                   
-                   <div className="flex items-center gap-2">
+
+                   <div className="flex items-center gap-2 flex-wrap justify-center">
                       {isAdmin && <TBadge label="Admin" icon={ShieldCheck} color="white" />}
                       {isTrainer && !isAdmin && <TBadge label="Trainer" icon={Dumbbell} color="#8A8A8A" />}
                       <span className="px-2.5 py-1 rounded-full text-[10px] font-poppins font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-[#8A8A8A]">
@@ -166,7 +167,6 @@ export default function SettingsPage() {
 
                 <TLine />
 
-                {/* Hero Stats */}
                 <div className="grid grid-cols-3 w-full divide-x divide-white/[0.08]">
                    <HeroStat value={approvedPts.toFixed(1)} label="Punkte" color={progressColor} />
                    <HeroStat value={`${Math.round(progress * 100)}%`} label="Ziel" color={progressColor} />
@@ -176,8 +176,8 @@ export default function SettingsPage() {
           </GlassSection>
         </motion.div>
 
-        {/* Sections */}
-        <div className="flex flex-col gap-6">
+        {/* RIGHT: Sections */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
            {/* Account Section */}
            <div className="flex flex-col gap-3">
               <SectionHeader title="KONTO" icon={User} color="#FFFFFF" />
@@ -273,6 +273,8 @@ export default function SettingsPage() {
               </GlassSection>
            </div>
         </div>
+
+        </div>{/* end grid */}
       </div>
     </div>
   );

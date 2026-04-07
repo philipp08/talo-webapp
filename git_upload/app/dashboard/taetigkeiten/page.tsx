@@ -89,7 +89,7 @@ export default function ActivitiesPage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="relative z-10 p-6 flex flex-col gap-6 max-w-2xl mx-auto">
+      <div className="relative z-10 max-w-[1600px] mx-auto py-8 px-6 lg:px-10 flex flex-col gap-8">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center justify-between border-b border-white/5 pb-8 mb-2">
@@ -150,7 +150,7 @@ export default function ActivitiesPage() {
             <p className="font-poppins text-[#8A8A8A]">Keine Tätigkeiten gefunden.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3.5 pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3.5 pb-20">
             <AnimatePresence mode="popLayout">
               {filtered.map((activity, idx) => (
                 <motion.div

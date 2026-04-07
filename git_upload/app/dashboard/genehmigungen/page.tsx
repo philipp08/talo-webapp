@@ -78,11 +78,11 @@ export default function GenehmigungPage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="relative z-10 p-6 max-w-2xl mx-auto flex flex-col gap-5 pb-24">
+      <div className="relative z-10 max-w-[1600px] mx-auto py-8 px-6 lg:px-10 flex flex-col gap-8 pb-16">
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center justify-between border-b border-white/5 pb-8 mb-2">
+          <div className="flex items-center justify-between border-b border-white/5 pb-8">
             <div className="flex flex-col gap-2">
               <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Genehmigungen</h1>
               <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">Einträge prüfen und freigeben</p>
@@ -121,6 +121,7 @@ export default function GenehmigungPage() {
 
         ) : (
           /* Entry list */
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
           <AnimatePresence mode="popLayout">
             {pending.map((entry, idx) => {
               const member = memberMap.get(entry.memberId);
@@ -216,6 +217,7 @@ export default function GenehmigungPage() {
               );
             })}
           </AnimatePresence>
+          </div>
         )}
       </div>
 
