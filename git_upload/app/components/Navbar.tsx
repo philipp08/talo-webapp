@@ -372,7 +372,7 @@ export default function Navbar() {
                 }}
                 className="overflow-hidden w-full"
               >
-                <div className="flex flex-col px-6 pb-8 pt-2 w-full">
+                <div className="flex flex-col px-6 pb-8 pt-2 w-full overflow-y-auto max-h-[calc(100dvh-72px)]">
                   {/* Divider line */}
                   <motion.div
                     initial={{ scaleX: 0 }}
