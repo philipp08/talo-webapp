@@ -51,9 +51,9 @@ export default function Footer() {
       title: "Unternehmen",
       links: [
         { name: "Über uns", href: "/ueber-uns" },
-        { name: "Karriere", href: "/ueber-uns" },
+        { name: "Karriere", href: "/karriere" },
         { name: "Presse", href: "/ueber-uns" },
-        { name: "Kontakt", href: "/ueber-uns" },
+        { name: "Kontakt", href: "/kontakt" },
       ],
     },
   ];
