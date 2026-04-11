@@ -28,7 +28,7 @@ async function sendOne(apiKey: string, email: string, token: string, subject: st
     },
     body: JSON.stringify({
       personalizations: [{ to: [{ email }] }],
-      from: { email: "philipp@pauli-one.de", name: "Talo Newsletter" },
+      from: { email: "philipp@pauli-one.com", name: "Talo Newsletter" },
       subject,
       content: [{ type: "text/html", value: htmlWithFooter }],
     }),

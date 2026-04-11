@@ -48,7 +48,7 @@ async function sendWelcomeMail(email: string, token: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       personalizations: [{ to: [{ email }] }],
-      from: { email: "philipp@pauli-one.de", name: "Talo Newsletter" },
+      from: { email: "philipp@pauli-one.com", name: "Talo Newsletter" },
       subject: "Du bist dabei – willkommen beim Talo Newsletter 👋",
       content: [{
         type: "text/html",
