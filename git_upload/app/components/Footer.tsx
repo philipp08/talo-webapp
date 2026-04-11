@@ -42,7 +42,7 @@ export default function Footer() {
       links: [
         { name: "Hilfe-Center", href: "/hilfe" },
         { name: "Blog", href: "/blog" },
-        { name: "Changelog", href: "/hilfe" },
+        { name: "Changelog", href: "/changelog" },
         { name: "Newsletter", href: "/newsletter" },
         { name: "Videos", href: "/hilfe" },
       ],
@@ -52,7 +52,7 @@ export default function Footer() {
       links: [
         { name: "Über uns", href: "/ueber-uns" },
         { name: "Karriere", href: "/karriere" },
-        { name: "Presse", href: "/ueber-uns" },
+        { name: "Presse", href: "/presse" },
         { name: "Kontakt", href: "/kontakt" },
       ],
     },
