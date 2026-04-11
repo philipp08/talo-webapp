@@ -43,7 +43,7 @@ const recentIssues = [
 
 async function sendWelcomeMail(email: string, token: string) {
   const unsubLink = `${window.location.origin}/newsletter/abmelden?token=${token}`;
-  await fetch("/api/send-email", {
+  const res = await fetch("/api/send-email", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -76,6 +76,10 @@ async function sendWelcomeMail(email: string, token: string) {
       }],
     }),
   });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`SendGrid: ${JSON.stringify(err)}`);
+  }
 }
 
 export default function NewsletterPage() {
@@ -108,8 +112,8 @@ export default function NewsletterPage() {
       subscribedAt: serverTimestamp(),
     });
 
-    // Send welcome email (best-effort)
-    try { await sendWelcomeMail(emailVal, token); } catch (_) {}
+    // Send welcome email
+    await sendWelcomeMail(emailVal, token);
 
     setSubmitted(true);
   }

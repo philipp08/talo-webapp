@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth, db } from "@/lib/firebase/config";
 import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -97,12 +97,28 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [resetSent, setResetSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   // Form State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+
+  const handleReset = async () => {
+    if (!email) { setError("Bitte zuerst E-Mail eingeben."); return; }
+    setResetLoading(true);
+    setError("");
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetSent(true);
+    } catch (err: any) {
+      if (err.code === "auth/user-not-found") setError("Kein Account mit dieser E-Mail gefunden.");
+      else setError("Fehler beim Senden. Bitte versuche es erneut.");
+    }
+    setResetLoading(false);
+  };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -249,6 +265,25 @@ export default function LoginPage() {
 
             <FloatingInput label="E-Mail" value={email} onChange={setEmail} type="email" />
             <FloatingInput label="Passwort" value={password} onChange={setPassword} type="password" />
+
+            {mode === "login" && (
+              <div className="flex justify-end -mt-1">
+                {resetSent ? (
+                  <span className="text-xs text-emerald-500 font-poppins">
+                    ✓ Reset-Link wurde gesendet!
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    disabled={resetLoading}
+                    className="text-xs text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors font-poppins disabled:opacity-50"
+                  >
+                    {resetLoading ? "Wird gesendet …" : "Passwort vergessen?"}
+                  </button>
+                )}
+              </div>
+            )}
 
             {error && (
               <motion.p 

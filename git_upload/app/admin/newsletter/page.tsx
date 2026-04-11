@@ -95,6 +95,9 @@ export default function AdminNewsletterPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Fehler beim Versand");
+      if (data.failed > 0) {
+        setSendError(`${data.failed} E-Mail(s) fehlgeschlagen. Fehler: ${(data.errors ?? []).join("; ")}`);
+      }
       setSendResult({ sent: data.sent, failed: data.failed });
     } catch (e: any) {
       setSendError(e.message || "Unbekannter Fehler");

@@ -5,6 +5,41 @@ interface Subscriber {
   token: string;
 }
 
+async function sendOne(apiKey: string, email: string, token: string, subject: string, htmlBody: string, baseUrl: string) {
+  const unsubLink = `${baseUrl}/newsletter/abmelden?token=${token}`;
+  const htmlWithFooter = `
+    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:48px 24px;color:#1a1a1a;background:#fff">
+      <div style="width:36px;height:36px;background:#000;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:28px">
+        <span style="color:#fff;font-weight:800;font-size:14px;letter-spacing:0.1em">T</span>
+      </div>
+      ${htmlBody}
+      <hr style="border:none;border-top:1px solid #eee;margin:40px 0 20px">
+      <p style="font-size:12px;color:#aaa;line-height:1.6">
+        Du erhältst diese E-Mail als Abonnent des Talo Newsletters.<br>
+        <a href="${unsubLink}" style="color:#aaa;text-decoration:underline">Vom Newsletter-Versand abmelden</a>
+      </p>
+    </div>`;
+
+  const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      personalizations: [{ to: [{ email }] }],
+      from: { email: "philipp@pauli-one.de", name: "Talo Newsletter" },
+      subject,
+      content: [{ type: "text/html", value: htmlWithFooter }],
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`SendGrid ${res.status}: ${errBody}`);
+  }
+}
+
 export async function POST(request: Request) {
   const apiKey = process.env.SENDGRID_API_KEY;
   if (!apiKey) {
@@ -26,39 +61,16 @@ export async function POST(request: Request) {
   const baseUrl = request.headers.get("origin") || "https://talo-webapp.vercel.app";
 
   const results = await Promise.allSettled(
-    subscribers.map(({ email, token }) => {
-      const unsubLink = `${baseUrl}/newsletter/abmelden?token=${token}`;
-      const htmlWithFooter = `
-        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:48px 24px;color:#1a1a1a;background:#fff">
-          <div style="width:36px;height:36px;background:#000;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:28px">
-            <span style="color:#fff;font-weight:800;font-size:14px;letter-spacing:0.1em">T</span>
-          </div>
-          ${htmlBody}
-          <hr style="border:none;border-top:1px solid #eee;margin:40px 0 20px">
-          <p style="font-size:12px;color:#aaa;line-height:1.6">
-            Du erhältst diese E-Mail als Abonnent des Talo Newsletters.<br>
-            <a href="${unsubLink}" style="color:#aaa;text-decoration:underline">Vom Newsletter-Versand abmelden</a>
-          </p>
-        </div>`;
-
-      return fetch("https://api.sendgrid.com/v3/mail/send", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          personalizations: [{ to: [{ email }] }],
-          from: { email: "philipp@pauli-one.de", name: "Talo Newsletter" },
-          subject,
-          content: [{ type: "text/html", value: htmlWithFooter }],
-        }),
-      });
-    })
+    subscribers.map(({ email, token }) =>
+      sendOne(apiKey, email, token, subject, htmlBody, baseUrl)
+    )
   );
 
-  const sent = results.filter((r) => r.status === "fulfilled").length;
+  const sent   = results.filter((r) => r.status === "fulfilled").length;
   const failed = results.filter((r) => r.status === "rejected").length;
+  const errors = results
+    .filter((r): r is PromiseRejectedResult => r.status === "rejected")
+    .map((r) => r.reason?.message ?? "unknown");
 
-  return NextResponse.json({ sent, failed, total: subscribers.length });
+  return NextResponse.json({ sent, failed, total: subscribers.length, errors });
 }
