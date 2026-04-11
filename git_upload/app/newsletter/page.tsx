@@ -90,30 +90,42 @@ export default function NewsletterPage() {
 
   async function handleSubscribe(emailVal: string) {
     setError("");
+
     // Check for duplicate
-    const q = query(
-      collection(db, "newsletter_subscribers"),
-      where("email", "==", emailVal),
-      where("active", "==", true)
-    );
-    const existing = await getDocs(q);
-    if (!existing.empty) {
-      setError("Diese E-Mail ist bereits eingetragen.");
-      setLoading(false);
-      return;
+    try {
+      const q = query(
+        collection(db, "newsletter_subscribers"),
+        where("email", "==", emailVal),
+        where("active", "==", true)
+      );
+      const existing = await getDocs(q);
+      if (!existing.empty) {
+        setError("Diese E-Mail ist bereits eingetragen.");
+        setLoading(false);
+        return;
+      }
+    } catch (e: any) {
+      // Firestore permission error → rules need to allow public reads
+      throw new Error(`Firestore lesen: ${e?.code ?? e?.message ?? e}`);
     }
 
     // Save to Firestore
     const token = crypto.randomUUID();
-    await addDoc(collection(db, "newsletter_subscribers"), {
-      email: emailVal,
-      token,
-      active: true,
-      subscribedAt: serverTimestamp(),
-    });
+    try {
+      await addDoc(collection(db, "newsletter_subscribers"), {
+        email: emailVal,
+        token,
+        active: true,
+        subscribedAt: serverTimestamp(),
+      });
+    } catch (e: any) {
+      throw new Error(`Firestore schreiben: ${e?.code ?? e?.message ?? e}`);
+    }
 
-    // Send welcome email
-    await sendWelcomeMail(emailVal, token);
+    // Send welcome email — non-blocking, never fails the signup
+    sendWelcomeMail(emailVal, token).catch((e) =>
+      console.warn("[newsletter] welcome mail failed:", e)
+    );
 
     setSubmitted(true);
   }
@@ -124,8 +136,8 @@ export default function NewsletterPage() {
     setLoading(true);
     try {
       await handleSubscribe(email);
-    } catch (_) {
-      setError("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
+    } catch (e: any) {
+      setError(e?.message ?? "Unbekannter Fehler");
     }
     setLoading(false);
   }
