@@ -54,73 +54,91 @@ async function sendWelcomeMail(email: string, token: string) {
       content: [{
         type: "text/html",
         value: `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#0D0D0D;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0D0D0D;padding:40px 16px;">
-    <tr><td align="center">
-      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Talo</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#0D0D0D;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}</style>
+</head>
+<body style="background:#0D0D0D;padding:0;margin:0;">
 
-        <!-- Logo -->
-        <tr><td style="padding-bottom:32px;">
-          <table cellpadding="0" cellspacing="0">
+<div style="display:none;max-height:0;overflow:hidden;">Willkommen beim Talo Newsletter – wir freuen uns, dass du dabei bist!</div>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#0D0D0D;padding:32px 16px;">
+  <tr><td align="center">
+
+    <!-- Main Card -->
+    <table width="600" cellpadding="0" cellspacing="0"
+           style="background:#1C1C24;border-radius:24px;overflow:hidden;max-width:600px;width:100%;border:1px solid #2A2A38;">
+
+      <!-- Logo Bar (identical to native app) -->
+      <tr>
+        <td style="padding:20px 32px;border-bottom:1px solid #2A2A38;">
+          <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
-              <td style="width:38px;height:38px;background:#FFFFFF;border-radius:10px;text-align:center;vertical-align:middle;">
-                <span style="color:#000;font-weight:900;font-size:16px;letter-spacing:0.1em;font-family:-apple-system,sans-serif;">T</span>
+              <td>
+                <span style="font-size:20px;font-weight:800;color:#F0F0FF;letter-spacing:-0.5px;">Talo</span>
+                <span style="font-size:20px;font-weight:300;color:#505060;"> · Jeder Beitrag zählt</span>
               </td>
-              <td style="padding-left:12px;vertical-align:middle;">
-                <span style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.25em;text-transform:uppercase;color:#FFFFFF;">TALO</span>
+              <td align="right">
+                <span style="font-size:11px;color:#505060;letter-spacing:0.5px;text-transform:uppercase;">Newsletter</span>
               </td>
             </tr>
           </table>
-        </td></tr>
+        </td>
+      </tr>
 
-        <!-- Card -->
-        <tr><td style="background:#1C1C24;border-radius:20px;padding:36px 32px;">
+      <!-- Hero (teal gradient like welcomeHTML) -->
+      <tr>
+        <td style="background:linear-gradient(135deg,#7DD8D8 0%,#4BBABA 100%);padding:40px 32px 32px;text-align:center;">
+          <div style="width:72px;height:72px;background:rgba(0,0,0,0.15);border-radius:20px;margin:0 auto 18px;line-height:72px;font-size:32px;text-align:center;display:inline-block;">
+            📬
+          </div>
+          <h1 style="margin:0 0 6px;font-size:26px;font-weight:800;color:#0D1A1A;letter-spacing:-0.5px;line-height:1.2;">
+            Willkommen im Newsletter!
+          </h1>
+          <p style="margin:0;font-size:15px;color:rgba(13,26,26,0.65);">Du stehst jetzt auf der Liste.</p>
+        </td>
+      </tr>
 
-          <!-- Headline -->
-          <p style="margin:0 0 8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:22px;font-weight:700;color:#F0F0FF;line-height:1.25;">
-            Willkommen beim Talo Newsletter.
-          </p>
-          <p style="margin:0 0 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#7DD8D8;font-weight:600;letter-spacing:0.05em;">
-            Du bist dabei 🎉
-          </p>
-
-          <!-- Body -->
-          <p style="margin:0 0 18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;line-height:1.7;color:#AAAACC;">
-            Schön, dass du dabei bist. Wir melden uns maximal <strong style="color:#F0F0FF;">2× im Monat</strong> –
+      <!-- Body -->
+      <tr>
+        <td style="padding:28px 32px 0;">
+          <p style="font-size:15px;color:#8888A0;line-height:1.7;margin:0;">
+            Schön, dass du dabei bist. Wir melden uns maximal
+            <strong style="color:#F0F0FF;">2× im Monat</strong> –
             mit echten Updates, Praxis-Tipps und Einblicken aus dem Talo-Team.
           </p>
-          <p style="margin:0 0 32px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;line-height:1.7;color:#AAAACC;">
-            Bis bald,<br>
-            <strong style="color:#F0F0FF;">Philipp &amp; das Talo-Team</strong>
-          </p>
+        </td>
+      </tr>
 
-          <!-- CTA -->
-          <table cellpadding="0" cellspacing="0">
-            <tr>
-              <td style="background:#7DD8D8;border-radius:12px;padding:14px 28px;">
-                <a href="${origin}/newsletter" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:700;color:#0D0D0D;text-decoration:none;letter-spacing:0.03em;">
-                  Newsletter ansehen →
-                </a>
-              </td>
-            </tr>
-          </table>
+      <!-- CTA -->
+      <tr>
+        <td style="padding:28px 32px;text-align:center;">
+          <a href="${origin}/newsletter"
+             style="display:inline-block;background:#7DD8D8;color:#0D1A1A;text-decoration:none;font-size:16px;font-weight:800;padding:16px 36px;border-radius:100px;letter-spacing:-0.3px;">
+            Newsletter ansehen &rarr;
+          </a>
+        </td>
+      </tr>
 
-        </td></tr>
-
-        <!-- Footer -->
-        <tr><td style="padding-top:28px;">
-          <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;color:#444455;line-height:1.7;text-align:center;">
+      <!-- Footer -->
+      <tr>
+        <td style="padding:20px 32px;border-top:1px solid #2A2A38;background:#111118;">
+          <p style="font-size:12px;color:#505060;text-align:center;line-height:1.6;margin:0;">
             Du erhältst diese E-Mail, weil du dich auf
-            <a href="${origin}/newsletter" style="color:#444455;text-decoration:underline;">${origin.replace("https://","")}/newsletter</a> eingetragen hast.<br>
-            <a href="${unsubLink}" style="color:#444455;text-decoration:underline;">Vom Newsletter abmelden</a>
+            <a href="${origin}/newsletter" style="color:#7DD8D8;text-decoration:none;">${origin.replace("https://","")}/newsletter</a>
+            eingetragen hast.<br>
+            <a href="${unsubLink}" style="color:#505060;text-decoration:underline;">Vom Newsletter abmelden</a>
           </p>
-        </td></tr>
+        </td>
+      </tr>
 
-      </table>
-    </td></tr>
-  </table>
+    </table>
+  </td></tr>
+</table>
 </body>
 </html>`,
       }],

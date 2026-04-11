@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { db, auth } from "@/lib/firebase/config";
 import {
-  collection, query, where, getDocs, orderBy, Timestamp,
+  collection, query, where, getDocs, Timestamp,
 } from "firebase/firestore";
 import { onAuthStateChanged, User, signOut } from "firebase/auth";
 import Link from "next/link";
@@ -48,22 +48,27 @@ export default function AdminNewsletterPage() {
   async function loadSubscribers() {
     setLoadingSubs(true);
     try {
+      // No orderBy — avoids needing a composite index; we sort client-side instead
       const q = query(
         collection(db, "newsletter_subscribers"),
-        where("active", "==", true),
-        orderBy("subscribedAt", "desc")
+        where("active", "==", true)
       );
       const snap = await getDocs(q);
-      setSubscribers(
-        snap.docs.map((d) => ({
-          id: d.id,
-          email: d.data().email,
-          token: d.data().token,
-          subscribedAt: d.data().subscribedAt ?? null,
-        }))
-      );
-    } catch (e) {
-      console.error(e);
+      const docs = snap.docs.map((d) => ({
+        id: d.id,
+        email: d.data().email as string,
+        token: d.data().token as string,
+        subscribedAt: (d.data().subscribedAt as Timestamp) ?? null,
+      }));
+      // Sort newest first on the client
+      docs.sort((a, b) => {
+        const ta = a.subscribedAt?.toMillis() ?? 0;
+        const tb = b.subscribedAt?.toMillis() ?? 0;
+        return tb - ta;
+      });
+      setSubscribers(docs);
+    } catch (e: any) {
+      console.error("[admin] loadSubscribers error:", e?.code ?? e?.message ?? e);
     }
     setLoadingSubs(false);
   }
