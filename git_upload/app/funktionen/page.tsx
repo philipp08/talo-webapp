@@ -29,7 +29,7 @@ export default function FeaturesPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-blue-500/5 blur-[120px] pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <ScrollReveal direction="up" delay={0.1}>
-            <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-8 block text-center italic">Die TALO™ Plattform</span>
+            <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-8 block text-center italic">Die TALO Plattform</span>
             <h1 className="text-[3.5rem] leading-[1.05] md:text-[6rem] lg:text-[7.5rem] font-medium tracking-tighter font-logo text-gray-900 dark:text-white mb-10 text-center">
               Maximale <span className="text-gray-400 italic">Effizienz.</span><br />Null Aufwand.
             </h1>

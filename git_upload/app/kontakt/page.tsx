@@ -11,8 +11,8 @@ const contactOptions = [
     icon: <Headphones className="w-5 h-5" />,
     title: "Support",
     desc: "Technische Fragen, Bugs oder Nutzungsprobleme.",
-    action: "support@talo.app",
-    href: "mailto:support@talo.app",
+    action: "philipp@pauli-one.de",
+    href: "mailto:philipp@pauli-one.de",
     color: "bg-sky-100 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400",
     badge: "Ø 4 h Antwortzeit",
   },
@@ -20,8 +20,8 @@ const contactOptions = [
     icon: <MessageSquare className="w-5 h-5" />,
     title: "Vertrieb",
     desc: "Enterprise-Anfragen, Demos und Partnerschaften.",
-    action: "sales@talo.app",
-    href: "mailto:sales@talo.app",
+    action: "philipp@pauli-one.de",
+    href: "mailto:philipp@pauli-one.de",
     color: "bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400",
     badge: "Werktags bis 18 Uhr",
   },
@@ -29,8 +29,8 @@ const contactOptions = [
     icon: <Mail className="w-5 h-5" />,
     title: "Presse",
     desc: "Medienanfragen, Interviews und Pressematerial.",
-    action: "presse@talo.app",
-    href: "mailto:presse@talo.app",
+    action: "philipp@pauli-one.de",
+    href: "mailto:philipp@pauli-one.de",
     color: "bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400",
     badge: "In 24 h zurück",
   },
@@ -251,18 +251,18 @@ export default function KontaktPage() {
                 <ul className="flex flex-col gap-4">
                   <li className="flex items-start gap-3 text-sm text-gray-600 dark:text-[#8A8A8A]">
                     <MapPin className="w-4 h-4 mt-0.5 text-gray-400 dark:text-gray-600 shrink-0" />
-                    <span>Talo GmbH<br />Musterstraße 12<br />80331 München, Deutschland</span>
+                    <span>PauliONE<br />Georg-Ertel-Straße 16A<br />76437 Rastatt, Deutschland</span>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-gray-600 dark:text-[#8A8A8A]">
                     <Mail className="w-4 h-4 text-gray-400 dark:text-gray-600 shrink-0" />
-                    <a href="mailto:hallo@talo.app" className="hover:text-gray-900 dark:hover:text-white transition-colors">
-                      hallo@talo.app
+                    <a href="mailto:philipp@pauli-one.de" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                      philipp@pauli-one.de
                     </a>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-gray-600 dark:text-[#8A8A8A]">
                     <Phone className="w-4 h-4 text-gray-400 dark:text-gray-600 shrink-0" />
-                    <a href="tel:+4989123456" className="hover:text-gray-900 dark:hover:text-white transition-colors">
-                      +49 89 123 456
+                    <a href="tel:+4915563127126" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                      +49 155 631 27126
                     </a>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-gray-600 dark:text-[#8A8A8A]">

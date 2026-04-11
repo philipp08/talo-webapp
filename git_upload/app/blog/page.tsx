@@ -9,10 +9,10 @@ import Link from "next/link";
 export const posts = [
   {
     slug: "digitalisierung-im-ehrenamt-wie-talo-die-vereinsarbeit-revolutioniert",
-    title: "Digitalisierung im Ehrenamt: Wie Talo™ die Vereinsarbeit revolutioniert",
-    excerpt: "Die Verwaltung eines Vereins kann eine Herkulesaufgabe sein. Erfahren Sie, wie Talo™ die Brücke zwischen traditionellem Engagement und moderner Effizienz schlägt – ohne komplizierte Technik, dafür mit maximalem Fokus auf die Mitglieder.",
+    title: "Digitalisierung im Ehrenamt: Wie Talo die Vereinsarbeit revolutioniert",
+    excerpt: "Die Verwaltung eines Vereins kann eine Herkulesaufgabe sein. Erfahren Sie, wie Talo die Brücke zwischen traditionellem Engagement und moderner Effizienz schlägt – ohne komplizierte Technik, dafür mit maximalem Fokus auf die Mitglieder.",
     category: "Vereinsmanagement",
-    author: "Talo™ Development Team",
+    author: "Talo Development Team",
     date: "29. März 2026",
     readTime: "12 min",
     image: ""
@@ -22,7 +22,7 @@ export const posts = [
     title: "Wie wir Talo bauen – und warum wir es anders machen",
     excerpt: "Ein ehrlicher Einblick hinter die Kulissen: Wie die Talo App entsteht, welche Entscheidungen uns antreiben und warum wir glauben, dass Vereinsverwaltung endlich so gut aussehen kann wie die Apps, die wir täglich nutzen.",
     category: "Produkt",
-    author: "Talo™ Development Team",
+    author: "Talo Development Team",
     date: "1. April 2026",
     readTime: "9 min",
     image: ""

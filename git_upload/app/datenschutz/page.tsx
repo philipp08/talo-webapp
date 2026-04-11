@@ -2,7 +2,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 export const metadata = {
-  title: "Datenschutz – Talo™",
+  title: "Datenschutz – Talo",
   description: "Datenschutzerklärung von Talo. Informationen über die Erhebung und Speicherung Ihrer Daten.",
 };
 

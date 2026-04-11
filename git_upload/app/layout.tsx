@@ -20,7 +20,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Talo™ – Jeder Beitrag zählt.",
+  title: "Talo – Jeder Beitrag zählt.",
   description: "Die smarte Plattform für Vereinsengagement. Punkte sammeln, Beiträge verwalten, Gemeinschaft stärken.",
   keywords: ["Verein", "Ehrenamt", "Punkte", "Vereinsverwaltung", "Mitglieder"],
 };

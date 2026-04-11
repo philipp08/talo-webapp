@@ -253,7 +253,7 @@ export default function SettingsPage() {
            <div className="flex flex-col gap-3">
               <SectionHeader title="APP-INFO" icon={Info} color="#8A8A8A" />
               <GlassSection>
-                 <SettingsRow icon={AppWindow} label="Neu gelauncht (Web)" sub="Talo™ – Jeder Beitrag zählt" color="#8A8A8A" chevron={false} />
+                 <SettingsRow icon={AppWindow} label="Neu gelauncht (Web)" sub="Talo – Jeder Beitrag zählt" color="#8A8A8A" chevron={false} />
                  <TLine className="ml-[68px]" />
                  <SettingsRow icon={Database} label="Backend" sub="Synced with iOS App" color="#8A8A8A" chevron={false} />
               </GlassSection>

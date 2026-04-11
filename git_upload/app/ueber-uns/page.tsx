@@ -19,7 +19,7 @@ export default function AboutPage() {
           </ScrollReveal>
           <ScrollReveal direction="up" delay={0.3}>
             <p className="text-lg md:text-xl text-gray-600 dark:text-[#8A8A8A] max-w-2xl mx-auto">
-              Wir bei Talo™ glauben, dass jedes Ehrenamt Wertschätzung verdient. <br className="hidden md:block" /> 
+              Wir bei Talo glauben, dass jedes Ehrenamt Wertschätzung verdient. <br className="hidden md:block" /> 
               Unsere Mission ist es, dies sichtbar und fair zu machen.
             </p>
           </ScrollReveal>
@@ -29,7 +29,7 @@ export default function AboutPage() {
       <section className="py-24 bg-gray-50 dark:bg-[#0c0c0c]">
         <div className="max-w-4xl mx-auto px-6">
           <ScrollReveal direction="up">
-            <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mb-8">Warum Talo™?</h2>
+            <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mb-8">Warum Talo?</h2>
             <div className="prose prose-lg dark:prose-invert max-w-none text-gray-600 dark:text-[#8A8A8A] space-y-6">
               <p>
                 In vielen Vereinen wird die Arbeit oft von den gleichen engagierten Köpfen getragen. 
@@ -37,7 +37,7 @@ export default function AboutPage() {
                 wirklich sieht, wer wie viel beiträgt.
               </p>
               <p>
-                Talo™ wurde entwickelt, um dieses Engagement aus dem Schatten zu holen. Wir wollen, 
+                Talo wurde entwickelt, um dieses Engagement aus dem Schatten zu holen. Wir wollen, 
                 dass jeder kleine Beitrag zählt. Von der Platzpflege bis zum Fahrdienst, von der 
                 Trainingsleitung bis zur Kuchenspende.
               </p>
@@ -99,9 +99,9 @@ export default function AboutPage() {
           <ScrollReveal direction="up">
             <span className="text-6xl text-gray-200 dark:text-white/10 font-serif leading-none">“</span>
             <p className="text-3xl md:text-4xl font-logo text-gray-900 dark:text-white leading-snug mb-8">
-              Talo™ ist das Ende der Ausreden. Es ist der Anfang einer neuen Ära des Vereinslebens.
+              Talo ist das Ende der Ausreden. Es ist der Anfang einer neuen Ära des Vereinslebens.
             </p>
-            <span className="text-sm font-bold tracking-widest text-[#8A8A8A] uppercase">Die Talo™ Vision</span>
+            <span className="text-sm font-bold tracking-widest text-[#8A8A8A] uppercase">Die Talo Vision</span>
           </ScrollReveal>
         </div>
       </section>

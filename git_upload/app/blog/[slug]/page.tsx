@@ -76,7 +76,7 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
           </p>
           <footer className="mt-10 text-gray-400 font-black uppercase tracking-[0.4em] text-[11px] italic flex items-center gap-4">
             <div className="w-12 h-[1px] bg-gray-200 dark:bg-white/10" />
-            TALO™ DEVELOPMENT TEAM
+            TALO DEVELOPMENT TEAM
           </footer>
         </blockquote>
 
@@ -103,20 +103,20 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
     )
   },
   "digitalisierung-im-ehrenamt-wie-talo-die-vereinsarbeit-revolutioniert": {
-    subHeadline: "Tradition trifft Moderne: Warum digitale Werkzeuge heute über die Zukunft von Vereinen entscheiden und wie Talo™ dabei den Menschen in den Mittelpunkt stellt.",
+    subHeadline: "Tradition trifft Moderne: Warum digitale Werkzeuge heute über die Zukunft von Vereinen entscheiden und wie Talo dabei den Menschen in den Mittelpunkt stellt.",
     content: (
       <>
         <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-12 italic border-l-4 border-[#8A8A8A] pl-8 py-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-r-3xl pr-6">
-          Hinter jedem erfolgreichen Verein stecken Menschen, die ihre Freizeit opfern, um Gemeinschaften zu stärken. Doch allzu oft wird diese Leidenschaft von Bergen aus Papierkram, unübersichtlichen Excel-Listen und dem ständigen Kampf um Transparenz erstickt. Talo™ wurde entwickelt, um dieses Feuer wieder zu entfachen und dem Ehrenamt die Leichtigkeit zurückzugeben, die es verdient.
+          Hinter jedem erfolgreichen Verein stecken Menschen, die ihre Freizeit opfern, um Gemeinschaften zu stärken. Doch allzu oft wird diese Leidenschaft von Bergen aus Papierkram, unübersichtlichen Excel-Listen und dem ständigen Kampf um Transparenz erstickt. Talo wurde entwickelt, um dieses Feuer wieder zu entfachen und dem Ehrenamt die Leichtigkeit zurückzugeben, die es verdient.
         </p>
         
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Das Ehrenamt ist das Rückgrat unserer Gesellschaft, doch die administrativen Anforderungen an Vorstände und Übungsleiter sind in den letzten Jahren massiv gestiegen. Wer heute einen Verein führt, muss sich nicht nur mit der sportlichen oder sozialen Ausrichtung beschäftigen, sondern ist oft gleichzeitig Buchhalter, Datenschützer und IT-Administrator. Diese wachsende Komplexität führt immer häufiger zu einem "administrativen Burnout" in den Führungsetagen. Talo™ setzt genau hier an: Wir machen Schluss mit der Zettelwirtschaft und bringen die Vereinsverwaltung dorthin, wo das Engagement stattfindet – direkt aufs Smartphone, nahtlos orchestriert in der Cloud.
+          Das Ehrenamt ist das Rückgrat unserer Gesellschaft, doch die administrativen Anforderungen an Vorstände und Übungsleiter sind in den letzten Jahren massiv gestiegen. Wer heute einen Verein führt, muss sich nicht nur mit der sportlichen oder sozialen Ausrichtung beschäftigen, sondern ist oft gleichzeitig Buchhalter, Datenschützer und IT-Administrator. Diese wachsende Komplexität führt immer häufiger zu einem "administrativen Burnout" in den Führungsetagen. Talo setzt genau hier an: Wir machen Schluss mit der Zettelwirtschaft und bringen die Vereinsverwaltung dorthin, wo das Engagement stattfindet – direkt aufs Smartphone, nahtlos orchestriert in der Cloud.
         </p>
         
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-20 mb-10">Die Krise der Vereinsverwaltung: Warum wir neue Wege brauchen</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Viele Vereine klagen über Nachwuchsmangel in den Führungsetagen. Der Grund ist selten ein Mangel an Interesse am Vereinszweck, sondern die abschreckende Last der Bürokratie. Wenn die Wochenenden nur noch damit verbracht werden, Anwesenheitslisten abzugleichen oder Punkte für Arbeitseinsätze händisch in Tabellen zu übertragen, geht der eigentliche Sinn des Vereinslebens verloren. Talo™ automatisiert diese kritischen Prozesse. Durch die einfache Erfassung von Tätigkeiten per Web- oder App-Interface wird die Administration zum Nebenprodukt des eigentlichen Handelns, statt dessen zeitfressendes Zentrum zu sein.
+          Viele Vereine klagen über Nachwuchsmangel in den Führungsetagen. Der Grund ist selten ein Mangel an Interesse am Vereinszweck, sondern die abschreckende Last der Bürokratie. Wenn die Wochenenden nur noch damit verbracht werden, Anwesenheitslisten abzugleichen oder Punkte für Arbeitseinsätze händisch in Tabellen zu übertragen, geht der eigentliche Sinn des Vereinslebens verloren. Talo automatisiert diese kritischen Prozesse. Durch die einfache Erfassung von Tätigkeiten per Web- oder App-Interface wird die Administration zum Nebenprodukt des eigentlichen Handelns, statt dessen zeitfressendes Zentrum zu sein.
         </p>
 
         <div className="my-20 p-12 rounded-[48px] bg-[#8A8A8A]/5 border border-[#8A8A8A]/10 relative overflow-hidden group">
@@ -128,15 +128,15 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
              <div>
                 <h4 className="text-2xl font-poppins font-black text-gray-950 dark:text-white mb-4 uppercase tracking-tight italic">Einfachheit als höchstes Prinzip</h4>
                 <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
-                  Wir haben Talo™ so gestaltet, dass jede Generation im Verein damit arbeiten kann. Unser Ziel war es, eine Nutzeroberfläche zu schaffen, die sich so natürlich anfühlt wie moderne Social-Media-Apps, aber die Präzision einer Enterprise-Software bietet. Keine langen Schulungen, keine komplizierten Handbücher – Talo™ erklärt sich von selbst.
+                  Wir haben Talo so gestaltet, dass jede Generation im Verein damit arbeiten kann. Unser Ziel war es, eine Nutzeroberfläche zu schaffen, die sich so natürlich anfühlt wie moderne Social-Media-Apps, aber die Präzision einer Enterprise-Software bietet. Keine langen Schulungen, keine komplizierten Handbücher – Talo erklärt sich von selbst.
                 </p>
              </div>
           </div>
         </div>
 
-        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Wertschätzung durch Sichtbarkeit: Das Talo™-Punktesystem</h2>
+        <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Wertschätzung durch Sichtbarkeit: Das Talo-Punktesystem</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Eines der stärksten Instrumente von Talo™ ist die konsequente Sichtbarkeit von Leistungen. In vielen Vereinen wird die Arbeit der „stillen Helfer“ oft übersehen, während die „Lauten“ im Rampenlicht stehen. Mit unserem Punktesystem wird jeder Einsatz dokumentiert – vom Linienziehen auf dem Sportplatz bis zur Organisation des Sommerfests oder der Betreuung der Website. 
+          Eines der stärksten Instrumente von Talo ist die konsequente Sichtbarkeit von Leistungen. In vielen Vereinen wird die Arbeit der „stillen Helfer“ oft übersehen, während die „Lauten“ im Rampenlicht stehen. Mit unserem Punktesystem wird jeder Einsatz dokumentiert – vom Linienziehen auf dem Sportplatz bis zur Organisation des Sommerfests oder der Betreuung der Website. 
         </p>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
@@ -145,28 +145,28 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
 
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Skalierbarkeit und Zukunftssicherheit</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Talo™ ist nicht nur für den kleinen Ortsverein gedacht, sondern skaliert mit Ihren Ambitionen. Ob Sie 50 oder 5.000 Mitglieder verwalten – unsere Architektur ist auf Hochleistung ausgelegt. Wir integrieren intelligente Genehmigungsworkflows, die Plausibilitätsprüfungen im Hintergrund durchführen und Administratoren nur dann benachrichtigen, wenn wirklich eine manuelle Prüfung erforderlich ist. So sparen wir Ihnen bis zu 90% der Zeit bei der wöchentlichen Punktevergabe.
+          Talo ist nicht nur für den kleinen Ortsverein gedacht, sondern skaliert mit Ihren Ambitionen. Ob Sie 50 oder 5.000 Mitglieder verwalten – unsere Architektur ist auf Hochleistung ausgelegt. Wir integrieren intelligente Genehmigungsworkflows, die Plausibilitätsprüfungen im Hintergrund durchführen und Administratoren nur dann benachrichtigen, wenn wirklich eine manuelle Prüfung erforderlich ist. So sparen wir Ihnen bis zu 90% der Zeit bei der wöchentlichen Punktevergabe.
         </p>
 
         <blockquote className="relative my-24 pl-12 pr-6 py-12 group">
            <Quote className="absolute -left-4 top-0 text-[#8A8A8A]/10 -z-10" size={160} />
            <p className="text-3xl md:text-4xl font-logo font-medium text-gray-950 dark:text-white leading-tight italic relative z-10">
-              "Talo™ ist das Ende der Zettelwirtschaft. Es ist der Neubeginn für ein Ehrenamt, das sich wieder auf das Wesentliche konzentrieren darf: Die Gemeinschaft und das Wachstum."
+              "Talo ist das Ende der Zettelwirtschaft. Es ist der Neubeginn für ein Ehrenamt, das sich wieder auf das Wesentliche konzentrieren darf: Die Gemeinschaft und das Wachstum."
            </p>
            <footer className="mt-10 text-gray-400 font-black uppercase tracking-[0.4em] text-[11px] italic flex items-center gap-4">
               <div className="w-12 h-[1px] bg-gray-200 dark:bg-white/10" />
-              TALO™ DEVELOPMENT TEAM
+              TALO DEVELOPMENT TEAM
            </footer>
         </blockquote>
 
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Datenschutz als Fundament, nicht als Hindernis</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          In Zeiten von strengen DSGVO-Richtlinien ist Datensicherheit kein optionales Extra mehr. Talo™ bietet Ihnen die Sicherheit einer modernen Enterprise-Cloud. Alle Daten werden auf verschlüsselten Servern innerhalb der Europäischen Union gespeichert. Wir setzen auf Zero-Trust-Prinzipien und fein abgestufte Berechtigungssysteme. So stellen wir sicher, dass sensible Mitgliederdaten geschützt bleiben und Vorstände rechtlich auf der sicheren Seite stehen.
+          In Zeiten von strengen DSGVO-Richtlinien ist Datensicherheit kein optionales Extra mehr. Talo bietet Ihnen die Sicherheit einer modernen Enterprise-Cloud. Alle Daten werden auf verschlüsselten Servern innerhalb der Europäischen Union gespeichert. Wir setzen auf Zero-Trust-Prinzipien und fein abgestufte Berechtigungssysteme. So stellen wir sicher, dass sensible Mitgliederdaten geschützt bleiben und Vorstände rechtlich auf der sicheren Seite stehen.
         </p>
 
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-20 mb-8">Startet in die digitale Ära</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-12 leading-relaxed">
-          Digitalisierung ist kein Selbstzweck. Sie ist ein Werkzeug, um menschliches Engagement zu ermöglichen. Talo™ ist mehr als nur eine Software – es ist ein Partner für Ihre Vision des modernen Vereinswesens. Indem wir die Verwaltung modernisieren, bewahren wir die Energie für das, was wirklich zählt: Die Freude am gemeinsamen Erreichen von Zielen. Lasst uns heute beginnen, die Zukunft eures Vereins zu gestalten.
+          Digitalisierung ist kein Selbstzweck. Sie ist ein Werkzeug, um menschliches Engagement zu ermöglichen. Talo ist mehr als nur eine Software – es ist ein Partner für Ihre Vision des modernen Vereinswesens. Indem wir die Verwaltung modernisieren, bewahren wir die Energie für das, was wirklich zählt: Die Freude am gemeinsamen Erreichen von Zielen. Lasst uns heute beginnen, die Zukunft eures Vereins zu gestalten.
         </p>
       </>
     )
@@ -238,7 +238,7 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
               <div>
                  <h3 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mb-4 leading-tight">Bleiben Sie auf dem Laufenden.</h3>
                  <p className="text-lg text-gray-500 dark:text-[#8A8A8A] leading-relaxed">
-                    Schließen Sie sich hunderten von Vorständen an, die monatlich exklusive Einblicke in Talo™ erhalten.
+                    Schließen Sie sich hunderten von Vorständen an, die monatlich exklusive Einblicke in Talo erhalten.
                  </p>
               </div>
               <form className="flex flex-col sm:flex-row gap-3">

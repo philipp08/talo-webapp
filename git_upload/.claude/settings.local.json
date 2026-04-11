@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(done)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(ls /Users/philipp/Desktop/pulse/CuePoint/talo-webapp/git_upload/app/dashboard/mitglieder/[id]/)"
+    ]
+  }
+}

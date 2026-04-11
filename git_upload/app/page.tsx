@@ -322,7 +322,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                      Sichere dir eine<br /><span className="text-gray-400 dark:text-[#8A8A8A]">persönliche Demo.</span>
                   </h2>
                   <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-14 max-w-xl">
-                     Schließe dich über 150 Vereinen an, die ihren administrativen Aufwand bereits heute um über 90% reduziert haben. Wir zeigen dir TALO™ in Action.
+                     Schließe dich über 150 Vereinen an, die ihren administrativen Aufwand bereits heute um über 90% reduziert haben. Wir zeigen dir TALO in Action.
                   </p>
                   
                   <div className="flex flex-col gap-6">

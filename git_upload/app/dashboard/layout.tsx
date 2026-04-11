@@ -27,11 +27,11 @@ const MobileBlocker = () => (
         <Download size={32} className="text-white relative z-10 animate-bounce" />
       </div>
 
-      <h1 className="text-3xl font-logo font-bold text-white mb-6 uppercase tracking-[0.2em]">Talo™ Web</h1>
+      <h1 className="text-3xl font-logo font-bold text-white mb-6 uppercase tracking-[0.2em]">Talo Web</h1>
       <p className="text-lg leading-relaxed mb-12 font-poppins" style={{ color: "#8A8A8A" }}>
         Die Web-App ist ausschließlich für{" "}
         <span className="text-white font-bold">Desktop-Geräte</span>{" "}
-        optimiert. Erlebe Talo™ auf deinem Handy in unserer nativen App.
+        optimiert. Erlebe Talo auf deinem Handy in unserer nativen App.
       </p>
 
       <div className="space-y-4 w-full">
