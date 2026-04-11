@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { db } from "@/lib/firebase/config";
 import { collection, query, where, getDocs, updateDoc } from "firebase/firestore";
@@ -11,7 +11,7 @@ import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
 type State = "loading" | "success" | "already" | "invalid";
 
-export default function AbmeldenPage() {
+function AbmeldenContent() {
   const params = useSearchParams();
   const token = params.get("token");
   const [state, setState] = useState<State>("loading");
@@ -107,5 +107,17 @@ export default function AbmeldenPage() {
 
       <Footer />
     </main>
+  );
+}
+
+export default function AbmeldenPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-white dark:bg-[#080808] flex items-center justify-center">
+        <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+      </main>
+    }>
+      <AbmeldenContent />
+    </Suspense>
   );
 }
