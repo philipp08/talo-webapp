@@ -25,18 +25,27 @@ export default function AuthProvider({
       return;
     }
 
+    const ADMIN_EMAIL = "philipp@pauli-one.de";
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         if (firebaseUser) {
           setUser(firebaseUser);
-          // Fetch the Member model from Firestore
-          const member = await FirebaseManager.getMember(firebaseUser.uid);
-          setCurrentMember(member);
 
-          if (member?.clubId) {
-            // Fetch current club
-            const club = await FirebaseManager.getClub(member.clubId);
-            setCurrentClub(club);
+          // Admin has no member/club doc — skip Firestore lookup entirely
+          if (firebaseUser.email === ADMIN_EMAIL) {
+            setCurrentMember(null);
+            setCurrentClub(null);
+          } else {
+            // Fetch the Member model from Firestore
+            const member = await FirebaseManager.getMember(firebaseUser.uid);
+            setCurrentMember(member);
+
+            if (member?.clubId) {
+              // Fetch current club
+              const club = await FirebaseManager.getClub(member.clubId);
+              setCurrentClub(club);
+            }
           }
         } else {
           setUser(null);

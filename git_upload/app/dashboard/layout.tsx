@@ -50,13 +50,24 @@ const MobileBlocker = () => (
   </div>
 );
 
+const ADMIN_EMAIL = "philipp@pauli-one.de";
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const currentMember = useAppStore((state) => state.currentMember);
+  const user = useAppStore((state) => state.user);
+  const isLoadingAuthedState = useAppStore((state) => state.isLoadingAuthedState);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => { setIsMounted(true); }, []);
+
+  // Redirect admin to their dedicated console
+  useEffect(() => {
+    if (!isLoadingAuthedState && user?.email === ADMIN_EMAIL) {
+      router.replace("/admin/newsletter");
+    }
+  }, [isLoadingAuthedState, user, router]);
 
   const isAdmin   = currentMember?.isAdmin   === true;
   const isTrainer = currentMember?.isTrainer === true;
