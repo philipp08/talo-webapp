@@ -118,7 +118,7 @@ export default function LoginPage() {
     try {
       if (mode === "login") {
         await signInWithEmailAndPassword(auth, email, password);
-        router.push("/dashboard");
+        router.push(email === "philipp@pauli-one.de" ? "/admin/newsletter" : "/dashboard");
       } else {
         if (!firstName || !lastName) {
           setError("Bitte fülle alle Namensfelder aus.");
