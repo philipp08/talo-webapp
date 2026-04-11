@@ -60,7 +60,54 @@ export default function NewsletterPage() {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 900));
+    try {
+      // Notify owner
+      await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          personalizations: [{ to: [{ email: "philipp@pauli-one.de" }] }],
+          from: { email: "philipp@pauli-one.de", name: "Talo Newsletter" },
+          subject: `Neue Newsletter-Anmeldung: ${email}`,
+          content: [{
+            type: "text/html",
+            value: `<p>Neue Anmeldung für den Talo Newsletter:</p><p><strong>${email}</strong></p>`,
+          }],
+        }),
+      });
+      // Confirmation to subscriber
+      await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          personalizations: [{ to: [{ email }] }],
+          from: { email: "philipp@pauli-one.de", name: "Talo Newsletter" },
+          subject: "Du bist dabei – willkommen beim Talo Newsletter 👋",
+          content: [{
+            type: "text/html",
+            value: `
+              <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:40px 24px;color:#1a1a1a">
+                <img src="https://talo-webapp.vercel.app/talo-logo.png" alt="Talo" style="width:40px;height:40px;margin-bottom:24px;filter:invert(1)">
+                <h1 style="font-size:28px;font-weight:600;margin:0 0 12px">Willkommen beim Talo Newsletter.</h1>
+                <p style="color:#555;line-height:1.6;margin:0 0 24px">
+                  Du stehst jetzt auf der Liste. Wir melden uns maximal 2× im Monat –
+                  mit echten Updates, Praxis-Tipps und Einblicken aus dem Talo-Team.
+                </p>
+                <p style="color:#555;line-height:1.6;margin:0 0 32px">
+                  Bis bald,<br><strong>Philipp & das Talo-Team</strong>
+                </p>
+                <hr style="border:none;border-top:1px solid #eee;margin:0 0 20px">
+                <p style="font-size:12px;color:#aaa">
+                  Du hast dich unter <a href="https://talo-webapp.vercel.app/newsletter" style="color:#aaa">talo-webapp.vercel.app/newsletter</a> angemeldet.
+                  <a href="mailto:philipp@pauli-one.de?subject=Newsletter abmelden" style="color:#aaa">Abmelden</a>
+                </p>
+              </div>`,
+          }],
+        }),
+      });
+    } catch (_) {
+      // show success regardless – email delivery is best-effort
+    }
     setLoading(false);
     setSubmitted(true);
   }

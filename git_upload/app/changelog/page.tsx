@@ -127,52 +127,57 @@ export default function ChangelogPage() {
           <StaggerContainer className="flex flex-col">
             {releases.map((release, ri) => (
               <StaggerItem key={ri}>
-                <div className="relative grid md:grid-cols-[160px_1fr] gap-6 md:gap-12 pb-14">
-                  {/* Timeline line */}
-                  {ri < releases.length - 1 && (
-                    <div className="hidden md:block absolute left-[72px] top-8 bottom-0 w-px bg-gray-100 dark:bg-white/[0.05]" />
-                  )}
+                <div className="flex gap-6 md:gap-10">
 
-                  {/* Left: version + date */}
-                  <div className="flex md:flex-col gap-3 md:gap-1.5 items-center md:items-start">
-                    <div className="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-[#111] border-2 border-gray-200 dark:border-white/[0.1] shrink-0 md:mb-2">
-                      <span className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white block font-mono">
+                  {/* Timeline column: dot + line */}
+                  <div className="flex flex-col items-center shrink-0">
+                    {/* Dot sits exactly on the line */}
+                    <div className="w-4 h-4 rounded-full bg-white dark:bg-[#080808] border-2 border-gray-300 dark:border-white/20 ring-4 ring-white dark:ring-[#080808] shrink-0 z-10 mt-1" />
+                    {/* Line below dot, stretches to next dot */}
+                    {ri < releases.length - 1 && (
+                      <div className="w-px flex-1 bg-gray-200 dark:bg-white/[0.07] mt-2" />
+                    )}
+                  </div>
+
+                  {/* Content column */}
+                  <div className="flex-1 pb-12">
+                    {/* Version + date header */}
+                    <div className="flex items-baseline gap-3 mb-4 mt-0.5">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white font-mono">
                         {release.version}
                       </span>
-                      <span className="text-xs text-gray-400 dark:text-gray-600 whitespace-nowrap">
+                      <span className="text-xs text-gray-400 dark:text-gray-600">
                         {release.date}
                       </span>
                     </div>
+
+                    {/* Card */}
+                    <div className="rounded-[1.5rem] border border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#111] overflow-hidden">
+                      {release.highlight && (
+                        <div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.02]">
+                          <h2 className="font-semibold text-gray-900 dark:text-white text-[15px]">
+                            {release.highlight}
+                          </h2>
+                        </div>
+                      )}
+                      <ul className="divide-y divide-gray-100 dark:divide-white/[0.04]">
+                        {release.changes.map((change, ci) => (
+                          <li key={ci} className="flex items-start gap-3 px-6 py-3.5">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium shrink-0 mt-0.5 ${typeConfig[change.type].color}`}
+                            >
+                              {iconForType(change.type)}
+                              {typeConfig[change.type].label}
+                            </span>
+                            <span className="text-sm text-gray-600 dark:text-[#8A8A8A] leading-relaxed">
+                              {change.text}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
 
-                  {/* Right: changes */}
-                  <div className="rounded-[1.5rem] border border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#111] overflow-hidden">
-                    {release.highlight && (
-                      <div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.02]">
-                        <h2 className="font-semibold text-gray-900 dark:text-white text-[15px]">
-                          {release.highlight}
-                        </h2>
-                      </div>
-                    )}
-                    <ul className="divide-y divide-gray-100 dark:divide-white/[0.04]">
-                      {release.changes.map((change, ci) => (
-                        <li key={ci} className="flex items-start gap-3 px-6 py-3.5">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium shrink-0 mt-0.5 ${typeConfig[change.type].color}`}
-                          >
-                            {iconForType(change.type)}
-                            {typeConfig[change.type].label}
-                          </span>
-                          <span className="text-sm text-gray-600 dark:text-[#8A8A8A] leading-relaxed">
-                            {change.text}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
                 </div>
               </StaggerItem>
             ))}
