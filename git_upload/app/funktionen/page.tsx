@@ -118,12 +118,37 @@ export default function FeaturesPage() {
       <section id="workflow" className="py-24 md:py-40 bg-white dark:bg-[#080808]">
         <div className="max-w-7xl mx-auto px-6">
           <ScrollReveal direction="up">
-            <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-6 inline-block italic">
-              Der Workflow
-            </span>
-            <h2 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-[1.05] mb-16">
-              Vom Eintrag zur<br /><span className="text-gray-300 dark:text-white/20 italic">Abrechnung.</span>
-            </h2>
+            {/* Workflow stepper */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-0 sm:gap-0 mb-16 overflow-x-auto">
+              {[
+                { num: "01", label: "Erfassen", accent: "#10b981" },
+                { num: "02", label: "Prüfen",   accent: "#3b82f6" },
+                { num: "03", label: "Analysieren", accent: "#a855f7" },
+                { num: "04", label: "Abrechnen", accent: "#f43f5e" },
+              ].map((step, i, arr) => (
+                <div key={step.num} className="flex flex-row sm:flex-row items-center">
+                  <div className="flex flex-col items-center gap-2 px-5 py-4 sm:py-0">
+                    <span
+                      className="text-[10px] font-black tracking-[0.25em] uppercase"
+                      style={{ color: step.accent }}
+                    >
+                      {step.num}
+                    </span>
+                    <span className="text-[1.1rem] sm:text-[1.35rem] font-semibold tracking-tight text-gray-900 dark:text-white whitespace-nowrap">
+                      {step.label}
+                    </span>
+                  </div>
+                  {i < arr.length - 1 && (
+                    <svg
+                      className="w-8 h-8 text-gray-200 dark:text-white/10 shrink-0 mx-1"
+                      viewBox="0 0 32 32" fill="none"
+                    >
+                      <path d="M8 16h14M18 11l6 5-6 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </div>
+              ))}
+            </div>
           </ScrollReveal>
 
           {/* 2×2 on md+, single column on mobile */}
