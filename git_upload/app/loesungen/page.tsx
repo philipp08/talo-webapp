@@ -29,7 +29,7 @@ function Word({
 
 function ScrollText({ text, className }: { text: string; className?: string }) {
   const ref = useRef<HTMLParagraphElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "end 0.25"] });
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.95", "end 0.55"] });
   const words = text.split(" ");
   return (
     <p ref={ref} className={className}>
