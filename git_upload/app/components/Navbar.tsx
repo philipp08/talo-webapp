@@ -182,7 +182,7 @@ export default function Navbar() {
                         className="absolute top-full left-1/2 -translate-x-1/2 pt-4 flex flex-col items-center pointer-events-auto"
                       >
                         {/* Dropdown Card */}
-                        <div className="w-[580px] flex rounded-[24px] overflow-hidden bg-white/80 dark:bg-[#0D0D0D]/80 backdrop-blur-3xl border border-black/[0.08] dark:border-white/[0.1] shadow-[0_20px_50px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+                        <div className="w-[580px] flex rounded-[24px] overflow-hidden bg-white dark:bg-[#111] backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.1] shadow-[0_20px_50px_rgba(0,0,0,0.14)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                           {/* Links Side */}
                           <div className="flex-1 p-5 grid grid-cols-1 gap-0.5">
                             {menu.items.map((item, idx) => (
