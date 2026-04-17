@@ -288,7 +288,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ── SYSTEM: STICKY SCROLL ────────────────────────────────── */}
-      <section id="funktionen" className="overflow-hidden">
+      <section id="funktionen">
         <div className="max-w-7xl mx-auto px-6 pt-16 pb-4">
           <ScrollReveal direction="up">
             <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-600 tracking-[0.2em] uppercase mb-5">Das System</p>
