@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { 
   Zap, 
   ShieldCheck, 
@@ -189,115 +189,127 @@ export const stickyItems: StickyItem[] = [
   },
 ];
 
+/* ─── Single section tracker ───────────────────────────────── */
+function SectionTracker({ index, onVisible }: { index: number; onVisible: (i: number) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 0.6", "end 0.6"],
+  });
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    if (v > 0 && v < 1) onVisible(index);
+  });
+
+  return <div ref={ref} className="absolute inset-0 pointer-events-none" />;
+}
+
 export default function StickyScroll() {
   const [activeItem, setActiveItem] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Track scroll position to update active index
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start center", "end center"]
-  });
-
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const itemCount = stickyItems.length;
-    const index = Math.min(Math.floor(latest * itemCount), itemCount - 1);
-    setActiveItem(Math.max(0, index));
-  });
 
   const scrollToSection = (index: number) => {
-    const sections = containerRef.current?.querySelectorAll(".sticky-content-section");
-    if (sections && sections[index]) {
-      sections[index].scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    const el = document.querySelectorAll(".sticky-content-section")[index];
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (
-    <section 
-      ref={containerRef}
-      className="max-w-7xl mx-auto px-5 sm:px-10 lg:px-20 py-20 lg:py-40 flex flex-col lg:grid lg:grid-cols-20 gap-x-10 relative"
-    >
-      {/* ─── LEFT SIDEBAR (STICKY) ─── */}
-      <div className="hidden lg:flex flex-col col-span-7 h-screen sticky top-0 justify-center">
-        <div className="relative pl-12 border-l border-gray-100 dark:border-white/5">
-          {/* Moving Indicator */}
-          <motion.div 
-            className="absolute left-[-1.5px] w-[3px] bg-black dark:bg-white rounded-full z-10"
-            animate={{ 
-              top: `${(activeItem / stickyItems.length) * 100 + (100 / stickyItems.length / 4)}%`,
-              height: `${100 / stickyItems.length / 2}%`
-            }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          />
+    <div className="max-w-7xl mx-auto px-5 sm:px-10 lg:px-16 py-16 lg:py-32">
+      <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 xl:gap-24">
 
-          <ul className="space-y-6">
-            {stickyItems.map((item, index) => (
-              <li key={item.id}>
-                <button
-                  onClick={() => scrollToSection(index)}
-                  className={`flex items-center gap-4 transition-all duration-300 outline-none text-left group ${
-                    activeItem === index ? "opacity-100 translate-x-2" : "opacity-40 hover:opacity-100"
-                  }`}
-                >
-                  <span className="flex-shrink-0 w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex items-center justify-center transition-colors group-hover:border-gray-300 dark:group-hover:border-white/20">
-                    {item.icon}
-                  </span>
-                  <span className="text-sm font-bold tracking-tight uppercase">
-                    {item.label}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+        {/* ─── LEFT SIDEBAR (STICKY) ─── */}
+        <div className="hidden lg:block w-[220px] xl:w-[240px] shrink-0">
+          <div className="sticky top-[38vh]">
+            <div className="relative pl-10 border-l-2 border-gray-100 dark:border-white/[0.06]">
 
-      {/* ─── RIGHT CONTENT (SCROLLING) ─── */}
-      <div className="flex flex-col col-span-12 lg:col-start-9 gap-y-20 lg:gap-y-24">
-        {stickyItems.map((item, index) => (
-          <div 
-            key={item.id} 
-            className="sticky-content-section flex flex-col min-h-[50vh] lg:min-h-[70vh] justify-center transition-opacity duration-500"
-            style={{ opacity: 1 }}
-          >
-            {/* Mobile Header (Hidden on Desktop) */}
-            <div className="flex items-center gap-4 lg:hidden mb-8">
-               <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex items-center justify-center">
-                  {item.icon}
-               </div>
-               <span className="text-xs font-bold uppercase tracking-[0.2em] opacity-40">{item.label}</span>
-            </div>
+              {/* Animated active indicator on the border */}
+              <motion.div
+                className="absolute left-[-2px] w-[3px] rounded-full bg-gray-950 dark:bg-white"
+                animate={{ top: `${activeItem * 25 + 3}%`, height: "19%" }}
+                transition={{ type: "spring", stiffness: 400, damping: 38 }}
+              />
 
-            {/* Layout Box */}
-            <div className="bg-gray-50 dark:bg-white/1 overflow-hidden border border-gray-100 dark:border-white/5 rounded-[2.5rem] sm:grid sm:grid-cols-2 items-stretch h-full min-h-[340px]">
-              {/* Text Side */}
-              <div className="p-6 sm:p-8 lg:p-12 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-2xl lg:text-3xl font-medium tracking-tight text-gray-900 dark:text-white leading-tight mb-6">
-                    {item.title}
-                  </h3>
-                  <p className="text-base lg:text-lg text-gray-500 dark:text-[#8A8A8A] leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-                
-                <Link 
-                  href="/anmelden"
-                  className="inline-flex items-center gap-2 font-medium mt-6 sm:mt-10 lg:mt-0 transition-opacity hover:opacity-70"
-                  style={{ color: item.accent }}
-                >
-                  Loslegen <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              {/* Visual Side */}
-              <div className="h-80 sm:h-auto overflow-hidden relative">
-                {item.visual}
-              </div>
+              <ul className="space-y-7">
+                {stickyItems.map((item, index) => (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => scrollToSection(index)}
+                      className={`flex items-center gap-3.5 w-full text-left outline-none transition-all duration-300 group ${
+                        activeItem === index
+                          ? "opacity-100 translate-x-1.5"
+                          : "opacity-35 hover:opacity-70"
+                      }`}
+                    >
+                      <span className="shrink-0 w-9 h-9 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400">
+                        {item.icon}
+                      </span>
+                      <span className="text-[12px] font-black tracking-widest uppercase text-gray-700 dark:text-white leading-tight">
+                        {item.label}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* ─── RIGHT CONTENT (SCROLLING) ─── */}
+        <div className="flex-1 flex flex-col gap-y-16 lg:gap-y-20 min-w-0">
+          {stickyItems.map((item, index) => (
+            <div
+              key={item.id}
+              className="sticky-content-section relative flex flex-col min-h-[60vh] lg:min-h-[75vh] justify-center"
+            >
+              {/* Scroll position tracker */}
+              <SectionTracker index={index} onVisible={setActiveItem} />
+
+              {/* Mobile label */}
+              <div className="flex items-center gap-3 lg:hidden mb-6">
+                <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                  {item.icon}
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-600">
+                  {item.label}
+                </span>
+              </div>
+
+              {/* Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.65, ease: [0.25, 0.4, 0.25, 1] }}
+                className="overflow-hidden border border-gray-100 dark:border-white/[0.06] rounded-[2rem] sm:grid sm:grid-cols-2 items-stretch bg-gray-50 dark:bg-white/[0.025] min-h-[340px]"
+              >
+                {/* Text */}
+                <div className="p-7 sm:p-9 lg:p-12 flex flex-col justify-between gap-8">
+                  <div>
+                    <h3 className="text-2xl lg:text-[1.75rem] font-medium tracking-tight text-gray-900 dark:text-white leading-[1.2] mb-5">
+                      {item.title}
+                    </h3>
+                    <p className="text-base lg:text-[17px] text-gray-500 dark:text-[#8A8A8A] leading-relaxed font-medium">
+                      {item.description}
+                    </p>
+                  </div>
+                  <Link
+                    href="/anmelden"
+                    className="inline-flex items-center gap-2 font-bold text-sm transition-opacity hover:opacity-60"
+                    style={{ color: item.accent }}
+                  >
+                    Loslegen <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+
+                {/* Visual */}
+                <div className="h-72 sm:h-auto overflow-hidden relative">
+                  {item.visual}
+                </div>
+              </motion.div>
+            </div>
+          ))}
+        </div>
+
       </div>
-    </section>
+    </div>
   );
 }
