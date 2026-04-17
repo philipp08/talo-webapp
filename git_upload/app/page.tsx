@@ -185,69 +185,69 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ─── APP DEMO SHOWCASE ───────────────────────────────────── */}
-      <section className="py-8 pb-32 md:pb-48 relative overflow-hidden">
-        {/* Background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-gray-400/[0.06] dark:bg-white/[0.03] blur-[140px] pointer-events-none" />
-
+      <section className="py-24 md:py-40 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          {/* Header */}
-          <ScrollReveal direction="up">
-            <div className="text-center mb-10 md:mb-14">
-              <span className="text-[10px] font-black tracking-[0.35em] uppercase text-gray-400 dark:text-gray-600 inline-block mb-4 italic">
-                Die App im Detail
-              </span>
-              <h2 className="text-3xl md:text-5xl font-medium tracking-tighter text-gray-950 dark:text-white leading-tight">
-                Erlebe TALO live.
-              </h2>
-            </div>
-          </ScrollReveal>
+          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
 
-          {/* Screen selector tabs */}
-          <ScrollReveal direction="up" delay={0.1}>
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
-              {(
-                [
-                  { label: "Dashboard", screen: "dashboard" },
-                  { label: "Genehmigung", screen: "approval" },
-                  { label: "Rangliste", screen: "members" },
-                  { label: "Aktivitäten", screen: "activities" },
-                ] as { label: string; screen: Screen }[]
-              ).map((tab) => (
-                <button
-                  key={tab.screen}
-                  onClick={() => setDemoScreen(tab.screen)}
-                  className={`px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all duration-200 ${
-                    demoScreen === tab.screen
-                      ? "bg-gray-950 dark:bg-white text-white dark:text-black shadow-lg"
-                      : "bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 border border-gray-200/50 dark:border-white/5"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </ScrollReveal>
+            {/* Left: label + headline + tabs + description */}
+            <div className="flex-1 lg:max-w-[480px]">
+              <ScrollReveal direction="left">
+                <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-6 inline-block italic">
+                  Die App im Detail
+                </span>
+                <h2 className="text-[2.5rem] md:text-[4rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-[1.05] mb-8">
+                  Erlebe TALO<br />live.
+                </h2>
+                <p className="text-lg text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-10">
+                  Navigiere durch die echte TALO-App und entdecke, wie Vereine damit täglich arbeiten – von der Punktevergabe bis zur Rangliste.
+                </p>
 
-          {/* Phone */}
-          <ScrollReveal direction="up" delay={0.2}>
-            <div className="flex justify-center">
-              <motion.div
-                className="relative"
-                initial={{ y: 50, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 1, ease: [0.25, 0.4, 0.25, 1], delay: 0.2 }}
-              >
-                {/* Floor shadow */}
-                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[240px] h-[40px] bg-black/15 dark:bg-black/40 blur-2xl rounded-full" />
-                {/* Glow halo */}
-                <div className="absolute -inset-12 bg-gray-400/10 dark:bg-white/[0.04] blur-3xl rounded-full pointer-events-none" />
-                <div className="relative transform scale-[1.15] sm:scale-[1.3] md:scale-[1.45] lg:scale-[1.6] origin-top">
-                  <PhoneDemo initialScreen={demoScreen} />
+                {/* Screen tabs */}
+                <div className="flex flex-wrap gap-2">
+                  {(
+                    [
+                      { label: "Dashboard", screen: "dashboard" },
+                      { label: "Genehmigung", screen: "approval" },
+                      { label: "Rangliste", screen: "members" },
+                      { label: "Aktivitäten", screen: "activities" },
+                    ] as { label: string; screen: Screen }[]
+                  ).map((tab) => (
+                    <button
+                      key={tab.screen}
+                      onClick={() => setDemoScreen(tab.screen)}
+                      className={`px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest transition-all duration-200 ${
+                        demoScreen === tab.screen
+                          ? "bg-gray-950 dark:bg-white text-white dark:text-black shadow-md"
+                          : "bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 border border-gray-200/50 dark:border-white/5"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
-              </motion.div>
+              </ScrollReveal>
             </div>
-          </ScrollReveal>
+
+            {/* Right: Phone at natural size */}
+            <div className="flex-shrink-0 flex justify-center">
+              <ScrollReveal direction="right" delay={0.15}>
+                <motion.div
+                  className="relative"
+                  initial={{ y: 30, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.9, ease: [0.25, 0.4, 0.25, 1], delay: 0.15 }}
+                >
+                  {/* Floor shadow */}
+                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-[200px] h-[30px] bg-black/10 dark:bg-black/40 blur-xl rounded-full" />
+                  {/* Ambient glow */}
+                  <div className="absolute -inset-8 bg-gray-300/20 dark:bg-white/[0.03] blur-3xl rounded-full pointer-events-none" />
+                  <PhoneDemo initialScreen={demoScreen} />
+                </motion.div>
+              </ScrollReveal>
+            </div>
+
+          </div>
         </div>
       </section>
 
