@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import Navbar from "@/app/components/Navbar";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "@/app/components/ScrollReveal";
 import Footer from "@/app/components/Footer";
@@ -210,7 +210,6 @@ const process = [
 /* ─── Page Component ──────────────────────────────────────────── */
 export default function SolutionsPage() {
   const { openDemo } = useDemo();
-  const [activeSolution, setActiveSolution] = useState<string>("sport");
 
   return (
     <main className="relative min-h-screen bg-white dark:bg-[#080808]">
@@ -252,34 +251,6 @@ export default function SolutionsPage() {
               </button>
             </div>
           </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ─── SOLUTION NAVIGATION ──────────────────────────────── */}
-      <section className="border-t border-gray-100 dark:border-white/5 sticky top-[73px] z-40 bg-white/90 dark:bg-[#080808]/90 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center gap-1 py-3 overflow-x-auto no-scrollbar">
-            {solutions.map((s) => (
-              <a
-                key={s.id}
-                href={`#${s.id}`}
-                onClick={() => setActiveSolution(s.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-200 ${
-                  activeSolution === s.id
-                    ? "bg-gray-950 dark:bg-white text-white dark:text-black"
-                    : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"
-                }`}
-              >
-                <span className={activeSolution === s.id ? "text-white dark:text-black" : s.accentText}>
-                  {s.icon}
-                </span>
-                {s.label}
-              </a>
-            ))}
-            <div className="ml-auto shrink-0 text-[10px] font-black tracking-widest text-gray-300 dark:text-gray-700 uppercase hidden md:block">
-              + 6 weitere
-            </div>
-          </div>
         </div>
       </section>
 
