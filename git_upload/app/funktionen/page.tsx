@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Navbar from "@/app/components/Navbar";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "@/app/components/ScrollReveal";
-import StickyScroll from "@/app/components/StickyScroll";
+import { stickyItems } from "@/app/components/StickyScroll";
 import Footer from "@/app/components/Footer";
 import {
   CheckCircle2,
@@ -114,19 +114,53 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      {/* ─── WORKFLOW: STICKY SCROLL ──────────────────────────────── */}
-      <section id="workflow" className="bg-white dark:bg-[#080808]">
-        <div className="max-w-7xl mx-auto px-6 pt-16 pb-0">
+      {/* ─── WORKFLOW: static 2×2 demo grid ──────────────────────── */}
+      <section id="workflow" className="py-24 md:py-40 bg-white dark:bg-[#080808]">
+        <div className="max-w-7xl mx-auto px-6">
           <ScrollReveal direction="up">
             <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-6 inline-block italic">
               Der Workflow
             </span>
-            <h2 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-[1.05] mb-4">
+            <h2 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-[1.05] mb-16">
               Vom Eintrag zur<br /><span className="text-gray-300 dark:text-white/20 italic">Abrechnung.</span>
             </h2>
           </ScrollReveal>
+
+          {/* 2×2 on md+, single column on mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {stickyItems.map((item, i) => (
+              <ScrollReveal key={item.id} direction="up" delay={i * 0.08}>
+                <div className="rounded-[32px] overflow-hidden border border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.02] flex flex-col h-full">
+                  {/* Visual — fixed height, no scroll */}
+                  <div className="h-64 sm:h-72 lg:h-80 flex-shrink-0 overflow-hidden pointer-events-none select-none">
+                    {item.visual}
+                  </div>
+
+                  {/* Text */}
+                  <div className="p-7 md:p-8 flex flex-col gap-2 border-t border-gray-100 dark:border-white/5">
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <span
+                        className="w-7 h-7 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: `${item.accent}18`, color: item.accent }}
+                      >
+                        {item.icon}
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-600">
+                        {item.label}
+                      </span>
+                    </div>
+                    <h3 className="text-lg md:text-xl font-bold text-gray-950 dark:text-white leading-snug tracking-tight">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
         </div>
-        <StickyScroll />
       </section>
 
       {/* ─── SCROLL-LINKED STATEMENT ──────────────────────────────── */}

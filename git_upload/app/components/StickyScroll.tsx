@@ -25,7 +25,7 @@ interface StickyItem {
   accent: string;
 }
 
-const stickyItems: StickyItem[] = [
+export const stickyItems: StickyItem[] = [
   {
     id: "erfassung",
     label: "Schnelle Erfassung",
