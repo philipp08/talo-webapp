@@ -25,201 +25,168 @@ interface StickyItem {
   accent: string;
 }
 
+/* ─── Shared visual wrapper ─────────────────────────────────────── */
+function VisualCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="w-full h-full flex items-center justify-center p-6 bg-[#f5f5f5] dark:bg-[#0d0d0d]">
+      <div className="w-full max-w-[300px] bg-white dark:bg-[#111] rounded-[22px] border border-gray-100 dark:border-white/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] overflow-hidden">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function CardHeader({ label, accent, icon }: { label: string; accent: string; icon: React.ReactNode }) {
+  return (
+    <div className="px-5 py-3.5 border-b border-gray-50 dark:border-white/[0.04] flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ backgroundColor: `${accent}18`, color: accent }}>
+          <span className="scale-75">{icon}</span>
+        </span>
+        <span className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-600">{label}</span>
+      </div>
+      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: accent }} />
+    </div>
+  );
+}
+
 export const stickyItems: StickyItem[] = [
   {
     id: "erfassung",
     label: "Schnelle Erfassung",
     title: "Beiträge einreichen in Sekunden.",
     description: "Mitglieder erfassen ihr Engagement direkt über die mobile App. Ob Training, Event oder Vorstandsarbeit – ein kurzes Foto vom Protokoll oder ein Text genügen. Talo übernimmt die Klassifizierung.",
-    icon: <Zap className="w-5 h-5" />,
+    icon: <Zap className="w-4 h-4" />,
     accent: "#10b981",
     visual: (
-      <div className="w-full h-full bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-center p-8 lg:p-12">
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          className="w-full max-w-[260px] bg-white dark:bg-[#0c0c0c] rounded-[32px] shadow-2xl border border-emerald-100 dark:border-emerald-500/10 p-6 space-y-6 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full" />
-          <div className="flex items-center justify-between">
-            <div className="h-2 w-12 bg-gray-100 dark:bg-white/5 rounded-full" />
-            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-emerald-500" />
+      <VisualCard>
+        <CardHeader label="Schnelle Erfassung" accent="#10b981" icon={<Zap className="w-4 h-4" />} />
+        <div className="p-5 space-y-3">
+          <div className="h-9 w-full bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5 px-3 flex items-center justify-between">
+            <span className="text-[11px] text-gray-400 font-medium">Training • 15 Pkt.</span>
+            <div className="w-4 h-4 rounded border border-gray-200 dark:border-white/10 flex items-center justify-center">
+              <svg width="8" height="5" viewBox="0 0 8 5" fill="none"><path d="M1 1l3 3 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" className="text-gray-300 dark:text-gray-600"/></svg>
             </div>
           </div>
-          <div className="space-y-3">
-            <div className="h-10 w-full bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5 px-3 flex items-center text-[10px] text-gray-400 font-bold tracking-widest uppercase">Kategorie wählen...</div>
-            <div className="h-24 w-full bg-gray-50 dark:bg-white/5 rounded-2xl border border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center text-gray-300">
-               <Zap className="w-6 h-6 mb-2 opacity-20" />
-               <span className="text-[10px] font-bold uppercase tracking-widest">Foto hochladen</span>
-            </div>
+          <div className="h-16 w-full bg-gray-50 dark:bg-white/5 rounded-xl border border-dashed border-gray-200 dark:border-white/10 flex items-center justify-center gap-2">
+            <Zap className="w-4 h-4 text-gray-200 dark:text-white/10" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-300 dark:text-gray-700">Beschreibung</span>
           </div>
-          <motion.div 
-            whileHover={{ scale: 1.02 }}
-            className="h-12 w-full bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xs font-black tracking-[0.2em] shadow-lg shadow-emerald-500/20 cursor-pointer"
-          >
+          <div className="h-10 w-full rounded-xl flex items-center justify-center text-white text-[11px] font-black tracking-[0.18em]" style={{ backgroundColor: "#10b981" }}>
             EINREICHEN
-          </motion.div>
-        </motion.div>
-      </div>
-    )
+          </div>
+        </div>
+      </VisualCard>
+    ),
   },
   {
     id: "pruefung",
     label: "Intelligente Prüfung",
     title: "Der Admin-Assistent in der Cloud.",
     description: "Talo scannt eingereichte Beiträge auf Plausibilität. Überschneidungen werden markiert, Punkte automatisch berechnet. Du behältst die volle Kontrolle ohne den manuellen Aufwand.",
-    icon: <ShieldCheck className="w-5 h-5" />,
+    icon: <ShieldCheck className="w-4 h-4" />,
     accent: "#3b82f6",
     visual: (
-      <div className="w-full h-full bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center p-8 lg:p-12">
-        <div className="w-full max-w-[380px] bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-blue-100 dark:border-blue-500/10 overflow-hidden">
-          <div className="bg-gray-50/50 dark:bg-white/[0.02] border-b border-gray-100 dark:border-white/5 p-4 flex items-center justify-between">
-            <div className="flex gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-              <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+      <VisualCard>
+        <CardHeader label="Intelligente Prüfung" accent="#3b82f6" icon={<ShieldCheck className="w-4 h-4" />} />
+        <div className="p-4 space-y-2">
+          {[
+            { name: "M. Weber", pts: "15 Pkt", type: "Training", ok: true },
+            { name: "S. Schneider", pts: "125 Pkt", type: "Vorstand", ok: false },
+            { name: "T. Meyer", pts: "10 Pkt", type: "Event", ok: true },
+          ].map((u, i) => (
+            <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-gray-50 dark:border-white/[0.04] bg-gray-50/50 dark:bg-white/[0.02]">
+              <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold text-gray-500 shrink-0">
+                {u.name[0]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-bold text-gray-900 dark:text-white leading-none mb-0.5">{u.name}</div>
+                <div className="text-[10px] text-gray-400">{u.pts} · {u.type}</div>
+              </div>
+              <div className={`w-2 h-2 rounded-full shrink-0 ${u.ok ? "bg-emerald-400" : "bg-amber-400 animate-pulse"}`} />
             </div>
-            <div className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase tracking-widest">Live Check</div>
-          </div>
-          <div className="p-5 space-y-4">
-             {[
-               { name: "M. Weber", pts: "15 Pkt", status: "ok" },
-               { name: "S. Schneider", pts: "125 Pkt", status: "warning" },
-               { name: "T. Meyer", pts: "10 Pkt", status: "ok" }
-             ].map((u, i) => (
-               <div key={i} className="flex items-center gap-4 p-3 rounded-2xl border border-gray-50 dark:border-white/5 group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                 <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/10 flex items-center justify-center text-xs font-bold text-gray-400">{u.name[0]}</div>
-                 <div className="flex-1">
-                   <div className="text-xs font-bold text-gray-900 dark:text-white mb-0.5">{u.name}</div>
-                   <div className="text-[10px] text-gray-400">{u.pts} • Training</div>
-                 </div>
-                 <div className={`w-2 h-2 rounded-full ${u.status === 'ok' ? 'bg-emerald-500' : 'bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.5)] animate-pulse'}`} />
-               </div>
-             ))}
-          </div>
+          ))}
         </div>
-      </div>
-    )
+      </VisualCard>
+    ),
   },
   {
     id: "genehmigung",
     label: "Trainer Dashboard",
     title: "Mit einem Swipe alles erledigt.",
     description: "Trainer und Fachleiter erhalten Push-Benachrichtigungen und können Beiträge direkt im mobilen Dashboard freigeben. Transparenz für alle Beteiligten.",
-    icon: <LayoutDashboard className="w-5 h-5" />,
+    icon: <LayoutDashboard className="w-4 h-4" />,
     accent: "#8b5cf6",
     visual: (
-      <div className="w-full h-full bg-purple-50 dark:bg-purple-950/20 flex items-center justify-center p-8 lg:p-12">
-        <div className="relative scale-75 sm:scale-90 lg:scale-100 origin-center flex items-center justify-center">
-           {/* Phone Frame */}
-           <div className="w-[200px] h-[360px] bg-white dark:bg-[#0c0c0c] rounded-[38px] border-[2px] border-gray-900 dark:border-[#222] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] overflow-hidden relative flex flex-col">
-              {/* Status Bar / Notch */}
-              <div className="h-7 w-full flex items-center justify-center px-4 relative">
-                 <div className="w-20 h-4 bg-gray-900 rounded-b-2xl absolute top-0" />
-                 <div className="flex justify-between w-full mt-1">
-                    <div className="text-[8px] font-bold">9:41</div>
-                    <div className="flex gap-1">
-                       <div className="w-2 h-2 rounded-full border-[0.5px] border-current opacity-40" />
-                       <div className="w-2 h-2 rounded-sm bg-current opacity-40" />
-                    </div>
-                 </div>
+      <VisualCard>
+        <CardHeader label="Trainer Dashboard" accent="#8b5cf6" icon={<LayoutDashboard className="w-4 h-4" />} />
+        <div className="p-4 space-y-2">
+          {[
+            { name: "P. Müller", task: "Training", val: "2.5 h" },
+            { name: "L. Schmidt", task: "Event", val: "1.0 h" },
+            { name: "K. Weber", task: "Vorstand", val: "4.0 h" },
+          ].map((req, i) => (
+            <div key={i} className="px-3 py-2.5 rounded-xl border border-gray-50 dark:border-white/[0.04] bg-gray-50/50 dark:bg-white/[0.02]">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-md bg-gray-100 dark:bg-white/10 flex items-center justify-center text-[9px] font-bold text-gray-400">{req.name[0]}</div>
+                  <span className="text-[11px] font-bold text-gray-900 dark:text-white">{req.name}</span>
+                </div>
+                <span className="text-[10px] text-gray-400">{req.task} · {req.val}</span>
               </div>
-
-              {/* App Header */}
-              <div className="px-4 py-3 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
-                <div className="w-8 h-2 bg-gray-100 dark:bg-white/5 rounded-full" />
-                <LayoutDashboard className="w-3 h-3 text-purple-500" />
+              <div className="flex gap-1.5">
+                <div className="h-6 flex-1 rounded-lg flex items-center justify-center text-white text-[9px] font-black tracking-wide" style={{ backgroundColor: "#8b5cf6" }}>
+                  Freigeben
+                </div>
+                <div className="h-6 w-8 rounded-lg border border-gray-100 dark:border-white/5 bg-white dark:bg-white/5 flex items-center justify-center">
+                  <X className="w-2.5 h-2.5 text-gray-300 dark:text-gray-600" />
+                </div>
               </div>
-
-              {/* Feed */}
-              <div className="p-4 space-y-3 flex-1 overflow-y-auto custom-scrollbar">
-                {[
-                  { name: "P. Müller", val: "2.5h", col: "bg-emerald-500", task: "Training" },
-                  { name: "L. Schmidt", val: "1.0h", col: "bg-purple-500", task: "Event" },
-                  { name: "K. Weber", val: "4.0h", col: "bg-emerald-500", task: "Vorstand" }
-                ].map((req, i) => (
-                  <motion.div 
-                    key={i} 
-                    initial={{ x: -10, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="p-3 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm"
-                  >
-                    <div className="flex justify-between items-center mb-1">
-                       <span className="text-[10px] font-bold dark:text-white">{req.name}</span>
-                       <span className="text-[9px] font-medium text-emerald-500">{req.val}</span>
-                    </div>
-                    <div className="text-[8px] text-gray-400 mb-3">{req.task}</div>
-                    <div className="flex gap-2">
-                       <div className="h-7 flex-1 bg-emerald-500 text-white text-[7px] font-black flex items-center justify-center rounded-lg shadow-sm shadow-emerald-500/20 uppercase tracking-tighter">Approve</div>
-                       <div className="h-7 w-10 bg-gray-50 dark:bg-white/10 flex items-center justify-center rounded-lg border border-gray-100 dark:border-white/5">
-                          <X className="w-2.5 h-2.5 text-gray-400" />
-                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Bottom Nav */}
-              <div className="h-12 border-t border-gray-100 dark:border-white/5 flex items-center justify-around px-4">
-                 <div className="w-6 h-1 bg-gray-200 dark:bg-white/10 rounded-full" />
-              </div>
-           </div>
-
-           {/* Floating Badge */}
-           <div className="absolute -right-8 top-1/4 p-3 bg-white dark:bg-[#111] rounded-2xl shadow-xl border border-gray-100 dark:border-white/5 scale-90">
-              <div className="flex items-center gap-2 mb-2">
-                 <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                 <div className="h-1.5 w-12 bg-gray-100 dark:bg-white/5 rounded-full" />
-              </div>
-              <div className="h-1 w-16 bg-gray-50 dark:bg-white/5 rounded-full" />
-           </div>
+            </div>
+          ))}
         </div>
-      </div>
-    )
+      </VisualCard>
+    ),
   },
   {
     id: "abrechnung",
     label: "Exports & Buchhaltung",
     title: "Am Saisonende tiefenentspannt.",
     description: "Kein Zettelchaos mehr. Talo generiert fertige Listen für die Buchhaltung, exportiert CSV-Dateien für die Mitgliederverwaltung und berechnet automatisierte Berichte.",
-    icon: <FileOutput className="w-5 h-5" />,
+    icon: <FileOutput className="w-4 h-4" />,
     accent: "#f43f5e",
     visual: (
-      <div className="w-full h-full bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center p-6 sm:p-8 lg:p-12">
-        <div className="w-full max-w-[340px] sm:max-w-none bg-white dark:bg-[#0c0c0c] rounded-3xl shadow-2xl border border-rose-100 dark:border-rose-500/10 p-5 sm:p-8">
-           <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-4 min-w-0">
-                 <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
-                    <FileOutput className="w-6 h-6" />
-                 </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-bold text-gray-900 dark:text-white truncate">Jahresbericht_2024.pdf</div>
-                    <div className="text-[10px] text-gray-400 uppercase tracking-widest truncate">Saisonabschluss • 4.2 MB</div>
-                  </div>
+      <VisualCard>
+        <CardHeader label="Exports & Buchhaltung" accent="#f43f5e" icon={<FileOutput className="w-4 h-4" />} />
+        <div className="p-5 space-y-4">
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: "Mitglieder", val: "148" },
+              { label: "Punkte", val: "12.4k" },
+              { label: "Stunden", val: "3.2k" },
+            ].map((s, i) => (
+              <div key={i} className="bg-gray-50 dark:bg-white/[0.03] rounded-xl px-3 py-2.5 text-center border border-gray-100 dark:border-white/[0.04]">
+                <div className="text-[13px] font-bold text-gray-950 dark:text-white leading-none">{s.val}</div>
+                <div className="text-[9px] text-gray-400 uppercase tracking-widest font-bold mt-1">{s.label}</div>
               </div>
-              <div className="w-8 h-8 rounded-full border border-gray-100 dark:border-white/5 flex items-center justify-center shrink-0">
-                 <ArrowRight className="w-4 h-4 text-gray-400" />
-              </div>
-           </div>
-           <div className="grid grid-cols-3 gap-4">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="space-y-2">
-                   <div className="h-1 bg-rose-200 dark:bg-rose-500/20 rounded-full w-full" />
-                   <div className="h-1 bg-rose-50 dark:bg-rose-500/5 rounded-full w-2/3" />
-                   <div className="h-1 bg-rose-50 dark:bg-rose-500/5 rounded-full w-3/4" />
-                </div>
-              ))}
-           </div>
-           <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 flex justify-between items-center">
-              <div className="h-3 w-20 bg-gray-100 dark:bg-white/5 rounded-full" />
-              <div className="h-9 px-4 bg-gray-950 dark:bg-white text-white dark:text-black rounded-xl flex items-center justify-center text-[10px] font-black italic tracking-widest">DOWNLOAD</div>
-           </div>
+            ))}
+          </div>
+          <div className="rounded-xl border border-gray-100 dark:border-white/[0.04] bg-gray-50 dark:bg-white/[0.02] px-4 py-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "#f43f5e18" }}>
+              <FileOutput className="w-4 h-4" style={{ color: "#f43f5e" }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[11px] font-bold text-gray-900 dark:text-white truncate">Jahresbericht_2024.pdf</div>
+              <div className="text-[9px] text-gray-400 tracking-wide">4.2 MB · bereit</div>
+            </div>
+            <div className="shrink-0 h-7 px-3 rounded-lg flex items-center justify-center text-white text-[9px] font-black tracking-widest" style={{ backgroundColor: "#f43f5e" }}>
+              PDF
+            </div>
+          </div>
         </div>
-      </div>
-    )
-  }
+      </VisualCard>
+    ),
+  },
 ];
 
 export default function StickyScroll() {
