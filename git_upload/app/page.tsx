@@ -6,6 +6,8 @@ import FeatureCard from "./components/FeatureCard";
 import StepCard from "./components/StepCard";
 import Footer from "./components/Footer";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "./components/ScrollReveal";
+import StickyScroll from "./components/StickyScroll";
+import PhoneDemo, { type Screen } from "./components/PhoneDemo";
 import { Star, ShieldCheck, ArrowRight, Zap, Globe, Lock, Cpu, Sparkles, Megaphone, ChevronRight, BarChart3, Users, Send, X, Plus } from "lucide-react";
 import Link from "next/link";
 import ContactForm from "./components/ContactForm";
@@ -90,6 +92,7 @@ export default function Home() {
 function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVisible }: any) {
   const { openDemo } = useDemo();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [demoScreen, setDemoScreen] = useState<Screen>("dashboard");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -181,6 +184,73 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
         </div>
       </section>
 
+      {/* ─── APP DEMO SHOWCASE ───────────────────────────────────── */}
+      <section className="py-8 pb-32 md:pb-48 relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-gray-400/[0.06] dark:bg-white/[0.03] blur-[140px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          {/* Header */}
+          <ScrollReveal direction="up">
+            <div className="text-center mb-10 md:mb-14">
+              <span className="text-[10px] font-black tracking-[0.35em] uppercase text-gray-400 dark:text-gray-600 inline-block mb-4 italic">
+                Die App im Detail
+              </span>
+              <h2 className="text-3xl md:text-5xl font-medium tracking-tighter text-gray-950 dark:text-white leading-tight">
+                Erlebe TALO live.
+              </h2>
+            </div>
+          </ScrollReveal>
+
+          {/* Screen selector tabs */}
+          <ScrollReveal direction="up" delay={0.1}>
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
+              {(
+                [
+                  { label: "Dashboard", screen: "dashboard" },
+                  { label: "Genehmigung", screen: "approval" },
+                  { label: "Rangliste", screen: "members" },
+                  { label: "Aktivitäten", screen: "activities" },
+                ] as { label: string; screen: Screen }[]
+              ).map((tab) => (
+                <button
+                  key={tab.screen}
+                  onClick={() => setDemoScreen(tab.screen)}
+                  className={`px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all duration-200 ${
+                    demoScreen === tab.screen
+                      ? "bg-gray-950 dark:bg-white text-white dark:text-black shadow-lg"
+                      : "bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 border border-gray-200/50 dark:border-white/5"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </ScrollReveal>
+
+          {/* Phone */}
+          <ScrollReveal direction="up" delay={0.2}>
+            <div className="flex justify-center">
+              <motion.div
+                className="relative"
+                initial={{ y: 50, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, ease: [0.25, 0.4, 0.25, 1], delay: 0.2 }}
+              >
+                {/* Floor shadow */}
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[240px] h-[40px] bg-black/15 dark:bg-black/40 blur-2xl rounded-full" />
+                {/* Glow halo */}
+                <div className="absolute -inset-12 bg-gray-400/10 dark:bg-white/[0.04] blur-3xl rounded-full pointer-events-none" />
+                <div className="relative transform scale-[1.15] sm:scale-[1.3] md:scale-[1.45] lg:scale-[1.6] origin-top">
+                  <PhoneDemo initialScreen={demoScreen} />
+                </div>
+              </motion.div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ─── BRAND RESONANCE: scroll-linked word reveal ─────────── */}
       <section className="py-32 md:py-56 lg:py-72 relative bg-[#f2f4f7] dark:bg-white/[0.03] overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
@@ -245,132 +315,20 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
         </div>
       </section>
 
-      {/* ─── FEATURES: THE CORE SYSTEM ────────────────────────────── */}
-      <section id="demo" className="py-24 lg:py-48 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 space-y-32 lg:space-y-56">
-
-          {/* Feature 1 */}
-          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
-            <div className="flex-1 order-2 lg:order-1 self-stretch">
-              <ScrollReveal direction="left">
-                <div className="bg-[#f0f9f1] dark:bg-[#0c0c0c] rounded-[48px] p-6 md:p-12 border border-gray-100 dark:border-white/5 flex justify-center relative group min-h-[500px] h-full items-center overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="w-full max-w-[260px] aspect-[9/19.5] bg-white dark:bg-[#121212] rounded-[32px] border-[6px] border-gray-950 dark:border-white/10 shadow-2xl flex flex-col items-center justify-center p-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4">
-                      <Sparkles size={24} />
-                    </div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">SCREENSHOT</p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">Hier erscheint bald die neue Punktevergabe</p>
-                  </div>
-                </div>
-              </ScrollReveal>
-            </div>
-            <div className="flex-1 order-1 lg:order-2">
-              <ScrollReveal direction="right" delay={0.15}>
-                <span className="text-[11px] font-black tracking-[0.35em] text-gray-300 dark:text-gray-700 uppercase mb-6 inline-block">01 / Feature</span>
-                <h2 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[1.05] mb-8">
-                  Punktevergabe &<br /><span>Modernisierung.</span>
-                </h2>
-                <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-10">
-                  Eliminiert Excel-Tabellen und Zettelwirtschaft. Vergebt hunderte von Punkten parallel – für Training, Events & Engagement.
-                </p>
-                <ul className="space-y-3 mb-12">
-                  {["Automatisierte Berechnung", "Echtzeit-Leaderboards", "Transparenz für Mitglieder"].map((t, i) => (
-                    <motion.li
-                      key={i}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.3 + i * 0.08, duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
-                      className="flex items-center gap-3 text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 dark:bg-emerald-500" /> {t}
-                    </motion.li>
-                  ))}
-                </ul>
-                <Link href="/funktionen" className="inline-flex items-center gap-3 text-[14px] font-bold text-gray-950 dark:text-white hover:gap-5 transition-all group">
-                  System kennenlernen <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </ScrollReveal>
-            </div>
-          </div>
-
-          {/* Feature 2 */}
-          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
-            <div className="flex-1">
-              <ScrollReveal direction="left">
-                <span className="text-[11px] font-black tracking-[0.35em] text-gray-300 dark:text-gray-700 uppercase mb-6 inline-block">02 / Feature</span>
-                <h2 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[1.05] mb-8">
-                  Intelligente<br /><span>Genehmigung.</span>
-                </h2>
-                <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-10">
-                  Talo schlägt Genehmigungen vor und prüft auf Plausibilität. Admins können mit nur einem Wisch hunderte Einträge orchestrieren.
-                </p>
-                <div className="grid grid-cols-2 gap-4 mb-12">
-                  {[
-                    { value: "94%", label: "Zeit gespart" },
-                    { value: "0%", label: "Fehlerrate" },
-                  ].map((stat) => (
-                    <div key={stat.label} className="p-6 rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5">
-                      <div className="text-3xl font-bold text-gray-950 dark:text-white mb-1 tracking-tight">{stat.value}</div>
-                      <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-                <Link href="/funktionen" className="inline-flex items-center gap-3 text-[14px] font-bold text-gray-950 dark:text-white hover:gap-5 transition-all group">
-                  Prozess ansehen <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </ScrollReveal>
-            </div>
-            <div className="flex-1 self-stretch">
-              <ScrollReveal direction="right" delay={0.15}>
-                <div className="bg-[#f2f4f7] dark:bg-[#0c0c0c] rounded-[48px] p-6 md:p-12 border border-gray-100 dark:border-white/5 flex justify-center relative group min-h-[500px] h-full items-center overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-bl from-blue-500/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="w-full max-w-[260px] aspect-[9/19.5] bg-white dark:bg-[#121212] rounded-[32px] border-[6px] border-gray-950 dark:border-white/10 shadow-2xl flex flex-col items-center justify-center p-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4">
-                      <ShieldCheck size={24} />
-                    </div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">SCREENSHOT</p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">Workflows im Überblick</p>
-                  </div>
-                </div>
-              </ScrollReveal>
-            </div>
-          </div>
-
-          {/* Feature 3 */}
-          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
-            <div className="flex-1 order-2 lg:order-1 self-stretch">
-              <ScrollReveal direction="left">
-                <div className="bg-[#f2f1f5] dark:bg-[#0c0c0c] rounded-[48px] p-6 md:p-12 border border-gray-100 dark:border-white/5 flex justify-center relative group min-h-[500px] h-full items-center overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="w-full max-w-[260px] aspect-[9/19.5] bg-white dark:bg-[#121212] rounded-[32px] border-[6px] border-gray-950 dark:border-white/10 shadow-2xl flex flex-col items-center justify-center p-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 mb-4">
-                      <BarChart3 size={24} />
-                    </div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">SCREENSHOT</p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">Präzise Mitgliederübersicht</p>
-                  </div>
-                </div>
-              </ScrollReveal>
-            </div>
-            <div className="flex-1 order-1 lg:order-2">
-              <ScrollReveal direction="right" delay={0.15}>
-                <span className="text-[11px] font-black tracking-[0.35em] text-gray-300 dark:text-gray-700 uppercase mb-6 inline-block">03 / Feature</span>
-                <h2 className="text-[2.5rem] md:text-[4.5rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[1.05] mb-8">
-                  Automatisierte<br /><span>Abrechnung.</span>
-                </h2>
-                <p className="text-xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed mb-10">
-                  Am Ende der Saison generiert Talo mit nur einem Klick alle relevanten Berichte für den Vorstand, das Finanzamt oder die Mitgliederversammlung.
-                </p>
-                <Link href="/funktionen" className="inline-flex items-center gap-3 text-[14px] font-bold text-gray-950 dark:text-white hover:gap-5 transition-all group">
-                  Export-Optionen <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </ScrollReveal>
-            </div>
-          </div>
-
+      {/* ─── FEATURES: STICKY SCROLL SHOWCASE ───────────────────── */}
+      <section id="demo" className="overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 pt-16 pb-4">
+          <ScrollReveal direction="up">
+            <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-6 inline-block italic">
+              Das System
+            </span>
+            <h2 className="text-[2.5rem] md:text-[5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-[1.05]">
+              Vier Schritte.<br />
+              <span className="text-gray-300 dark:text-white/20 italic font-logo">Ein System.</span>
+            </h2>
+          </ScrollReveal>
         </div>
+        <StickyScroll />
       </section>
 
       {/* ─── CONTACT SECTION (DEMO REQUEST) ───────────────────────── */}
