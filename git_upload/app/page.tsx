@@ -141,23 +141,26 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
               <Link
                 href="/anmelden"
-                className="group hidden sm:inline-flex items-center gap-2.5 px-7 py-4 rounded-xl bg-gray-950 dark:bg-white text-white dark:text-black font-semibold text-sm shadow-[0_4px_24px_rgba(0,0,0,0.12)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all duration-200"
+                className="group hidden sm:inline-flex items-center gap-2.5 px-7 py-4 rounded-xl bg-gray-950 dark:bg-white text-white dark:text-black font-semibold text-sm shadow-[0_4px_24px_rgba(0,0,0,0.12)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.18)] hover:-translate-y-px active:scale-[0.97] active:shadow-none"
+                style={{ transition: "transform 160ms cubic-bezier(0.23,1,0.32,1), box-shadow 160ms cubic-bezier(0.23,1,0.32,1)" }}
               >
                 Kostenlos starten
-                <ArrowRight size={14} strokeWidth={2.5} className="group-hover:translate-x-0.5 transition-transform duration-200" />
+                <ArrowRight size={14} strokeWidth={2.5} className="group-hover:translate-x-0.5" style={{ transition: "transform 160ms cubic-bezier(0.23,1,0.32,1)" }} />
               </Link>
               <a
                 href="https://apps.apple.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex sm:hidden w-full items-center justify-center gap-2.5 px-7 py-4 rounded-xl bg-gray-950 dark:bg-white text-white dark:text-black font-semibold text-sm shadow-[0_4px_24px_rgba(0,0,0,0.12)] active:scale-[0.98] transition-all duration-200"
+                className="flex sm:hidden w-full items-center justify-center gap-2.5 px-7 py-4 rounded-xl bg-gray-950 dark:bg-white text-white dark:text-black font-semibold text-sm shadow-[0_4px_24px_rgba(0,0,0,0.12)] active:scale-[0.97]"
+                style={{ transition: "transform 160ms cubic-bezier(0.23,1,0.32,1)" }}
               >
                 <svg width="15" height="15" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5c0 26.2 4.8 53.3 14.4 81.2 12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
                 App laden
               </a>
               <button
                 onClick={openDemo}
-                className="w-full sm:w-auto px-7 py-4 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white font-semibold text-sm hover:bg-gray-50 dark:hover:bg-white/5 active:scale-[0.98] transition-all duration-200"
+                className="w-full sm:w-auto px-7 py-4 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white font-semibold text-sm hover:bg-gray-50 dark:hover:bg-white/5 active:scale-[0.97]"
+                style={{ transition: "transform 160ms cubic-bezier(0.23,1,0.32,1), background-color 150ms ease-out" }}
               >
                 Demo anfragen
               </button>
@@ -273,10 +276,16 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               <ScrollReveal key={i} direction="up" delay={i * 0.07}>
                 <div className="group flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-10 md:gap-16 py-9 md:py-12 cursor-default">
                   <span className="text-[10px] font-semibold tracking-[0.3em] text-gray-300 dark:text-gray-800 shrink-0 w-7">{item.num}</span>
-                  <div className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] flex items-center justify-center text-gray-400 dark:text-gray-500 shrink-0 group-hover:bg-gray-950 group-hover:text-white group-hover:border-transparent dark:group-hover:bg-white dark:group-hover:text-black transition-all duration-300">
+                  <div
+                    className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] flex items-center justify-center text-gray-400 dark:text-gray-500 shrink-0 group-hover:bg-gray-950 group-hover:text-white group-hover:border-transparent dark:group-hover:bg-white dark:group-hover:text-black"
+                    style={{ transition: "background-color 200ms ease-out, color 200ms ease-out, border-color 200ms ease-out" }}
+                  >
                     {item.icon}
                   </div>
-                  <h3 className="text-xl md:text-2xl font-semibold text-gray-950 dark:text-white font-logo tracking-tight flex-1 group-hover:translate-x-1 transition-transform duration-300">
+                  <h3
+                    className="text-xl md:text-2xl font-semibold text-gray-950 dark:text-white font-logo tracking-tight flex-1 group-hover:translate-x-1"
+                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                  >
                     {item.title}
                   </h3>
                   <p className="text-gray-500 dark:text-[#888] leading-relaxed md:max-w-[260px] text-sm">{item.desc}</p>
@@ -324,8 +333,14 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               {/* Card 1 — large 8 cols */}
               <div className="md:col-span-8">
                 <ScrollReveal direction="up" delay={0}>
-                  <div className="h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 md:p-10 flex flex-col min-h-[260px] hover:shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:hover:shadow-none transition-shadow duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-7 text-blue-500">
+                  <div
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 md:p-10 flex flex-col min-h-[260px] hover:-translate-y-1"
+                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-7 text-blue-500 group-hover:-translate-y-0.5"
+                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    >
                       <Globe size={18} strokeWidth={1.75} />
                     </div>
                     <h3 className="text-xl font-semibold text-gray-950 dark:text-white tracking-tight mb-3">Digitale Mitgliederakte</h3>
@@ -343,8 +358,14 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               {/* Card 2 — 4 cols */}
               <div className="md:col-span-4">
                 <ScrollReveal direction="up" delay={0.05}>
-                  <div className="h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[260px] hover:shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:hover:shadow-none transition-shadow duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center mb-7 text-amber-500">
+                  <div
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[260px] hover:-translate-y-1"
+                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center mb-7 text-amber-500 group-hover:-translate-y-0.5"
+                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    >
                       <Zap size={18} strokeWidth={1.75} />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-3">Automatisierte Mailings</h3>
@@ -358,8 +379,14 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               {/* Card 3 — 4 cols */}
               <div className="md:col-span-4">
                 <ScrollReveal direction="up" delay={0.08}>
-                  <div className="h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[220px] hover:shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:hover:shadow-none transition-shadow duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mb-7 text-emerald-500">
+                  <div
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[220px] hover:-translate-y-1"
+                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mb-7 text-emerald-500 group-hover:-translate-y-0.5"
+                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    >
                       <Lock size={18} strokeWidth={1.75} />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-3">Rollen & Berechtigungen</h3>
@@ -373,8 +400,14 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               {/* Card 4 — 4 cols */}
               <div className="md:col-span-4">
                 <ScrollReveal direction="up" delay={0.11}>
-                  <div className="h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[220px] hover:shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:hover:shadow-none transition-shadow duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center mb-7 text-purple-500">
+                  <div
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[220px] hover:-translate-y-1"
+                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center mb-7 text-purple-500 group-hover:-translate-y-0.5"
+                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    >
                       <Cpu size={18} strokeWidth={1.75} />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-3">Deep Analytics</h3>
@@ -388,8 +421,14 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               {/* Card 5 — 4 cols */}
               <div className="md:col-span-4">
                 <ScrollReveal direction="up" delay={0.14}>
-                  <div className="h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[220px] hover:shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:hover:shadow-none transition-shadow duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mb-7 text-rose-500">
+                  <div
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[220px] hover:-translate-y-1"
+                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mb-7 text-rose-500 group-hover:-translate-y-0.5"
+                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    >
                       <ArrowRight size={18} strokeWidth={1.75} />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-3">Nahtlose Exporte</h3>
@@ -403,8 +442,14 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               {/* Card 6 — 12 cols wide */}
               <div className="md:col-span-12">
                 <ScrollReveal direction="up" delay={0.17}>
-                  <div className="rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col md:flex-row md:items-center gap-6 hover:shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:hover:shadow-none transition-shadow duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0 text-indigo-500">
+                  <div
+                    className="group rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col md:flex-row md:items-center gap-6 hover:-translate-y-0.5"
+                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0 text-indigo-500 group-hover:-translate-y-0.5"
+                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    >
                       <Sparkles size={18} strokeWidth={1.75} />
                     </div>
                     <div className="flex-1">
@@ -491,7 +536,10 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               },
             ].map((t, i) => (
               <ScrollReveal key={i} direction="up" delay={i * 0.08}>
-                <div className="h-full rounded-2xl bg-[#f7f7f7] dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col hover:shadow-[0_8px_40px_rgba(0,0,0,0.05)] dark:hover:shadow-none transition-shadow duration-300">
+                <div
+                  className="group h-full rounded-2xl bg-[#f7f7f7] dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col hover:-translate-y-1"
+                  style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                >
                   <div className="flex gap-0.5 mb-6">
                     {Array.from({ length: 5 }).map((_, si) => (
                       <Star key={si} size={13} fill="currentColor" strokeWidth={0} className="text-amber-400" />
@@ -615,7 +663,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 className="group hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-500 dark:hover:text-white transition-colors duration-200"
               >
                 Alle Beiträge
-                <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform duration-200" />
+                <ArrowRight size={13} className="group-hover:translate-x-0.5" style={{ transition: "transform 200ms cubic-bezier(0.23,1,0.32,1)" }} />
               </Link>
             </div>
           </ScrollReveal>
@@ -625,7 +673,8 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               <ScrollReveal key={i} direction="up" delay={i * 0.07}>
                 <Link
                   href={`/blog/${post.slug}`}
-                  className="group flex flex-col rounded-2xl bg-[#f7f7f7] dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-6 h-full hover:shadow-[0_8px_40px_rgba(0,0,0,0.05)] dark:hover:shadow-none transition-shadow duration-300"
+                  className="group flex flex-col rounded-2xl bg-[#f7f7f7] dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-6 h-full hover:-translate-y-1"
+                  style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                 >
                   <span className="inline-block text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-600 mb-4">
                     {post.category}
@@ -681,14 +730,14 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 </div>
               </Link>
               <div className="flex items-center gap-1 shrink-0">
-                <Link href={`/blog/${blogPosts[blogPosts.length - 1].slug}`} className="hidden sm:flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-[10px] bg-white/10 dark:bg-black/8 hover:bg-white/20 dark:hover:bg-black/15 transition-colors whitespace-nowrap">
+                <Link href={`/blog/${blogPosts[blogPosts.length - 1].slug}`} className="hidden sm:flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-[10px] bg-white/10 dark:bg-black/8 hover:bg-white/20 dark:hover:bg-black/15 whitespace-nowrap" style={{ transition: "background-color 160ms ease-out" }}>
                   Lesen
                   <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </Link>
                 <Link href={`/blog/${blogPosts[blogPosts.length - 1].slug}`} className="sm:hidden flex items-center justify-center w-8 h-8 rounded-[10px] bg-white/10 dark:bg-black/8" aria-label="Lesen">
                   <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </Link>
-                <button type="button" onClick={() => setShowBanner(false)} aria-label="Schließen" className="flex items-center justify-center w-8 h-8 rounded-[10px] text-white/30 dark:text-black/30 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/8 transition-all">
+                <button type="button" onClick={() => setShowBanner(false)} aria-label="Schließen" className="flex items-center justify-center w-8 h-8 rounded-[10px] text-white/30 dark:text-black/30 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/8" style={{ transition: "background-color 160ms ease-out, color 160ms ease-out" }}>
                   <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
                 </button>
               </div>

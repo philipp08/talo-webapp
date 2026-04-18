@@ -13,7 +13,7 @@ interface ScrollRevealProps {
   className?: string;
   scale?: number;
   blur?: boolean;
-  key?: string | number; // Added to fix list mapping lints
+  key?: string | number;
 }
 
 const directionOffset = (direction: Direction, distance: number) => {
@@ -26,12 +26,15 @@ const directionOffset = (direction: Direction, distance: number) => {
   }
 };
 
+// Strong ease-out — starts fast, feels instantly responsive
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
+
 export default function ScrollReveal({
   children,
   direction = "up",
   delay = 0,
-  duration = 0.7,
-  distance = 40,
+  duration = 0.5,
+  distance = 16,
   once = true,
   className = "",
   scale = 1,
@@ -45,20 +48,19 @@ export default function ScrollReveal({
         opacity: 0,
         ...offsets,
         scale: scale !== 1 ? scale : undefined,
-        filter: blur ? "blur(10px)" : undefined,
+        // blur is only allowed on fixed overlays — not on scrolling content
       }}
       whileInView={{
         opacity: 1,
         x: 0,
         y: 0,
         scale: 1,
-        filter: blur ? "blur(0px)" : undefined,
       }}
-      viewport={{ once, amount: 0.1 }}
+      viewport={{ once, amount: 0.15 }}
       transition={{
         duration,
         delay,
-        ease: [0.25, 0.4, 0.25, 1],
+        ease: EASE_OUT,
       }}
       className={className}
     >
@@ -76,14 +78,14 @@ interface StaggerContainerProps {
 
 export function StaggerContainer({
   children,
-  staggerDelay = 0.1,
+  staggerDelay = 0.055,
   className = "",
 }: StaggerContainerProps) {
   return (
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.1 }}
+      viewport={{ once: true, amount: 0.15 }}
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: staggerDelay } },
@@ -99,26 +101,26 @@ export function StaggerItem({
   children,
   className = "",
   direction = "up",
-  distance = 30,
+  distance = 10,
 }: {
   children: React.ReactNode;
   className?: string;
   direction?: Direction;
   distance?: number;
-  key?: string | number; // Added to fix list mapping lints
+  key?: string | number;
 }) {
   const offsets = directionOffset(direction, distance);
 
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, ...offsets, filter: "blur(6px)" },
+        hidden: { opacity: 0, ...offsets },
         visible: {
           opacity: 1,
           x: 0,
           y: 0,
-          filter: "blur(0px)",
-          transition: { duration: 0.6, ease: [0.25, 0.4, 0.25, 1] },
+          // No blur — blur on scrolling content triggers continuous GPU repaints
+          transition: { duration: 0.45, ease: [0.23, 1, 0.32, 1] },
         },
       }}
       className={className}
