@@ -130,9 +130,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.13}>
-            <h1 className="text-center not-italic font-medium tracking-tight leading-[1.06] font-logo text-gray-950 dark:text-white mb-7 [font-size:clamp(1.75rem,7.5vw,6.5rem)]">
-              <span className="block text-center">Vereinsmanagement,</span>
-              <span className="block text-center text-gray-400 dark:text-white/30">endlich einfach.</span>
+            <h1 className="text-center not-italic font-medium tracking-tight leading-[1.08] font-logo text-gray-950 dark:text-white mb-7 [font-size:clamp(2rem,5.5vw,5rem)] [text-wrap:balance]">
+              Vereinsmanagement,{" "}
+              <span className="text-gray-400 dark:text-white/30">endlich einfach.</span>
             </h1>
           </ScrollReveal>
 
