@@ -124,9 +124,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.13}>
-            <h1 className="text-[2.8rem] sm:text-[4rem] md:text-[5.5rem] lg:text-[6.5rem] font-medium tracking-tight leading-[1.0] font-logo text-gray-950 dark:text-white mb-7" style={{ textWrap: "balance" } as any}>
-              Vereinsmanagement,<br />
-              <span className="text-gray-400 dark:text-white/30">endlich einfach.</span>
+            <h1 className="font-medium tracking-tight leading-[1.06] font-logo text-gray-950 dark:text-white mb-7 [font-size:clamp(1.75rem,7.5vw,6.5rem)]">
+              <span className="block">Vereinsmanagement,</span>
+              <span className="block text-gray-400 dark:text-white/30">endlich einfach.</span>
             </h1>
           </ScrollReveal>
 
