@@ -15,6 +15,12 @@ import { posts as blogPosts } from "./blog/page";
 import { useDemo } from "@/lib/context/DemoContext";
 import Counter from "./components/Counter";
 import { motion, AnimatePresence, useScroll, useTransform, MotionValue } from "framer-motion";
+import dynamic from "next/dynamic";
+
+const HeroAnimationPlayer = dynamic(
+  () => import("./components/HeroAnimationPlayer").then((m) => m.HeroAnimationPlayer),
+  { ssr: false }
+);
 
 /* ─── Word-by-word scroll reveal ─────────────────────────────────── */
 function Word({
@@ -178,6 +184,17 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             </div>
           </ScrollReveal>
         </div>
+
+        {/* Dashboard animation */}
+        <ScrollReveal direction="up" delay={0.4}>
+          <div className="max-w-4xl mx-auto px-6 mt-20 relative">
+            <div className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-white/[0.08] shadow-[0_32px_80px_rgba(0,0,0,0.12)] dark:shadow-[0_32px_80px_rgba(0,0,0,0.5)]">
+              <HeroAnimationPlayer />
+            </div>
+            {/* Reflection glow */}
+            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-indigo-500/10 dark:bg-indigo-500/20 blur-2xl pointer-events-none" />
+          </div>
+        </ScrollReveal>
 
         {/* Subtle ambient background */}
         <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
