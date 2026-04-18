@@ -22,6 +22,16 @@ const HeroAnimationPlayer = dynamic(
   { ssr: false }
 );
 
+const ActivityFeedPlayer = dynamic(
+  () => import("./components/MiniAnimationPlayers").then((m) => m.ActivityFeedPlayer),
+  { ssr: false }
+);
+
+const LeaderboardPlayer = dynamic(
+  () => import("./components/MiniAnimationPlayers").then((m) => m.LeaderboardPlayer),
+  { ssr: false }
+);
+
 /* ─── Word-by-word scroll reveal ─────────────────────────────────── */
 function Word({
   word, progress, start, end,
@@ -347,26 +357,28 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
 
-              {/* Card 1 — large 8 cols */}
+              {/* Card 1 — large 8 cols — with live activity feed */}
               <div className="md:col-span-8">
                 <ScrollReveal direction="up" delay={0}>
                   <div
-                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 md:p-10 flex flex-col min-h-[260px] hover:-translate-y-1"
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
                     style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                   >
-                    <div
-                      className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-7 text-blue-500 group-hover:-translate-y-0.5"
-                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
-                    >
-                      <Globe size={18} strokeWidth={1.75} />
+                    <div className="p-8 md:p-10 pb-4">
+                      <div
+                        className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-7 text-blue-500 group-hover:-translate-y-0.5"
+                        style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                      >
+                        <Globe size={18} strokeWidth={1.75} />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Digitale Mitgliederakte</h3>
+                      <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm max-w-md">
+                        Alle Aktivitäten, Dokumente und Historien — live und in Echtzeit.
+                      </p>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-950 dark:text-white tracking-tight mb-3">Digitale Mitgliederakte</h3>
-                    <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm flex-1 max-w-md">
-                      Alle Daten, Dokumente und Historien an einem Ort — DSGVO-konform gespeichert und in Sekunden abrufbar.
-                    </p>
-                    <div className="mt-8 flex items-center gap-2 text-[10px] font-semibold text-blue-500/70 uppercase tracking-wider">
-                      <span>DSGVO-konform</span>
-                      <div className="flex-1 h-px bg-blue-100 dark:bg-blue-900/40" />
+                    {/* Live activity feed animation */}
+                    <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
+                      <ActivityFeedPlayer />
                     </div>
                   </div>
                 </ScrollReveal>
@@ -414,23 +426,28 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 </ScrollReveal>
               </div>
 
-              {/* Card 4 — 4 cols */}
+              {/* Card 4 — 4 cols — with leaderboard animation */}
               <div className="md:col-span-4">
                 <ScrollReveal direction="up" delay={0.11}>
                   <div
-                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[220px] hover:-translate-y-1"
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
                     style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                   >
-                    <div
-                      className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center mb-7 text-purple-500 group-hover:-translate-y-0.5"
-                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
-                    >
-                      <Cpu size={18} strokeWidth={1.75} />
+                    <div className="p-8 pb-3">
+                      <div
+                        className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center mb-7 text-purple-500 group-hover:-translate-y-0.5"
+                        style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                      >
+                        <Cpu size={18} strokeWidth={1.75} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Deep Analytics</h3>
+                      <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
+                        KI-gestützte Auswertungen — live Rankings und Trends.
+                      </p>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-3">Deep Analytics</h3>
-                    <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm flex-1">
-                      KI-gestützte Auswertungen, die Trends erkennen, bevor sie entstehen.
-                    </p>
+                    <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
+                      <LeaderboardPlayer />
+                    </div>
                   </div>
                 </ScrollReveal>
               </div>
