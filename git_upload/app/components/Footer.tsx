@@ -41,6 +41,7 @@ export default function Footer() {
       title: "Ressourcen",
       links: [
         { name: "Hilfe-Center", href: "/hilfe" },
+        { name: "Benutzerhandbuch", href: "/TALO-Benutzerhandbuch.pdf" },
         { name: "Blog", href: "/blog" },
         { name: "Changelog", href: "/changelog" },
         { name: "Newsletter", href: "/newsletter" },
@@ -125,8 +126,10 @@ Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreibe
                 <ul className="text-[0.75rem] xl:text-[0.95rem] gap-y-2.5 lg:gap-y-4 flex flex-col">
                   {section.links.map((link) => (
                     <li key={link.name} className="flex flex-col items-start group">
-                      <Link 
-                        href={link.href} 
+                      <Link
+                        href={link.href}
+                        target={link.href.endsWith(".pdf") ? "_blank" : undefined}
+                        rel={link.href.endsWith(".pdf") ? "noopener noreferrer" : undefined}
                         className="leading-[1] relative text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors"
                       >
                         {link.name}
