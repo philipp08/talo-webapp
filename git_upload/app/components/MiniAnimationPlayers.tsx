@@ -2,7 +2,13 @@
 
 import { useRef, useEffect } from "react";
 import { Player, PlayerRef } from "@remotion/player";
-import { ActivityFeedComposition, LeaderboardComposition } from "./MiniAnimations";
+import {
+  ActivityFeedComposition,
+  LeaderboardComposition,
+  MailingComposition,
+  RolesComposition,
+  ExportComposition,
+} from "./MiniAnimations";
 
 function AutoPlayer({
   component, width, height, fps, duration, style,
@@ -47,10 +53,34 @@ export function LeaderboardPlayer() {
   return (
     <AutoPlayer
       component={LeaderboardComposition}
-      width={440}
-      height={200}
-      fps={30}
-      duration={160}
+      width={440} height={200} fps={30} duration={160}
+    />
+  );
+}
+
+export function MailingPlayer() {
+  return (
+    <AutoPlayer
+      component={MailingComposition}
+      width={440} height={190} fps={30} duration={180}
+    />
+  );
+}
+
+export function RolesPlayer() {
+  return (
+    <AutoPlayer
+      component={RolesComposition}
+      width={440} height={190} fps={30} duration={180}
+    />
+  );
+}
+
+export function ExportPlayer() {
+  return (
+    <AutoPlayer
+      component={ExportComposition}
+      width={440} height={170} fps={30} duration={180}
     />
   );
 }

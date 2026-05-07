@@ -7,7 +7,7 @@ import ScrollReveal, { StaggerContainer, StaggerItem } from "./components/Scroll
 import StickyScroll from "./components/StickyScroll";
 import {
   Star, ShieldCheck, ArrowRight, Zap, Globe, Lock, Cpu,
-  Sparkles, ChevronRight, Plus,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import ContactForm from "./components/ContactForm";
@@ -29,6 +29,21 @@ const ActivityFeedPlayer = dynamic(
 
 const LeaderboardPlayer = dynamic(
   () => import("./components/MiniAnimationPlayers").then((m) => m.LeaderboardPlayer),
+  { ssr: false }
+);
+
+const MailingPlayer = dynamic(
+  () => import("./components/MiniAnimationPlayers").then((m) => m.MailingPlayer),
+  { ssr: false }
+);
+
+const RolesPlayer = dynamic(
+  () => import("./components/MiniAnimationPlayers").then((m) => m.RolesPlayer),
+  { ssr: false }
+);
+
+const ExportPlayer = dynamic(
+  () => import("./components/MiniAnimationPlayers").then((m) => m.ExportPlayer),
   { ssr: false }
 );
 
@@ -388,19 +403,24 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               <div className="md:col-span-4">
                 <ScrollReveal direction="up" delay={0.05}>
                   <div
-                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[260px] hover:-translate-y-1"
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
                     style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                   >
-                    <div
-                      className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center mb-7 text-amber-500 group-hover:-translate-y-0.5"
-                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
-                    >
-                      <Zap size={18} strokeWidth={1.75} />
+                    <div className="p-8 pb-3">
+                      <div
+                        className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center mb-7 text-amber-500 group-hover:-translate-y-0.5"
+                        style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                      >
+                        <Zap size={18} strokeWidth={1.75} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Automatisierte Mailings</h3>
+                      <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
+                        Personalisierte Benachrichtigungen, Erinnerungen und Bestätigungen – vollautomatisch.
+                      </p>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-3">Automatisierte Mailings</h3>
-                    <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm flex-1">
-                      Personalisierte Benachrichtigungen, Erinnerungen und Bestätigungen – vollautomatisch.
-                    </p>
+                    <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
+                      <MailingPlayer />
+                    </div>
                   </div>
                 </ScrollReveal>
               </div>
@@ -409,19 +429,24 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               <div className="md:col-span-4">
                 <ScrollReveal direction="up" delay={0.08}>
                   <div
-                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[220px] hover:-translate-y-1"
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
                     style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                   >
-                    <div
-                      className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mb-7 text-emerald-500 group-hover:-translate-y-0.5"
-                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
-                    >
-                      <Lock size={18} strokeWidth={1.75} />
+                    <div className="p-8 pb-3">
+                      <div
+                        className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mb-7 text-emerald-500 group-hover:-translate-y-0.5"
+                        style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                      >
+                        <Lock size={18} strokeWidth={1.75} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Rollen & Berechtigungen</h3>
+                      <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
+                        Präzises Rechtesystem — vom Vorstand bis zum Übungsleiter.
+                      </p>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-3">Rollen & Berechtigungen</h3>
-                    <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm flex-1">
-                      Präzises Rechtesystem — vom Vorstand bis zum Übungsleiter.
-                    </p>
+                    <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
+                      <RolesPlayer />
+                    </div>
                   </div>
                 </ScrollReveal>
               </div>
@@ -442,7 +467,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                       </div>
                       <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Deep Analytics</h3>
                       <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
-                        KI-gestützte Auswertungen — live Rankings und Trends.
+                        Live Rankings, Bestenlisten und Punktetrends — auf einen Blick.
                       </p>
                     </div>
                     <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
@@ -456,48 +481,28 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               <div className="md:col-span-4">
                 <ScrollReveal direction="up" delay={0.14}>
                   <div
-                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col min-h-[220px] hover:-translate-y-1"
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
                     style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                   >
-                    <div
-                      className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mb-7 text-rose-500 group-hover:-translate-y-0.5"
-                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
-                    >
-                      <ArrowRight size={18} strokeWidth={1.75} />
+                    <div className="p-8 pb-3">
+                      <div
+                        className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mb-7 text-rose-500 group-hover:-translate-y-0.5"
+                        style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                      >
+                        <ArrowRight size={18} strokeWidth={1.75} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Nahtlose Exporte</h3>
+                      <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
+                        DATEV, Excel oder PDF – eure Daten jederzeit in dem Format, das ihr braucht.
+                      </p>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-3">Nahtlose Exporte</h3>
-                    <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm flex-1">
-                      DATEV, Excel oder PDF – eure Daten jederzeit in dem Format, das ihr braucht.
-                    </p>
+                    <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
+                      <ExportPlayer />
+                    </div>
                   </div>
                 </ScrollReveal>
               </div>
 
-              {/* Card 6 — 12 cols wide */}
-              <div className="md:col-span-12">
-                <ScrollReveal direction="up" delay={0.17}>
-                  <div
-                    className="group rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col md:flex-row md:items-center gap-6 hover:-translate-y-0.5"
-                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
-                  >
-                    <div
-                      className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0 text-indigo-500 group-hover:-translate-y-0.5"
-                      style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
-                    >
-                      <Sparkles size={18} strokeWidth={1.75} />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-1">API & Integrationen</h3>
-                      <p className="text-gray-500 dark:text-[#888] text-sm leading-relaxed">
-                        Verbindet TALO über unsere REST-API mit eurer Website, eurer Buchhaltungssoftware oder anderen Tools.
-                      </p>
-                    </div>
-                    <div className="shrink-0 flex items-center gap-1.5 text-[11px] font-semibold text-indigo-500 whitespace-nowrap">
-                      REST API <ChevronRight size={13} strokeWidth={2} />
-                    </div>
-                  </div>
-                </ScrollReveal>
-              </div>
 
             </div>
           </div>
