@@ -203,7 +203,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 DSGVO-konform
               </span>
               <span className="w-px h-3.5 bg-gray-200 dark:bg-gray-800" />
-              <span>Server in Deutschland</span>
+              <span>EU-Infrastruktur</span>
               <span className="w-px h-3.5 bg-gray-200 dark:bg-gray-800" />
               <span>150+ Vereine vertrauen TALO</span>
             </div>
@@ -237,9 +237,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             <StaggerContainer className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
               {[
                 { label: "DSGVO", sub: "konform" },
-                { label: "ISO 27001", sub: "zertifiziert" },
-                { label: "EU-Server", sub: "Deutschland" },
-                { label: "SOC 2", sub: "geprüft" },
+                { label: "Verschlüsselt", sub: "übertragen" },
+                { label: "EU-Server", sub: "Frankfurt" },
+                { label: "Made in", sub: "Germany" },
                 { label: "GDPR", sub: "compliant" },
               ].map(({ label, sub }) => (
                 <StaggerItem key={label}>
@@ -300,7 +300,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 num: "01",
                 icon: <Lock size={16} strokeWidth={1.75} />,
                 title: "Sicherheit an erster Stelle.",
-                desc: "DSGVO-konforme Datenspeicherung auf deutschen Servern. Verschlüsselt, auditierbar und jederzeit exportierbar.",
+                desc: "DSGVO-konforme Datenspeicherung auf europäischer Infrastruktur. Verschlüsselt übertragen und jederzeit exportierbar.",
               },
               {
                 num: "02",
@@ -388,7 +388,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                       </div>
                       <h3 className="text-xl font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Digitale Mitgliederakte</h3>
                       <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm max-w-md">
-                        Alle Aktivitäten, Dokumente und Historien — live und in Echtzeit.
+                        Alle Aktivitäten, Einträge und Punktehistorien — übersichtlich und immer aktuell.
                       </p>
                     </div>
                     {/* Live activity feed animation */}
@@ -413,9 +413,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                       >
                         <Zap size={18} strokeWidth={1.75} />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Automatisierte Mailings</h3>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Automatische Benachrichtigungen</h3>
                       <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
-                        Personalisierte Benachrichtigungen, Erinnerungen und Bestätigungen – vollautomatisch.
+                        Push-Benachrichtigungen bei Genehmigungen, Ablehnungen und Saisonfristen – kein manuelles Nachhaken.
                       </p>
                     </div>
                     <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
@@ -467,7 +467,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                       </div>
                       <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Deep Analytics</h3>
                       <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
-                        Live Rankings, Bestenlisten und Punktetrends — auf einen Blick.
+                        Live Rankings, Bestenlisten und Saisonübersichten — auf einen Blick.
                       </p>
                     </div>
                     <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
@@ -493,7 +493,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                       </div>
                       <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Nahtlose Exporte</h3>
                       <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
-                        DATEV, Excel oder PDF – eure Daten jederzeit in dem Format, das ihr braucht.
+                        Excel oder PDF – eure Daten jederzeit in dem Format, das ihr braucht.
                       </p>
                     </div>
                     <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
@@ -659,7 +659,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               {[
                 {
                   q: "Ist TALO DSGVO-konform?",
-                  a: "Ja, vollständig. Unsere Server stehen ausschließlich in Deutschland, alle Daten werden verschlüsselt übertragen und gespeichert.",
+                  a: "Ja, vollständig. TALO nutzt ausschließlich DSGVO-konforme Infrastruktur – alle Daten werden verschlüsselt übertragen und gespeichert.",
                 },
                 {
                   q: "Wie lange dauert die Einrichtung?",
@@ -675,7 +675,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 },
                 {
                   q: "Gibt es einen Support?",
-                  a: "Ja. Unser deutschsprachiges Team steht per Chat und E-Mail zur Verfügung – mit echten Antworten, nicht nur Automatisierungen.",
+                  a: "Ja. Unser deutschsprachiges Team steht per E-Mail zur Verfügung – mit echten Antworten, nicht nur Automatisierungen.",
                 },
               ].map((faq, i) => (
                 <FAQItem

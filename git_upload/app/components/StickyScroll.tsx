@@ -55,7 +55,7 @@ export const stickyItems: StickyItem[] = [
     id: "erfassung",
     label: "Schnelle Erfassung",
     title: "Beiträge einreichen in Sekunden.",
-    description: "Mitglieder erfassen ihr Engagement direkt über die mobile App. Ob Training, Event oder Vorstandsarbeit – ein kurzes Foto vom Protokoll oder ein Text genügen. Talo übernimmt die Klassifizierung.",
+    description: "Mitglieder erfassen ihr Engagement direkt über die mobile App. Ob Training, Event oder Vorstandsarbeit – Kategorie wählen, Datum bestätigen, fertig. TALO berechnet die Punkte automatisch aus dem Katalog.",
     icon: <Zap className="w-4 h-4" />,
     accent: "#10b981",
     visual: (
@@ -83,7 +83,7 @@ export const stickyItems: StickyItem[] = [
     id: "pruefung",
     label: "Intelligente Prüfung",
     title: "Der Admin-Assistent in der Cloud.",
-    description: "Talo scannt eingereichte Beiträge auf Plausibilität. Überschneidungen werden markiert, Punkte automatisch berechnet. Du behältst die volle Kontrolle ohne den manuellen Aufwand.",
+    description: "Eingereichte Beiträge landen direkt in der Genehmigungsqueue. Punkte werden automatisch berechnet, der Admin sieht alle Details auf einen Blick. Freigeben oder ablehnen – du behältst die volle Kontrolle.",
     icon: <ShieldCheck className="w-4 h-4" />,
     accent: "#3b82f6",
     visual: (
@@ -152,7 +152,7 @@ export const stickyItems: StickyItem[] = [
     id: "abrechnung",
     label: "Exports & Buchhaltung",
     title: "Am Saisonende tiefenentspannt.",
-    description: "Kein Zettelchaos mehr. Talo generiert fertige Listen für die Buchhaltung, exportiert CSV-Dateien für die Mitgliederverwaltung und berechnet automatisierte Berichte.",
+    description: "Kein Zettelchaos mehr. Alle Mitgliederdaten, Punktelisten und Saisonauswertungen exportierst du per Klick als Excel oder PDF – fertig für die nächste Jahreshauptversammlung.",
     icon: <FileOutput className="w-4 h-4" />,
     accent: "#f43f5e",
     visual: (
