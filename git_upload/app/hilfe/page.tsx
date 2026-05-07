@@ -23,7 +23,7 @@ const sections = [
       },
       {
         q: "Wie lade ich Mitglieder ein?",
-        a: "Im Dashboard unter „Mitgliederverwaltung" findest du den Button „Neues Mitglied". Du suchst zunächst nach der E-Mail-Adresse. Ist die Person bereits in Talo registriert, kannst du sie direkt hinzufügen. Für neue Personen vergibst du Vor- und Nachname – Talo erstellt automatisch ein Konto und zeigt dir das Einmalpasswort an, das du per E-Mail weiterleiten kannst.",
+        a: "Im Dashboard unter „Mitgliederverwaltung” findest du den Button „Neues Mitglied”. Du suchst zunächst nach der E-Mail-Adresse. Ist die Person bereits in Talo registriert, kannst du sie direkt hinzufügen. Für neue Personen vergibst du Vor- und Nachname – Talo erstellt automatisch ein Konto und zeigt dir das Einmalpasswort an, das du per E-Mail weiterleiten kannst.",
       },
       {
         q: "Was passiert nach dem ersten Login eines Mitglieds?",
@@ -31,7 +31,7 @@ const sections = [
       },
       {
         q: "Wie konfiguriere ich die Pflichtpunkte?",
-        a: "Unter „Einstellungen" im Admin-Bereich kannst du die Anzahl der Pflichtpunkte für aktive Mitglieder festlegen. Passive Mitglieder erhalten automatisch 30 % dieses Ziels, Jugend- und Vorstandsmitglieder sind befreit.",
+        a: "Unter „Einstellungen” im Admin-Bereich kannst du die Anzahl der Pflichtpunkte für aktive Mitglieder festlegen. Passive Mitglieder erhalten automatisch 30 % dieses Ziels, Jugend- und Vorstandsmitglieder sind befreit.",
       },
       {
         q: "Welchen Saisontyp soll ich wählen?",
@@ -54,7 +54,7 @@ const sections = [
     items: [
       {
         q: "Wie trage ich eine Tätigkeit ein?",
-        a: "Klicke im Dashboard auf „Eintragen" oder nutze den weißen Button „+ Eintragen". Du wählst die Tätigkeit aus dem Katalog, bestätigst das Datum und kannst optional eine Notiz hinzufügen. Die Punkte werden automatisch aus dem Katalog übernommen.",
+        a: "Klicke im Dashboard auf „Eintragen” oder nutze den weißen Button „+ Eintragen”. Du wählst die Tätigkeit aus dem Katalog, bestätigst das Datum und kannst optional eine Notiz hinzufügen. Die Punkte werden automatisch aus dem Katalog übernommen.",
       },
       {
         q: "Was bedeuten die Kategorien A, B, C und S?",
@@ -74,7 +74,7 @@ const sections = [
       },
       {
         q: "Wie verwalte ich den Tätigkeitskatalog?",
-        a: "Unter „Tätigkeiten" im Dashboard kannst du als Admin neue Tätigkeiten anlegen, bestehende bearbeiten oder löschen. Jede Tätigkeit hat einen Namen, eine Kategorie (A/B/C/S) und einen Punktwert. Reguläre Mitglieder sehen den Katalog nur zum Auswählen.",
+        a: "Unter „Tätigkeiten” im Dashboard kannst du als Admin neue Tätigkeiten anlegen, bestehende bearbeiten oder löschen. Jede Tätigkeit hat einen Namen, eine Kategorie (A/B/C/S) und einen Punktwert. Reguläre Mitglieder sehen den Katalog nur zum Auswählen.",
       },
       {
         q: "Was passiert mit Einträgen, wenn eine Tätigkeit gelöscht wird?",
@@ -89,15 +89,15 @@ const sections = [
     items: [
       {
         q: "Wo finde ich ausstehende Einträge?",
-        a: "Im Dashboard gibt es den Bereich „Genehmigungen", der nur für Admins sichtbar ist. Dort erscheinen alle Einträge mit Status „Ausstehend" als Karten. In der iOS-App ist die Genehmigungsansicht als eigener Tab zugänglich.",
+        a: "Im Dashboard gibt es den Bereich „Genehmigungen”, der nur für Admins sichtbar ist. Dort erscheinen alle Einträge mit Status „Ausstehend” als Karten. In der iOS-App ist die Genehmigungsansicht als eigener Tab zugänglich.",
       },
       {
         q: "Wie genehmige oder lehne ich einen Eintrag ab?",
-        a: "Web-Console: Grüner „Genehmigen"- oder roter „Ablehnen"-Button auf der Karte. iOS-App: Tippe auf die Aktionsbuttons oder nutze Wischgesten – nach rechts wischen genehmigt, nach links wischen lehnt sofort ab.",
+        a: "Web-Console: Grüner „Genehmigen”- oder roter „Ablehnen”-Button auf der Karte. iOS-App: Tippe auf die Aktionsbuttons oder nutze Wischgesten – nach rechts wischen genehmigt, nach links wischen lehnt sofort ab.",
       },
       {
         q: "Kann ich beim Ablehnen einen Grund angeben?",
-        a: "Ja. Bei der Ablehnung öffnet sich ein Formular, in dem du optional einen Ablehnungsgrund eingibst. Dieser wird dem Mitglied zusammen mit dem Eintrag angezeigt. In der iOS-App stehen außerdem Schnellauswahl-Chips bereit (z. B. „Nachweis fehlt", „Falscher Zeitraum").",
+        a: "Ja. Bei der Ablehnung öffnet sich ein Formular, in dem du optional einen Ablehnungsgrund eingibst. Dieser wird dem Mitglied zusammen mit dem Eintrag angezeigt. In der iOS-App stehen außerdem Schnellauswahl-Chips bereit (z. B. „Nachweis fehlt”, „Falscher Zeitraum”).",
       },
       {
         q: "Sehen Mitglieder, warum ihr Eintrag abgelehnt wurde?",
@@ -123,12 +123,12 @@ const sections = [
         a: "Das Ziel basiert auf den in den Vereinseinstellungen festgelegten Pflichtpunkten. Aktive Mitglieder müssen 100 % erreichen, passive Mitglieder 30 %. Jugend- und Vorstandsmitglieder sind vollständig befreit und haben kein Punkteziel.",
       },
       {
-        q: "Was ist der Unterschied zwischen „Bestätigt" und „Ausstehend"?",
+        q: "Was ist der Unterschied zwischen „Bestätigt” und „Ausstehend”?",
         a: "Bestätigte Punkte sind genehmigt und fließen in den Fortschrittsbalken sowie das Leaderboard ein. Ausstehende Punkte sind erfasst, aber noch nicht freigegeben – sie zählen noch nicht für das Ziel.",
       },
       {
         q: "Was passiert, wenn ein Mitglied sein Ziel nicht erreicht?",
-        a: "Der Fortschrittsbalken bleibt unter 100 %. In der iOS-App wird zusätzlich ein „Fehlende Punkte"-Hinweis mit dem berechneten Ausgleichsbetrag angezeigt, sofern der Verein einen Ausgleichssatz konfiguriert hat.",
+        a: "Der Fortschrittsbalken bleibt unter 100 %. In der iOS-App wird zusätzlich ein „Fehlende Punkte”-Hinweis mit dem berechneten Ausgleichsbetrag angezeigt, sofern der Verein einen Ausgleichssatz konfiguriert hat.",
       },
       {
         q: "Wann wird der Fortschrittsbalken grün?",
@@ -167,7 +167,7 @@ const sections = [
       },
       {
         q: "Wie ändere ich die Rolle eines Mitglieds?",
-        a: "Öffne das Mitgliederprofil über die Mitgliederverwaltung. Im Bearbeitungsbereich gibt es separate Toggles für „Admin" und „Trainer". Die Änderung gilt sofort.",
+        a: "Öffne das Mitgliederprofil über die Mitgliederverwaltung. Im Bearbeitungsbereich gibt es separate Toggles für „Admin” und „Trainer”. Die Änderung gilt sofort.",
       },
       {
         q: "Welche Mitgliedertypen gibt es und was ist der Unterschied zur Rolle?",
@@ -186,15 +186,15 @@ const sections = [
     items: [
       {
         q: "Wie entferne ich ein Mitglied aus dem Verein?",
-        a: "Öffne das Profil des Mitglieds in der Mitgliederverwaltung und scrolle nach unten zum Button „Aus Verein entfernen". Ist das Mitglied nur in diesem einen Verein, wird auch sein gesamtes Konto deaktiviert. Bei Mehrvereinsmitgliedschaft wird nur die Vereinszugehörigkeit aufgelöst.",
+        a: "Öffne das Profil des Mitglieds in der Mitgliederverwaltung und scrolle nach unten zum Button „Aus Verein entfernen”. Ist das Mitglied nur in diesem einen Verein, wird auch sein gesamtes Konto deaktiviert. Bei Mehrvereinsmitgliedschaft wird nur die Vereinszugehörigkeit aufgelöst.",
       },
       {
         q: "Kann ich Zugangsdaten erneut senden?",
-        a: "Ja. Im Mitgliederprofil gibt es den Button „Zugangsdaten erneut senden". Talo schickt dann eine E-Mail mit den Zugangsdaten an die hinterlegte Adresse.",
+        a: "Ja. Im Mitgliederprofil gibt es den Button „Zugangsdaten erneut senden”. Talo schickt dann eine E-Mail mit den Zugangsdaten an die hinterlegte Adresse.",
       },
       {
         q: "Wie kann ein Mitglied sein Passwort ändern?",
-        a: "Unter „Einstellungen" gibt es den Button „Passwort zurücksetzen". Talo sendet dann einen Reset-Link an die hinterlegte E-Mail-Adresse. Das Passwort kann damit eigenständig geändert werden.",
+        a: "Unter „Einstellungen” gibt es den Button „Passwort zurücksetzen”. Talo sendet dann einen Reset-Link an die hinterlegte E-Mail-Adresse. Das Passwort kann damit eigenständig geändert werden.",
       },
       {
         q: "Kann ein Mitglied sein eigenes Profilbild hochladen?",
@@ -229,7 +229,7 @@ const sections = [
       },
       {
         q: "Wie kann ich meine Daten löschen lassen?",
-        a: "Schreibe eine formlose E-Mail an philipp@pauli-one.de mit dem Betreff „Datenlöschung". Wir löschen alle personenbezogenen Daten innerhalb von 30 Tagen gemäß Art. 17 DSGVO.",
+        a: "Schreibe eine formlose E-Mail an philipp@pauli-one.de mit dem Betreff „Datenlöschung”. Wir löschen alle personenbezogenen Daten innerhalb von 30 Tagen gemäß Art. 17 DSGVO.",
       },
       {
         q: "Werden Daten für Werbung genutzt?",
@@ -283,7 +283,7 @@ const sections = [
       },
       {
         q: "Ich habe mein Passwort vergessen – wie komme ich rein?",
-        a: "Klicke auf der Login-Seite auf „Passwort vergessen". Gib deine E-Mail-Adresse ein – du erhältst innerhalb weniger Minuten einen Reset-Link. Prüfe auch deinen Spam-Ordner.",
+        a: "Klicke auf der Login-Seite auf „Passwort vergessen”. Gib deine E-Mail-Adresse ein – du erhältst innerhalb weniger Minuten einen Reset-Link. Prüfe auch deinen Spam-Ordner.",
       },
       {
         q: "Ich erhalte keine E-Mails von Talo – woran liegt das?",
@@ -373,8 +373,8 @@ export default function HelpPage() {
             <div className="flex flex-col gap-10">
               <p className="text-sm text-gray-400 dark:text-gray-500">
                 {searchResults.length === 0
-                  ? `Keine Ergebnisse für „${query}"`
-                  : `${searchResults.length} Ergebnis${searchResults.length !== 1 ? "se" : ""} für „${query}"`}
+                  ? `Keine Ergebnisse für „${query}”`
+                  : `${searchResults.length} Ergebnis${searchResults.length !== 1 ? "se" : ""} für „${query}”`}
               </p>
               {searchResults.map((res, i) => (
                 <div key={i} className="flex flex-col gap-2">
