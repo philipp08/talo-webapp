@@ -3,8 +3,10 @@
 import {
   AbsoluteFill,
   Easing,
+  Img,
   interpolate,
   Sequence,
+  staticFile,
   useCurrentFrame,
 } from "remotion";
 
@@ -77,21 +79,14 @@ function Sidebar() {
       transform: `translateX(${x}px)`,
     }}>
       {/* Logo */}
-      <div style={{ padding: "16px 14px 14px", borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 7,
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <span style={{ fontSize: 12, fontWeight: 800, color: C.text, fontFamily: C.font }}>T</span>
-          </div>
-          <div>
-            <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: C.text, fontFamily: C.font, letterSpacing: "0.06em" }}>TALO</p>
-            <p style={{ margin: 0, fontSize: 7, color: C.textMuted, fontFamily: C.font, letterSpacing: "0.14em" }}>CONSOLE</p>
-          </div>
-        </div>
+      <div style={{ padding: "14px 14px 12px", borderBottom: `1px solid ${C.border}` }}>
+        <Img
+          src={staticFile("talo-logo.png")}
+          style={{ width: 96, height: 28, objectFit: "contain", objectPosition: "left center", display: "block" }}
+        />
+        <p style={{ margin: "3px 0 0", fontSize: 7, color: C.textMuted, fontFamily: C.font, letterSpacing: "0.18em", textTransform: "uppercase" }}>
+          CONSOLE
+        </p>
       </div>
 
       {/* Section label */}
