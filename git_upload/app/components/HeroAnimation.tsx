@@ -103,7 +103,6 @@ function Sidebar() {
               display: "flex", alignItems: "center", gap: 8,
               padding: "6px 8px", borderRadius: 9,
               background: item.active ? "rgba(255,255,255,0.05)" : "transparent",
-              borderLeft: `2px solid ${item.active ? C.text : "transparent"}`,
               opacity: op,
             }}>
               <span style={{
