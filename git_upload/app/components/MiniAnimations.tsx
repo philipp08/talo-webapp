@@ -84,9 +84,9 @@ export function ActivityFeedComposition() {
 ══════════════════════════════════════════════════════════════════ */
 
 const MEMBERS = [
-  { rank: 1, initial: "L", name: "Lisa K.",  points: 2840, pct: 100, color: "#f59e0b" },
-  { rank: 2, initial: "M", name: "Max M.",   points: 2120, pct: 75,  color: "#9ca3af" },
-  { rank: 3, initial: "T", name: "Tim B.",   points: 1680, pct: 59,  color: "#cd7c2f" },
+  { rank: 1, initial: "L", name: "Lisa K.",  points: 28, pct: 100, color: "#f59e0b" },
+  { rank: 2, initial: "M", name: "Max M.",   points: 23, pct: 82,  color: "#9ca3af" },
+  { rank: 3, initial: "T", name: "Tim B.",   points: 19, pct: 68,  color: "#cd7c2f" },
 ];
 const RANK_ICONS = ["🥇", "🥈", "🥉"];
 
@@ -120,7 +120,7 @@ function LeaderRow({ rank, initial, name, points, pct, color, delay }: {
 export function LeaderboardComposition() {
   const frame = useCurrentFrame();
   const headerOp = ease(frame, 0, 14);
-  const totalPoints = Math.round(interpolate(frame, [8, 55], [0, 6640], {
+  const totalPoints = Math.round(interpolate(frame, [8, 55], [0, 70], {
     easing: Easing.bezier(0.16, 1, 0.3, 1),
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   }));
