@@ -6,8 +6,8 @@ import Link from "next/link";
 import {
   LayoutGrid, Users, ClipboardList,
   Settings, Megaphone, LogOut,
-  ShieldCheck, Smartphone, Download,
-  ArrowRight, PenLine, CheckSquare
+  ShieldCheck, PenLine, CheckSquare,
+  Menu, X, MoreHorizontal,
 } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
@@ -15,40 +15,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import AuthGuard from "@/app/components/AuthGuard";
 import { TAvatar } from "@/app/components/ui/NativeUI";
 import ScrollReveal from "@/app/components/ScrollReveal";
-import { motion } from "framer-motion";
-
-const MobileBlocker = () => (
-  <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-8 text-center lg:hidden overflow-hidden"
-       style={{ background: "#080808" }}>
-    <div className="relative z-10 max-w-sm flex flex-col items-center">
-      <div className="w-24 h-24 rounded-[32px] flex items-center justify-center mb-10 shadow-2xl relative"
-           style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-        <Smartphone size={48} className="absolute" style={{ color: "rgba(255,255,255,0.1)" }} />
-        <Download size={32} className="text-white relative z-10 animate-bounce" />
-      </div>
-
-      <h1 className="text-3xl font-logo font-bold text-white mb-6 uppercase tracking-[0.2em]">Talo Web</h1>
-      <p className="text-lg leading-relaxed mb-12 font-poppins" style={{ color: "#8A8A8A" }}>
-        Die Web-App ist ausschließlich für{" "}
-        <span className="text-white font-bold">Desktop-Geräte</span>{" "}
-        optimiert. Erlebe Talo auf deinem Handy in unserer nativen App.
-      </p>
-
-      <div className="space-y-4 w-full">
-        <a
-          href="https://apps.apple.com"
-          target="_blank"
-          className="flex items-center justify-center gap-3 w-full bg-white text-black py-5 rounded-[24px] font-poppins font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl"
-        >
-          Im App Store laden <ArrowRight size={18} />
-        </a>
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] mt-8" style={{ color: "#383838" }}>
-          Desktop Version v2.4.0
-        </p>
-      </div>
-    </div>
-  </div>
-);
+import { motion, AnimatePresence } from "framer-motion";
 
 const ADMIN_EMAIL = "philipp@pauli-one.de";
 
@@ -59,8 +26,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const user = useAppStore((state) => state.user);
   const isLoadingAuthedState = useAppStore((state) => state.isLoadingAuthedState);
   const [isMounted, setIsMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => { setIsMounted(true); }, []);
+
+  // Close menu on route change
+  useEffect(() => { setMobileMenuOpen(false); }, [pathname]);
 
   // Redirect admin to their dedicated console
   useEffect(() => {
@@ -78,32 +49,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   const navItems = [
-    { href: "/dashboard",                  label: "Dashboard",           icon: LayoutGrid,   show: true },
-    { href: "/dashboard/eintragen",        label: "Eintragen",           icon: PenLine,       show: true },
-    { href: "/dashboard/genehmigungen",    label: "Genehmigungen",       icon: CheckSquare,  show: isAdmin },
-    { href: "/dashboard/mitglieder",       label: "Mitgliederverwaltung",icon: Users,        show: isAdmin || isTrainer },
-    { href: "/dashboard/taetigkeiten",     label: "Tätigkeiten",         icon: ClipboardList,show: isAdmin },
-    { href: "/dashboard/ankuendigungen",   label: "Ankündigungen",       icon: Megaphone,    show: true },
-    { href: "/dashboard/einstellungen",    label: "Einstellungen",       icon: Settings,     show: true },
+    { href: "/dashboard",                label: "Dashboard",      icon: LayoutGrid,    show: true },
+    { href: "/dashboard/eintragen",      label: "Eintragen",      icon: PenLine,       show: true },
+    { href: "/dashboard/genehmigungen",  label: "Genehmigungen",  icon: CheckSquare,   show: isAdmin },
+    { href: "/dashboard/mitglieder",     label: "Mitglieder",     icon: Users,         show: isAdmin || isTrainer },
+    { href: "/dashboard/taetigkeiten",   label: "Tätigkeiten",    icon: ClipboardList, show: isAdmin },
+    { href: "/dashboard/ankuendigungen", label: "Ankündigungen",  icon: Megaphone,     show: true },
+    { href: "/dashboard/einstellungen",  label: "Einstellungen",  icon: Settings,      show: true },
   ].filter((item) => item.show);
+
+  // Bottom tabs: first 4 items + "Mehr" if there are more than 4
+  const MAX_TABS = 4;
+  const tabItems = navItems.slice(0, MAX_TABS);
+  const hasMore  = navItems.length > MAX_TABS;
+
+  const isTabActive = (href: string) =>
+    pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+
+  const isOverflowActive =
+    hasMore && navItems.slice(MAX_TABS).some((i) => isTabActive(i.href));
 
   if (!isMounted) return null;
 
   return (
     <AuthGuard>
-      <div className="flex h-dvh w-full text-white selection:bg-white selection:text-black"
-           style={{ background: "#080808" }}>
+      <div
+        className="flex h-dvh w-full text-white selection:bg-white selection:text-black"
+        style={{ background: "#080808" }}
+      >
 
-        {/* MOBILE OVERLAY */}
-        <MobileBlocker />
-
-        {/* SIDEBAR */}
-        <aside className="hidden lg:flex w-[300px] flex-col shrink-0 relative overflow-hidden"
-               style={{
-                 background: "#0C0C0C",
-                 borderRight: "1px solid rgba(255,255,255,0.04)",
-               }}>
-
+        {/* ── DESKTOP SIDEBAR ─────────────────────────────────────────── */}
+        <aside
+          className="hidden lg:flex w-[300px] flex-col shrink-0 relative overflow-hidden"
+          style={{ background: "#0C0C0C", borderRight: "1px solid rgba(255,255,255,0.04)" }}
+        >
           {/* Brand */}
           <div className="px-8 py-10 flex items-center gap-3.5">
             <Link href="/" className="flex items-center gap-3.5 group">
@@ -153,11 +132,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* User card */}
           <div className="p-5">
-            <div className="rounded-[24px] p-4 relative overflow-hidden"
-                 style={{
-                   background: "rgba(255,255,255,0.02)",
-                   border: "1px solid rgba(255,255,255,0.05)",
-                 }}>
+            <div
+              className="rounded-[24px] p-4 relative overflow-hidden"
+              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
+            >
               <div className="flex items-center gap-3">
                 <TAvatar
                   name={`${currentMember?.firstName ?? ""} ${currentMember?.lastName ?? ""}`}
@@ -170,9 +148,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   </span>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#555" }}>
-                      {currentMember?.isAdmin ? "Admin" : currentMember?.isTrainer ? "Trainer" : "Mitglied"}
+                      {isAdmin ? "Admin" : isTrainer ? "Trainer" : "Mitglied"}
                     </span>
-                    {currentMember?.isAdmin && <ShieldCheck size={10} style={{ color: "rgba(255,255,255,0.4)" }} />}
+                    {isAdmin && <ShieldCheck size={10} style={{ color: "rgba(255,255,255,0.4)" }} />}
                   </div>
                 </div>
               </div>
@@ -193,15 +171,185 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </aside>
 
-        {/* MAIN */}
+        {/* ── MOBILE SLIDE-IN MENU ────────────────────────────────────── */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                key="backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-40 lg:hidden"
+                style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(10px)" }}
+                onClick={() => setMobileMenuOpen(false)}
+              />
+
+              {/* Drawer */}
+              <motion.div
+                key="drawer"
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", damping: 28, stiffness: 280 }}
+                className="fixed top-0 left-0 h-full w-72 z-50 flex flex-col lg:hidden"
+                style={{ background: "#0C0C0C", borderRight: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                {/* Header */}
+                <div className="px-5 pt-14 pb-5 flex items-center justify-between border-b border-white/5">
+                  <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3">
+                    <img src="/talo-logo.png" alt="TALO" className="w-7 h-7" />
+                    <span className="font-logo text-[16px] font-black tracking-[0.25em] text-white uppercase">TALO</span>
+                  </Link>
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center"
+                    style={{ background: "rgba(255,255,255,0.05)", color: "#8A8A8A" }}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                {/* Nav */}
+                <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+                  {navItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center gap-3.5 px-4 py-4 rounded-[16px] transition-all"
+                        style={{
+                          background: isActive ? "rgba(255,255,255,0.06)" : "transparent",
+                          color: isActive ? "#FFFFFF" : "#666",
+                        }}
+                      >
+                        <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                        <span className="font-poppins font-semibold text-[15px]">{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </nav>
+
+                {/* Footer */}
+                <div className="p-4 border-t border-white/5 space-y-2">
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-2xl"
+                    style={{ background: "rgba(255,255,255,0.03)" }}
+                  >
+                    <TAvatar
+                      name={`${currentMember?.firstName ?? ""} ${currentMember?.lastName ?? ""}`}
+                      id={currentMember?.id ?? ""}
+                      size={38}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-poppins font-bold text-sm text-white truncate">
+                        {currentMember?.firstName} {currentMember?.lastName}
+                      </p>
+                      <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#555" }}>
+                        {isAdmin ? "Admin" : isTrainer ? "Trainer" : "Mitglied"}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+                    style={{ color: "#FF453A" }}
+                  >
+                    <LogOut size={16} />
+                    <span className="font-poppins font-semibold text-sm">Ausloggen</span>
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* ── MOBILE TOP HEADER ───────────────────────────────────────── */}
+        <div
+          className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14"
+          style={{
+            background: "rgba(8,8,8,0.92)",
+            borderBottom: "1px solid rgba(255,255,255,0.05)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+          }}
+        >
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="w-10 h-10 flex items-center justify-center rounded-xl"
+            style={{ color: "#8A8A8A" }}
+          >
+            <Menu size={22} />
+          </button>
+
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/talo-logo.png" alt="" className="w-6 h-6" />
+            <span className="font-logo text-[15px] font-black tracking-[0.2em] text-white uppercase">TALO</span>
+          </Link>
+
+          {/* Avatar */}
+          <div className="w-10 flex items-center justify-center">
+            <TAvatar
+              name={`${currentMember?.firstName ?? ""} ${currentMember?.lastName ?? ""}`}
+              id={currentMember?.id ?? ""}
+              size={34}
+            />
+          </div>
+        </div>
+
+        {/* ── MAIN CONTENT ────────────────────────────────────────────── */}
         <main className="flex-1 relative overflow-hidden" style={{ background: "#080808" }}>
-          {/* Content */}
-          <div className="absolute inset-0 overflow-y-auto no-scrollbar">
+          <div className="absolute inset-0 overflow-y-auto no-scrollbar lg:pt-0 pt-14 pb-[64px] lg:pb-0">
             <ScrollReveal direction="up" delay={0.05}>
               {children}
             </ScrollReveal>
           </div>
         </main>
+
+        {/* ── MOBILE BOTTOM TAB BAR ───────────────────────────────────── */}
+        <div
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-stretch"
+          style={{
+            background: "rgba(12,12,12,0.98)",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
+            height: 64,
+          }}
+        >
+          {tabItems.map((item) => {
+            const active = isTabActive(item.href);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex-1 flex flex-col items-center justify-center gap-[3px] transition-all active:opacity-60"
+                style={{ color: active ? "#FFFFFF" : "#555" }}
+              >
+                <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
+                <span className="text-[9px] font-poppins font-bold uppercase tracking-wider leading-none">
+                  {item.label.length > 8 ? item.label.slice(0, 8) : item.label}
+                </span>
+              </Link>
+            );
+          })}
+
+          {hasMore && (
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="flex-1 flex flex-col items-center justify-center gap-[3px] transition-all active:opacity-60"
+              style={{ color: isOverflowActive ? "#FFFFFF" : "#555" }}
+            >
+              <MoreHorizontal size={22} strokeWidth={1.8} />
+              <span className="text-[9px] font-poppins font-bold uppercase tracking-wider leading-none">Mehr</span>
+            </button>
+          )}
+        </div>
+
       </div>
     </AuthGuard>
   );
