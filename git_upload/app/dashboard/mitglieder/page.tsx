@@ -436,7 +436,9 @@ function ListView({ members, entries, requiredPoints }: { members: Member[]; ent
         <div key={type} className="flex flex-col gap-5">
           {/* Section header */}
           <div className="flex items-center gap-3 px-1">
-            <div className="h-8 w-0.5 bg-white/10 rounded-full" />
+            <div className="h-8 w-0.5 rounded-full" style={{
+              background: type === "Aktiv" ? "#34C759" : type === "Vorstand" ? "#E87AA0" : type === "Jugend" ? "#FF9500" : "#555"
+            }} />
             <div className="flex flex-col">
               <span className="text-[15px] font-poppins font-black text-white uppercase tracking-tight leading-none italic">
                 {memberTypeLabel[type] ?? type}
@@ -464,7 +466,7 @@ function ListView({ members, entries, requiredPoints }: { members: Member[]; ent
                   const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
                   const target = calculateTargetPoints(member, requiredPoints);
                   const progress = target > 0 ? Math.min(1, approved / target) : 1;
-                  const color = progress >= 1 ? "#8A8A8A" : progress >= 0.5 ? "#8A8A8A" : "#333333";
+                  const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF453A";
 
                   return (
                     <tr key={member.id} className="group hover:bg-white/[0.02] transition-colors cursor-pointer">
@@ -523,7 +525,7 @@ function ListView({ members, entries, requiredPoints }: { members: Member[]; ent
               const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
               const target = calculateTargetPoints(member, requiredPoints);
               const progress = target > 0 ? Math.min(1, approved / target) : 1;
-              const color = progress >= 1 ? "#8A8A8A" : progress >= 0.5 ? "#8A8A8A" : "#333333";
+              const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF453A";
 
               return (
                 <Link
@@ -603,7 +605,7 @@ function LeaderboardView({ data }: { data: { member: Member; approved: number; t
               <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest mt-0.5">{item.member.memberType}</span>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-[18px] md:text-[22px] font-mono font-black text-[#8A8A8A]">+{item.approved.toFixed(1)}</span>
+              <span className="text-[18px] md:text-[22px] font-mono font-black" style={{ color: item.progress >= 1 ? "#34C759" : item.progress >= 0.5 ? "#FF9500" : "#FF453A" }}>+{item.approved.toFixed(1)}</span>
               <span className="text-[8px] font-black text-gray-700 uppercase tracking-widest hidden sm:block">GESAMTPUNKTE</span>
             </div>
             <ChevronRight className="text-gray-800 group-hover:text-white transition-colors hidden sm:block" size={18} />

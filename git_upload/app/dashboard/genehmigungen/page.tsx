@@ -87,12 +87,20 @@ export default function GenehmigungPage() {
               <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Genehmigungen</h1>
               <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">Einträge prüfen und freigeben</p>
             </div>
-            {pending.length > 0 && (
-              <span className="text-[11px] font-poppins font-bold px-3 py-1.5 rounded-full"
-                    style={{ background: "rgba(255,149,0,0.15)", color: "#FF9500" }}>
-                {pending.length} ausstehend
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {pending.length > 0 && (
+                <span className="text-[11px] font-poppins font-bold px-3 py-1.5 rounded-full"
+                      style={{ background: "rgba(255,149,0,0.15)", color: "#FF9500" }}>
+                  {pending.length} ausstehend
+                </span>
+              )}
+              {entries.filter(e => e.status === "Genehmigt").length > 0 && (
+                <span className="text-[11px] font-poppins font-bold px-3 py-1.5 rounded-full"
+                      style={{ background: "rgba(52,199,89,0.12)", color: "#34C759" }}>
+                  {entries.filter(e => e.status === "Genehmigt").length} genehmigt
+                </span>
+              )}
+            </div>
           </div>
         </motion.div>
 

@@ -143,7 +143,7 @@ export default function AnnouncementsPage() {
                     <GlassSection 
                       className={`overflow-hidden transition-all ${
                         announcement.isPinned 
-                          ? "border-yellow-500/30 bg-yellow-500/[0.03] shadow-[0_0_20px_rgba(234,179,8,0.05)]" 
+                          ? "border-[#E87AA0]/30 bg-[#E87AA0]/[0.04] shadow-[0_0_20px_rgba(232,122,160,0.08)]" 
                           : "border-white/[0.08]"
                       }`}
                     >
@@ -168,9 +168,9 @@ export default function AnnouncementsPage() {
                                     {date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                                  </span>
                                  {announcement.isPinned && (
-                                   <div className="flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/20">
-                                      <Pin size={8} className="text-yellow-500" fill="currentColor" />
-                                      <span className="text-[8px] font-bold text-yellow-500 uppercase tracking-widest">WICHTIG</span>
+                                   <div className="flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-[#E87AA0]/10 border border-[#E87AA0]/20">
+                                      <Pin size={8} className="text-[#E87AA0]" fill="currentColor" />
+                                      <span className="text-[8px] font-bold text-[#E87AA0] uppercase tracking-widest">WICHTIG</span>
                                    </div>
                                  )}
                               </div>
@@ -182,7 +182,7 @@ export default function AnnouncementsPage() {
                              <button 
                                onClick={() => togglePin(announcement)}
                                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                                 announcement.isPinned ? "text-yellow-500 bg-yellow-500/10" : "text-[#383838] hover:text-white bg-white/5"
+                                 announcement.isPinned ? "text-[#E87AA0] bg-[#E87AA0]/10" : "text-[#383838] hover:text-white bg-white/5"
                                }`}
                              >
                                 <Pin size={14} strokeWidth={announcement.isPinned ? 3 : 2} />
@@ -254,7 +254,7 @@ export default function AnnouncementsPage() {
                       </div>
                       <button 
                         onClick={() => setIsPinned(!isPinned)}
-                        className={`w-11 h-6 rounded-full relative transition-all ${isPinned ? "bg-yellow-500" : "bg-white/10"}`}
+                        className={`w-11 h-6 rounded-full relative transition-all ${isPinned ? "bg-[#E87AA0]" : "bg-white/10"}`}
                       >
                          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${isPinned ? "left-6" : "left-1"}`} />
                       </button>

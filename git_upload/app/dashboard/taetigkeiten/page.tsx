@@ -15,6 +15,13 @@ const categoryLabels: Record<string, string> = {
   S: "Kategorie S",
 };
 
+const categoryColors: Record<string, string> = {
+  A: "#34C759",
+  B: "#FF9500",
+  C: "#E87AA0",
+  S: "#7C6FE0",
+};
+
 const ALL_CATS = [ActivityCategory.A, ActivityCategory.B, ActivityCategory.C, ActivityCategory.S];
 
 type FormData = { name: string; points: string; category: ActivityCategory };
@@ -123,19 +130,23 @@ export default function ActivitiesPage() {
             >
               Alle
             </button>
-            {ALL_CATS.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setFilterCat(filterCat === cat ? null : cat)}
-                className={`shrink-0 flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-poppins font-bold transition-all border ${
-                  filterCat === cat
-                    ? "bg-white text-[#080808] border-white shadow-lg"
-                    : "bg-white/5 text-[#8A8A8A] border-white/10 hover:text-white"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+            {ALL_CATS.map((cat) => {
+              const catColor = categoryColors[cat];
+              const isActive = filterCat === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setFilterCat(filterCat === cat ? null : cat)}
+                  className="shrink-0 flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-poppins font-bold transition-all border"
+                  style={isActive
+                    ? { background: `${catColor}20`, color: catColor, borderColor: `${catColor}60` }
+                    : { background: "rgba(255,255,255,0.05)", color: "#8A8A8A", borderColor: "rgba(255,255,255,0.1)" }
+                  }
+                >
+                  {cat}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -174,7 +185,7 @@ export default function ActivitiesPage() {
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="font-mono font-bold text-white text-[15px]">
+                      <span className="font-mono font-bold text-[15px]" style={{ color: categoryColors[activity.category] ?? "#FFFFFF" }}>
                         {activity.points.toFixed(1)}
                       </span>
                       {isAdmin && (

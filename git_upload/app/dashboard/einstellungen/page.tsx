@@ -69,7 +69,7 @@ export default function SettingsPage() {
     : 15;
 
   const progress = targetPts > 0 ? Math.min(1, approvedPts / targetPts) : 0;
-  const progressColor = progress >= 1 ? "#8A8A8A" : progress >= 0.6 ? "#8A8A8A" : "#333333";
+  const progressColor = progress >= 1 ? "#34C759" : progress >= 0.6 ? "#FF9500" : "#FF453A";
 
   const sendPasswordReset = async () => {
     if (!currentMember?.email) return;
@@ -180,7 +180,7 @@ export default function SettingsPage() {
         <div className="lg:col-span-2 flex flex-col gap-6">
            {/* Account Section */}
            <div className="flex flex-col gap-3">
-              <SectionHeader title="KONTO" icon={User} color="#FFFFFF" />
+              <SectionHeader title="KONTO" icon={User} color="#E87AA0" />
               <GlassSection>
                  <SettingsRow 
                    icon={Lock} 
@@ -203,7 +203,7 @@ export default function SettingsPage() {
 
            {/* Club Section */}
            <div className="flex flex-col gap-3">
-              <SectionHeader title={isAdmin ? "VEREIN VERWALTEN" : "VEREIN"} icon={Building2} color="#8A8A8A" />
+              <SectionHeader title={isAdmin ? "VEREIN VERWALTEN" : "VEREIN"} icon={Building2} color="#FF9500" />
               {isAdmin ? (
                 <GlassSection className="p-4 flex flex-col gap-5">
                    <div className="flex flex-col gap-1.5 px-1">
@@ -229,9 +229,9 @@ export default function SettingsPage() {
                          <span className="font-poppins font-semibold text-white text-sm">Genehmigungspflicht</span>
                          <span className="text-[11px] font-poppins text-[#8A8A8A]">{approvalRequired ? "Einträge brauchen Admin-Freigabe" : "Auto-Genehmigung"}</span>
                       </div>
-                      <button 
+                      <button
                         onClick={() => setApprovalRequired(!approvalRequired)}
-                        className={`w-11 h-6 rounded-full relative transition-all ${approvalRequired ? "bg-[#8A8A8A]" : "bg-white/10"}`}
+                        className={`w-11 h-6 rounded-full relative transition-all ${approvalRequired ? "bg-[#34C759]" : "bg-white/10"}`}
                       >
                          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${approvalRequired ? "left-6" : "left-1"}`} />
                       </button>
@@ -261,13 +261,13 @@ export default function SettingsPage() {
 
            {/* Action Zone */}
            <div className="flex flex-col gap-3 pt-4">
-              <SectionHeader title="KONTO-AKTIONEN" icon={AlertTriangle} color="#333333" />
+              <SectionHeader title="KONTO-AKTIONEN" icon={AlertTriangle} color="#FF453A" />
               <GlassSection className="bg-red-500/[0.03] border-red-500/10">
-                 <SettingsRow 
-                   icon={LogOut} 
-                   label="Abmelden" 
-                   sub="Von diesem Gerät ausloggen" 
-                   color="#333333" 
+                 <SettingsRow
+                   icon={LogOut}
+                   label="Abmelden"
+                   sub="Von diesem Gerät ausloggen"
+                   color="#FF453A"
                    onClick={() => signOut(auth)}
                  />
               </GlassSection>
@@ -318,7 +318,7 @@ function SettingsRow({ icon: Icon, label, sub, color, onClick, chevron = true, l
        {loading ? (
          <RefreshCcw size={14} className="text-[#8A8A8A] animate-spin" />
        ) : success ? (
-         <Check size={16} className="text-[#8A8A8A]" />
+         <Check size={16} className="text-[#34C759]" />
        ) : chevron && (
          <ChevronRight size={14} className="text-[#383838]" />
        )}
