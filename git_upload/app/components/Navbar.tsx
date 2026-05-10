@@ -303,22 +303,37 @@ export default function Navbar() {
 
             <div className="flex items-center gap-2">
               {/* CTA pill – fades out in place when menu opens, no layout shift */}
-              <motion.button
-                animate={{
-                  opacity: mobileOpen ? 0 : 1,
-                  scale: mobileOpen ? 0.8 : 1,
-                  width: mobileOpen ? 0 : "auto",
-                  marginRight: mobileOpen ? 0 : undefined,
-                  filter: mobileOpen ? "blur(4px)" : "blur(0px)",
-                }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                onClick={openDemo}
-                className="text-[13px] font-medium px-4 py-[8px] rounded-[24px] bg-[#000000] dark:bg-white text-white dark:text-black border-none whitespace-nowrap overflow-hidden"
-                style={{ pointerEvents: mobileOpen ? "none" : "auto" }}
-                tabIndex={mobileOpen ? -1 : 0}
-              >
-                Demo anfragen
-              </motion.button>
+              {!isLoading && (
+                <motion.div
+                  animate={{
+                    opacity: mobileOpen ? 0 : 1,
+                    scale: mobileOpen ? 0.8 : 1,
+                    width: mobileOpen ? 0 : "auto",
+                    marginRight: mobileOpen ? 0 : undefined,
+                    filter: mobileOpen ? "blur(4px)" : "blur(0px)",
+                  }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  style={{ pointerEvents: mobileOpen ? "none" : "auto" }}
+                >
+                  {user ? (
+                    <Link
+                      href="/dashboard"
+                      className="text-[13px] font-medium px-4 py-[8px] rounded-[24px] bg-[#000000] dark:bg-white text-white dark:text-black border-none whitespace-nowrap overflow-hidden inline-block"
+                      tabIndex={mobileOpen ? -1 : 0}
+                    >
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/anmelden"
+                      className="text-[13px] font-medium px-4 py-[8px] rounded-[24px] bg-[#000000] dark:bg-white text-white dark:text-black border-none whitespace-nowrap overflow-hidden inline-block"
+                      tabIndex={mobileOpen ? -1 : 0}
+                    >
+                      Anmelden
+                    </Link>
+                  )}
+                </motion.div>
+              )}
 
               {/* Hamburger / Close – white circle button like Joy_ */}
               <motion.button
@@ -469,21 +484,28 @@ export default function Navbar() {
                     transition={{ delay: 0.35, type: "spring", stiffness: 260, damping: 25 }}
                     className="mt-8 flex flex-col gap-3 w-full"
                   >
-                    {/* CTA Buttons – Ghost + Dark like Joy_ */}
+                    {/* CTA Buttons */}
                     <div className="flex items-center gap-3 w-full">
-                      <a
-                        href="https://apps.apple.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setMobileOpen(false)}
-                        className="flex-1 flex items-center justify-center gap-2 py-[14px] rounded-[24px] text-[15px] font-medium border border-[#b6bcc2] dark:border-white/20 text-[#1a1a1a] dark:text-white active:scale-[0.97] transition-all"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5c0 26.2 4.8 53.3 14.4 81.2 12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-                        App laden
-                      </a>
+                      {!isLoading && user ? (
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setMobileOpen(false)}
+                          className="flex-1 flex items-center justify-center py-[14px] rounded-[24px] text-[15px] font-medium bg-[#000000] dark:bg-white text-white dark:text-black active:scale-[0.97] transition-all"
+                        >
+                          Dashboard öffnen
+                        </Link>
+                      ) : (
+                        <Link
+                          href="/anmelden"
+                          onClick={() => setMobileOpen(false)}
+                          className="flex-1 flex items-center justify-center py-[14px] rounded-[24px] text-[15px] font-medium bg-[#000000] dark:bg-white text-white dark:text-black active:scale-[0.97] transition-all"
+                        >
+                          Anmelden
+                        </Link>
+                      )}
                       <button
                         onClick={() => { setMobileOpen(false); openDemo(); }}
-                        className="flex-1 flex items-center justify-center py-[14px] rounded-[24px] text-[15px] font-medium bg-[#000000] dark:bg-white text-white dark:text-black active:scale-[0.97] transition-all"
+                        className="flex-1 flex items-center justify-center py-[14px] rounded-[24px] text-[15px] font-medium border border-[#b6bcc2] dark:border-white/20 text-[#1a1a1a] dark:text-white active:scale-[0.97] transition-all"
                       >
                         Demo anfragen
                       </button>
