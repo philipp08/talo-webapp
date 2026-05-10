@@ -74,7 +74,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <AuthGuard>
       <div
-        className="flex h-dvh w-full text-white selection:bg-white selection:text-black"
+        className="dark flex h-dvh w-full text-white selection:bg-white selection:text-black"
         style={{ background: "#080808" }}
       >
 
