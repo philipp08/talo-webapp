@@ -28,7 +28,7 @@ const releases: {
       { type: "neu",          text: "Burger-Menü optimiert für kleine Bildschirme (iPhone 13 mini & Co.)" },
       { type: "neu",          text: "Seiten /newsletter, /kontakt und /karriere live" },
       { type: "verbesserung", text: "Impressum neu gestaltet mit zweispaltigem Layout" },
-      { type: "verbesserung", text: "Alle Kontaktdaten zentralisiert auf PauliONE" },
+      { type: "verbesserung", text: "Kontakt und Presseangaben auf Philipp Pauli vereinheitlicht" },
       { type: "fix",          text: "™-Symbol vollständig aus allen Seiten entfernt" },
     ],
   },

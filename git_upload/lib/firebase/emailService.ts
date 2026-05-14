@@ -18,7 +18,7 @@ interface ContactParams {
 export class EmailService {
   private static readonly FROM_EMAIL = "philipp@pauli-one.com";
   private static readonly FROM_NAME = "Talo";
-  private static readonly APP_STORE_URL = "https://apps.apple.com/app/talo/id000000000";
+  private static readonly APP_URL = "https://talo.app/anmelden";
   private static readonly SUPPORT_EMAIL = "support@talo-app.de";
 
   static async sendWelcomeMail(params: EmailParams): Promise<void> {
@@ -40,7 +40,7 @@ Passwort: ${password}
 
 SO GEHT'S
 ──────────────────
-1. App herunterladen: ${this.APP_STORE_URL}
+1. Talo öffnen: ${this.APP_URL}
 2. Auf "Anmelden" tippen
 3. E-Mail und Passwort eingeben
 4. Loslegen und Punkte sammeln!
@@ -177,7 +177,7 @@ ${message}
       </tr>
       <tr>
         <td style="padding:28px 32px;text-align:center;">
-          <a href="${this.APP_STORE_URL}" style="display:inline-block;background:#7DD8D8;color:#0D1A1A;text-decoration:none;font-size:16px;font-weight:800;padding:16px 36px;border-radius:100px;">Jetzt Talo-App laden &rarr;</a>
+          <a href="${this.APP_URL}" style="display:inline-block;background:#7DD8D8;color:#0D1A1A;text-decoration:none;font-size:16px;font-weight:800;padding:16px 36px;border-radius:100px;">Talo öffnen &rarr;</a>
         </td>
       </tr>
       <tr>

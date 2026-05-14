@@ -3,6 +3,7 @@ import { Poppins, Montserrat } from "next/font/google";
 import AuthProvider from "./components/AuthProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 import CookieBanner from "./components/CookieBanner";
+import { createPageMetadata, defaultDescription, organizationJsonLd, siteName, siteUrl, websiteJsonLd } from "./seo";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -20,9 +21,25 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Talo – Jeder Beitrag zählt.",
-  description: "Die smarte Plattform für Vereinsengagement. Punkte sammeln, Beiträge verwalten, Gemeinschaft stärken.",
-  keywords: ["Verein", "Ehrenamt", "Punkte", "Vereinsverwaltung", "Mitglieder"],
+  ...createPageMetadata({
+    title: "Talo | Digitale Vereinsverwaltung für Engagement und Punkte",
+    description: defaultDescription,
+    keywords: ["Vereinsverwaltung", "Ehrenamt", "Punktesystem Verein", "Mitgliederverwaltung", "Talo"],
+  }),
+  metadataBase: new URL(siteUrl),
+  applicationName: siteName,
+  title: {
+    default: "Talo | Digitale Vereinsverwaltung für Engagement und Punkte",
+    template: "%s | Talo",
+  },
+  appleWebApp: {
+    capable: true,
+    title: siteName,
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 import { DemoProvider } from "@/lib/context/DemoContext";
@@ -36,6 +53,12 @@ export default function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning className={`${poppins.variable} ${montserrat.variable}`}>
       <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([organizationJsonLd, websiteJsonLd]),
+          }}
+        />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light">
           <AuthProvider>
             <DemoProvider>

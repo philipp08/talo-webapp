@@ -59,9 +59,9 @@ const solutions = [
     accentBg: "bg-blue-500/8 dark:bg-blue-500/10",
     accentText: "text-blue-500",
     stats: [
-      { value: 94, suffix: "%", label: "Zeitersparnis" },
-      { value: 12, suffix: "h", label: "pro Pkt.-Runde gespart", decimals: 0 },
-      { value: 100, suffix: "%", label: "Transparenz" },
+      { value: 3, suffix: "", label: "Abläufe gebündelt" },
+      { value: 1, suffix: "", label: "zentrale Übersicht", decimals: 0 },
+      { value: 0, suffix: "", label: "Excel-Zwang" },
     ],
     useCases: [
       {
@@ -124,14 +124,14 @@ const solutions = [
     icon: <Flame className="w-5 h-5" />,
     label: "Feuerwehr & Rettungsdienste",
     title: "Zuverlässigkeit lückenlos dokumentiert.",
-    desc: "Im Ehrenamt, wo es auf jede Sekunde ankommt, sorgt Talo für eine rechtssichere und einfache Dokumentation von Dienststunden und Fortbildungen – mobil, DSGVO-konform und jederzeit exportierbar.",
+    desc: "Im Ehrenamt, wo es auf jede Sekunde ankommt, sorgt Talo für eine klare und einfache Dokumentation von Dienststunden und Fortbildungen – mobil, nachvollziehbar und exportierbar.",
     accent: "#EF4444",
     accentBg: "bg-red-500/8 dark:bg-red-500/10",
     accentText: "text-red-500",
     stats: [
-      { value: 100, suffix: "%", label: "Rechtssicher" },
-      { value: 0, suffix: " Fehler", label: "bei Exportberichten", decimals: 0 },
-      { value: 15, suffix: " Min.", label: "bis Jahresbericht", decimals: 0 },
+      { value: 3, suffix: "", label: "Rollen klar" },
+      { value: 1, suffix: "", label: "Exportübersicht", decimals: 0 },
+      { value: 0, suffix: "", label: "Papierchaos", decimals: 0 },
     ],
     useCases: [
       {
@@ -505,14 +505,14 @@ export default function SolutionsPage() {
             </ScrollReveal>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-8 text-center">
               {[
-                { label: "Vereine vertrauen Talo", value: 150, suffix: "+" },
-                { label: "Mitglieder aktiv", value: 12000, suffix: "+" },
-                { label: "Zeit gespart", value: 90, suffix: "%" },
-                { label: "Lösungstypen", value: 9, suffix: "+", decimals: 0 },
+                { label: "Kernbereiche", value: 4, suffix: "" },
+                { label: "Rollenebenen", value: 3, suffix: "" },
+                { label: "Exportwege", value: 3, suffix: "" },
+                { label: "Werbedaten", value: 0, suffix: "" },
               ].map((s, i) => (
                 <ScrollReveal key={i} direction="up" delay={i * 0.1}>
                   <p className="text-5xl md:text-6xl lg:text-7xl font-medium tracking-tighter text-white mb-3">
-                    <Counter value={s.value} suffix={s.suffix} decimalPlaces={s.decimals ?? 0} />
+                    <Counter value={s.value} suffix={s.suffix} decimalPlaces={0} />
                   </p>
                   <p className="text-[11px] font-black text-white/30 uppercase tracking-widest">{s.label}</p>
                 </ScrollReveal>
@@ -528,9 +528,9 @@ export default function SolutionsPage() {
           <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-10 text-center">
             {[
               { icon: <Clock size={20} />, title: "Echtzeit", sub: "Daten sofort verfügbar" },
-              { icon: <ShieldCheck size={20} />, title: "DSGVO-Sicher", sub: "Deutsche Server" },
-              { icon: <BarChart3 size={20} />, title: "Transparent", sub: "100% Nachvollziehbar" },
-              { icon: <Zap size={20} />, title: "Schnell", sub: "15 Min. bis live" },
+              { icon: <ShieldCheck size={20} />, title: "Datenschutz", sub: "Klare Rollen" },
+              { icon: <BarChart3 size={20} />, title: "Transparent", sub: "Nachvollziehbar" },
+              { icon: <Zap size={20} />, title: "Schnell", sub: "Geführter Start" },
             ].map((p, i) => (
               <StaggerItem key={i} direction="up" distance={20}>
                 <div className="flex flex-col items-center gap-4">
@@ -583,7 +583,7 @@ export default function SolutionsPage() {
           {/* Social proof strip */}
           <ScrollReveal direction="up" delay={0.2}>
             <div className="mt-20 flex flex-wrap items-center justify-center gap-8 md:gap-12">
-              {["GDPR", "SOC2", "ISO27001", "Made in Germany"].map((label) => (
+              {["DSGVO", "EU-Hosting", "Rollenrechte", "Export"].map((label) => (
                 <span key={label} className="text-lg font-black tracking-tighter text-gray-200 dark:text-gray-800">
                   {label}
                 </span>

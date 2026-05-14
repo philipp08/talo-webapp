@@ -105,7 +105,7 @@ export default function Navbar() {
       ],
       featured: {
         label: "CASE STUDY",
-        title: "Wie der SV Musterstadt 12h/Woche Admin spart",
+        title: "Wie Talo Verwaltungsarbeit im Verein ruhiger macht",
         cta: "Erfolgsstory lesen",
         ctaHref: "/blog",
       },

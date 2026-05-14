@@ -1,10 +1,13 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { createPageMetadata } from "../seo";
 
-export const metadata = {
-  title: "Datenschutz – Talo",
-  description: "Datenschutzerklärung von Talo (PauliONE). Informationen über die Erhebung und Verarbeitung personenbezogener Daten.",
-};
+export const metadata = createPageMetadata({
+  title: "Datenschutz",
+  description: "Datenschutzerklärung von Talo mit Informationen zur Verarbeitung personenbezogener Daten.",
+  path: "/datenschutz",
+  noIndex: true,
+});
 
 function Section({ number, title, children }: { number: string; title: string; children: React.ReactNode }) {
   return (

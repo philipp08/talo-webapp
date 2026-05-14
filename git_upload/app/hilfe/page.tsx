@@ -128,7 +128,7 @@ const sections = [
       },
       {
         q: "Was passiert, wenn ein Mitglied sein Ziel nicht erreicht?",
-        a: "Der Fortschrittsbalken bleibt unter 100 %. In der iOS-App wird zusätzlich ein „Fehlende Punkte”-Hinweis mit dem berechneten Ausgleichsbetrag angezeigt, sofern der Verein einen Ausgleichssatz konfiguriert hat.",
+        a: "Der Fortschrittsbalken bleibt unter 100 %. Zusätzlich wird ein „Fehlende Punkte”-Hinweis mit dem berechneten Ausgleichsbetrag angezeigt, sofern der Verein einen Ausgleichssatz konfiguriert hat.",
       },
       {
         q: "Wann wird der Fortschrittsbalken grün?",
@@ -217,11 +217,11 @@ const sections = [
     items: [
       {
         q: "Wo werden die Daten gespeichert?",
-        a: "Talo nutzt Google Firebase als Datenbankinfrastruktur (Google Ireland Limited, Dublin). Die Datenhaltung erfolgt gemäß DSGVO-Anforderungen. Details dazu findest du in unserer Datenschutzerklärung.",
+        a: "Talo ist für eine datenschutzbewusste Nutzung in Vereinen ausgelegt. Details zu Datenhaltung, Auftragsverarbeitung und technischen Schutzmaßnahmen stellen wir im Onboarding transparent bereit.",
       },
       {
         q: "Ist Talo DSGVO-konform?",
-        a: "Ja. Talo verarbeitet personenbezogene Daten ausschließlich auf Grundlage der DSGVO. Es werden nur die für den Betrieb notwendigen Daten erhoben. Es findet keine Datenweitergabe an Dritte zu Werbezwecken statt.",
+        a: "Talo ist auf klare Rollen, geschützte Zugänge und transparente Datenverarbeitung ausgelegt. Die rechtlichen Details findest du in der Datenschutzerklärung und den Onboarding-Unterlagen.",
       },
       {
         q: "Werden Passwörter im Klartext gespeichert?",
@@ -256,11 +256,11 @@ const sections = [
       },
       {
         q: "Wie läuft die Abrechnung?",
-        a: "Die Abrechnung erfolgt über den App Store (iOS-App) bzw. direkt über Talo. Für In-App-Käufe und Abonnements wird RevenueCat als Verwaltungsplattform eingesetzt. Die Zahlungsabwicklung erfolgt über Apple.",
+        a: "Die Abrechnung erfolgt direkt über Talo. Für Vereine finden wir gemeinsam einen passenden Plan und dokumentieren die Konditionen transparent.",
       },
       {
         q: "Kann ich jederzeit kündigen?",
-        a: "Ja. Es gibt keine Mindestlaufzeit. Du kannst im App Store oder direkt in der App kündigen. Nach Ablauf des bezahlten Zeitraums wird dein Konto auf den verfügbaren Basisumfang zurückgestuft – deine Daten bleiben erhalten.",
+        a: "Ja. Es gibt keine unnötig komplizierten Kündigungswege. Nach Ablauf des bezahlten Zeitraums bleibt der Datenexport möglich.",
       },
       {
         q: "Gibt es Sonderkonditionen für gemeinnützige Vereine?",
@@ -275,7 +275,7 @@ const sections = [
     items: [
       {
         q: "Gibt es eine native App?",
-        a: "Ja, Talo ist als native iOS-App verfügbar. Die Web-Console (console.talo.app) ist vollständig responsiv und funktioniert auf jedem Gerät über den Browser.",
+        a: "Talo ist als moderne Web-App geplant und wird auf die typischen Abläufe von Vorstand, Admins und Mitgliedern optimiert.",
       },
       {
         q: "Die Seite lädt nicht – was tun?",
@@ -294,8 +294,8 @@ const sections = [
         a: "Ja. Du kannst dich mit demselben Konto auf beliebig vielen Geräten anmelden. Alle Daten werden in Echtzeit synchronisiert.",
       },
       {
-        q: "Wie aktualisiere ich die iOS-App?",
-        a: "Updates werden automatisch über den App Store verteilt. Du kannst auch manuell unter App Store → Aktualisierungen nach der neuesten Version suchen.",
+        q: "Wie bekomme ich Updates?",
+        a: "Web-App-Updates werden zentral bereitgestellt. Du nutzt automatisch den aktuellen Stand, sobald neue Funktionen veröffentlicht werden.",
       },
       {
         q: "Wo melde ich einen Fehler oder schlage eine Funktion vor?",

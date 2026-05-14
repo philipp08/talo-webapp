@@ -94,7 +94,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* ─── WHAT TALO DOES — simple feature strip ────────────────── */}
-      <section className="border-t border-gray-100 dark:border-white/5 py-16">
+      <section id="punkte" className="border-t border-gray-100 dark:border-white/5 py-16 scroll-mt-28">
         <div className="max-w-7xl mx-auto px-6">
           <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
             {[
@@ -126,39 +126,79 @@ export default function FeaturesPage() {
             </h2>
           </ScrollReveal>
 
-          {/* 2×2 on md+, single column on mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {stickyItems.map((item, i) => (
-              <ScrollReveal key={item.id} direction="up" delay={i * 0.08}>
-                <div className="rounded-[32px] overflow-hidden border border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.02] flex flex-col h-full">
-                  {/* Visual — fixed height, no scroll */}
-                  <div className="h-64 sm:h-72 lg:h-80 flex-shrink-0 overflow-hidden pointer-events-none select-none">
-                    {item.visual}
-                  </div>
+          {/* Bento Grid layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6">
+            {stickyItems.map((item, i) => {
+              const isWide = i === 0 || i === 3;
+              const colSpanClass = i === 0 ? "lg:col-span-8" :
+                                   i === 1 ? "lg:col-span-4" :
+                                   i === 2 ? "lg:col-span-4" : "lg:col-span-8";
+              
+              const innerLayout = i === 0 ? "flex-col lg:flex-row" :
+                                  i === 3 ? "flex-col lg:flex-row-reverse" : 
+                                  "flex-col";
 
-                  {/* Text */}
-                  <div className="p-7 md:p-8 flex flex-col gap-2 border-t border-gray-100 dark:border-white/5">
-                    <div className="flex items-center gap-2.5 mb-1">
-                      <span
-                        className="w-7 h-7 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: `${item.accent}18`, color: item.accent }}
-                      >
-                        {item.icon}
-                      </span>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-600">
-                        {item.label}
-                      </span>
+              const visualClass = isWide 
+                ? "h-64 sm:h-72 lg:h-auto lg:w-[55%] flex-shrink-0" 
+                : "h-64 sm:h-72 flex-shrink-0 lg:flex-1";
+              
+              const textClass = isWide 
+                ? "lg:w-[45%] flex flex-col justify-center" 
+                : "flex flex-col justify-end lg:flex-none";
+              
+              const textBorderClass = isWide 
+                  ? (i === 0 ? "border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-white/5" : "border-t lg:border-t-0 lg:border-r border-gray-100 dark:border-white/5")
+                  : "border-t border-gray-100 dark:border-white/5";
+
+              // Subtle background hover glows
+              const glowOrigin = i === 3 ? '100% 100%' : i === 0 ? '0% 0%' : i === 1 ? '100% 0%' : '0% 100%';
+
+              return (
+                <ScrollReveal 
+                  key={item.id} 
+                  direction="up" 
+                  delay={i * 0.1} 
+                  className={colSpanClass}
+                >
+                  <div className={`group rounded-[32px] md:rounded-[40px] overflow-hidden border border-gray-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] flex ${innerLayout} h-full min-h-[420px] transition-all duration-700 relative`}>
+                    
+                    {/* Hover Glow Background */}
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0" 
+                      style={{ background: `radial-gradient(circle at ${glowOrigin}, ${item.accent}15 0%, transparent 60%)` }} 
+                    />
+
+                    {/* Visual */}
+                    <div className={`${visualClass} overflow-hidden pointer-events-none select-none relative z-10 flex items-center justify-center p-0 m-0 bg-gray-50 dark:bg-white/[0.01]`}>
+                       <div className="w-full h-full transform transition-transform duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-105">
+                         {item.visual}
+                       </div>
                     </div>
-                    <h3 className="text-lg md:text-xl font-bold text-gray-950 dark:text-white leading-snug tracking-tight">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed">
-                      {item.description}
-                    </p>
+
+                    {/* Text */}
+                    <div className={`p-8 md:p-10 lg:p-12 flex flex-col gap-4 ${textClass} ${textBorderClass} relative z-10 bg-white dark:bg-[#0a0a0a]`}>
+                      <div className="flex items-center gap-3.5 mb-2">
+                        <span
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shadow-sm"
+                          style={{ backgroundColor: `${item.accent}15`, color: item.accent }}
+                        >
+                          {item.icon}
+                        </span>
+                        <span className="text-[12px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">
+                          {item.label}
+                        </span>
+                      </div>
+                      <h3 className="text-2xl md:text-3xl lg:text-[2rem] font-bold text-gray-950 dark:text-white leading-[1.1] tracking-tight mt-1 transition-colors duration-500">
+                        {item.title}
+                      </h3>
+                      <p className="text-[15px] md:text-lg text-gray-500 dark:text-[#888] font-medium leading-relaxed mt-1">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </ScrollReveal>
-            ))}
+                </ScrollReveal>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -179,7 +219,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* ─── ROLLEN: clean numbered rows ──────────────────────────── */}
-      <section className="py-24 md:py-40 bg-white dark:bg-[#080808]">
+      <section id="admin" className="py-24 md:py-40 bg-white dark:bg-[#080808] scroll-mt-28">
         <div className="max-w-7xl mx-auto px-6">
           <ScrollReveal direction="up">
             <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-6 inline-block italic">
@@ -279,7 +319,7 @@ export default function FeaturesPage() {
                     Sicherheit,<br />auf die ihr<br /><span className="text-white/20 italic">vertrauen könnt.</span>
                   </h2>
                   <p className="text-gray-400 font-medium leading-relaxed text-lg max-w-md">
-                    DSGVO-konform, verschlüsselt und auf deutschen Servern. Wir machen keine Kompromisse bei der Sicherheit eurer Mitgliederdaten.
+                    Datenschutz, Rollen und nachvollziehbare Exporte sind von Anfang an Teil der Produktlogik. So bleiben sensible Vereinsdaten geordnet und kontrollierbar.
                   </p>
                 </ScrollReveal>
               </div>
@@ -288,11 +328,11 @@ export default function FeaturesPage() {
               <div className="lg:w-1/2">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {[
-                    { title: "Hosting in Deutschland", desc: "Zertifizierte Rechenzentren in Frankfurt am Main.", icon: <Globe size={18} />, color: "text-blue-400" },
-                    { title: "AES-256 Verschlüsselung", desc: "Militärische Verschlüsselung für alle Daten at rest & in transit.", icon: <Lock size={18} />, color: "text-emerald-400" },
-                    { title: "99.9 % Uptime", desc: "Redundante Infrastruktur — euer Verein ist immer erreichbar.", icon: <Zap size={18} />, color: "text-amber-400" },
+                    { title: "EU-orientierte Datenhaltung", desc: "Konzipiert für Vereine, die personenbezogene Daten sauber und nachvollziehbar verwalten müssen.", icon: <Globe size={18} />, color: "text-blue-400" },
+                    { title: "Geschützte Zugänge", desc: "Rollen, Berechtigungen und moderne Authentifizierung schützen sensible Vereinsdaten.", icon: <Lock size={18} />, color: "text-emerald-400" },
+                    { title: "Stabile Abläufe", desc: "Klare Workflows helfen dabei, Einträge zuverlässig zu erfassen, zu prüfen und auszuwerten.", icon: <Zap size={18} />, color: "text-amber-400" },
                     { title: "KI-Plausibilitätsprüfung", desc: "Automatische Erkennung von Duplikaten und Fehleingaben.", icon: <Cpu size={18} />, color: "text-purple-400" },
-                    { title: "DSGVO-Konformität", desc: "100 % compliant. Datenschutzbeauftragter auf Anfrage.", icon: <ShieldCheck size={18} />, color: "text-rose-400" },
+                    { title: "Datenschutz im Fokus", desc: "Datenminimierung, klare Zuständigkeiten und transparente Exporte sind fest eingeplant.", icon: <ShieldCheck size={18} />, color: "text-rose-400" },
                     { title: "Vollständige Exportierbarkeit", desc: "Eure Daten gehören euch — jederzeit als CSV, Excel oder PDF.", icon: <FileOutput size={18} />, color: "text-indigo-400" },
                   ].map((spec, i) => (
                     <ScrollReveal key={i} direction="up" delay={i * 0.06}>
@@ -311,7 +351,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* ─── INTEGRATIONEN ────────────────────────────────────────── */}
-      <section className="py-24 md:py-40 bg-white dark:bg-[#080808]">
+      <section id="community" className="py-24 md:py-40 bg-white dark:bg-[#080808] scroll-mt-28">
         <div className="max-w-7xl mx-auto px-6">
           <ScrollReveal direction="up">
             <div className="max-w-2xl mb-20">

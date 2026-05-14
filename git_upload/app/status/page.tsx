@@ -14,12 +14,12 @@ export default function StatusPage() {
   }, []);
 
   const systems = [
-    { name: "TALO Web Platform", status: "operational", uptime: "99.98%", description: "Die Hauptplattform für Vereine." },
-    { name: "TALO Console (Dashboard)", status: "operational", uptime: "99.95%", description: "Das Verwaltungs-Backend der Vereine." },
-    { name: "Authentifizierungs-Service", status: "operational", uptime: "100%", description: "Login & Mitglieder-Auth via Firebase." },
-    { name: "E-Mail Zustellung (SendGrid)", status: "operational", uptime: "99.9%", description: "Versand von Einladungen & Demo-Anfragen." },
-    { name: "Datenbank (Firestore)", status: "operational", uptime: "100%", description: "Echtzeit-Datenstruktur & Speicherung." },
-    { name: "Asset Storage", status: "operational", uptime: "99.99%", description: "Speicherung von Dokumenten & Bildern." }
+    { name: "TALO Web Platform", status: "operational", uptime: "Live", description: "Die Hauptplattform für Vereine." },
+    { name: "TALO Console (Dashboard)", status: "operational", uptime: "Live", description: "Das Verwaltungs-Backend der Vereine." },
+    { name: "Authentifizierungs-Service", status: "operational", uptime: "Live", description: "Login & Mitglieder-Auth." },
+    { name: "E-Mail Zustellung", status: "operational", uptime: "Live", description: "Versand von Einladungen & Demo-Anfragen." },
+    { name: "Datenbank", status: "operational", uptime: "Live", description: "Strukturierte Speicherung der Vereinsdaten." },
+    { name: "Asset Storage", status: "operational", uptime: "Live", description: "Speicherung von Dokumenten & Bildern." }
   ];
 
   return (
@@ -87,11 +87,11 @@ export default function StatusPage() {
              <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                    <Shield size={16} className="text-blue-500" />
-                   <span className="text-xs font-bold text-gray-500">Sicherheits-Audit: Bestanden</span>
+                   <span className="text-xs font-bold text-gray-500">Monitoring: Aktiv</span>
                 </div>
                 <div className="flex items-center gap-2">
                    <Globe size={16} className="text-purple-500" />
-                   <span className="text-xs font-bold text-gray-500">Server Standort: Frankfurt (DE)</span>
+                   <span className="text-xs font-bold text-gray-500">Datenschutz: EU-orientiert</span>
                 </div>
              </div>
              <p className="text-[11px] text-gray-400 max-w-xs text-center md:text-right italic">

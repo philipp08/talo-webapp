@@ -1,11 +1,14 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Link from "next/link";
+import { createPageMetadata } from "../seo";
 
-export const metadata = {
-  title: "Impressum – Talo",
-  description: "Rechtliche Informationen und Kontaktangaben von Talo.",
-};
+export const metadata = createPageMetadata({
+  title: "Impressum",
+  description: "Rechtliche Informationen und Kontaktangaben zu Talo.",
+  path: "/impressum",
+  noIndex: true,
+});
 
 const sections = [
   {
@@ -139,7 +142,7 @@ export default function ImpressumPage() {
           </h1>
           <p className="text-gray-500 dark:text-[#8A8A8A] text-lg max-w-xl leading-relaxed">
             Informationspflichten gemäß § 5 TMG und § 55 RStV für das Angebot
-            unter talo-webapp.vercel.app.
+            unter talo.app.
           </p>
         </div>
       </section>

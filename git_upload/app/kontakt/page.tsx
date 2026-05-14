@@ -251,7 +251,7 @@ export default function KontaktPage() {
                 <ul className="flex flex-col gap-4">
                   <li className="flex items-start gap-3 text-sm text-gray-600 dark:text-[#8A8A8A]">
                     <MapPin className="w-4 h-4 mt-0.5 text-gray-400 dark:text-gray-600 shrink-0" />
-                    <span>PauliONE<br />Georg-Ertel-Straße 16A<br />76437 Rastatt, Deutschland</span>
+                    <span>Philipp Pauli<br />Georg-Ertel-Straße 16A<br />76437 Rastatt, Deutschland</span>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-gray-600 dark:text-[#8A8A8A]">
                     <Mail className="w-4 h-4 text-gray-400 dark:text-gray-600 shrink-0" />

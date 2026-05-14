@@ -3,31 +3,9 @@
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import ScrollReveal from "@/app/components/ScrollReveal";
-import { Search, ArrowRight, Clock, User, ChevronRight } from "lucide-react";
+import { Search, ChevronRight } from "lucide-react";
 import Link from "next/link";
-
-export const posts = [
-  {
-    slug: "digitalisierung-im-ehrenamt-wie-talo-die-vereinsarbeit-revolutioniert",
-    title: "Digitalisierung im Ehrenamt: Wie Talo die Vereinsarbeit revolutioniert",
-    excerpt: "Die Verwaltung eines Vereins kann eine Herkulesaufgabe sein. Erfahren Sie, wie Talo die Brücke zwischen traditionellem Engagement und moderner Effizienz schlägt – ohne komplizierte Technik, dafür mit maximalem Fokus auf die Mitglieder.",
-    category: "Vereinsmanagement",
-    author: "Talo Development Team",
-    date: "29. März 2026",
-    readTime: "12 min",
-    image: ""
-  },
-  {
-    slug: "talo-app-wie-wir-sie-bauen",
-    title: "Wie wir Talo bauen – und warum wir es anders machen",
-    excerpt: "Ein ehrlicher Einblick hinter die Kulissen: Wie die Talo App entsteht, welche Entscheidungen uns antreiben und warum wir glauben, dass Vereinsverwaltung endlich so gut aussehen kann wie die Apps, die wir täglich nutzen.",
-    category: "Produkt",
-    author: "Talo Development Team",
-    date: "1. April 2026",
-    readTime: "9 min",
-    image: ""
-  }
-];
+import { posts } from "./posts";
 
 export default function BlogPage() {
   const featuredPost = posts[0];
@@ -41,10 +19,10 @@ export default function BlogPage() {
         <div className="max-w-7xl mx-auto text-center">
           <ScrollReveal direction="up" delay={0.1}>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-logo font-medium tracking-tight text-gray-950 dark:text-white mb-8">
-              Storys.
+              Talo Journal.
             </h1>
             <p className="text-xl text-gray-500 dark:text-[#8A8A8A] max-w-2xl mx-auto leading-relaxed">
-              Updates, Insights und Best Practices für das moderne Vereinswesen. Erfahren Sie, wie wir die Zukunft des Ehrenamts gestalten.
+              Ruhige, konkrete Einblicke in digitale Vereinsarbeit, Produktentscheidungen und bessere Abläufe im Ehrenamt.
             </p>
           </ScrollReveal>
         </div>
@@ -54,7 +32,7 @@ export default function BlogPage() {
       <section className="border-y border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/[0.01]">
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-8">
            <div className="flex items-center gap-6 overflow-x-auto no-scrollbar w-full md:w-auto">
-              {["Alle", "Sicherheit", "KI", "Einblicke", "Produkt"].map((cat) => (
+              {["Alle", "Praxis", "Produkt", "Vereine", "Einblicke"].map((cat) => (
                 <button key={cat} className="text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-colors">
                   {cat}
                 </button>
@@ -81,10 +59,12 @@ export default function BlogPage() {
                     <h2 className="text-3xl md:text-5xl lg:text-6xl font-logo font-medium text-gray-950 dark:text-white max-w-4xl leading-[1.1] mb-8">
                        {featuredPost.title}
                     </h2>
-                    <div className="flex items-center gap-4 text-gray-500 dark:text-[#8A8A8A] font-medium">
+                    <div className="flex flex-wrap items-center gap-4 text-gray-500 dark:text-[#8A8A8A] font-medium">
                        <span>{featuredPost.author}</span>
                        <span className="opacity-30">/</span>
                        <span>{featuredPost.date}</span>
+                       <span className="opacity-30">/</span>
+                       <span>{featuredPost.readTime}</span>
                     </div>
                  </div>
               </Link>
@@ -115,7 +95,7 @@ export default function BlogPage() {
                     </p>
                     
                     <div className="mt-auto pt-6 border-t border-gray-50 dark:border-white/5 flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                      <span>{post.author}</span>
+                      <span>{post.readTime}</span>
                       <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
@@ -130,9 +110,9 @@ export default function BlogPage() {
       <section className="bg-gray-950 py-32 lg:py-48 text-white px-6">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
            <ScrollReveal direction="up">
-              <h2 className="text-4xl md:text-6xl font-logo font-medium mb-8">Werden Sie Teil der Community.</h2>
+              <h2 className="text-4xl md:text-6xl font-logo font-medium mb-8">Bleib nah dran.</h2>
               <p className="text-xl text-white/60 max-w-xl mx-auto mb-12">
-                 Exklusive Einblicke und News direkt in Ihr Postfach. Kein Spam, nur Relevanz.
+                 Produktnotizen und praktische Gedanken zur Vereinsarbeit. Kein Lärm, nur Relevanz.
               </p>
               <form className="flex flex-col sm:flex-row gap-4 w-full max-w-lg">
                  <input 
@@ -152,5 +132,3 @@ export default function BlogPage() {
     </main>
   );
 }
-
-

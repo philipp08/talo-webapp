@@ -9,7 +9,7 @@ import Link from "next/link";
 const facts = [
   { label: "Gegründet", value: "2025" },
   { label: "Standort", value: "Rastatt, DE" },
-  { label: "Betreiber", value: "PauliONE" },
+  { label: "Vorgestellt von", value: "Philipp Pauli" },
   { label: "Plattform", value: "iOS · Android · Web" },
   { label: "Zielgruppe", value: "Vereine & NGOs" },
   { label: "Datenhaltung", value: "EU-Server, DSGVO" },
@@ -44,22 +44,22 @@ const assets = [
 
 const coverage = [
   {
-    outlet: "Vereinswelt Magazin",
-    headline: "Digitales Ehrenamt: Talo macht Vereinsarbeit sichtbar",
-    date: "März 2026",
-    href: "#",
+    outlet: "Pressemappe",
+    headline: "Kurzprofil, Produktbeschreibung und Kontaktangaben",
+    date: "Aktuell",
+    href: "mailto:philipp@pauli-one.de?subject=Pressemappe%20Talo",
   },
   {
-    outlet: "Gründerszene",
-    headline: "Startup aus Rastatt will Vereinsverwaltung neu erfinden",
-    date: "Feb. 2026",
-    href: "#",
+    outlet: "Interview",
+    headline: "Gespräch mit Philipp Pauli über digitale Vereinsarbeit",
+    date: "Auf Anfrage",
+    href: "mailto:philipp@pauli-one.de?subject=Interviewanfrage%20Talo",
   },
   {
-    outlet: "heise online",
-    headline: "DSGVO-konforme Vereins-App: So funktioniert Talo",
-    date: "Jan. 2026",
-    href: "#",
+    outlet: "Produktmaterial",
+    headline: "Screenshots, Logo und Fact Sheet für redaktionelle Nutzung",
+    date: "Auf Anfrage",
+    href: "mailto:philipp@pauli-one.de?subject=Produktmaterial%20Talo",
   },
 ];
 
@@ -143,8 +143,8 @@ export default function PressePage() {
                   Mitglieder fühlen sich wertgeschätzt.
                 </p>
                 <p>
-                  Betrieben von PauliONE, entwickelt und gehostet in Deutschland.
-                  Alle Daten verbleiben auf EU-Servern, vollständig DSGVO-konform.
+                  Vorgestellt von Philipp Pauli und entwickelt mit Fokus auf
+                  klare Abläufe, Datenschutzbewusstsein und einfache Nutzung im Verein.
                 </p>
               </div>
             </div>
@@ -156,7 +156,7 @@ export default function PressePage() {
               <ul className="space-y-4 text-sm">
                 <li className="flex flex-col gap-0.5">
                   <span className="text-gray-400 dark:text-gray-600 text-xs uppercase tracking-wider">Name</span>
-                  <span className="text-gray-900 dark:text-white font-medium">Philipp Pauli, PauliONE</span>
+                  <span className="text-gray-900 dark:text-white font-medium">Philipp Pauli</span>
                 </li>
                 <li className="flex flex-col gap-0.5">
                   <span className="text-gray-400 dark:text-gray-600 text-xs uppercase tracking-wider">E-Mail</span>
@@ -237,10 +237,10 @@ export default function PressePage() {
         <div className="max-w-3xl mx-auto px-6">
           <ScrollReveal direction="up">
             <h2 className="text-2xl md:text-3xl font-semibold font-logo text-gray-900 dark:text-white mb-3">
-              Erwähnungen
+              Presse-Material
             </h2>
             <p className="text-gray-500 dark:text-[#8A8A8A] mb-12">
-              Talo in der Presse.
+              Redaktionen erhalten die passenden Informationen direkt per E-Mail.
             </p>
           </ScrollReveal>
           <StaggerContainer className="flex flex-col gap-3">

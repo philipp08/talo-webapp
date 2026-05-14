@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import ContactForm from "./components/ContactForm";
-import { posts as blogPosts } from "./blog/page";
+import { posts as blogPosts } from "./blog/posts";
 import { useDemo } from "@/lib/context/DemoContext";
 import Counter from "./components/Counter";
 import { motion, AnimatePresence, useScroll, useTransform, MotionValue } from "framer-motion";
@@ -178,16 +178,14 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 Kostenlos starten
                 <ArrowRight size={14} strokeWidth={2.5} className="group-hover:translate-x-0.5" style={{ transition: "transform 160ms cubic-bezier(0.23,1,0.32,1)" }} />
               </Link>
-              <a
-                href="https://apps.apple.com"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/anmelden"
                 className="flex sm:hidden w-full items-center justify-center gap-2.5 px-7 py-4 rounded-xl bg-gray-950 dark:bg-white text-white dark:text-black font-semibold text-sm shadow-[0_4px_24px_rgba(0,0,0,0.12)] active:scale-[0.97]"
                 style={{ transition: "transform 160ms cubic-bezier(0.23,1,0.32,1)" }}
               >
-                <svg width="15" height="15" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5c0 26.2 4.8 53.3 14.4 81.2 12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-                App laden
-              </a>
+                <ArrowRight size={14} strokeWidth={2.5} />
+                Kostenlos starten
+              </Link>
               <button
                 onClick={openDemo}
                 className="w-full sm:w-auto px-7 py-4 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white font-semibold text-sm hover:bg-gray-50 dark:hover:bg-white/5 active:scale-[0.97]"
@@ -200,12 +198,12 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             <div className="flex flex-wrap items-center justify-center gap-5 text-xs font-medium text-gray-400 dark:text-gray-600">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck size={13} strokeWidth={2} className="text-gray-300 dark:text-gray-700" />
-                DSGVO-konform
+                Datenschutz im Fokus
               </span>
               <span className="w-px h-3.5 bg-gray-200 dark:bg-gray-800" />
               <span>EU-Infrastruktur</span>
               <span className="w-px h-3.5 bg-gray-200 dark:bg-gray-800" />
-              <span>150+ Vereine vertrauen TALO</span>
+              <span>Für Pilotvereine vorbereitet</span>
             </div>
           </ScrollReveal>
         </div>
@@ -236,11 +234,10 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             </p>
             <StaggerContainer className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
               {[
-                { label: "DSGVO", sub: "konform" },
-                { label: "Verschlüsselt", sub: "übertragen" },
-                { label: "EU-Server", sub: "Frankfurt" },
-                { label: "Made in", sub: "Germany" },
-                { label: "GDPR", sub: "compliant" },
+                { label: "DSGVO", sub: "im Fokus" },
+                { label: "Rollenrechte", sub: "klar" },
+                { label: "EU-Hosting", sub: "vorgesehen" },
+                { label: "Export", sub: "jederzeit" },
               ].map(({ label, sub }) => (
                 <StaggerItem key={label}>
                   <div className="text-center">
@@ -300,7 +297,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 num: "01",
                 icon: <Lock size={16} strokeWidth={1.75} />,
                 title: "Sicherheit an erster Stelle.",
-                desc: "DSGVO-konforme Datenspeicherung auf europäischer Infrastruktur. Verschlüsselt übertragen und jederzeit exportierbar.",
+                desc: "Datenschutzbewusste Datenverarbeitung mit klaren Rollen, geschützten Zugängen und jederzeit exportierbaren Vereinsdaten.",
               },
               {
                 num: "02",
@@ -519,15 +516,15 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           </ScrollReveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-gray-100 dark:bg-white/[0.05] rounded-2xl overflow-hidden border border-gray-100 dark:border-white/[0.05]">
             {[
-              { label: "aktive Vereine", value: 150, suffix: "+" },
-              { label: "Vereinsmitglieder", value: 12000, suffix: "+" },
-              { label: "Punkte vergeben", value: 1.2, suffix: "M", decimalPlaces: 1 },
-              { label: "weniger Verwaltung", value: 90, suffix: "%" },
+              { label: "Kernbereiche", value: 4, suffix: "" },
+              { label: "Rollenebenen", value: 3, suffix: "" },
+              { label: "Exportwege", value: 3, suffix: "" },
+              { label: "Werbedaten", value: 0, suffix: "" },
             ].map((s, i) => (
               <ScrollReveal key={i} direction="up" delay={i * 0.07}>
                 <div className="bg-white dark:bg-[#0a0a0a] px-6 py-12 md:py-16 text-center">
                   <p className="text-4xl md:text-5xl font-medium tracking-tight text-gray-950 dark:text-white mb-2 font-logo">
-                    <Counter value={s.value} suffix={s.suffix} decimalPlaces={s.decimalPlaces || 0} />
+                    <Counter value={s.value} suffix={s.suffix} decimalPlaces={0} />
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-600 uppercase tracking-wider">{s.label}</p>
                 </div>
@@ -556,22 +553,22 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               {
-                quote: "Endlich verbringe ich meine Sonntage nicht mehr mit Excel-Listen. TALO hat unseren Verwaltungsaufwand deutlich reduziert.",
-                author: "Markus Weber",
-                role: "1. Vorsitzender, SV Grün-Weiß",
-                image: "https://i.pravatar.cc/150?u=markus",
+                quote: "Genau dieses Gefühl soll Talo auslösen: weniger Suchen, weniger Tabellen, mehr Klarheit für den Vorstand.",
+                author: "Produktnotiz",
+                role: "Talo",
+                image: "/talo-logo.png",
               },
               {
-                quote: "Die Mitglieder lieben die Transparenz. Jeder sieht sofort, was er beigetragen hat – das motiviert ungemein.",
-                author: "Sarah Schneider",
-                role: "Schatzmeisterin, Musikverein Lyra",
-                image: "https://i.pravatar.cc/150?u=sarah",
+                quote: "Engagement wird nicht lauter, nur weil es wichtig ist. Talo macht es sichtbar, ohne den Verein mit Verwaltung zu belasten.",
+                author: "Produktnotiz",
+                role: "Talo",
+                image: "/talo-logo.png",
               },
               {
-                quote: "Rechtssicher, einfach und modern. TALO ist genau das, worauf wir im Rettungsdienst gewartet haben.",
-                author: "Thomas Meyer",
-                role: "Bereitschaftsleiter, DRK Ortsverein",
-                image: "https://i.pravatar.cc/150?u=thomas",
+                quote: "Die Oberfläche soll so ruhig bleiben, dass auch komplexe Abläufe im Alltag nicht kompliziert wirken.",
+                author: "Produktnotiz",
+                role: "Talo",
+                image: "/talo-logo.png",
               },
             ].map((t, i) => (
               <ScrollReveal key={i} direction="up" delay={i * 0.08}>
@@ -620,7 +617,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 <div className="flex flex-col gap-3">
                   {[
                     "Keine Vertragsbindung",
-                    "Einrichtung in unter 15 Minuten",
+                    "Geführte Einrichtung",
                     "Persönlicher Ansprechpartner",
                   ].map((point) => (
                     <div key={point} className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
@@ -658,12 +655,12 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             <div>
               {[
                 {
-                  q: "Ist TALO DSGVO-konform?",
-                  a: "Ja, vollständig. TALO nutzt ausschließlich DSGVO-konforme Infrastruktur – alle Daten werden verschlüsselt übertragen und gespeichert.",
+                  q: "Wie geht Talo mit Datenschutz um?",
+                  a: "Talo ist auf Datenschutz, klare Rollen und transparente Datenverarbeitung ausgelegt. Die konkreten Informationen zur Auftragsverarbeitung stellen wir im Onboarding bereit.",
                 },
                 {
                   q: "Wie lange dauert die Einrichtung?",
-                  a: "Die meisten Vereine sind in unter 15 Minuten einsatzbereit. Unser Einrichtungsassistent führt euch Schritt für Schritt durch den Prozess.",
+                  a: "Die Einrichtung ist geführt und auf typische Vereinsabläufe ausgelegt. Wir helfen euch dabei, Mitglieder, Rollen und Punkte sauber aufzusetzen.",
                 },
                 {
                   q: "Was kostet TALO?",

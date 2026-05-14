@@ -4,14 +4,14 @@ import { use } from "react";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import ScrollReveal from "@/app/components/ScrollReveal";
-import { ArrowLeft, Clock, Calendar, User, Share2, Sparkles, ChevronRight, Quote } from "lucide-react";
+import { ArrowLeft, Calendar, ChevronRight, Clock, Quote, Sparkles, User } from "lucide-react";
 import Link from "next/link";
-import { posts } from "../page";
+import { absoluteUrl } from "@/app/seo";
+import { posts } from "../posts";
 
 // Post Contents
-const postContents: Record<string, { content: React.ReactNode, subHeadline: string }> = {
+const postContents: Record<string, { content: React.ReactNode }> = {
   "talo-app-wie-wir-sie-bauen": {
-    subHeadline: "Kein Pitch, kein Marketing-Sprech. Nur ein ehrlicher Blick auf das, was wir gerade bauen, warum wir es so bauen – und was uns dabei antreibt.",
     content: (
       <>
         <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-12 italic border-l-4 border-[#8A8A8A] pl-8 py-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-r-3xl pr-6">
@@ -37,7 +37,6 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
         </p>
 
         <div className="my-20 p-12 rounded-[48px] bg-[#8A8A8A]/5 border border-[#8A8A8A]/10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#8A8A8A]/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
           <div className="flex flex-col md:flex-row gap-10 items-center relative z-10">
             <div className="w-20 h-20 rounded-[28px] bg-white dark:bg-[#121212] border border-[#8A8A8A]/20 shadow-xl flex items-center justify-center text-[#8A8A8A] shrink-0">
               <Sparkles size={40} />
@@ -72,11 +71,11 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
         <blockquote className="relative my-24 pl-12 pr-6 py-12 group">
           <Quote className="absolute -left-4 top-0 text-[#8A8A8A]/10 -z-10" size={160} />
           <p className="text-3xl md:text-4xl font-logo font-medium text-gray-950 dark:text-white leading-tight italic relative z-10">
-            "Vereinsverwaltung soll sich nicht nach Verwaltung anfühlen. Es soll sich anfühlen wie etwas, das man gerne macht."
+            „Vereinsverwaltung soll sich nicht nach Verwaltung anfühlen. Sie soll sich anfühlen wie etwas, das man gerne erledigt.“
           </p>
           <footer className="mt-10 text-gray-400 font-black uppercase tracking-[0.4em] text-[11px] italic flex items-center gap-4">
             <div className="w-12 h-[1px] bg-gray-200 dark:bg-white/10" />
-            TALO DEVELOPMENT TEAM
+            PHILIPP PAULI
           </footer>
         </blockquote>
 
@@ -87,13 +86,13 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
         </p>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Was dabei auffällt: Die Dinge, auf die wir am stolzesten sind, werden gar nicht als Features wahrgenommen. Die schnellen Animationen. Dass der Dark Mode automatisch greift. Dass man nie „Zurück" suchen muss. Das ist gutes Design – es verschwindet. Und genau das war das Ziel.
+          Was dabei auffällt: Die Dinge, auf die wir am stolzesten sind, werden gar nicht als Features wahrgenommen. Die schnellen Animationen. Dass sich Wege kurz anfühlen. Dass man nie „Zurück“ suchen muss. Das ist gutes Design: Es verschwindet. Genau das ist das Ziel.
         </p>
 
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Was als nächstes kommt</h2>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Der Launch rückt näher. Bevor wir live gehen, werden noch weitere Pilotvereine ongeboardet, der Genehmigungsflow wird verfeinert und die Export-Funktion für Steuer und Jahresbericht kommt als letztes großes Feature dazu. Wer jetzt Teil der Early-Access-Liste wird, bekommt als erstes Zugang – und hat direkten Einfluss darauf, wie das fertige Produkt aussieht.
+          Der Launch rückt näher. Bevor wir live gehen, werden weitere Pilotvereine eingebunden, der Genehmigungsflow wird verfeinert und die Export-Funktion für Jahresbericht und interne Auswertungen weiter geschärft. Wer jetzt Teil der Early-Access-Liste wird, bekommt zuerst Zugang und kann direkt mitprägen, wie sich das fertige Produkt anfühlt.
         </p>
 
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-12 leading-relaxed">
@@ -103,7 +102,6 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
     )
   },
   "digitalisierung-im-ehrenamt-wie-talo-die-vereinsarbeit-revolutioniert": {
-    subHeadline: "Tradition trifft Moderne: Warum digitale Werkzeuge heute über die Zukunft von Vereinen entscheiden und wie Talo dabei den Menschen in den Mittelpunkt stellt.",
     content: (
       <>
         <p className="text-xl text-gray-800 dark:text-gray-200 leading-relaxed mb-12 italic border-l-4 border-[#8A8A8A] pl-8 py-4 bg-gray-50/50 dark:bg-white/[0.02] rounded-r-3xl pr-6">
@@ -111,7 +109,7 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
         </p>
         
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Das Ehrenamt ist das Rückgrat unserer Gesellschaft, doch die administrativen Anforderungen an Vorstände und Übungsleiter sind in den letzten Jahren massiv gestiegen. Wer heute einen Verein führt, muss sich nicht nur mit der sportlichen oder sozialen Ausrichtung beschäftigen, sondern ist oft gleichzeitig Buchhalter, Datenschützer und IT-Administrator. Diese wachsende Komplexität führt immer häufiger zu einem "administrativen Burnout" in den Führungsetagen. Talo setzt genau hier an: Wir machen Schluss mit der Zettelwirtschaft und bringen die Vereinsverwaltung dorthin, wo das Engagement stattfindet – direkt aufs Smartphone, nahtlos orchestriert in der Cloud.
+          Das Ehrenamt ist das Rückgrat vieler Gemeinschaften, doch die administrativen Anforderungen an Vorstände und Übungsleiter sind spürbar gestiegen. Wer heute einen Verein führt, kümmert sich oft gleichzeitig um Organisation, Datenschutz, Nachweise und Kommunikation. Talo setzt genau hier an: weniger Zettelwirtschaft, klarere Abläufe und eine Erfassung dort, wo Engagement tatsächlich passiert.
         </p>
         
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-20 mb-10">Die Krise der Vereinsverwaltung: Warum wir neue Wege brauchen</h2>
@@ -120,7 +118,6 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
         </p>
 
         <div className="my-20 p-12 rounded-[48px] bg-[#8A8A8A]/5 border border-[#8A8A8A]/10 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#8A8A8A]/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
           <div className="flex flex-col md:flex-row gap-10 items-center relative z-10">
              <div className="w-20 h-20 rounded-[28px] bg-white dark:bg-[#121212] border border-[#8A8A8A]/20 shadow-xl flex items-center justify-center text-[#8A8A8A] shrink-0">
                 <Sparkles size={40} />
@@ -128,7 +125,7 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
              <div>
                 <h4 className="text-2xl font-poppins font-black text-gray-950 dark:text-white mb-4 uppercase tracking-tight italic">Einfachheit als höchstes Prinzip</h4>
                 <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
-                  Wir haben Talo so gestaltet, dass jede Generation im Verein damit arbeiten kann. Unser Ziel war es, eine Nutzeroberfläche zu schaffen, die sich so natürlich anfühlt wie moderne Social-Media-Apps, aber die Präzision einer Enterprise-Software bietet. Keine langen Schulungen, keine komplizierten Handbücher – Talo erklärt sich von selbst.
+                  Wir haben Talo so gestaltet, dass jede Generation im Verein damit arbeiten kann. Unser Ziel war es, eine Oberfläche zu schaffen, die sich so natürlich anfühlt wie moderne Apps, aber genug Struktur für saubere Vereinsarbeit bietet. Keine langen Schulungen, keine komplizierten Handbücher – Talo erklärt sich von selbst.
                 </p>
              </div>
           </div>
@@ -145,28 +142,28 @@ const postContents: Record<string, { content: React.ReactNode, subHeadline: stri
 
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Skalierbarkeit und Zukunftssicherheit</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          Talo ist nicht nur für den kleinen Ortsverein gedacht, sondern skaliert mit Ihren Ambitionen. Ob Sie 50 oder 5.000 Mitglieder verwalten – unsere Architektur ist auf Hochleistung ausgelegt. Wir integrieren intelligente Genehmigungsworkflows, die Plausibilitätsprüfungen im Hintergrund durchführen und Administratoren nur dann benachrichtigen, wenn wirklich eine manuelle Prüfung erforderlich ist. So sparen wir Ihnen bis zu 90% der Zeit bei der wöchentlichen Punktevergabe.
+          Talo ist nicht nur für kleine Gruppen gedacht. Die Plattform ist so angelegt, dass Vereine mit wenigen Mitgliedern genauso damit arbeiten können wie größere Organisationen mit mehreren Teams. Genehmigungsworkflows, Rollen und Auswertungen helfen dabei, Routinearbeit zu reduzieren, ohne die Kontrolle aus der Hand zu geben.
         </p>
 
         <blockquote className="relative my-24 pl-12 pr-6 py-12 group">
            <Quote className="absolute -left-4 top-0 text-[#8A8A8A]/10 -z-10" size={160} />
            <p className="text-3xl md:text-4xl font-logo font-medium text-gray-950 dark:text-white leading-tight italic relative z-10">
-              "Talo ist das Ende der Zettelwirtschaft. Es ist der Neubeginn für ein Ehrenamt, das sich wieder auf das Wesentliche konzentrieren darf: Die Gemeinschaft und das Wachstum."
+              „Talo nimmt Verwaltung nicht wichtiger, als sie ist. Es macht sie nur so klar, dass wieder mehr Raum für Gemeinschaft entsteht.“
            </p>
            <footer className="mt-10 text-gray-400 font-black uppercase tracking-[0.4em] text-[11px] italic flex items-center gap-4">
               <div className="w-12 h-[1px] bg-gray-200 dark:bg-white/10" />
-              TALO DEVELOPMENT TEAM
+              PHILIPP PAULI
            </footer>
         </blockquote>
 
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-16 mb-8">Datenschutz als Fundament, nicht als Hindernis</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-          In Zeiten von strengen DSGVO-Richtlinien ist Datensicherheit kein optionales Extra mehr. Talo bietet Ihnen die Sicherheit einer modernen Enterprise-Cloud. Alle Daten werden auf verschlüsselten Servern innerhalb der Europäischen Union gespeichert. Wir setzen auf Zero-Trust-Prinzipien und fein abgestufte Berechtigungssysteme. So stellen wir sicher, dass sensible Mitgliederdaten geschützt bleiben und Vorstände rechtlich auf der sicheren Seite stehen.
+          In Zeiten strenger Datenschutzanforderungen ist Datensicherheit kein optionales Extra. Talo setzt auf klare Rollen, geschützte Zugänge und eine Datenhaltung innerhalb der Europäischen Union. So behalten Vorstände sensible Mitgliederdaten geordnet im Blick und können nachvollziehen, wer welche Informationen sehen und bearbeiten darf.
         </p>
 
         <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mt-20 mb-8">Startet in die digitale Ära</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-12 leading-relaxed">
-          Digitalisierung ist kein Selbstzweck. Sie ist ein Werkzeug, um menschliches Engagement zu ermöglichen. Talo ist mehr als nur eine Software – es ist ein Partner für Ihre Vision des modernen Vereinswesens. Indem wir die Verwaltung modernisieren, bewahren wir die Energie für das, was wirklich zählt: Die Freude am gemeinsamen Erreichen von Zielen. Lasst uns heute beginnen, die Zukunft eures Vereins zu gestalten.
+          Digitalisierung ist kein Selbstzweck. Sie ist ein Werkzeug, um menschliches Engagement zu ermöglichen. Talo soll Vereinen helfen, Verwaltung moderner zu organisieren und Energie für das zu behalten, was wirklich zählt: Gemeinschaft, Verantwortung und die Freude am gemeinsamen Erreichen von Zielen.
         </p>
       </>
     )
@@ -189,56 +186,122 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
     );
   }
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    author: {
+      "@type": "Person",
+      name: post.author,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Talo",
+      logo: {
+        "@type": "ImageObject",
+        url: absoluteUrl("/favicon.ico"),
+      },
+    },
+    datePublished: post.publishedTime,
+    dateModified: post.publishedTime,
+    mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
+  };
+
+  const relatedPosts = posts.filter((related) => related.slug !== post.slug).slice(0, 3);
+
   return (
     <main className="relative min-h-screen bg-white dark:bg-[#080808]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       <Navbar />
 
-      {/* Hero Header */}
-      <section className="flex flex-col items-center justify-center px-6 pt-40 pb-16 lg:pt-56 lg:pb-24 max-w-5xl mx-auto text-center">
-        <ScrollReveal direction="up" delay={0.1}>
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-10 text-xs font-bold uppercase tracking-widest text-gray-400">
-            <div className="flex items-center gap-2">
-               <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center">
-                  <User size={12} className="text-gray-600 dark:text-gray-400" />
-               </div>
-               <span className="text-gray-900 dark:text-white">{post.author}</span>
-            </div>
-            <span className="opacity-30">/</span>
-            <span>{post.date}</span>
-            <span className="px-3 py-1 bg-gray-100 dark:bg-white/5 rounded-full text-[10px] text-gray-950 dark:text-white ml-2">
-               {post.category}
-            </span>
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-logo font-bold tracking-tight text-gray-950 dark:text-white leading-[1] mb-10 max-w-4xl mx-auto">
-            {post.title}
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-500 dark:text-[#8A8A8A] max-w-2xl mx-auto leading-relaxed font-logo">
-            {content.subHeadline}
-          </p>
-        </ScrollReveal>
-      </section>
+      <section className="relative overflow-hidden px-6 pt-36 pb-16 lg:pt-52 lg:pb-24">
+        <div className="absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_50%_0%,rgba(0,0,0,0.08),transparent_65%)] dark:bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.09),transparent_65%)] pointer-events-none" />
+        <div className="max-w-6xl mx-auto relative z-10">
+          <ScrollReveal direction="up" delay={0.1}>
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.22em] text-gray-400 hover:text-gray-950 dark:hover:text-white transition-colors mb-12"
+            >
+              <ArrowLeft size={14} />
+              Journal
+            </Link>
 
-      {/* Article Content */}
-      <section className="pb-32 lg:pb-48">
-        <div className="max-w-3xl mx-auto px-6">
-           <ScrollReveal direction="up" delay={0.3}>
-              <div className="prose prose-xl prose-slate dark:prose-invert max-w-none prose-headings:font-logo prose-blockquote:border-none prose-blockquote:p-0">
-                 {content.content}
+            <div className="flex flex-wrap items-center gap-3 mb-9 text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">
+              <span className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white">
+                {post.category}
+              </span>
+              <span className="flex items-center gap-2">
+                <Calendar size={13} />
+                {post.date}
+              </span>
+              <span className="flex items-center gap-2">
+                <Clock size={13} />
+                {post.readTime}
+              </span>
+            </div>
+
+            <h1 className="text-[3rem] md:text-[5.5rem] lg:text-[7rem] font-logo font-medium tracking-tight text-gray-950 dark:text-white leading-[0.96] max-w-5xl">
+              {post.title}
+            </h1>
+
+            <div className="mt-10 grid lg:grid-cols-[1fr_280px] gap-10 lg:gap-16 items-end">
+              <p className="text-xl md:text-2xl text-gray-500 dark:text-[#8A8A8A] max-w-3xl leading-relaxed">
+                {post.subHeadline}
+              </p>
+              <div className="rounded-[28px] border border-gray-100 dark:border-white/10 bg-gray-50/70 dark:bg-white/[0.03] p-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 flex items-center justify-center">
+                    <User size={16} className="text-gray-500 dark:text-gray-300" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Autor</p>
+                    <p className="text-sm font-bold text-gray-950 dark:text-white">{post.presentedBy}</p>
+                  </div>
+                </div>
               </div>
-           </ScrollReveal>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="border-t border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/[0.01] py-24">
+      <section className="px-6 pb-28 lg:pb-44">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-[220px_minmax(0,740px)_1fr] gap-10 lg:gap-14">
+          <aside className="hidden lg:block">
+            <div className="sticky top-28 space-y-5 text-[11px] font-black uppercase tracking-[0.22em] text-gray-400">
+              <div className="h-px w-16 bg-gray-200 dark:bg-white/10" />
+              <p>{post.category}</p>
+              <p>{post.readTime}</p>
+            </div>
+          </aside>
+
+          <ScrollReveal direction="up" delay={0.2} className="min-w-0">
+            <article className="article-body max-w-none">
+              {content.content}
+            </article>
+          </ScrollReveal>
+
+          <aside className="hidden xl:block">
+            <div className="sticky top-28 rounded-[28px] border border-gray-100 dark:border-white/10 bg-gray-50/70 dark:bg-white/[0.03] p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-gray-400 mb-4">Kurz gesagt</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                {post.excerpt}
+              </p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="border-y border-gray-100 dark:border-white/5 bg-gray-50/60 dark:bg-white/[0.02] py-20">
         <div className="max-w-7xl mx-auto px-6">
-           <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+           <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <div>
-                 <h3 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mb-4 leading-tight">Bleiben Sie auf dem Laufenden.</h3>
+                 <h3 className="text-3xl md:text-4xl font-logo font-medium text-gray-950 dark:text-white mb-4 leading-tight">Weitere Talo-Notizen erhalten.</h3>
                  <p className="text-lg text-gray-500 dark:text-[#8A8A8A] leading-relaxed">
-                    Schließen Sie sich hunderten von Vorständen an, die monatlich exklusive Einblicke in Talo erhalten.
+                    Updates, Produktgedanken und konkrete Ideen für bessere Vereinsarbeit.
                  </p>
               </div>
               <form className="flex flex-col sm:flex-row gap-3">
@@ -255,19 +318,23 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
         </div>
       </section>
 
-      {/* Related Posts */}
-      {posts.filter(p => p.slug !== post.slug).length > 0 && (
-        <section className="py-24 lg:py-48 px-6 border-t border-gray-100 dark:border-white/5">
+      {relatedPosts.length > 0 && (
+        <section className="py-24 lg:py-40 px-6">
           <div className="max-w-7xl mx-auto">
-             <h2 className="text-3xl font-logo font-bold text-gray-950 dark:text-white mb-16 text-center">Weitere Storys</h2>
-             <div className="grid md:grid-cols-3 gap-8">
-                {posts.filter(p => p.slug !== post.slug).slice(0, 3).map((related) => (
-                  <Link key={related.slug} href={`/blog/${related.slug}`} className="group flex flex-col p-8 rounded-[38px] border border-gray-100 dark:border-white/5 bg-white dark:bg-[#121212] hover:shadow-2xl hover:scale-[1.02] transition-all">
+             <div className="flex items-end justify-between gap-6 mb-12">
+               <h2 className="text-3xl md:text-5xl font-logo font-medium text-gray-950 dark:text-white">Weiterlesen</h2>
+               <Link href="/blog" className="hidden sm:inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-950 dark:hover:text-white transition-colors">
+                 Alle Artikel <ChevronRight size={16} />
+               </Link>
+             </div>
+             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {relatedPosts.map((related) => (
+                  <Link key={related.slug} href={`/blog/${related.slug}`} className="group flex flex-col p-8 rounded-[28px] border border-gray-100 dark:border-white/5 bg-white dark:bg-white/[0.02] hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-all">
                     <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-6">{related.category}</span>
-                    <h3 className="text-xl font-logo font-bold text-gray-950 dark:text-white mb-4 leading-snug group-hover:underline">{related.title}</h3>
+                    <h3 className="text-xl md:text-2xl font-logo font-medium text-gray-950 dark:text-white mb-4 leading-snug group-hover:underline">{related.title}</h3>
                     <p className="text-sm text-gray-500 dark:text-[#8A8A8A] line-clamp-3 mb-8">{related.excerpt}</p>
                     <div className="mt-auto pt-6 border-t border-gray-50 dark:border-white/5 flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                       <span>{related.author}</span>
+                       <span>{related.readTime}</span>
                        <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     </div>
                   </Link>
@@ -281,4 +348,3 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
     </main>
   );
 }
-
