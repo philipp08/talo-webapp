@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   LayoutGrid, Users, ClipboardList,
   Settings, Megaphone, LogOut,
@@ -12,12 +13,11 @@ import {
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
 import { useAppStore } from "@/lib/store/useAppStore";
+import { ADMIN_EMAIL } from "@/lib/firebase/constants";
 import AuthGuard from "@/app/components/AuthGuard";
 import { TAvatar } from "@/app/components/ui/NativeUI";
 import ScrollReveal from "@/app/components/ScrollReveal";
 import { motion, AnimatePresence } from "framer-motion";
-
-const ADMIN_EMAIL = "philipp@pauli-one.de";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -25,13 +25,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const currentMember = useAppStore((state) => state.currentMember);
   const user = useAppStore((state) => state.user);
   const isLoadingAuthedState = useAppStore((state) => state.isLoadingAuthedState);
-  const [isMounted, setIsMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => { setIsMounted(true); }, []);
-
   // Close menu on route change
-  useEffect(() => { setMobileMenuOpen(false); }, [pathname]);
+  useEffect(() => {
+    queueMicrotask(() => setMobileMenuOpen(false));
+  }, [pathname]);
 
   // Redirect admin to their dedicated console
   useEffect(() => {
@@ -69,8 +68,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isOverflowActive =
     hasMore && navItems.slice(MAX_TABS).some((i) => isTabActive(i.href));
 
-  if (!isMounted) return null;
-
   return (
     <AuthGuard>
       <div
@@ -87,7 +84,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="px-8 py-10 flex items-center gap-3.5">
             <Link href="/" className="flex items-center gap-3.5 group">
               <div className="w-9 h-9 flex items-center justify-center transition-all group-hover:scale-110">
-                <img src="/talo-logo.png" alt="TALO" className="w-8 h-8" />
+                <Image src="/talo-logo.png" alt="TALO" width={32} height={32} className="w-8 h-8" />
               </div>
               <div className="flex flex-col">
                 <span className="font-logo text-[17px] font-black tracking-[0.25em] text-white uppercase leading-none">TALO</span>
@@ -199,7 +196,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Header */}
                 <div className="px-5 pt-14 pb-5 flex items-center justify-between border-b border-white/5">
                   <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3">
-                    <img src="/talo-logo.png" alt="TALO" className="w-7 h-7" />
+                    <Image src="/talo-logo.png" alt="TALO" width={28} height={28} className="w-7 h-7" />
                     <span className="font-logo text-[16px] font-black tracking-[0.25em] text-white uppercase">TALO</span>
                   </Link>
                   <button
@@ -286,7 +283,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
 
           <Link href="/" className="flex items-center gap-2">
-            <img src="/talo-logo.png" alt="" className="w-6 h-6" />
+            <Image src="/talo-logo.png" alt="" width={24} height={24} className="w-6 h-6" />
             <span className="font-logo text-[15px] font-black tracking-[0.2em] text-white uppercase">TALO</span>
           </Link>
 

@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react";
 import {
-  LayoutGrid, ShieldCheck, Users, Star, MoreHorizontal,
+  LayoutGrid, ShieldCheck, Users, MoreHorizontal,
   Clock, CheckCircle, AlertCircle, Plus, ChevronRight,
-  Search, FileDown, Settings, Megaphone, X, Calendar, Image as ImageIcon,
-  Info, ClipboardList, Settings2, BarChart3, Share, Trophy, Heart
+  Megaphone, ClipboardList, Settings2, BarChart3, Trophy
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

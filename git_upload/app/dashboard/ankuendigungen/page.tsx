@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Plus, Trash2, X, MessageSquare, Pin, CalendarDays, Megaphone, ChevronRight } from "lucide-react";
+import { Plus, Trash2, X, Pin, Megaphone } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { TrainingAnnouncement } from "@/lib/firebase/models";
 import { 
-  GlassSection, TLine, TAvatar, AmbientBackground, 
-  TButton, TSearchBar, TBadge 
+  GlassSection, TLine, TAvatar,
+  TButton, TSearchBar
 } from "@/app/components/ui/NativeUI";
 
 export default function AnnouncementsPage() {
@@ -128,7 +128,9 @@ export default function AnnouncementsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
             <AnimatePresence mode="popLayout">
               {filtered.map((announcement, idx) => {
-                const date = announcement.createdAt instanceof Date ? announcement.createdAt : new Date((announcement.createdAt as any).seconds * 1000);
+                const date = announcement.createdAt instanceof Date
+                  ? announcement.createdAt
+                  : announcement.createdAt.toDate();
                 const canModify = currentMember?.isAdmin || currentMember?.id === announcement.authorId;
                 
                 return (

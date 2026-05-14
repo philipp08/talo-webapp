@@ -37,7 +37,6 @@ const DropdownArrow = ({ isOpen }: { isOpen: boolean }) => (
 );
 
 export default function Navbar() {
-  const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -49,8 +48,8 @@ export default function Navbar() {
   const { openDemo } = useDemo();
 
   useEffect(() => {
-    setMounted(true);
     const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -114,8 +113,6 @@ export default function Navbar() {
     { label: "Preise", href: "/preise" },
     { label: "Hilfe", href: "/hilfe" },
   ];
-
-  if (!mounted) return null;
 
   return (
     <>

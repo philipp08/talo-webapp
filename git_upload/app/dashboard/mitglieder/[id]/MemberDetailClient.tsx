@@ -5,26 +5,35 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft, Shield, ChevronDown, ChevronUp, Check,
-  Trash2, AlertTriangle, X, Pencil, Info, Camera,
-  Mail, ShieldCheck, Dumbbell, Calendar, Target, Plus, 
-  RefreshCcw, ChevronRight, User, MoreHorizontal,
-  MailQuestion, Activity, Settings, ExternalLink
+  Trash2, AlertTriangle, X, Pencil, Camera,
+  ShieldCheck, Calendar,
+  RefreshCcw, ChevronRight, MoreHorizontal,
+  MailQuestion, Activity, Settings
 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import {
-  Member, Entry, MemberType, ActivityCategory,
+  Member, Entry, MemberType,
   calculateTargetPoints, EntryStatus,
 } from "@/lib/firebase/models";
 import { 
-  GlassSection, TLine, TAvatar, AmbientBackground, 
-  TButton, TSearchBar, TBadge, TCatBadge 
+  TAvatar,
+  TButton, TCatBadge
 } from "@/app/components/ui/NativeUI";
 
-function toDateInput(d: any): string {
-  const date = d instanceof Date ? d : (d?.toDate ? d.toDate() : new Date(d));
-  return date.toISOString().slice(0, 10);
+function toDate(d: Entry["date"]): Date {
+  return d instanceof Date ? d : d.toDate();
+}
+
+function toDateInput(d: Entry["date"]): string {
+  const date = toDate(d);
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 10);
+}
+
+function parseDateInput(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
 }
 
 export default function MemberDetailPage() {
@@ -58,14 +67,22 @@ export default function MemberDetailPage() {
 
   // delete modals
   const [memberToDelete, setMemberToDelete] = useState(false);
-  const [entryToDelete,  setEntryToDelete]  = useState<Entry | null>(null);
 
   const isAdmin = currentMember?.isAdmin === true;
+  const isTrainer = currentMember?.isTrainer === true;
+  const canViewMember = isAdmin || isTrainer;
 
   useEffect(() => {
-    if (!currentClub) return;
+    if (!currentClub || !canViewMember) return;
     FirebaseManager.getMember(id).then((m) => {
       if (m) {
+        const memberClubIds = m.clubIds?.length ? m.clubIds : [m.clubId];
+        if (!memberClubIds.includes(currentClub.id)) {
+          setMember(null);
+          setLoading(false);
+          return;
+        }
+
         setMember(m);
         setEditForm({
           firstName: m.firstName, lastName: m.lastName, email: m.email,
@@ -77,14 +94,14 @@ export default function MemberDetailPage() {
     const unsub = FirebaseManager.listenToEntries(currentClub.id, (all) => {
       const filtered = all.filter((e) => e.memberId === id);
       const sorted = [...filtered].sort((a, b) => {
-        const t1 = a.date instanceof Date ? a.date.getTime() : 0;
-        const t2 = b.date instanceof Date ? b.date.getTime() : 0;
+        const t1 = toDate(a.date).getTime();
+        const t2 = toDate(b.date).getTime();
         return t2 - t1;
       });
       setEntries(sorted);
     });
     return () => unsub();
-  }, [currentClub, id]);
+  }, [currentClub, id, canViewMember]);
 
   const targetPts   = member && currentClub ? calculateTargetPoints(member, currentClub.requiredPoints) : 15;
   const approvedPts = entries.filter((e) => e.status === "Genehmigt").reduce((s, e) => s + e.points, 0);
@@ -95,7 +112,7 @@ export default function MemberDetailPage() {
   const isExempt    = member?.memberType === MemberType.Youth || member?.memberType === MemberType.Board;
 
   const saveMember = async () => {
-    if (!member) return;
+    if (!isAdmin || !member) return;
     setSaving(true);
     await FirebaseManager.updateMember(member.id, editForm);
     setMember({ ...member, ...editForm });
@@ -105,7 +122,7 @@ export default function MemberDetailPage() {
   };
 
   const removeMember = async () => {
-    if (!currentClub || !member) return;
+    if (!isAdmin || !currentClub || !member) return;
     const newIds = (member.clubIds ?? [member.clubId]).filter((c) => c !== currentClub.id);
     await FirebaseManager.updateMember(member.id, { clubIds: newIds });
     router.push("/dashboard/mitglieder");
@@ -125,7 +142,7 @@ export default function MemberDetailPage() {
   };
 
   const saveEntry = async () => {
-    if (!currentClub || !entryToEdit || !entryForm) return;
+    if (!isAdmin || !currentClub || !entryToEdit || !entryForm) return;
     setSavingEntry(true);
     const updated: Entry = {
       ...entryToEdit,
@@ -134,7 +151,7 @@ export default function MemberDetailPage() {
       points:           parseFloat(entryForm.points) || 0,
       status:           entryForm.status,
       notes:            entryForm.notes,
-      date:             new Date(entryForm.date),
+      date:             parseDateInput(entryForm.date),
       rejectionReason:  entryForm.rejectionReason,
     };
     await FirebaseManager.updateEntry(currentClub.id, updated);
@@ -142,6 +159,16 @@ export default function MemberDetailPage() {
     setEntryToEdit(null);
     setEntryForm(null);
   };
+
+  if (currentMember && !canViewMember) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-[#8A8A8A] font-poppins font-bold uppercase tracking-widest bg-white/5 px-8 py-4 rounded-full">
+          Kein Zugriff.
+        </p>
+      </div>
+    );
+  }
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[400px] opacity-20">
@@ -190,12 +217,14 @@ export default function MemberDetailPage() {
                    <Pencil size={14} /> {isEditExpanded ? "Abbrechen" : "Bearbeiten"}
                 </button>
               )}
-              <button 
-                onClick={() => setMemberToDelete(true)} 
-                className="w-12 h-12 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all border-white/0 hover:border-white/20"
-              >
-                 <Trash2 size={18} />
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setMemberToDelete(true)}
+                  className="w-12 h-12 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all border-white/0 hover:border-white/20"
+                >
+                   <Trash2 size={18} />
+                </button>
+              )}
            </div>
         </div>
 
@@ -393,7 +422,7 @@ export default function MemberDetailPage() {
                             </tr>
                          </thead>
                          <tbody className="divide-y divide-white/[0.03]">
-                            {entries.map((entry, idx) => (
+                            {entries.map((entry) => (
                                <tr key={entry.id} className="group hover:bg-white/[0.02] transition-colors">
                                   <td className="px-10 py-6">
                                      <div className="flex items-center gap-6">
@@ -405,7 +434,7 @@ export default function MemberDetailPage() {
                                      </div>
                                   </td>
                                   <td className="px-10 py-6 text-[13px] font-bold text-gray-500">
-                                     {new Date(entry.date as any).toLocaleDateString("de-DE", { day: '2-digit', month: 'long', year: 'numeric' })}
+                                     {toDate(entry.date).toLocaleDateString("de-DE", { day: '2-digit', month: 'long', year: 'numeric' })}
                                   </td>
                                   <td className="px-10 py-6">
                                      <div className="flex items-center gap-2">
@@ -504,7 +533,7 @@ export default function MemberDetailPage() {
 
       {/* Delete Member Modal */}
       <AnimatePresence>
-        {memberToDelete && (
+        {memberToDelete && isAdmin && (
           <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/90 backdrop-blur-3xl">
             <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="w-full max-w-sm text-center">
                <div className="w-24 h-24 rounded-[32px] bg-red-500/10 flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-[0_0_60px_rgba(239,68,68,0.1)]">
@@ -521,39 +550,6 @@ export default function MemberDetailPage() {
         )}
       </AnimatePresence>
     </div>
-  );
-}
-
-function StatItem({ value, label, color }: { value: string, label: string, color: string }) {
-  return (
-    <div className="flex flex-col items-center py-6 gap-1 group cursor-default">
-       <span className="font-mono font-black text-xl group-hover:scale-110 transition-transform" style={{ color }}>{value}</span>
-       <span className="text-[9px] font-black text-gray-700 uppercase tracking-widest">{label}</span>
-    </div>
-  );
-}
-
-function SectionHeader({ title, icon: Icon, color }: { title: string, icon: any, color: string }) {
-  return (
-    <div className="flex items-center gap-3 px-1 pb-1">
-       <div className="w-1 h-4 bg-white/10 rounded-full" />
-       <span className="text-[11px] font-poppins font-black text-gray-500 tracking-[0.25em] uppercase italic">{title}</span>
-    </div>
-  );
-}
-
-function SettingsRow({ icon: Icon, label, sub, color, onClick }: { icon: any, label: string, sub: string, color: string, onClick?: () => void }) {
-  return (
-    <button onClick={onClick} className="w-full flex items-center gap-5 px-6 py-5 transition-all bg-white/[0.015] hover:bg-white/[0.04] border border-white/5 rounded-3xl group text-left">
-       <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border border-white/5 transition-transform group-hover:-rotate-3" style={{ background: `${color}08`, color }}>
-          <Icon size={22} strokeWidth={2.5} />
-       </div>
-       <div className="flex-1 flex flex-col min-w-0">
-          <span className="font-poppins font-black text-white text-[17px] leading-tight uppercase tracking-tight">{label}</span>
-          <span className="text-[12px] font-bold text-gray-600 mt-0.5">{sub}</span>
-       </div>
-       <ChevronRight size={18} className="text-gray-800 group-hover:text-white transition-colors" />
-    </button>
   );
 }
 

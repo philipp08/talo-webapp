@@ -38,7 +38,6 @@ export default function ScrollReveal({
   once = true,
   className = "",
   scale = 1,
-  blur = false,
 }: ScrollRevealProps) {
   const offsets = directionOffset(direction, distance);
 

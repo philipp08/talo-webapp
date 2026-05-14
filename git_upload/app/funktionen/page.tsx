@@ -6,7 +6,6 @@ import ScrollReveal, { StaggerContainer, StaggerItem } from "@/app/components/Sc
 import { stickyItems } from "@/app/components/StickyScroll";
 import Footer from "@/app/components/Footer";
 import {
-  CheckCircle2,
   Users,
   ShieldCheck,
   Globe,
@@ -86,7 +85,7 @@ export default function FeaturesPage() {
                 href="#workflow"
                 className="px-8 py-4 rounded-full font-bold text-sm border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
               >
-                So funktioniert's
+                So funktioniert&apos;s
               </Link>
             </div>
           </ScrollReveal>
@@ -391,7 +390,7 @@ export default function FeaturesPage() {
             {/* Header */}
             <ScrollReveal direction="up">
               <div className="text-center mb-20 md:mb-28">
-                <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-6 inline-block italic">So geht's los</span>
+                <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase mb-6 inline-block italic">So geht&apos;s los</span>
                 <h2 className="text-[2.5rem] md:text-[5rem] font-medium tracking-tighter text-gray-950 dark:text-white font-logo leading-[1.02]">
                   In 3 Schritten<br /><span className="text-gray-300 dark:text-white/20 italic">live.</span>
                 </h2>

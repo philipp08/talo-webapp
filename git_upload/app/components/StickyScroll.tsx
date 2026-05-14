@@ -5,11 +5,8 @@ import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { 
   Zap, 
   ShieldCheck, 
-  CheckCircle2, 
   FileOutput, 
   ArrowRight,
-  MousePointer2,
-  Cpu,
   LayoutDashboard,
   X
 } from "lucide-react";

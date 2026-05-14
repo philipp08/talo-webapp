@@ -27,7 +27,7 @@ export default function ContactForm() {
       setEmail("");
       setClub("");
       setMessage("");
-    } catch (err: any) {
+    } catch {
       setError("Hoppla, da ist etwas schiefgelaufen. Bitte versuche es später erneut.");
     } finally {
       setIsSubmitting(false);

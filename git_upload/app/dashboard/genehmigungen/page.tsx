@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, X, Sparkles, Calendar, Pencil, Check } from "lucide-react";
+import { CheckCircle, XCircle, X, Sparkles, Calendar } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Entry, Member, getMemberFullName } from "@/lib/firebase/models";
@@ -190,7 +190,7 @@ export default function GenehmigungPage() {
                         <TLine />
                         <div className="px-4 py-3">
                           <p className="text-[12px] font-poppins italic" style={{ color: "#8A8A8A" }}>
-                            „{entry.notes}"
+                            „{entry.notes}“
                           </p>
                         </div>
                       </>

@@ -6,8 +6,10 @@ import { Eye, EyeOff } from "lucide-react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth, db } from "@/lib/firebase/config";
 import { doc, setDoc } from "firebase/firestore";
+import { ADMIN_EMAIL } from "@/lib/firebase/constants";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 // === Floating Input Component ===
 const FloatingInput = ({
@@ -92,6 +94,19 @@ const GlowButton = ({ label, loading, type = "button" }: { label: string; loadin
   );
 };
 
+function getFirebaseErrorCode(error: unknown) {
+  if (typeof error === "object" && error !== null && "code" in error) {
+    const code = (error as { code?: unknown }).code;
+    return typeof code === "string" ? code : undefined;
+  }
+
+  return undefined;
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "";
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -113,8 +128,8 @@ export default function LoginPage() {
     try {
       await sendPasswordResetEmail(auth, email);
       setResetSent(true);
-    } catch (err: any) {
-      if (err.code === "auth/user-not-found") setError("Kein Account mit dieser E-Mail gefunden.");
+    } catch (err) {
+      if (getFirebaseErrorCode(err) === "auth/user-not-found") setError("Kein Account mit dieser E-Mail gefunden.");
       else setError("Fehler beim Senden. Bitte versuche es erneut.");
     }
     setResetLoading(false);
@@ -134,7 +149,7 @@ export default function LoginPage() {
     try {
       if (mode === "login") {
         await signInWithEmailAndPassword(auth, email, password);
-        router.push(email === "philipp@pauli-one.de" ? "/admin/newsletter" : "/dashboard");
+        router.push(email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? "/admin/newsletter" : "/dashboard");
       } else {
         if (!firstName || !lastName) {
           setError("Bitte fülle alle Namensfelder aus.");
@@ -158,10 +173,11 @@ export default function LoginPage() {
         
         router.push("/dashboard");
       }
-    } catch (err: any) {
-      console.error("Auth Error:", err.code, err.message);
+    } catch (err) {
+      const code = getFirebaseErrorCode(err);
+      console.error("Auth Error:", code, getErrorMessage(err));
       
-      switch (err.code) {
+      switch (code) {
         case "auth/user-not-found":
           setError("Kein Account mit dieser E-Mail gefunden.");
           break;
@@ -217,7 +233,7 @@ export default function LoginPage() {
           transition={{ type: "spring", duration: 0.85, bounce: 0.45 }}
           className="mb-12 flex flex-col items-center"
         >
-          <img src="/talo-logo.png" alt="Talo Logo" className="mb-4 h-16 w-16 invert dark:invert-0" />
+          <Image src="/talo-logo.png" alt="Talo Logo" width={64} height={64} className="mb-4 h-16 w-16 invert dark:invert-0" />
           <h1 className="font-logo text-3xl text-gray-900 dark:text-white tracking-[0.35em] uppercase">TALO</h1>
           <p className="mt-2 text-sm text-gray-500 dark:text-[#9CA3AF] font-poppins">Jeder Beitrag zählt.</p>
         </motion.div>

@@ -4,7 +4,6 @@ import Navbar from "@/app/components/Navbar";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "@/app/components/ScrollReveal";
 import Footer from "@/app/components/Footer";
 import { Mail, Download, FileText, Image as ImageIcon, ExternalLink } from "lucide-react";
-import Link from "next/link";
 
 const facts = [
   { label: "Gegründet", value: "2025" },

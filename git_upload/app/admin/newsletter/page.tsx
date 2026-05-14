@@ -6,7 +6,9 @@ import {
   collection, query, where, getDocs, Timestamp,
 } from "firebase/firestore";
 import { onAuthStateChanged, User, signOut } from "firebase/auth";
+import { ADMIN_EMAIL } from "@/lib/firebase/constants";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -21,8 +23,6 @@ interface Subscriber {
   token: string;
   subscribedAt: Timestamp | null;
 }
-
-const ADMIN_EMAIL = "philipp@pauli-one.de";
 
 export default function AdminNewsletterPage() {
   const router = useRouter();
@@ -67,8 +67,8 @@ export default function AdminNewsletterPage() {
         return tb - ta;
       });
       setSubscribers(docs);
-    } catch (e: any) {
-      console.error("[admin] loadSubscribers error:", e?.code ?? e?.message ?? e);
+    } catch (e) {
+      console.error("[admin] loadSubscribers error:", e instanceof Error ? e.message : e);
     }
     setLoadingSubs(false);
   }
@@ -92,9 +92,17 @@ export default function AdminNewsletterPage() {
     setSendError("");
     setSendResult(null);
     try {
+      const token = user && user !== "loading" ? await user.getIdToken() : null;
+      if (!token) {
+        throw new Error("Admin-Authentifizierung fehlt.");
+      }
+
       const res = await fetch("/api/newsletter/send", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           subject,
           htmlBody,
@@ -107,8 +115,8 @@ export default function AdminNewsletterPage() {
         setSendError(`${data.failed} E-Mail(s) fehlgeschlagen: ${(data.errors ?? []).join("; ")}`);
       }
       setSendResult({ sent: data.sent, failed: data.failed });
-    } catch (e: any) {
-      setSendError(e.message || "Unbekannter Fehler");
+    } catch (e) {
+      setSendError(e instanceof Error ? e.message : "Unbekannter Fehler");
     }
     setSending(false);
   }
@@ -169,7 +177,7 @@ export default function AdminNewsletterPage() {
         <div className="px-8 py-10 flex items-center gap-3.5">
           <Link href="/" className="flex items-center gap-3.5 group">
             <div className="w-9 h-9 flex items-center justify-center transition-all group-hover:scale-110">
-              <img src="/talo-logo.png" alt="TALO" className="w-8 h-8" />
+              <Image src="/talo-logo.png" alt="TALO" width={32} height={32} className="w-8 h-8" />
             </div>
             <div className="flex flex-col">
               <span className="font-logo text-[17px] font-black tracking-[0.25em] text-white uppercase leading-none">TALO</span>

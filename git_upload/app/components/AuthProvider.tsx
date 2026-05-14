@@ -5,6 +5,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
+import { ADMIN_EMAIL } from "@/lib/firebase/constants";
 
 export default function AuthProvider({
   children,
@@ -24,8 +25,6 @@ export default function AuthProvider({
       setIsLoadingAuthedState(false);
       return;
     }
-
-    const ADMIN_EMAIL = "philipp@pauli-one.de";
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {

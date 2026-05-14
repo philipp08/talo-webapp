@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { CSSProperties, Dispatch, SetStateAction, useState, useEffect, useRef } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "./components/ScrollReveal";
@@ -10,6 +10,7 @@ import {
   Plus,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import ContactForm from "./components/ContactForm";
 import { posts as blogPosts } from "./blog/posts";
 import { useDemo } from "@/lib/context/DemoContext";
@@ -124,7 +125,14 @@ export default function Home() {
   );
 }
 
-function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVisible }: any) {
+type HomeContentProps = {
+  showBanner: boolean;
+  isBannerVisible: boolean;
+  setShowBanner: Dispatch<SetStateAction<boolean>>;
+  setIsBannerVisible: Dispatch<SetStateAction<boolean>>;
+};
+
+function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVisible }: HomeContentProps) {
   const { openDemo } = useDemo();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -137,7 +145,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [setIsBannerVisible]);
 
   return (
     <main className="relative min-h-screen bg-white dark:bg-[#0a0a0a]">
@@ -162,7 +170,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.21}>
-            <p className="text-lg sm:text-xl text-gray-500 dark:text-[#888] leading-relaxed max-w-2xl mx-auto mb-12" style={{ textWrap: "pretty" } as any}>
+            <p className="text-lg sm:text-xl text-gray-500 dark:text-[#888] leading-relaxed max-w-2xl mx-auto mb-12" style={{ textWrap: "pretty" } as CSSProperties}>
               TALO übernimmt Punktevergabe, Genehmigungen und Mitgliederverwaltung –
               damit ihr euch auf das konzentriert, was zählt: euren Verein.
             </p>
@@ -583,10 +591,10 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                     ))}
                   </div>
                   <p className="text-gray-700 dark:text-[#999] leading-relaxed mb-8 flex-1 text-sm">
-                    „{t.quote}"
+                    „{t.quote}“
                   </p>
                   <div className="flex items-center gap-3">
-                    <img src={t.image} alt={t.author} className="w-9 h-9 rounded-full grayscale object-cover" />
+                    <Image src={t.image} alt={t.author} width={36} height={36} className="w-9 h-9 rounded-full grayscale object-cover" />
                     <div>
                       <p className="text-sm font-semibold text-gray-950 dark:text-white">{t.author}</p>
                       <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5 uppercase tracking-wider">{t.role}</p>
@@ -757,7 +765,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             <div className="relative flex items-center justify-between bg-[#080808] dark:bg-white text-white dark:text-black rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.35)] p-2 gap-2">
               <Link href={`/blog/${blogPosts[blogPosts.length - 1].slug}`} className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="shrink-0 p-0.5 rounded-[12px]">
-                  <img src="https://i.ibb.co/G4rrPn4n/klein-banner.png" alt="Neuster Beitrag" className="w-9 h-9 rounded-[10px] object-cover" />
+                  <Image src="https://i.ibb.co/G4rrPn4n/klein-banner.png" alt="Neuster Beitrag" width={36} height={36} className="w-9 h-9 rounded-[10px] object-cover" />
                 </div>
                 <div className="flex flex-col min-w-0 pr-1">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/40 dark:text-black/40 leading-none mb-0.5">Neuster Beitrag</span>

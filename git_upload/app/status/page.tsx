@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import ScrollReveal from "@/app/components/ScrollReveal";
-import { CheckCircle2, AlertCircle, Clock, Server, Shield, Globe, Activity } from "lucide-react";
+import { Server, Shield, Globe, Activity } from "lucide-react";
 
 export default function StatusPage() {
-  const [lastCheck, setLastCheck] = useState<string>("");
-
-  useEffect(() => {
-    setLastCheck(new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
-  }, []);
+  const [lastCheck] = useState(() =>
+    new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })
+  );
 
   const systems = [
     { name: "TALO Web Platform", status: "operational", uptime: "Live", description: "Die Hauptplattform für Vereine." },

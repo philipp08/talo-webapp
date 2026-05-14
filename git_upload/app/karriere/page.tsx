@@ -111,7 +111,7 @@ export default function KarrierePage() {
         <div className="max-w-3xl mx-auto px-6 text-center">
           <ScrollReveal direction="up">
             <blockquote className="text-2xl md:text-3xl font-medium font-logo text-gray-900 dark:text-white leading-snug mb-6">
-              „Wir bauen Talo, weil wir selbst in Vereinen engagiert sind — und wissen, wie kaputt der Status quo ist."
+              „Wir bauen Talo, weil wir selbst in Vereinen engagiert sind — und wissen, wie kaputt der Status quo ist.“
             </blockquote>
             <p className="text-gray-400 dark:text-gray-600 text-sm">— Das Talo-Team</p>
           </ScrollReveal>

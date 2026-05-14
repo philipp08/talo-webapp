@@ -63,7 +63,7 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2 underline underline-offset-4 decoration-blue-500/30">Transparenz</h3>
-                  <p className="text-sm text-gray-500 dark:text-[#8A8A8A]">Keine "Zettelwirtschaft" mehr. Jeder sieht seinen Stand in Echtzeit – direkt in der App.</p>
+                  <p className="text-sm text-gray-500 dark:text-[#8A8A8A]">Keine &quot;Zettelwirtschaft&quot; mehr. Jeder sieht seinen Stand in Echtzeit – direkt in der App.</p>
                 </div>
               </div>
             </ScrollReveal>

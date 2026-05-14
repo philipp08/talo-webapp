@@ -8,9 +8,10 @@ import Counter from "@/app/components/Counter";
 import {
   Trophy, Music, Flame, Users, Heart, GraduationCap,
   ArrowRight, ShieldCheck, BarChart3, Clock, Zap, Lock,
-  Globe, Sparkles, CheckCircle2, ChevronRight, FileOutput,
+  Globe, Sparkles, FileOutput,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
 import { useDemo } from "@/lib/context/DemoContext";
 
@@ -272,7 +273,7 @@ export default function SolutionsPage() {
       </section>
 
       {/* ─── DETAILED SOLUTIONS ───────────────────────────────── */}
-      {solutions.map((solution, sIndex) => (
+      {solutions.map((solution) => (
         <section
           key={solution.id}
           id={solution.id}
@@ -336,9 +337,11 @@ export default function SolutionsPage() {
             {/* ── Full-width image */}
             <ScrollReveal direction="up" blur scale={0.97} duration={1.2}>
               <div className="relative group overflow-hidden rounded-[28px] md:rounded-[48px] border border-gray-100 dark:border-white/5 mb-20 md:mb-32">
-                <img
+                <Image
                   src={solution.image}
                   alt={solution.label}
+                  width={1280}
+                  height={720}
                   className="w-full h-[320px] md:h-[580px] lg:h-[680px] object-cover transition-transform duration-[2.5s] group-hover:scale-105"
                 />
                 {/* Gradient overlay */}
@@ -409,7 +412,7 @@ export default function SolutionsPage() {
           <div className="mb-16 md:mb-24">
             <ScrollReveal direction="up">
               <span className="text-[11px] font-black tracking-[0.4em] text-gray-400 dark:text-gray-600 uppercase italic mb-6 inline-block">
-                So funktioniert's
+                So funktioniert&apos;s
               </span>
               <h2 className="text-[2.5rem] md:text-[5rem] font-medium tracking-tighter text-gray-950 dark:text-white leading-[1.05]">
                 Vier Schritte.<br />

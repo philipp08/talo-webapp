@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Plus, Pencil, Trash2, X, Check, Filter } from "lucide-react";
+import { Search, Plus, Pencil, X } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Activity, ActivityCategory } from "@/lib/firebase/models";
-import { GlassSection, TLine, TCatBadge, AmbientBackground, TSearchBar, TButton } from "@/app/components/ui/NativeUI";
+import { GlassSection, TCatBadge, TSearchBar, TButton } from "@/app/components/ui/NativeUI";
 
 const categoryLabels: Record<string, string> = {
   A: "Kategorie A",
@@ -38,7 +38,6 @@ export default function ActivitiesPage() {
   const [editTarget, setEditTarget] = useState<Activity | null>(null);
   const [form, setForm] = useState<FormData>(defaultForm());
   const [saving, setSaving] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<Activity | null>(null);
 
   useEffect(() => {
     if (!currentClub) return;

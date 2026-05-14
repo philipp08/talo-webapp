@@ -171,7 +171,7 @@ export class FirebaseManager {
     rejectionReason?: string
   ) {
     const docRef = doc(db, `clubs/${clubId}/entries`, entryId);
-    const updates: any = { status: newStatus };
+    const updates: Record<string, unknown> = { status: newStatus };
     if (rejectionReason !== undefined) {
       updates.rejectionReason = rejectionReason;
     }
@@ -368,7 +368,7 @@ export class FirebaseManager {
     announcementId: string,
     updates: Partial<Omit<TrainingAnnouncement, "id" | "clubId">>
   ): Promise<void> {
-    const updatesWithDate: any = { ...updates };
+    const updatesWithDate: Record<string, unknown> = { ...updates };
     if (updates.createdAt && updates.createdAt instanceof Date) {
         updatesWithDate.createdAt = Timestamp.fromDate(updates.createdAt);
     }

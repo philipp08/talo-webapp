@@ -1,25 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  Lock, LogOut, Building2, Info, Shield, User,
+  type LucideIcon,
+  Lock, LogOut, Building2, Info, User,
   ChevronRight, Check, AlertTriangle, Target,
-  Euro, Calendar, Settings2, Bell, ShieldCheck, Dumbbell,
+  Calendar, Bell, ShieldCheck, Dumbbell,
   AppWindow, Database, RefreshCcw
 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut, sendPasswordResetEmail } from "firebase/auth";
-import { SeasonType, calculateTargetPoints, Entry, MemberType } from "@/lib/firebase/models";
-import { GlassSection, TLine, TAvatar, AmbientBackground, TButton, TBadge } from "@/app/components/ui/NativeUI";
-
-const SEASON_TYPES = [
-  SeasonType.Calendar,
-  SeasonType.Club,
-  SeasonType.School,
-];
+import { SeasonType, calculateTargetPoints, Entry } from "@/lib/firebase/models";
+import { GlassSection, TLine, TAvatar, TButton, TBadge } from "@/app/components/ui/NativeUI";
 
 export default function SettingsPage() {
   const currentMember = useAppStore((state) => state.currentMember);
@@ -40,8 +35,6 @@ export default function SettingsPage() {
 
   const isAdmin = currentMember?.isAdmin === true;
   const isTrainer = currentMember?.isTrainer === true;
-  const canEditClub = isAdmin;
-
   // Load own entries for stats
   useEffect(() => {
     if (!currentClub || !currentMember) return;
@@ -289,7 +282,7 @@ function HeroStat({ value, label, color }: { value: string, label: string, color
   );
 }
 
-function SectionHeader({ title, icon: Icon, color }: { title: string, icon: any, color: string }) {
+function SectionHeader({ title, icon: Icon, color }: { title: string, icon: LucideIcon, color: string }) {
   return (
     <div className="flex items-center gap-2 px-2 pb-1">
        <Icon size={12} style={{ color }} strokeWidth={3} />
@@ -298,7 +291,7 @@ function SectionHeader({ title, icon: Icon, color }: { title: string, icon: any,
   );
 }
 
-function SettingsRow({ icon: Icon, label, sub, color, onClick, chevron = true, loading = false, success = false }: { icon: any, label: string, sub: string, color: string, onClick?: () => void, chevron?: boolean, loading?: boolean, success?: boolean }) {
+function SettingsRow({ icon: Icon, label, sub, color, onClick, chevron = true, loading = false, success = false }: { icon: LucideIcon, label: string, sub: string, color: string, onClick?: () => void, chevron?: boolean, loading?: boolean, success?: boolean }) {
   return (
     <button 
       onClick={onClick}

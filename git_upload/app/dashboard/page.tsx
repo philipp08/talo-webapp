@@ -6,18 +6,19 @@ import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Entry, TrainingAnnouncement, calculateTargetPoints } from "@/lib/firebase/models";
 import { motion } from "framer-motion";
 import {
+  type LucideIcon,
   CheckCircle, Clock, BarChart3, Zap,
   ChevronRight, ArrowUpRight, Calendar,
   Bell, PenLine, Pin, Megaphone
 } from "lucide-react";
-import { GlassSection, TCatBadge, TLine, TAvatar, TStatusBadge } from "@/app/components/ui/NativeUI";
+import { TCatBadge, TStatusBadge } from "@/app/components/ui/NativeUI";
 import Link from "next/link";
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
 const StatCard = ({
   label, value, icon: Icon, color, subtext, delay,
 }: {
-  label: string; value: string; icon: any; color: string; subtext?: string; delay: number;
+	  label: string; value: string; icon: LucideIcon; color: string; subtext?: string; delay: number;
 }) => (
   <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.5 }}>
     <div

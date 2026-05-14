@@ -11,7 +11,14 @@ import { GlassSection, TLine, TCatBadge, TAvatar, TFilterPill, TButton } from "@
 const ALL_CATS = [ActivityCategory.A, ActivityCategory.B, ActivityCategory.C, ActivityCategory.S];
 
 function todayString() {
-  return new Date().toISOString().split("T")[0];
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
+  return local.toISOString().split("T")[0];
+}
+
+function parseDateInput(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
 }
 
 export default function EintragenPage() {
@@ -99,7 +106,7 @@ export default function EintragenPage() {
       const entryId = crypto.randomUUID();
       await FirebaseManager.addEntry(currentClub.id, entryId, {
         memberId:         targetMemberId,
-        date:             new Date(date),
+        date:             parseDateInput(date),
         notes:            notes.trim(),
         points:           selectedActivity.points,
         status:           entryStatus,
@@ -116,8 +123,8 @@ export default function EintragenPage() {
         setActivitySearch("");
         if (isAdmin) { setSelectedMemberId(null); setPickerOpen(false); }
       }, 2500);
-    } catch (e: any) {
-      setError(e?.message ?? "Fehler beim Speichern.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Fehler beim Speichern.");
     } finally {
       setSubmitting(false);
     }

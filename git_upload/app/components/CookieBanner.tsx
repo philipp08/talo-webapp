@@ -1,35 +1,57 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
+const COOKIE_STORAGE_KEY = "talo_cookies_accepted";
+const COOKIE_CHANGE_EVENT = "talo:cookiePreferenceChanged";
+const COOKIE_OPEN_EVENT = "talo:openCookieBanner";
+
+function subscribeToCookiePreference(callback: () => void) {
+  const handleChange = () => callback();
+  const handleOpen = () => {
+    localStorage.removeItem(COOKIE_STORAGE_KEY);
+    callback();
+  };
+
+  window.addEventListener(COOKIE_CHANGE_EVENT, handleChange);
+  window.addEventListener("storage", handleChange);
+  window.addEventListener(COOKIE_OPEN_EVENT, handleOpen);
+
+  return () => {
+    window.removeEventListener(COOKIE_CHANGE_EVENT, handleChange);
+    window.removeEventListener("storage", handleChange);
+    window.removeEventListener(COOKIE_OPEN_EVENT, handleOpen);
+  };
+}
+
+function hasStoredCookiePreference() {
+  return localStorage.getItem(COOKIE_STORAGE_KEY) !== null;
+}
+
+function notifyCookiePreferenceChanged() {
+  window.dispatchEvent(new Event(COOKIE_CHANGE_EVENT));
+}
+
 export default function CookieBanner() {
-  const [isVisible, setIsVisible] = useState(false);
+  const hasCookiePreference = useSyncExternalStore(
+    subscribeToCookiePreference,
+    hasStoredCookiePreference,
+    () => true
+  );
 
-  useEffect(() => {
-    const hasAccepted = localStorage.getItem("talo_cookies_accepted");
-    if (!hasAccepted) {
-      setIsVisible(true);
-    }
-
-    const handleReopen = () => {
-      localStorage.removeItem("talo_cookies_accepted");
-      setIsVisible(true);
-    };
-    window.addEventListener("talo:openCookieBanner", handleReopen);
-    return () => window.removeEventListener("talo:openCookieBanner", handleReopen);
-  }, []);
+  const isVisible = !hasCookiePreference;
 
   const acceptCookies = () => {
-    localStorage.setItem("talo_cookies_accepted", "true");
-    setIsVisible(false);
+    localStorage.setItem(COOKIE_STORAGE_KEY, "true");
+    notifyCookiePreferenceChanged();
   };
 
   const customizeCookies = () => {
     // Basic dismiss action for now, could open a modal in the future
-    localStorage.setItem("talo_cookies_accepted", "customized");
-    setIsVisible(false);
+    localStorage.setItem(COOKIE_STORAGE_KEY, "customized");
+    notifyCookiePreferenceChanged();
   };
 
   return (

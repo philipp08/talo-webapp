@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { LucideIcon, Search, X } from "lucide-react";
+import Image from "next/image";
 import { ReactNode } from "react";
 
 // ─── Colors – 1:1 wie native DesignSystem.swift ──────────────────────────────
@@ -85,7 +85,6 @@ export const TLine = ({ className = "" }: { className?: string }) => (
 // ─── TAvatar ──────────────────────────────────────────────────────────────────
 export const TAvatar = ({
   name,
-  id,
   size = 40,
   imageUrl,
   className = "",
@@ -113,7 +112,7 @@ export const TAvatar = ({
       }}
     >
       {imageUrl ? (
-        <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+        <Image src={imageUrl} alt={name} width={size} height={size} className="w-full h-full object-cover" />
       ) : (
         <span
           className="font-poppins font-bold text-white/80"

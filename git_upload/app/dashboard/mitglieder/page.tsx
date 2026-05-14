@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Search, Trophy, List, Crown, Medal, Award, 
-  ChevronRight, Shield, Dumbbell, UserPlus, 
-  ArrowUpRight, Target, Filter, MoreVertical,
-  X, Mail, User, Check, Copy
+import {
+  Search, Trophy,
+  ChevronRight, Shield, UserPlus,
+  ArrowUpRight, Target, MoreVertical,
+  X, Mail, User, Check
 } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
@@ -14,7 +14,7 @@ import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Member, MemberType, calculateTargetPoints, Entry } from "@/lib/firebase/models";
 import { AuthService } from "@/lib/firebase/authService";
 import { EmailService } from "@/lib/firebase/emailService";
-import { TAvatar, GlassSection, TLine, AmbientBackground, TSearchBar, TBadge, TButton } from "@/app/components/ui/NativeUI";
+import { TAvatar, GlassSection, TLine, TSearchBar } from "@/app/components/ui/NativeUI";
 
 const memberTypeOrder = [
   MemberType.Active,
@@ -31,6 +31,12 @@ const memberTypeLabel: Record<string, string> = {
 };
 
 type ViewMode = "administration" | "leaderboard";
+type LeaderboardItem = {
+  member: Member;
+  approved: number;
+  target: number;
+  progress: number;
+};
 
 export default function MembersPage() {
   const currentClub = useAppStore((state) => state.currentClub);
@@ -47,13 +53,13 @@ export default function MembersPage() {
   const [inviteFirstName, setInviteFirstName] = useState("");
   const [inviteLastName, setInviteLastName] = useState("");
   const [inviteType, setInviteType] = useState<MemberType>(MemberType.Active);
-  const [isCopied, setIsCopied] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isSendingMail, setIsSendingMail] = useState(false);
   const [mailSent, setMailSent] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
-  const [createdUid, setCreatedUid] = useState<string | null>(null);
+  const isAdmin = currentMember?.isAdmin === true;
+  const canViewMembers = isAdmin || currentMember?.isTrainer === true;
 
   useEffect(() => {
     if (!currentClub) return;
@@ -92,7 +98,7 @@ export default function MembersPage() {
       .sort((a, b) => b.approved - a.approved);
   }, [members, entries, currentClub]);
 
-  if (!currentMember?.isAdmin && !currentMember?.isTrainer) {
+  if (!canViewMembers) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <p className="text-[#8A8A8A] font-poppins font-bold uppercase tracking-widest bg-white/5 px-8 py-4 rounded-full">Kein Zugriff.</p>
@@ -111,13 +117,15 @@ export default function MembersPage() {
               <h1 className="text-3xl md:text-4xl font-poppins font-black text-white tracking-tighter">Team & Engagement</h1>
               <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name}</p>
             </div>
-            <button
-              onClick={() => setIsInviteOpen(true)}
-              className="shrink-0 flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-4 py-3 md:px-6 rounded-2xl border border-white/10 transition-all font-black text-[11px] uppercase tracking-widest shadow-xl shadow-white/5"
-            >
-              <UserPlus size={16} />
-              <span className="hidden sm:inline">Mitglied hinzufügen</span>
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setIsInviteOpen(true)}
+                className="shrink-0 flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-4 py-3 md:px-6 rounded-2xl border border-white/10 transition-all font-black text-[11px] uppercase tracking-widest shadow-xl shadow-white/5"
+              >
+                <UserPlus size={16} />
+                <span className="hidden sm:inline">Mitglied hinzufügen</span>
+              </button>
+            )}
           </div>
 
           {/* Mode toggle */}
@@ -171,7 +179,7 @@ export default function MembersPage() {
 
        {/* Invite Member Modal */}
       <AnimatePresence>
-        {isInviteOpen && (
+        {isInviteOpen && isAdmin && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
              <motion.div
                initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -194,7 +202,6 @@ export default function MembersPage() {
                            onClick={() => {
                              setIsInviteOpen(false);
                              setGeneratedPassword(null);
-                             setCreatedUid(null);
                              setErrorMessage(null);
                            }}
                            className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 hover:text-white transition-all"
@@ -242,11 +249,12 @@ export default function MembersPage() {
                                     memberName: inviteFirstName,
                                     password: generatedPassword!,
                                     clubName: currentClub.name,
+                                    clubId: currentClub.id,
                                     adminName: `${currentMember.firstName} ${currentMember.lastName}`
                                   });
                                   setMailSent(true);
-                                } catch (err: any) {
-                                  setErrorMessage(err.message || "E-Mail konnte nicht gesendet werden.");
+                                } catch (err) {
+                                  setErrorMessage(err instanceof Error ? err.message : "E-Mail konnte nicht gesendet werden.");
                                 } finally {
                                   setIsSendingMail(false);
                                 }
@@ -270,7 +278,6 @@ export default function MembersPage() {
                               onClick={() => {
                                 setIsInviteOpen(false);
                                 setGeneratedPassword(null);
-                                setCreatedUid(null);
                                 setMailSent(false);
                               }}
                               className="w-full h-12 rounded-xl text-gray-500 font-black text-[10px] uppercase tracking-[0.2em] hover:text-white transition-all"
@@ -358,14 +365,14 @@ export default function MembersPage() {
                                 setIsCreating(true);
                                 setErrorMessage(null);
                                 try {
-                                  // 1. Create User via REST
-                                  // Use the web app's firebase API key
-                                  const apiKey = "AIzaSyAIe0tYGLYgnbI2Evd6jr_Q3kXzzTIwU9E";
-                                  const { uid, password } = await AuthService.createMemberAuth(inviteEmail, inviteFirstName, inviteLastName, apiKey);
-                                  
-                                  // 2. Create FireStore Document
+                                  if (!currentMember?.isAdmin) {
+                                    throw new Error("Nur Admins können Mitglieder anlegen.");
+                                  }
+
                                   const clubId = currentClub?.id;
                                   if (!clubId) throw new Error("Kein Verein ausgewählt.");
+
+                                  const { uid, password } = await AuthService.createMemberAuth(inviteEmail, inviteFirstName, inviteLastName, clubId);
                                   
                                   const newMember = {
                                     firstName: inviteFirstName,
@@ -381,9 +388,8 @@ export default function MembersPage() {
                                   await FirebaseManager.setMember(uid, newMember);
                                   
                                   setGeneratedPassword(password);
-                                  setCreatedUid(uid);
-                                } catch (err: any) {
-                                  setErrorMessage(err.message || "Fehler beim Anlegen.");
+                                } catch (err) {
+                                  setErrorMessage(err instanceof Error ? err.message : "Fehler beim Anlegen.");
                                 } finally {
                                   setIsCreating(false);
                                 }
@@ -563,7 +569,7 @@ function ListView({ members, entries, requiredPoints }: { members: Member[]; ent
   );
 }
 
-function LeaderboardView({ data }: { data: { member: Member; approved: number; target: number; progress: number }[] }) {
+function LeaderboardView({ data }: { data: LeaderboardItem[] }) {
   const top3 = data.slice(0, 3);
   const rest = data.slice(3);
 
@@ -621,7 +627,7 @@ function LeaderboardView({ data }: { data: { member: Member; approved: number; t
   );
 }
 
-function PodiumBlock({ item, rank, height, medal, color }: { item: any, rank: number, height: number, medal: string, color: string }) {
+function PodiumBlock({ item, rank, height, medal, color }: { item: LeaderboardItem, rank: number, height: number, medal: string, color: string }) {
   const avatarSize = rank === 1 ? 80 : 60;
   return (
     <motion.div

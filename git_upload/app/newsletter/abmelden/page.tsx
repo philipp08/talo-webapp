@@ -14,10 +14,10 @@ type State = "loading" | "success" | "already" | "invalid";
 function AbmeldenContent() {
   const params = useSearchParams();
   const token = params.get("token");
-  const [state, setState] = useState<State>("loading");
+  const [state, setState] = useState<State>(() => token ? "loading" : "invalid");
 
   useEffect(() => {
-    if (!token) { setState("invalid"); return; }
+    if (!token) return;
 
     (async () => {
       try {
@@ -34,7 +34,7 @@ function AbmeldenContent() {
 
         await updateDoc(doc.ref, { active: false });
         setState("success");
-      } catch (_) {
+      } catch {
         setState("invalid");
       }
     })();
