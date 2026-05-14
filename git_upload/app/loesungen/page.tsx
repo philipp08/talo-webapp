@@ -583,7 +583,7 @@ export default function SolutionsPage() {
           {/* Social proof strip */}
           <ScrollReveal direction="up" delay={0.2}>
             <div className="mt-20 flex flex-wrap items-center justify-center gap-8 md:gap-12">
-              {["DSGVO", "EU-Hosting", "Rollenrechte", "Export"].map((label) => (
+              {["DSGVO-konform", "EU-Server", "Made in Germany", "Datenschutz first"].map((label) => (
                 <span key={label} className="text-lg font-black tracking-tighter text-gray-200 dark:text-gray-800">
                   {label}
                 </span>

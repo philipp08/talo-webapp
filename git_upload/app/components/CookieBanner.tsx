@@ -8,11 +8,17 @@ export default function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Check if user has already accepted or customized cookies
     const hasAccepted = localStorage.getItem("talo_cookies_accepted");
     if (!hasAccepted) {
       setIsVisible(true);
     }
+
+    const handleReopen = () => {
+      localStorage.removeItem("talo_cookies_accepted");
+      setIsVisible(true);
+    };
+    window.addEventListener("talo:openCookieBanner", handleReopen);
+    return () => window.removeEventListener("talo:openCookieBanner", handleReopen);
   }, []);
 
   const acceptCookies = () => {

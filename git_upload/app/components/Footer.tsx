@@ -150,15 +150,13 @@ Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreibe
               </li>
               {[
                 { name: "Status", href: "/status" },
-                { name: "Sicherheit", href: "/hilfe" },
                 { name: "Impressum", href: "/impressum" },
-                { name: "AGB", href: "/datenschutz" },
                 { name: "Datenschutz", href: "/datenschutz" },
                 { name: "Cookie-Richtlinie", href: "/datenschutz" },
               ].map((link) => (
                 <li key={link.name} className="flex items-center">
-                  <Link 
-                    href={link.href} 
+                  <Link
+                    href={link.href}
                     className="leading-[1] text-gray-400 hover:text-black dark:text-gray-500 dark:hover:text-white transition-colors"
                   >
                     {link.name}
@@ -166,7 +164,10 @@ Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreibe
                 </li>
               ))}
               <li className="flex items-center">
-                <button className="leading-[1] text-gray-400 hover:text-black dark:text-gray-500 dark:hover:text-white cursor-pointer transition-colors">
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent("talo:openCookieBanner"))}
+                  className="leading-[1] text-gray-400 hover:text-black dark:text-gray-500 dark:hover:text-white cursor-pointer transition-colors"
+                >
                   Cookie-Präferenzen
                 </button>
               </li>

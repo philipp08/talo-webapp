@@ -201,9 +201,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 Datenschutz im Fokus
               </span>
               <span className="w-px h-3.5 bg-gray-200 dark:bg-gray-800" />
-              <span>EU-Infrastruktur</span>
+              <span>EU-Server · Frankfurt</span>
               <span className="w-px h-3.5 bg-gray-200 dark:bg-gray-800" />
-              <span>Für Pilotvereine vorbereitet</span>
+              <span>Made in Germany</span>
             </div>
           </ScrollReveal>
         </div>
@@ -234,10 +234,11 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             </p>
             <StaggerContainer className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
               {[
-                { label: "DSGVO", sub: "im Fokus" },
-                { label: "Rollenrechte", sub: "klar" },
-                { label: "EU-Hosting", sub: "vorgesehen" },
-                { label: "Export", sub: "jederzeit" },
+                { label: "DSGVO", sub: "konform" },
+                { label: "AES-256", sub: "verschlüsselt" },
+                { label: "EU-Server", sub: "Frankfurt" },
+                { label: "Made in", sub: "Germany" },
+                { label: "Kein Lock-in", sub: "exportierbar" },
               ].map(({ label, sub }) => (
                 <StaggerItem key={label}>
                   <div className="text-center">

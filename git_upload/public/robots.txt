@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /anmelden
+
+Sitemap: https://talo.app/sitemap.xml

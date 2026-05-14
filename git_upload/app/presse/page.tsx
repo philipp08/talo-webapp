@@ -243,26 +243,37 @@ export default function PressePage() {
               Redaktionen erhalten die passenden Informationen direkt per E-Mail.
             </p>
           </ScrollReveal>
-          <StaggerContainer className="flex flex-col gap-3">
-            {coverage.map((c, i) => (
-              <StaggerItem key={i}>
-                <a
-                  href={c.href}
-                  className="flex items-center justify-between gap-4 p-5 rounded-[1.25rem] border border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#111] hover:border-gray-200 dark:hover:border-white/10 transition-all group"
-                >
-                  <div className="flex flex-col gap-1 min-w-0">
-                    <span className="text-xs font-semibold text-gray-400 dark:text-gray-600 uppercase tracking-wider">
-                      {c.outlet}
-                    </span>
-                    <span className="text-[15px] font-medium text-gray-800 dark:text-gray-200 leading-snug group-hover:underline underline-offset-2">
-                      {c.headline}
-                    </span>
-                  </div>
-                  <span className="text-sm text-gray-400 dark:text-gray-600 shrink-0">{c.date}</span>
-                </a>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
+          {coverage.length === 0 ? (
+            <ScrollReveal direction="up">
+              <div className="flex flex-col items-center justify-center p-12 rounded-[1.5rem] border border-dashed border-gray-200 dark:border-white/[0.08] text-center">
+                <p className="text-gray-400 dark:text-gray-600 font-medium mb-2">Noch keine Erwähnungen vorhanden.</p>
+                <p className="text-sm text-gray-400 dark:text-gray-600">
+                  Für Presseanfragen nutze den Kontakt oben.
+                </p>
+              </div>
+            </ScrollReveal>
+          ) : (
+            <StaggerContainer className="flex flex-col gap-3">
+              {coverage.map((c, i) => (
+                <StaggerItem key={i}>
+                  <a
+                    href={c.href}
+                    className="flex items-center justify-between gap-4 p-5 rounded-[1.25rem] border border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#111] hover:border-gray-200 dark:hover:border-white/10 transition-all group"
+                  >
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="text-xs font-semibold text-gray-400 dark:text-gray-600 uppercase tracking-wider">
+                        {c.outlet}
+                      </span>
+                      <span className="text-[15px] font-medium text-gray-800 dark:text-gray-200 leading-snug group-hover:underline underline-offset-2">
+                        {c.headline}
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-400 dark:text-gray-600 shrink-0">{c.date}</span>
+                  </a>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          )}
         </div>
       </section>
 
