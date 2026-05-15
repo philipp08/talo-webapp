@@ -473,7 +473,7 @@ export default function MemberDetailPage() {
       {/* Entry Edit Modal */}
       <AnimatePresence>
         {entryToEdit && entryForm && (
-           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
+           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
              <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }} className="w-full max-w-xl">
                 <div className="bg-white border border-black/10 rounded-[48px] p-10 flex flex-col gap-8 shadow-2xl relative overflow-hidden">
                    <div className="absolute top-0 right-0 w-64 h-64 bg-black/[0.03] blur-3xl rounded-full" />
@@ -534,17 +534,19 @@ export default function MemberDetailPage() {
       {/* Delete Member Modal */}
       <AnimatePresence>
         {memberToDelete && isAdmin && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/90 backdrop-blur-3xl">
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="w-full max-w-sm text-center">
-               <div className="w-24 h-24 rounded-[32px] bg-red-500/10 flex items-center justify-center mx-auto mb-8 border border-red-500/20 shadow-[0_0_60px_rgba(239,68,68,0.1)]">
-                  <AlertTriangle size={48} className="text-red-500" />
-               </div>
-               <h3 className="text-3xl font-poppins font-black text-[#0A0A0A] mb-3 tracking-tight italic uppercase">Mitglied Löschen</h3>
-               <p className="text-[#71717A] font-bold text-sm mb-12 px-6">Soll <span className="text-[#0A0A0A] underline decoration-red-500/40">{member.firstName} {member.lastName}</span> wirklich permanent aus der Datenbank des Vereins entfernt werden?</p>
-               <div className="flex flex-col gap-3">
-                 <button onClick={removeMember} className="w-full py-5 bg-red-600 hover:bg-red-500 text-[#0A0A0A] rounded-3xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-2xl shadow-red-500/10 active:scale-95">Endgültig Löschen</button>
-                 <button onClick={() => setMemberToDelete(false)} className="w-full py-5 bg-black/[0.04] hover:bg-black/[0.08] text-[#0A0A0A] rounded-3xl font-black text-xs uppercase tracking-[0.2em] transition-all border border-black/5 active:scale-95">Abbrechen</button>
-               </div>
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="w-full max-w-sm">
+              <div className="bg-white rounded-[28px] border border-black/8 shadow-xl p-8 flex flex-col items-center text-center gap-1">
+                <div className="w-20 h-20 rounded-[24px] bg-red-500/10 flex items-center justify-center mb-5 border border-red-500/20">
+                  <AlertTriangle size={40} className="text-red-500" />
+                </div>
+                <h3 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic uppercase">Mitglied Löschen</h3>
+                <p className="text-[#71717A] font-bold text-sm mb-6 px-4">Soll <span className="text-[#0A0A0A] underline decoration-red-500/40">{member.firstName} {member.lastName}</span> wirklich permanent aus der Datenbank des Vereins entfernt werden?</p>
+                <div className="flex flex-col gap-3 w-full">
+                  <button onClick={removeMember} className="w-full py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95">Endgültig Löschen</button>
+                  <button onClick={() => setMemberToDelete(false)} className="w-full py-4 bg-black/[0.04] hover:bg-black/[0.08] text-[#0A0A0A] rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all border border-black/5 active:scale-95">Abbrechen</button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}

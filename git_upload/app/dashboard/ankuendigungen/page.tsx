@@ -219,7 +219,7 @@ export default function AnnouncementsPage() {
       {/* Sheet Modal: Form */}
       <AnimatePresence>
         {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -279,17 +279,19 @@ export default function AnnouncementsPage() {
       {/* Delete Confirmation */}
       <AnimatePresence>
         {deleteTarget && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-lg">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="w-full max-w-xs text-center font-poppins">
-               <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4 border border-red-500/20">
-                  <Trash2 size={32} className="text-red-400" />
-               </div>
-               <h3 className="text-xl font-bold text-[#0A0A0A] mb-2">Löschen?</h3>
-               <p className="text-sm text-[#52525B] mb-8 px-4">Soll diese Ankündigung wirklich unwiderruflich gelöscht werden?</p>
-               <div className="flex flex-col gap-2">
-                 <TButton label="Löschen" variant="danger" onClick={deleteAnnouncement} />
-                 <TButton label="Abbrechen" variant="secondary" onClick={() => setDeleteTarget(null)} />
-               </div>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="w-full max-w-xs">
+              <GlassSection className="p-7 flex flex-col items-center text-center gap-1 font-poppins">
+                <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-3 border border-red-500/20">
+                  <Trash2 size={28} className="text-red-400" />
+                </div>
+                <h3 className="text-xl font-bold text-[#0A0A0A]">Löschen?</h3>
+                <p className="text-sm text-[#52525B] mb-4 px-2">Soll diese Ankündigung wirklich unwiderruflich gelöscht werden?</p>
+                <div className="flex flex-col gap-2 w-full">
+                  <TButton label="Löschen" variant="danger" onClick={deleteAnnouncement} />
+                  <TButton label="Abbrechen" variant="secondary" onClick={() => setDeleteTarget(null)} />
+                </div>
+              </GlassSection>
             </motion.div>
           </div>
         )}
