@@ -189,8 +189,8 @@ export default function GenehmigungPage() {
                       <>
                         <TLine />
                         <div className="px-4 py-3">
-                          <p className=”text-[12px] font-poppins italic” style={{ color: “#52525B” }}>
-                            „{entry.notes}”
+                          <p className="text-[12px] font-poppins italic" style={{ color: "#52525B" }}>
+                            "{entry.notes}"
                           </p>
                         </div>
                       </>
