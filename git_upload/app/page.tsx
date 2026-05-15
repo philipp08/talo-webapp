@@ -594,7 +594,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                     „{t.quote}“
                   </p>
                   <div className="flex items-center gap-3">
-                    <Image src={t.image} alt={t.author} width={36} height={36} className="w-9 h-9 rounded-full grayscale object-cover" />
+                    <Image src={t.image} alt={t.author} width={36} height={36} className="w-9 h-9 rounded-full grayscale object-cover invert dark:invert-0" />
                     <div>
                       <p className="text-sm font-semibold text-gray-950 dark:text-white">{t.author}</p>
                       <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5 uppercase tracking-wider">{t.role}</p>

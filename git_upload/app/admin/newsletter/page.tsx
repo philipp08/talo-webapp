@@ -168,7 +168,7 @@ export default function AdminNewsletterPage() {
 
   // ── Admin Console ──
   return (
-    <div className="flex h-dvh w-full text-white selection:bg-white selection:text-black" style={{ background: "#080808" }}>
+    <div className="dark flex h-dvh w-full text-white selection:bg-white selection:text-black" style={{ background: "#080808" }}>
 
       {/* SIDEBAR */}
       <aside className="w-[280px] flex-col shrink-0 hidden lg:flex" style={{ background: "#0C0C0C", borderRight: "1px solid rgba(255,255,255,0.04)" }}>
@@ -177,7 +177,7 @@ export default function AdminNewsletterPage() {
         <div className="px-8 py-10 flex items-center gap-3.5">
           <Link href="/" className="flex items-center gap-3.5 group">
             <div className="w-9 h-9 flex items-center justify-center transition-all group-hover:scale-110">
-              <Image src="/talo-logo.png" alt="TALO" width={32} height={32} className="w-8 h-8" />
+              <Image src="/talo-logo.png" alt="TALO" width={32} height={32} className="w-8 h-8 invert dark:invert-0" />
             </div>
             <div className="flex flex-col">
               <span className="font-logo text-[17px] font-black tracking-[0.25em] text-white uppercase leading-none">TALO</span>

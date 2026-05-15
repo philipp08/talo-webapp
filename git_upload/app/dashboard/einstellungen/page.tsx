@@ -144,19 +144,19 @@ export default function SettingsPage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="relative z-10 max-w-[1600px] mx-auto py-8 px-6 lg:px-10 flex flex-col gap-8 pb-16">
+      <div className="relative z-10 max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10 flex flex-col gap-7 lg:gap-8 pb-16">
 
         {/* PAGE HEADER */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center justify-between border-b border-black/5 pb-8">
+          <div className="flex items-center justify-between border-b border-black/5 pb-6 lg:pb-8">
             <div className="flex flex-col gap-2">
-              <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Einstellungen</h1>
+              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Einstellungen</h1>
               <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Konto, Verein & Exporte</p>
             </div>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
 
           {/* LEFT: Profile */}
           <motion.div
@@ -173,11 +173,11 @@ export default function SettingsPage() {
                   size={72}
                   imageUrl={currentMember.profileImageUrl}
                 />
-                <div className="flex flex-col items-center gap-0.5">
+                <div className="flex max-w-full flex-col items-center gap-0.5 text-center">
                   <h2 className="text-[18px] font-poppins font-bold text-[#0A0A0A] leading-tight">
                     {currentMember.firstName} {currentMember.lastName}
                   </h2>
-                  <p className="text-[12px] font-poppins text-[#52525B]">{currentMember.email}</p>
+                  <p className="max-w-full break-all text-[12px] font-poppins text-[#52525B]">{currentMember.email}</p>
                 </div>
                 <div className="flex items-center gap-1.5 flex-wrap justify-center pt-1">
                   {isAdmin && <TBadge label="Admin" icon={ShieldCheck} color="#0A0A0A" />}

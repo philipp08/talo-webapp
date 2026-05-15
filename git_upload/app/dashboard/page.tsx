@@ -88,12 +88,12 @@ export default function DashboardPage() {
 
   return (
     <div className="relative min-h-screen" style={{ background: "#FAFAFA" }}>
-      <div className="relative z-10 p-6 flex flex-col gap-10 max-w-[1400px] mx-auto">
+      <div className="relative z-10 p-4 sm:p-6 flex flex-col gap-8 sm:gap-10 max-w-[1400px] mx-auto">
 
         {/* Page Header */}
-        <div className="flex items-center justify-between border-b border-black/5 pb-8">
+        <div className="flex items-center justify-between border-b border-black/5 pb-6 sm:pb-8">
           <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Dashboard</h1>
+            <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Dashboard</h1>
             <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Dein Überblick</p>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function DashboardPage() {
         ) : (
           <>
             {/* ── Stats ───────────────────────────────────────────── */}
-            <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
               <StatCard label="Bestätigte Punkte" value={approved.toFixed(1)} icon={CheckCircle} color="#34C759" delay={0.05} subtext="Erfolgreich verbucht" />
               <StatCard label="Warteschlange"     value={pending.toFixed(1)}  icon={Clock}        color="#FF9500" delay={0.10} subtext="In Prüfung" />
               <StatCard label="Soll-Erfüllung"    value={`${progress.toFixed(0)}%`} icon={Zap}   color="#0A0A0A" delay={0.15} subtext={`${remaining.toFixed(1)} Pkt. verbleibend`} />
@@ -178,7 +178,7 @@ export default function DashboardPage() {
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.05 * idx }}
-                        className="flex items-center gap-4 p-4 rounded-[22px] group transition-all cursor-default"
+                        className="flex items-start sm:items-center gap-3 sm:gap-4 p-4 rounded-[22px] group transition-all cursor-default"
                         style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.05)" }}
                         onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.11)")}
                         onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)")}
@@ -201,7 +201,7 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3 shrink-0">
+                        <div className="flex flex-col items-end gap-2 shrink-0 sm:flex-row sm:items-center sm:gap-3">
                           <TStatusBadge status={entry.status as string} />
                           <span className="font-mono font-black text-[18px] text-[#0A0A0A]">
                             +{entry.points.toFixed(1)}

@@ -78,16 +78,16 @@ export default function GenehmigungPage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="relative z-10 max-w-[1600px] mx-auto py-8 px-6 lg:px-10 flex flex-col gap-8 pb-16">
+      <div className="relative z-10 max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10 flex flex-col gap-7 lg:gap-8 pb-16">
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center justify-between border-b border-black/5 pb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-black/5 pb-6 lg:pb-8">
             <div className="flex flex-col gap-2">
-              <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Genehmigungen</h1>
+              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Genehmigungen</h1>
               <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Einträge prüfen und freigeben</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {pending.length > 0 && (
                 <span className="text-[11px] font-poppins font-bold px-3 py-1.5 rounded-full"
                       style={{ background: "rgba(255,149,0,0.15)", color: "#FF9500" }}>
@@ -190,7 +190,7 @@ export default function GenehmigungPage() {
                         <TLine />
                         <div className="px-4 py-3">
                           <p className="text-[12px] font-poppins italic" style={{ color: "#52525B" }}>
-                            "{entry.notes}"
+                            &quot;{entry.notes}&quot;
                           </p>
                         </div>
                       </>

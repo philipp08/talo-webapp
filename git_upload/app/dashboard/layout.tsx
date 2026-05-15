@@ -84,7 +84,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="px-8 py-10 flex items-center gap-3.5">
             <Link href="/" className="flex items-center gap-3.5 group">
               <div className="w-9 h-9 flex items-center justify-center transition-all group-hover:scale-110">
-                <Image src="/talo-logo.png" alt="TALO" width={32} height={32} className="w-8 h-8" />
+                <Image src="/talo-logo.png" alt="TALO" width={32} height={32} className="w-8 h-8 invert dark:invert-0" />
               </div>
               <div className="flex flex-col">
                 <span className="font-logo text-[17px] font-black tracking-[0.25em] text-[#0A0A0A] uppercase leading-none">TALO</span>
@@ -196,7 +196,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Header */}
                 <div className="px-5 pt-14 pb-5 flex items-center justify-between border-b border-black/5">
                   <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3">
-                    <Image src="/talo-logo.png" alt="TALO" width={28} height={28} className="w-7 h-7" />
+                    <Image src="/talo-logo.png" alt="TALO" width={28} height={28} className="w-7 h-7 invert dark:invert-0" />
                     <span className="font-logo text-[16px] font-black tracking-[0.25em] text-[#0A0A0A] uppercase">TALO</span>
                   </Link>
                   <button
@@ -283,7 +283,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
 
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/talo-logo.png" alt="" width={24} height={24} className="w-6 h-6" />
+            <Image src="/talo-logo.png" alt="" width={24} height={24} className="w-6 h-6 invert dark:invert-0" />
             <span className="font-logo text-[15px] font-black tracking-[0.2em] text-[#0A0A0A] uppercase">TALO</span>
           </Link>
 
@@ -299,7 +299,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* ── MAIN CONTENT ────────────────────────────────────────────── */}
         <main className="flex-1 relative overflow-hidden" style={{ background: "#FAFAFA" }}>
-          <div className="absolute inset-0 overflow-y-auto no-scrollbar lg:pt-0 pt-14 pb-[64px] lg:pb-0">
+          <div className="absolute inset-0 overflow-y-auto no-scrollbar lg:pt-0 pt-14 pb-[calc(80px+env(safe-area-inset-bottom))] lg:pb-0">
             <ScrollReveal direction="up" delay={0.05}>
               {children}
             </ScrollReveal>
@@ -314,7 +314,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             borderTop: "1px solid rgba(0,0,0,0.07)",
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
-            height: 64,
+            minHeight: 64,
+            paddingBottom: "env(safe-area-inset-bottom)",
           }}
         >
           {tabItems.map((item) => {

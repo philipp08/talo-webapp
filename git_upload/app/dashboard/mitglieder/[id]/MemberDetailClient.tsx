@@ -185,30 +185,30 @@ export default function MemberDetailPage() {
          <h3 className="text-xl font-bold text-[#0A0A0A]">Mitglied nicht gefunden</h3>
          <p className="text-[#71717A] text-sm">Die ID existiert nicht mehr oder <br />ist für diesen Verein ungültig.</p>
       </div>
-      <Link href="/dashboard/mitglieder" className="px-8 py-3 bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-widest rounded-full hover:scale-105 transition-all">← Zurück zur Liste</Link>
+      <Link href="/dashboard/mitglieder" className="px-6 py-3 bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-widest rounded-full hover:scale-105 transition-all">← Zurück zur Liste</Link>
     </div>
   );
 
   return (
     <div className="relative min-h-screen bg-[#FAFAFA]">
-      <div className="max-w-[1600px] mx-auto py-12 px-10 flex flex-col gap-12">
+      <div className="max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-12 lg:px-10 flex flex-col gap-7 lg:gap-12">
         
         {/* TOP BAR / BREADCRUMBS */}
-        <div className="flex items-center justify-between border-b border-black/5 pb-8">
-           <div className="flex flex-col gap-1">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 border-b border-black/5 pb-6 lg:pb-8">
+           <div className="flex min-w-0 flex-col gap-1">
               <div className="flex items-center gap-2 mb-2">
                  <Link href="/dashboard/mitglieder" className="text-[10px] font-black text-[#71717A] hover:text-[#0A0A0A] transition-colors uppercase tracking-widest">Team</Link>
                  <ChevronRight size={10} className="text-gray-700" />
-                 <span className="text-[10px] font-black text-[#0A0A0A] hover:text-[#0A0A0A] transition-colors uppercase tracking-widest">Profil: {member.firstName}</span>
+                 <span className="min-w-0 truncate text-[10px] font-black text-[#0A0A0A] hover:text-[#0A0A0A] transition-colors uppercase tracking-widest">Profil: {member.firstName}</span>
               </div>
-              <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{member.firstName} {member.lastName}</h1>
+              <h1 className="truncate text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{member.firstName} {member.lastName}</h1>
            </div>
            
-           <div className="flex items-center gap-4">
+           <div className="flex items-center gap-3 sm:gap-4">
               {isAdmin && (
                 <button 
                   onClick={() => setIsEditExpanded(!isEditExpanded)} 
-                  className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl transition-all font-black text-[11px] uppercase tracking-widest border ${
+                  className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-5 sm:px-6 py-3.5 rounded-2xl transition-all font-black text-[11px] uppercase tracking-widest border ${
                     isEditExpanded 
                       ? "bg-[#0A0A0A] text-white border-black/15" 
                       : "bg-black/[0.04] text-[#0A0A0A] border-black/5 hover:bg-black/[0.08]"
@@ -220,7 +220,7 @@ export default function MemberDetailPage() {
               {isAdmin && (
                 <button
                   onClick={() => setMemberToDelete(true)}
-                  className="w-12 h-12 rounded-2xl bg-black/[0.04] border border-black/5 flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all border-white/0 hover:border-black/15"
+                  className="w-12 h-12 shrink-0 rounded-2xl bg-black/[0.04] border border-black/5 flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all border-white/0 hover:border-black/15"
                 >
                    <Trash2 size={18} />
                 </button>
@@ -229,16 +229,16 @@ export default function MemberDetailPage() {
         </div>
 
         {/* MAIN SPLIT GRID */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-7 lg:gap-12">
            
            {/* LEFT COLUMN: IDENTITY & STATS (4/12) */}
-           <div className="xl:col-span-4 flex flex-col gap-8">
+           <div className="xl:col-span-4 flex flex-col gap-5 lg:gap-8">
               
               {/* Profile Card */}
-              <div className="bg-white border border-black/5 rounded-[40px] overflow-hidden p-10 flex flex-col items-center relative group">
+              <div className="bg-white border border-black/5 rounded-[28px] lg:rounded-[40px] overflow-hidden p-5 sm:p-8 lg:p-10 flex flex-col items-center relative group">
                  <div className="absolute top-0 right-0 w-32 h-32 bg-black/[0.03] blur-3xl rounded-full" />
                  
-                 <div className="relative mb-8">
+                 <div className="relative mb-6 lg:mb-8">
                     <div className="absolute inset-0 flex items-center justify-center">
                        <div className="w-[120px] h-[120px] rounded-full blur-[60px] opacity-20" style={{ background: progressColor }} />
                     </div>
@@ -248,20 +248,20 @@ export default function MemberDetailPage() {
                     </button>
                  </div>
 
-                 <div className="flex flex-col items-center gap-3 text-center mb-10">
-                    <div className="flex items-center gap-3">
-                       <h2 className="text-2xl font-poppins font-black text-[#0A0A0A]">{member.firstName} {member.lastName}</h2>
+                 <div className="flex flex-col items-center gap-3 text-center mb-8 lg:mb-10 max-w-full">
+                    <div className="flex max-w-full items-center gap-3">
+                       <h2 className="truncate text-xl sm:text-2xl font-poppins font-black text-[#0A0A0A]">{member.firstName} {member.lastName}</h2>
                        {member.isAdmin && <ShieldCheck size={20} className="text-[#0A0A0A]/60" />}
                     </div>
-                    <p className="text-[#71717A] font-bold text-sm">{member.email}</p>
-                    <div className="flex items-center gap-2 mt-2">
+                    <p className="max-w-full break-all text-[#71717A] font-bold text-sm">{member.email}</p>
+                    <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
                        <span className="px-4 py-1.5 rounded-full bg-black/[0.04] border border-black/10 text-[10px] font-black text-[#A1A1AA] uppercase tracking-widest">{member.memberType}</span>
                        {member.isTrainer && <span className="px-4 py-1.5 rounded-full bg-black/[0.07] border border-black/15 text-[10px] font-black text-[#0A0A0A]/60 uppercase tracking-widest">Trainer</span>}
                     </div>
                  </div>
 
                  {/* Detailed Progress Stats */}
-                 <div className="w-full space-y-10">
+                 <div className="w-full space-y-8 lg:space-y-10">
                     <div className="space-y-4">
                        <div className="flex justify-between items-end px-1">
                           <span className="text-[10px] font-black text-[#52525B] uppercase tracking-[0.2em] italic">JAHRESPERFORMANCE</span>
@@ -274,52 +274,52 @@ export default function MemberDetailPage() {
                        </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                       <div className="bg-black/[0.04] p-6 rounded-3xl border border-black/5 flex flex-col gap-2">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                       <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
                           <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">Bestätigt</span>
-                          <span className="text-2xl font-mono font-black text-[#0A0A0A]">+{approvedPts.toFixed(1)}</span>
+                          <span className="text-xl sm:text-2xl font-mono font-black text-[#0A0A0A]">+{approvedPts.toFixed(1)}</span>
                        </div>
-                       <div className="bg-black/[0.04] p-6 rounded-3xl border border-black/5 flex flex-col gap-2">
+                       <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
                           <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">In Prüfung</span>
-                          <span className="text-2xl font-mono font-black text-[#A1A1AA]">+{pendingPts.toFixed(1)}</span>
+                          <span className="text-xl sm:text-2xl font-mono font-black text-[#A1A1AA]">+{pendingPts.toFixed(1)}</span>
                        </div>
-                       <div className="bg-black/[0.04] p-6 rounded-3xl border border-black/5 flex flex-col gap-2">
+                       <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
                           <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">Ziel</span>
-                          <span className="text-2xl font-mono font-black text-[#0A0A0A]">{targetPts.toFixed(1)}</span>
+                          <span className="text-xl sm:text-2xl font-mono font-black text-[#0A0A0A]">{targetPts.toFixed(1)}</span>
                        </div>
-                       <div className="bg-black/[0.04] p-6 rounded-3xl border border-black/5 flex flex-col gap-2">
+                       <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
                           <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">Fehlend</span>
-                          <span className="text-2xl font-mono font-black text-[#71717A]">{isExempt ? "–" : missingPts.toFixed(1)}</span>
+                          <span className="text-xl sm:text-2xl font-mono font-black text-[#71717A]">{isExempt ? "–" : missingPts.toFixed(1)}</span>
                        </div>
                     </div>
                  </div>
               </div>
 
               {/* Quick Actions / Security Section */}
-              <div className="bg-white border border-black/5 rounded-[40px] p-10 space-y-6">
+              <div className="bg-white border border-black/5 rounded-[28px] lg:rounded-[40px] p-5 sm:p-8 lg:p-10 space-y-5 lg:space-y-6">
                  <h3 className="text-xs font-black text-[#52525B] uppercase tracking-[0.3em] pl-1">Sicherheit & Verwaltung</h3>
                  <div className="flex flex-col gap-3">
-                    <button className="w-full flex items-center justify-between p-5 rounded-3xl bg-black/[0.03] border border-black/5 hover:bg-black/[0.05] transition-all text-left group">
-                       <div className="flex items-center gap-4">
+                    <button className="w-full flex items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-black/[0.03] border border-black/5 hover:bg-black/[0.05] transition-all text-left group">
+                       <div className="flex min-w-0 items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
                              <MailQuestion size={18} />
                           </div>
-                          <div className="flex flex-col">
+                          <div className="flex min-w-0 flex-col">
                              <span className="text-sm font-bold text-[#0A0A0A]">Passwort Reset</span>
-                             <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">Link per Mail senden</span>
+                             <span className="truncate text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">Link per Mail senden</span>
                           </div>
                        </div>
                        <ChevronRight size={16} className="text-gray-800 group-hover:text-[#0A0A0A]" />
                     </button>
 
-                    <button className="w-full flex items-center justify-between p-5 rounded-3xl bg-black/[0.03] border border-black/5 hover:bg-black/[0.05] transition-all text-left group">
-                       <div className="flex items-center gap-4">
+                    <button className="w-full flex items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-black/[0.03] border border-black/5 hover:bg-black/[0.05] transition-all text-left group">
+                       <div className="flex min-w-0 items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
                              <RefreshCcw size={18} />
                           </div>
-                          <div className="flex flex-col">
+                          <div className="flex min-w-0 flex-col">
                              <span className="text-sm font-bold text-[#0A0A0A]">Sync Status</span>
-                             <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">Letzter Login: Gestern 18:42</span>
+                             <span className="truncate text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">Letzter Login: Gestern 18:42</span>
                           </div>
                        </div>
                        <ChevronRight size={16} className="text-gray-800 group-hover:text-[#0A0A0A]" />
@@ -330,17 +330,17 @@ export default function MemberDetailPage() {
            </div>
 
            {/* RIGHT COLUMN: ACTIVITY & EDIT (8/12) */}
-           <div className="xl:col-span-8 flex flex-col gap-12">
+           <div className="xl:col-span-8 flex flex-col gap-8 lg:gap-12">
               
               <AnimatePresence>
                  {isEditExpanded && (
                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="bg-white border border-black/10 shadow-[0_0_80px_rgba(0,0,0,0.03)] rounded-[40px] p-10 space-y-10 mb-6">
+                      <div className="bg-white border border-black/10 shadow-[0_0_80px_rgba(0,0,0,0.03)] rounded-[28px] lg:rounded-[40px] p-5 sm:p-8 lg:p-10 space-y-7 lg:space-y-10 mb-6">
                          <div className="flex items-center gap-3">
                             <Settings size={20} className="text-[#71717A]" />
-                            <h3 className="text-xl font-poppins font-black text-[#0A0A0A] uppercase tracking-tight italic">Stammdaten anpassen</h3>
+                            <h3 className="text-lg sm:text-xl font-poppins font-black text-[#0A0A0A] uppercase tracking-tight italic">Stammdaten anpassen</h3>
                          </div>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-7 lg:gap-10">
                             <div className="space-y-6">
                                <FormInput label="Vorname" value={editForm.firstName} onChange={(v) => setEditForm({...editForm, firstName: v})} />
                                <FormInput label="Nachname" value={editForm.lastName} onChange={(v) => setEditForm({...editForm, lastName: v})} />
@@ -349,29 +349,29 @@ export default function MemberDetailPage() {
                             <div className="space-y-6">
                                <div className="flex flex-col gap-3">
                                   <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">Mitgliedstyp</label>
-                                  <div className="grid grid-cols-2 gap-3">
+                                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                                      {Object.values(MemberType).map((t) => (
                                        <button key={t} onClick={() => setEditForm({...editForm, memberType: t})}
-                                         className={`py-4 rounded-2xl font-poppins font-black text-[11px] transition-all border uppercase tracking-widest ${editForm.memberType === t ? "bg-[#0A0A0A] text-white border-black/15" : "bg-black/[0.03] text-[#71717A] border-black/[0.08] hover:border-black/10"}`}>
+                                         className={`py-3.5 sm:py-4 rounded-2xl font-poppins font-black text-[10px] sm:text-[11px] transition-all border uppercase tracking-widest ${editForm.memberType === t ? "bg-[#0A0A0A] text-white border-black/15" : "bg-black/[0.03] text-[#71717A] border-black/[0.08] hover:border-black/10"}`}>
                                          {t}
                                        </button>
                                      ))}
                                   </div>
                                </div>
                                <div className="flex flex-col gap-3 pt-4">
-                                  <div className="flex items-center justify-between p-4 bg-black/[0.03] border border-black/5 rounded-2xl">
-                                     <div className="flex flex-col">
+                                  <div className="flex items-center justify-between gap-4 p-4 bg-black/[0.03] border border-black/5 rounded-2xl">
+                                     <div className="flex min-w-0 flex-col">
                                         <span className="text-sm font-bold text-[#0A0A0A]">Administrator</span>
-                                        <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest">Voller Zugriff auf Verein</span>
+                                        <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest leading-snug">Voller Zugriff auf Verein</span>
                                      </div>
                                      <button onClick={() => setEditForm({...editForm, isAdmin: !editForm.isAdmin})} className={`w-12 h-6 rounded-full transition-all relative ${editForm.isAdmin ? "bg-[#52525B]" : "bg-black/[0.07]"}`}>
                                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${editForm.isAdmin ? "left-7" : "left-1"}`} />
                                      </button>
                                   </div>
-                                  <div className="flex items-center justify-between p-4 bg-black/[0.03] border border-black/5 rounded-2xl">
-                                     <div className="flex flex-col">
+                                  <div className="flex items-center justify-between gap-4 p-4 bg-black/[0.03] border border-black/5 rounded-2xl">
+                                     <div className="flex min-w-0 flex-col">
                                         <span className="text-sm font-bold text-[#0A0A0A]">Trainer / Coach</span>
-                                        <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest">Kann Punkte genehmigen</span>
+                                        <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest leading-snug">Kann Punkte genehmigen</span>
                                      </div>
                                      <button onClick={() => setEditForm({...editForm, isTrainer: !editForm.isTrainer})} className={`w-12 h-6 rounded-full transition-all relative ${editForm.isTrainer ? "bg-[#52525B]" : "bg-black/[0.07]"}`}>
                                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${editForm.isTrainer ? "left-7" : "left-1"}`} />
@@ -380,9 +380,9 @@ export default function MemberDetailPage() {
                                </div>
                             </div>
                          </div>
-                         <div className="flex justify-end gap-4 border-t border-black/5 pt-10">
+                         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 sm:gap-4 border-t border-black/5 pt-7 lg:pt-10">
                             <button onClick={() => setIsEditExpanded(false)} className="px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest text-[#71717A] hover:text-[#0A0A0A] transition-colors">Abbrechen</button>
-                            <TButton label={saving ? "Speichert…" : (editSaved ? "Gespeichert!" : "Änderungen übernehmen")} onClick={saveMember} disabled={saving} className="w-auto h-auto min-w-[240px]" />
+                            <TButton label={saving ? "Speichert…" : (editSaved ? "Gespeichert!" : "Änderungen übernehmen")} onClick={saveMember} disabled={saving} className="w-full sm:w-auto h-auto sm:min-w-[240px]" />
                          </div>
                       </div>
                    </motion.div>
@@ -390,11 +390,11 @@ export default function MemberDetailPage() {
               </AnimatePresence>
 
               {/* Activity Log Section */}
-              <div className="space-y-8">
-                 <div className="flex items-center justify-between border-b border-black/5 pb-4">
+              <div className="space-y-5 lg:space-y-8">
+                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-black/5 pb-4">
                     <div className="flex items-center gap-3">
                        <Activity size={20} className="text-gray-800" />
-                       <h3 className="text-xl font-poppins font-black text-[#0A0A0A] uppercase tracking-tight italic">Gesamte Aktivitäten</h3>
+                       <h3 className="text-lg sm:text-xl font-poppins font-black text-[#0A0A0A] uppercase tracking-tight italic">Gesamte Aktivitäten</h3>
                     </div>
                     <div className="flex items-center gap-2">
                        <span className="text-[10px] font-black text-gray-700 uppercase tracking-widest">{entries.length} Einträge verfügbar</span>
@@ -402,7 +402,7 @@ export default function MemberDetailPage() {
                  </div>
 
                  {entries.length === 0 ? (
-                   <div className="bg-white border border-black/5 rounded-[40px] p-24 text-center opacity-40">
+                   <div className="bg-white border border-black/5 rounded-[28px] lg:rounded-[40px] p-12 md:p-24 text-center opacity-40">
                       <div className="w-16 h-16 bg-black/[0.04] rounded-full flex items-center justify-center mx-auto mb-6">
                          <Calendar size={24} />
                       </div>
@@ -410,7 +410,8 @@ export default function MemberDetailPage() {
                       <p className="text-sm font-medium">Noch keine Tätigkeiten in diesem Zeitraum.</p>
                    </div>
                  ) : (
-                   <div className="bg-white border border-black/5 rounded-[40px] overflow-hidden shadow-2xl">
+                   <>
+                   <div className="hidden md:block bg-white border border-black/5 rounded-[32px] lg:rounded-[40px] overflow-hidden shadow-2xl">
                       <table className="w-full text-left border-collapse">
                          <thead>
                             <tr className="border-b border-black/5 bg-black/[0.02]">
@@ -422,7 +423,7 @@ export default function MemberDetailPage() {
                             </tr>
                          </thead>
                          <tbody className="divide-y divide-black/[0.04]">
-                            {entries.map((entry, idx) => (
+                            {entries.map((entry) => (
                                <tr key={entry.id} className="group hover:bg-black/[0.03] transition-colors">
                                   <td className="px-10 py-6">
                                      <div className="flex items-center gap-6">
@@ -463,6 +464,40 @@ export default function MemberDetailPage() {
                          </tbody>
                       </table>
                    </div>
+                   <div className="md:hidden flex flex-col gap-3">
+                      {entries.map((entry) => {
+                        const dateStr = toDate(entry.date).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" });
+                        return (
+                          <div key={entry.id} className="rounded-[24px] bg-white border border-black/5 p-4 flex flex-col gap-4">
+                            <div className="flex items-start gap-3">
+                              <TCatBadge category={entry.activityCategory} size={42} />
+                              <div className="min-w-0 flex-1">
+                                <p className="font-poppins font-bold text-[#0A0A0A] text-[15px] leading-tight break-words">{entry.activityName}</p>
+                                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                  <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest">{entry.activityCategory}</span>
+                                  <span className="text-[11px] font-bold text-[#71717A]">{dateStr}</span>
+                                </div>
+                              </div>
+                              {isAdmin && (
+                                <button onClick={() => openEntryEdit(entry)} className="w-10 h-10 shrink-0 rounded-xl bg-black/[0.04] flex items-center justify-center text-gray-700 hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all">
+                                  <MoreHorizontal size={18} />
+                                </button>
+                              )}
+                            </div>
+                            <div className="flex items-center justify-between gap-3 rounded-2xl bg-black/[0.025] border border-black/5 px-4 py-3">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className={`w-1.5 h-1.5 rounded-full ${
+                                  entry.status === "Genehmigt" ? "bg-[#52525B]" : entry.status === "Abgelehnt" ? "bg-[#333333]" : "bg-[#52525B]"
+                                }`} />
+                                <span className="truncate text-[10px] font-black uppercase tracking-widest text-[#52525B]">{entry.status}</span>
+                              </div>
+                              <span className="shrink-0 text-lg font-mono font-black text-[#0A0A0A]">+{entry.points.toFixed(1)}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                   </div>
+                   </>
                  )}
               </div>
            </div>
@@ -474,34 +509,34 @@ export default function MemberDetailPage() {
       <AnimatePresence>
         {entryToEdit && entryForm && (
            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-             <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }} className="w-full max-w-xl">
-                <div className="bg-white border border-black/10 rounded-[48px] p-10 flex flex-col gap-8 shadow-2xl relative overflow-hidden">
+             <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }} className="w-full max-w-xl max-h-[calc(100dvh-2rem)] overflow-y-auto no-scrollbar">
+                <div className="bg-white border border-black/10 rounded-[30px] sm:rounded-[48px] p-5 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-8 shadow-2xl relative overflow-hidden">
                    <div className="absolute top-0 right-0 w-64 h-64 bg-black/[0.03] blur-3xl rounded-full" />
                    
-                   <div className="flex items-center justify-between relative z-10">
-                      <div className="flex items-center gap-3">
-                         <div className="w-12 h-12 rounded-2xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
+                   <div className="flex items-start justify-between gap-4 relative z-10">
+                      <div className="flex min-w-0 items-center gap-3">
+                         <div className="w-12 h-12 shrink-0 rounded-2xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
                             <Activity size={24} />
                          </div>
-                         <div className="flex flex-col">
-                            <h3 className="font-poppins font-black text-[#0A0A0A] text-xl uppercase tracking-tight italic">Eintrag Details</h3>
+                         <div className="flex min-w-0 flex-col">
+                            <h3 className="font-poppins font-black text-[#0A0A0A] text-lg sm:text-xl uppercase tracking-tight italic">Eintrag Details</h3>
                             <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest">Administrative Korrektur</span>
                          </div>
                       </div>
-                      <button onClick={() => setEntryToEdit(null)} className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-colors"><X size={20} /></button>
+                      <button onClick={() => setEntryToEdit(null)} className="w-10 h-10 shrink-0 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-colors"><X size={20} /></button>
                    </div>
 
                    <div className="flex flex-col gap-6 relative z-10">
                       <FormInput label="Bezeichnung der Tätigkeit" value={entryForm.activityName} onChange={(v) => setEntryForm({...entryForm, activityName: v})} />
                       
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                          <FormInput label="Punkte Wert" value={entryForm.points} onChange={(v) => setEntryForm({...entryForm, points: v})} type="number" />
                          <FormInput label="Durchgeführt am" value={entryForm.date} onChange={(v) => setEntryForm({...entryForm, date: v})} type="date" />
                       </div>
 
                       <div className="flex flex-col gap-3">
                          <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">Status Festlegen</label>
-                         <div className="flex p-2 rounded-2xl bg-black/[0.04] border border-black/5">
+                         <div className="grid grid-cols-3 gap-1.5 p-2 rounded-2xl bg-black/[0.04] border border-black/5">
                             {[EntryStatus.Pending, EntryStatus.Approved, EntryStatus.Rejected].map((s) => (
                               <button key={s} onClick={() => setEntryForm({...entryForm, status: s})}
                                 className={`flex-1 py-3 rounded-xl text-xs font-poppins font-black transition-all uppercase tracking-widest ${
@@ -554,40 +589,6 @@ export default function MemberDetailPage() {
     </div>
   );
 }
-
-function StatItem({ value, label, color }: { value: string, label: string, color: string }) {
-  return (
-    <div className="flex flex-col items-center py-6 gap-1 group cursor-default">
-       <span className="font-mono font-black text-xl group-hover:scale-110 transition-transform" style={{ color }}>{value}</span>
-       <span className="text-[9px] font-black text-gray-700 uppercase tracking-widest">{label}</span>
-    </div>
-  );
-}
-
-function SectionHeader({ title, icon: Icon, color }: { title: string, icon: any, color: string }) {
-  return (
-    <div className="flex items-center gap-3 px-1 pb-1">
-       <div className="w-1 h-4 bg-black/[0.07] rounded-full" />
-       <span className="text-[11px] font-poppins font-black text-[#71717A] tracking-[0.25em] uppercase italic">{title}</span>
-    </div>
-  );
-}
-
-function SettingsRow({ icon: Icon, label, sub, color, onClick }: { icon: any, label: string, sub: string, color: string, onClick?: () => void }) {
-  return (
-    <button onClick={onClick} className="w-full flex items-center gap-5 px-6 py-5 transition-all bg-black/[0.025] hover:bg-black/[0.05] border border-black/5 rounded-3xl group text-left">
-       <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border border-black/5 transition-transform group-hover:-rotate-3" style={{ background: `${color}08`, color }}>
-          <Icon size={22} strokeWidth={2.5} />
-       </div>
-       <div className="flex-1 flex flex-col min-w-0">
-          <span className="font-poppins font-black text-[#0A0A0A] text-[17px] leading-tight uppercase tracking-tight">{label}</span>
-          <span className="text-[12px] font-bold text-[#52525B] mt-0.5">{sub}</span>
-       </div>
-       <ChevronRight size={18} className="text-gray-800 group-hover:text-[#0A0A0A] transition-colors" />
-    </button>
-  );
-}
-
 
 function FormInput({ label, value, onChange, type = "text" }: { label: string, value: string, onChange: (v: string) => void, type?: string }) {
   return (

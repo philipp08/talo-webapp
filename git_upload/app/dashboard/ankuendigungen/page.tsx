@@ -92,18 +92,18 @@ export default function AnnouncementsPage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="relative z-10 max-w-[1600px] mx-auto py-8 px-6 lg:px-10 flex flex-col gap-8 pb-16">
+      <div className="relative z-10 max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10 flex flex-col gap-7 lg:gap-8 pb-16">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center justify-between border-b border-black/5 pb-8">
+          <div className="flex items-start justify-between gap-4 border-b border-black/5 pb-6 lg:pb-8">
             <div className="flex flex-col gap-2">
-              <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Ankündigungen</h1>
+              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Ankündigungen</h1>
               <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Neuigkeiten & Mitteilungen</p>
             </div>
             {isAdminOrTrainer && (
               <button
                 onClick={openAdd}
-                className="flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
+                className="shrink-0 flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
               >
                 <Plus size={16} /> Neu
               </button>
