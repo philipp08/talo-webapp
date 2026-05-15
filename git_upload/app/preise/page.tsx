@@ -7,45 +7,91 @@ import { ArrowRight, Check, Info, Sparkles } from "lucide-react";
 
 const tiers = [
   {
-    name: "Start",
+    name: "Free",
     price: "0€",
-    desc: "Für kleine Gruppen und erste Schritte.",
+    period: "/ Jahr",
+    desc: "Für den Einstieg.",
     features: [
-      "Bis zu 15 Mitglieder",
-      "Alle Kern-Features inkl.",
-      "1 Verein",
-      "Standard Support"
+      "Bis 10 Mitglieder",
+      "Punkte erfassen",
+      "Aktivitäten einreichen",
+      "Genehmigungen",
+      "Basis-Rangliste",
+      "3 Tätigkeitskategorien"
     ],
     cta: "Kostenlos starten",
     href: "/anmelden",
     popular: false
   },
   {
-    name: "Pro",
-    price: "9€",
-    period: "/ Monat",
-    desc: "Der perfekte Standard für ambitionierte Vereine.",
+    name: "Verein",
+    price: "79€",
+    period: "/ Jahr",
+    desc: "Für kleine Vereine.",
     features: [
-      "Unbegrenzte Mitglieder",
-      "Erweiterte Statistiken",
-      "Individuelle Kategorien",
-      "Vorrangiger Support",
-      "Export für Jahresversammlung"
+      "Bis 75 Mitglieder",
+      "Unbegrenzte Kategorien",
+      "Punkteverwaltung",
+      "Genehmigungsworkflow",
+      "Mitgliederverwaltung",
+      "Aktivitätsverlauf",
+      "Excel/CSV-Export",
+      "Vereinslogo"
     ],
-    cta: "Jetzt testen",
+    cta: "Lizenz aktivieren",
+    href: "/anmelden",
+    popular: false
+  },
+  {
+    name: "Club",
+    price: "129€",
+    period: "/ Jahr",
+    desc: "Beliebteste Wahl.",
+    features: [
+      "Bis 150 Mitglieder",
+      "Alles aus Verein",
+      "Gruppen & Teams",
+      "Erweiterte Statistiken",
+      "Gruppenranglisten",
+      "PDF-Export",
+      "Jahresauswertung",
+      "Erweiterte Filter"
+    ],
+    cta: "Club-Lizenz aktivieren",
     href: "/anmelden",
     popular: true
   },
   {
-    name: "Enterprise",
-    price: "Auf Anfrage",
-    desc: "Für Verbände und große Organisationen.",
+    name: "Pro",
+    price: "199€",
+    period: "/ Jahr",
+    desc: "Für große Vereine.",
     features: [
-      "Mehrere Standorte",
-      "Zentrales Admin-Dashboard",
-      "API-Zugriff",
-      "Eigener Account-Manager",
-      "SLA-Garantien"
+      "Bis 300 Mitglieder",
+      "Alles aus Club",
+      "Mehrere Gruppen/Abteilungen",
+      "Erweiterte Rollen",
+      "Detaillierte Auswertungen",
+      "Vereinsfarben",
+      "Priorisierter Support",
+      "Erweiterte Admin-Funktionen"
+    ],
+    cta: "Pro-Lizenz aktivieren",
+    href: "/anmelden",
+    popular: false
+  },
+  {
+    name: "Individuell",
+    price: "Auf Anfrage",
+    desc: "Für Verbände & große Organisationen.",
+    features: [
+      "Individuelle Mitgliederzahl",
+      "Alle Funktionen aus Pro",
+      "Individuelle Rollen/Rechte",
+      "Datenimport-Support",
+      "Persönliches Onboarding",
+      "Persönlicher Ansprechpartner",
+      "Individuelle Sonderfunktionen"
     ],
     cta: "Kontaktieren",
     href: "/kontakt",
@@ -75,8 +121,8 @@ export default function PricingPage() {
       </section>
 
       <section className="pb-24">
-        <div className="max-w-6xl mx-auto px-6">
-          <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="max-w-[1500px] mx-auto px-6">
+          <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {tiers.map((tier, idx) => (
               <StaggerItem key={idx}>
                 <div className={`relative h-full rounded-[2.5rem] p-8 border ${
@@ -148,9 +194,10 @@ export default function PricingPage() {
           <h2 className="text-3xl font-bold font-logo text-gray-900 dark:text-white mb-12 text-center">Häufig gestellte Fragen</h2>
           <div className="space-y-8">
             {[
-              { q: "Gibt es eine kostenlose Testphase?", a: "Ja, der Start-Plan ist dauerhaft kostenlos. Für den Pro-Plan bieten wir eine 30-tägige Testphase an." },
-              { q: "Können wir jederzeit kündigen?", a: "Absolut. Unsere Abonnements sind monatlich kündbar, ohne lange Vertragslaufzeiten." },
-              { q: "Was passiert, wenn wir mehr Mitglieder haben?", a: "Du kannst jederzeit in den Pro-Plan wechseln, um unbegrenzt viele Mitglieder zu verwalten." }
+              { q: "Muss jedes Mitglied einzeln bezahlen?", a: "Nein, bei TALO zahlt immer der Verein. Es wird ein Lizenzschlüssel erworben, den ein Admin aktiviert, um den Plan für alle Mitglieder freizuschalten." },
+              { q: "Was passiert, wenn die Lizenz abläuft?", a: "Alle eure erfassten Daten bleiben sicher erhalten. Ihr könnt weiterhin auf das System zugreifen, jedoch sind bestimmte Funktionen sowie das Hinzufügen weiterer Mitglieder auf den Free-Plan eingeschränkt, bis eine neue Lizenz aktiviert wird." },
+              { q: "Können wir als kleiner Verein trotzdem starten?", a: "Absolut! Unser Start-Plan (Free) ist dauerhaft kostenlos für bis zu 10 Mitglieder. Danach könnt ihr unproblematisch auf den Verein- oder Club-Plan upgraden, wenn der Verein wächst." },
+              { q: "Bietet ihr Hilfe bei der Ersteinrichtung an?", a: "Ja! Für einen kleinen Aufpreis helfen wir euch bei der Datenübernahme (Import) und beim Onboarding-Prozess. Sprecht uns einfach darauf an." }
             ].map((faq, i) => (
               <div key={i}>
                 <h4 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
