@@ -168,86 +168,15 @@ export default function AdminNewsletterPage() {
 
   // ── Admin Console ──
   return (
-    <div className="dark flex h-dvh w-full text-white selection:bg-white selection:text-black" style={{ background: "#080808" }}>
+    <div className="max-w-5xl mx-auto px-6 py-10">
+      {/* Page header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-white font-poppins">Newsletter</h1>
+        <p className="text-sm mt-1" style={{ color: "#555" }}>Abonnenten verwalten und E-Mails versenden.</p>
+      </div>
 
-      {/* SIDEBAR */}
-      <aside className="w-[280px] flex-col shrink-0 hidden lg:flex" style={{ background: "#0C0C0C", borderRight: "1px solid rgba(255,255,255,0.04)" }}>
-
-        {/* Brand */}
-        <div className="px-8 py-10 flex items-center gap-3.5">
-          <Link href="/" className="flex items-center gap-3.5 group">
-            <div className="w-9 h-9 flex items-center justify-center transition-all group-hover:scale-110">
-              <Image src="/talo-logo.png" alt="TALO" width={32} height={32} className="w-8 h-8 invert dark:invert-0" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-logo text-[17px] font-black tracking-[0.25em] text-white uppercase leading-none">TALO</span>
-              <span className="text-[9px] font-black tracking-[0.3em] uppercase mt-0.5" style={{ color: "#383838" }}>Admin</span>
-            </div>
-          </Link>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex-1 px-5 space-y-1">
-          <p className="text-[9px] font-black uppercase tracking-widest px-4 mb-5 mt-2" style={{ color: "#383838" }}>
-            Admin
-          </p>
-          {/* Newsletter nav item — always active here */}
-          <div
-            className="flex items-center gap-3.5 px-4 py-3.5 rounded-[16px] relative"
-            style={{ background: "rgba(255,255,255,0.05)", color: "#FFFFFF" }}
-          >
-            <motion.div
-              layoutId="admin-nav-pill"
-              className="absolute left-0 w-1 h-5 rounded-r-full"
-              style={{ background: "#FFFFFF" }}
-            />
-            <Newspaper size={18} strokeWidth={2.5} />
-            <span className="font-poppins font-semibold text-[14px]">Newsletter</span>
-          </div>
-        </nav>
-
-        {/* User card */}
-        <div className="p-5">
-          <div className="rounded-[24px] p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
-                   style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)" }}>
-                P
-              </div>
-              <div className="flex flex-col min-w-0 flex-1">
-                <span className="font-poppins font-bold text-sm text-white truncate leading-tight">Philipp Pauli</span>
-                <span className="text-[10px] font-black uppercase tracking-widest mt-0.5" style={{ color: "#555" }}>Admin</span>
-              </div>
-            </div>
-            <div className="h-px my-3" style={{ background: "rgba(255,255,255,0.05)" }} />
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-between px-1 transition-colors group"
-              style={{ color: "#555" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#FF453A")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#555")}
-            >
-              <span className="text-xs font-bold font-poppins uppercase tracking-wider">Ausloggen</span>
-              <LogOut size={13} />
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="flex-1 overflow-hidden flex flex-col" style={{ background: "#080808" }}>
-        <div className="absolute inset-0 lg:left-[280px] overflow-y-auto no-scrollbar">
-          <div className="max-w-5xl mx-auto px-6 py-10">
-
-            {/* Page header */}
-            <div className="mb-8">
-              <h1 className="text-2xl font-bold text-white font-poppins">Newsletter</h1>
-              <p className="text-sm mt-1" style={{ color: "#555" }}>Abonnenten verwalten und E-Mails versenden.</p>
-            </div>
-
-            <div className="grid lg:grid-cols-[320px_1fr] gap-6 items-start">
-
-              {/* ── Left: Subscribers ── */}
+      <div className="grid lg:grid-cols-[320px_1fr] gap-6 items-start">
+        {/* ── Left: Subscribers ── */}
               <div className="flex flex-col gap-4">
 
                 {/* Stats */}
@@ -401,8 +330,5 @@ export default function AdminNewsletterPage() {
 
             </div>
           </div>
-        </div>
-      </main>
-    </div>
   );
 }

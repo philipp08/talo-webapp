@@ -5,8 +5,10 @@ import { motion } from "framer-motion";
 import {
   User, Lock, LogOut, Building2, ShieldCheck, Dumbbell,
   Calendar, Euro, Target, FileSpreadsheet, FileText,
-  Users, Settings2, Download, Check, ChevronRight,
+  Users, Settings2, Download, Check, ChevronRight, Key, Loader2
 } from "lucide-react";
+import { db } from "@/lib/firebase/config";
+import { collection, query, where, getDocs, doc, updateDoc, Timestamp } from "firebase/firestore";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
@@ -56,6 +58,11 @@ export default function SettingsPage() {
   const [allEntries, setAllEntries] = useState<Entry[]>([]);
   const [busyExport, setBusyExport] = useState<ExportKey | null>(null);
 
+  // License Activation State
+  const [licKeyInput, setLicKeyInput] = useState("");
+  const [licState, setLicState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [licMsg, setLicMsg] = useState("");
+
   const isAdmin = currentMember?.isAdmin === true;
   const isTrainer = currentMember?.isTrainer === true;
 
@@ -86,6 +93,60 @@ export default function SettingsPage() {
       setResetState("sent");
     } catch {
       setResetState("idle");
+    }
+  };
+
+  const activateLicense = async () => {
+    if (!currentClub || !licKeyInput.trim()) return;
+    setLicState("loading");
+    setLicMsg("");
+    try {
+      const parsedKey = licKeyInput.trim().toUpperCase();
+      const q = query(collection(db, "licenses"), where("key", "==", parsedKey));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        setLicState("error");
+        setLicMsg("Ungültiger Lizenzschlüssel.");
+        return;
+      }
+      
+      const licDoc = snap.docs[0];
+      const licData = licDoc.data();
+      
+      if (licData.status !== "active") {
+        setLicState("error");
+        setLicMsg("Dieser Lizenzschlüssel wurde bereits eingelöst oder ist ungültig.");
+        return;
+      }
+
+      // 1. Update License (Mark as used)
+      await updateDoc(doc(db, "licenses", licDoc.id), {
+        status: "used",
+        usedByOrgId: currentClub.id,
+        usedAt: Timestamp.now()
+      });
+
+      // 2. Update Club Plan
+      const updates = {
+        plan: licData.plan,
+        licenseStatus: "active",
+        licenseExpiresAt: licData.expiresAt
+      };
+      
+      await FirebaseManager.updateClub(currentClub.id, updates);
+      setCurrentClub({ ...currentClub, ...updates });
+      
+      setLicState("success");
+      setLicMsg("Lizenz erfolgreich aktiviert!");
+      setLicKeyInput("");
+      setTimeout(() => {
+        setLicState("idle");
+        setLicMsg("");
+      }, 4000);
+
+    } catch (e) {
+      setLicState("error");
+      setLicMsg("Netzwerkfehler.");
     }
   };
 
@@ -274,6 +335,46 @@ export default function SettingsPage() {
                 </GlassSection>
               )}
             </motion.div>
+
+            {/* LIZENZ & PLAN (Admin only) */}
+            {isAdmin && (
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.12 }}
+                className="flex flex-col gap-3"
+              >
+                <SectionHeader title="LIZENZ & PLAN" icon={Key} color="#0A0A0A" />
+                <GlassSection>
+                  <div className="p-5 flex flex-col gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1.5 p-4 rounded-xl bg-black/[0.03] border border-black/5">
+                        <span className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">Aktueller Plan</span>
+                        <span className="font-poppins font-bold text-lg text-[#0A0A0A] capitalize">
+                          {currentClub?.plan || "Free"}
+                        </span>
+                        <span className="text-xs text-[#52525B]">
+                          {currentClub?.licenseExpiresAt ? `Ablauf: ${(currentClub.licenseExpiresAt as any).toDate?.().toLocaleDateString("de-DE") || (currentClub.licenseExpiresAt as Date).toLocaleDateString("de-DE")}` : "Kostenlose Version"}
+                        </span>
+                      </div>
+                      <div className="flex flex-col justify-center gap-2">
+                        <Input value={licKeyInput} onChange={setLicKeyInput} type="text" />
+                        <TButton
+                          label={licState === "loading" ? "Überprüfen…" : "Lizenz aktivieren"}
+                          onClick={activateLicense}
+                          disabled={licState === "loading" || !licKeyInput.trim()}
+                        />
+                      </div>
+                    </div>
+                    {licMsg && (
+                      <p className={`text-sm ${licState === "error" ? "text-red-500" : "text-green-600"}`}>
+                        {licMsg}
+                      </p>
+                    )}
+                  </div>
+                </GlassSection>
+              </motion.div>
+            )}
 
             {/* EXPORTE (Admin only) */}
             {isAdmin && (

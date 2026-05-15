@@ -30,6 +30,9 @@ export class FirebaseManager {
           compensationPerMissingPoint: data.compensationPerMissingPoint,
           seasonType: data.seasonType as SeasonType,
           approvalRequired: data.approvalRequired,
+          plan: data.plan,
+          licenseStatus: data.licenseStatus,
+          licenseExpiresAt: data.licenseExpiresAt,
         };
       }
       return null;

@@ -33,6 +33,9 @@ export interface Club {
   compensationPerMissingPoint: number;
   seasonType: SeasonType | string;
   approvalRequired: boolean;
+  plan?: string;
+  licenseStatus?: string;
+  licenseExpiresAt?: Timestamp | Date | null;
 }
 
 export interface Member {
