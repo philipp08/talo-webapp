@@ -71,14 +71,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <AuthGuard>
       <div
-        className="dark flex h-dvh w-full text-white selection:bg-white selection:text-black"
-        style={{ background: "#080808" }}
+        className="flex h-dvh w-full text-[#0A0A0A] selection:bg-[#0A0A0A] selection:text-white"
+        style={{ background: "#FAFAFA" }}
       >
 
         {/* ── DESKTOP SIDEBAR ─────────────────────────────────────────── */}
         <aside
           className="hidden lg:flex w-[300px] flex-col shrink-0 relative overflow-hidden"
-          style={{ background: "#0C0C0C", borderRight: "1px solid rgba(255,255,255,0.04)" }}
+          style={{ background: "#FFFFFF", borderRight: "1px solid rgba(0,0,0,0.05)" }}
         >
           {/* Brand */}
           <div className="px-8 py-10 flex items-center gap-3.5">
@@ -87,15 +87,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Image src="/talo-logo.png" alt="TALO" width={32} height={32} className="w-8 h-8" />
               </div>
               <div className="flex flex-col">
-                <span className="font-logo text-[17px] font-black tracking-[0.25em] text-white uppercase leading-none">TALO</span>
-                <span className="text-[9px] font-black tracking-[0.3em] uppercase mt-0.5" style={{ color: "#383838" }}>Console</span>
+                <span className="font-logo text-[17px] font-black tracking-[0.25em] text-[#0A0A0A] uppercase leading-none">TALO</span>
+                <span className="text-[9px] font-black tracking-[0.3em] uppercase mt-0.5" style={{ color: "#B4B4BA" }}>Console</span>
               </div>
             </Link>
           </div>
 
           {/* Nav */}
           <nav className="flex-1 overflow-y-auto px-5 space-y-1">
-            <p className="text-[9px] font-black uppercase tracking-widest px-4 mb-5 mt-2" style={{ color: "#383838" }}>
+            <p className="text-[9px] font-black uppercase tracking-widest px-4 mb-5 mt-2" style={{ color: "#B4B4BA" }}>
               Hauptmenü
             </p>
             {navItems.map((item) => {
@@ -107,17 +107,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   href={item.href}
                   className="flex items-center gap-3.5 px-4 py-3.5 rounded-[16px] transition-all group relative"
                   style={{
-                    background: isActive ? "rgba(255,255,255,0.05)" : "transparent",
-                    color: isActive ? "#FFFFFF" : "#555555",
+                    background: isActive ? "rgba(0,0,0,0.06)" : "transparent",
+                    color: isActive ? "#0A0A0A" : "#71717A",
                   }}
-                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = "#FFFFFF"; }}
-                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = "#555555"; }}
+                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = "#0A0A0A"; }}
+                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = "#71717A"; }}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="nav-pill"
                       className="absolute left-0 w-1 h-5 rounded-r-full"
-                      style={{ background: "#FFFFFF" }}
+                      style={{ background: "#0A0A0A" }}
                     />
                   )}
                   <Icon size={18} strokeWidth={isActive ? 2.5 : 1.8} />
@@ -131,7 +131,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="p-5">
             <div
               className="rounded-[24px] p-4 relative overflow-hidden"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
+              style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.06)" }}
             >
               <div className="flex items-center gap-3">
                 <TAvatar
@@ -140,26 +140,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   size={44}
                 />
                 <div className="flex flex-col min-w-0 flex-1">
-                  <span className="font-poppins font-bold text-sm text-white truncate leading-tight">
+                  <span className="font-poppins font-bold text-sm text-[#0A0A0A] truncate leading-tight">
                     {currentMember?.firstName} {currentMember?.lastName}
                   </span>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#555" }}>
+                    <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#71717A" }}>
                       {isAdmin ? "Admin" : isTrainer ? "Trainer" : "Mitglied"}
                     </span>
-                    {isAdmin && <ShieldCheck size={10} style={{ color: "rgba(255,255,255,0.4)" }} />}
+                    {isAdmin && <ShieldCheck size={10} style={{ color: "rgba(0,0,0,0.42)" }} />}
                   </div>
                 </div>
               </div>
 
-              <div className="h-px my-3" style={{ background: "rgba(255,255,255,0.05)" }} />
+              <div className="h-px my-3" style={{ background: "rgba(0,0,0,0.06)" }} />
 
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center justify-between px-1 transition-colors group"
-                style={{ color: "#555" }}
+                style={{ color: "#71717A" }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "#FF453A")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#555")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#71717A")}
               >
                 <span className="text-xs font-bold font-poppins uppercase tracking-wider">Ausloggen</span>
                 <LogOut size={13} />
@@ -179,7 +179,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-40 lg:hidden"
-                style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(10px)" }}
+                style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(10px)" }}
                 onClick={() => setMobileMenuOpen(false)}
               />
 
@@ -191,18 +191,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", damping: 28, stiffness: 280 }}
                 className="fixed top-0 left-0 h-full w-72 z-50 flex flex-col lg:hidden"
-                style={{ background: "#0C0C0C", borderRight: "1px solid rgba(255,255,255,0.06)" }}
+                style={{ background: "#FFFFFF", borderRight: "1px solid rgba(0,0,0,0.07)" }}
               >
                 {/* Header */}
-                <div className="px-5 pt-14 pb-5 flex items-center justify-between border-b border-white/5">
+                <div className="px-5 pt-14 pb-5 flex items-center justify-between border-b border-black/5">
                   <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3">
                     <Image src="/talo-logo.png" alt="TALO" width={28} height={28} className="w-7 h-7" />
-                    <span className="font-logo text-[16px] font-black tracking-[0.25em] text-white uppercase">TALO</span>
+                    <span className="font-logo text-[16px] font-black tracking-[0.25em] text-[#0A0A0A] uppercase">TALO</span>
                   </Link>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
                     className="w-9 h-9 rounded-xl flex items-center justify-center"
-                    style={{ background: "rgba(255,255,255,0.05)", color: "#8A8A8A" }}
+                    style={{ background: "rgba(0,0,0,0.06)", color: "#52525B" }}
                   >
                     <X size={18} />
                   </button>
@@ -219,8 +219,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         href={item.href}
                         className="flex items-center gap-3.5 px-4 py-4 rounded-[16px] transition-all"
                         style={{
-                          background: isActive ? "rgba(255,255,255,0.06)" : "transparent",
-                          color: isActive ? "#FFFFFF" : "#666",
+                          background: isActive ? "rgba(0,0,0,0.07)" : "transparent",
+                          color: isActive ? "#0A0A0A" : "#71717A",
                         }}
                       >
                         <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
@@ -231,10 +231,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </nav>
 
                 {/* Footer */}
-                <div className="p-4 border-t border-white/5 space-y-2">
+                <div className="p-4 border-t border-black/5 space-y-2">
                   <div
                     className="flex items-center gap-3 p-3 rounded-2xl"
-                    style={{ background: "rgba(255,255,255,0.03)" }}
+                    style={{ background: "rgba(0,0,0,0.04)" }}
                   >
                     <TAvatar
                       name={`${currentMember?.firstName ?? ""} ${currentMember?.lastName ?? ""}`}
@@ -242,10 +242,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       size={38}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="font-poppins font-bold text-sm text-white truncate">
+                      <p className="font-poppins font-bold text-sm text-[#0A0A0A] truncate">
                         {currentMember?.firstName} {currentMember?.lastName}
                       </p>
-                      <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#555" }}>
+                      <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#71717A" }}>
                         {isAdmin ? "Admin" : isTrainer ? "Trainer" : "Mitglied"}
                       </p>
                     </div>
@@ -268,8 +268,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div
           className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14"
           style={{
-            background: "rgba(8,8,8,0.92)",
-            borderBottom: "1px solid rgba(255,255,255,0.05)",
+            background: "rgba(255,255,255,0.92)",
+            borderBottom: "1px solid rgba(0,0,0,0.06)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
           }}
@@ -277,14 +277,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button
             onClick={() => setMobileMenuOpen(true)}
             className="w-10 h-10 flex items-center justify-center rounded-xl"
-            style={{ color: "#8A8A8A" }}
+            style={{ color: "#52525B" }}
           >
             <Menu size={22} />
           </button>
 
           <Link href="/" className="flex items-center gap-2">
             <Image src="/talo-logo.png" alt="" width={24} height={24} className="w-6 h-6" />
-            <span className="font-logo text-[15px] font-black tracking-[0.2em] text-white uppercase">TALO</span>
+            <span className="font-logo text-[15px] font-black tracking-[0.2em] text-[#0A0A0A] uppercase">TALO</span>
           </Link>
 
           {/* Avatar */}
@@ -298,7 +298,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* ── MAIN CONTENT ────────────────────────────────────────────── */}
-        <main className="flex-1 relative overflow-hidden" style={{ background: "#080808" }}>
+        <main className="flex-1 relative overflow-hidden" style={{ background: "#FAFAFA" }}>
           <div className="absolute inset-0 overflow-y-auto no-scrollbar lg:pt-0 pt-14 pb-[64px] lg:pb-0">
             <ScrollReveal direction="up" delay={0.05}>
               {children}
@@ -310,8 +310,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div
           className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-stretch"
           style={{
-            background: "rgba(12,12,12,0.98)",
-            borderTop: "1px solid rgba(255,255,255,0.06)",
+            background: "rgba(255,255,255,0.96)",
+            borderTop: "1px solid rgba(0,0,0,0.07)",
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
             height: 64,
@@ -325,7 +325,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={item.href}
                 href={item.href}
                 className="flex-1 flex flex-col items-center justify-center gap-[3px] transition-all active:opacity-60"
-                style={{ color: active ? "#FFFFFF" : "#555" }}
+                style={{ color: active ? "#0A0A0A" : "#71717A" }}
               >
                 <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
                 <span className="text-[9px] font-poppins font-bold uppercase tracking-wider leading-none">
@@ -339,7 +339,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="flex-1 flex flex-col items-center justify-center gap-[3px] transition-all active:opacity-60"
-              style={{ color: isOverflowActive ? "#FFFFFF" : "#555" }}
+              style={{ color: isOverflowActive ? "#0A0A0A" : "#71717A" }}
             >
               <MoreHorizontal size={22} strokeWidth={1.8} />
               <span className="text-[9px] font-poppins font-bold uppercase tracking-wider leading-none">Mehr</span>

@@ -135,10 +135,10 @@ export default function EintragenPage() {
       <div className="relative z-10 max-w-[1600px] mx-auto py-8 px-6 lg:px-10 flex flex-col gap-8 pb-16">
 
         {/* Page Header */}
-        <div className="flex items-center justify-between border-b border-white/5 pb-8">
+        <div className="flex items-center justify-between border-b border-black/5 pb-8">
           <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Eintragen</h1>
-            <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">Tätigkeit erfassen</p>
+            <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Eintragen</h1>
+            <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Tätigkeit erfassen</p>
           </div>
           {/* Status-Badge im Header */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.05 } }}
@@ -164,24 +164,24 @@ export default function EintragenPage() {
             {/* ── Für wen (nur Admin) */}
             {isAdmin && (
               <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-                <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#555" }}>
+                <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#71717A" }}>
                   Für wen
                 </p>
                 <GlassSection>
                   {/* Selbst */}
                   <button
-                    className="w-full flex items-center gap-3 px-4 py-4 transition-colors hover:bg-white/[0.03]"
+                    className="w-full flex items-center gap-3 px-4 py-4 transition-colors hover:bg-black/[0.04]"
                     onClick={() => { setSelectedMemberId(null); setPickerOpen(false); }}
                   >
                     <TAvatar name={`${currentMember?.firstName ?? ""} ${currentMember?.lastName ?? ""}`} id={currentMember?.id ?? ""} size={36} />
                     <div className="flex flex-col items-start flex-1">
-                      <span className="font-poppins font-semibold text-[14px] text-white leading-tight">
+                      <span className="font-poppins font-semibold text-[14px] text-[#0A0A0A] leading-tight">
                         {currentMember?.firstName} {currentMember?.lastName}
                       </span>
-                      <span className="text-[11px]" style={{ color: "#8A8A8A" }}>Für mich selbst</span>
+                      <span className="text-[11px]" style={{ color: "#52525B" }}>Für mich selbst</span>
                     </div>
                     {selectedMemberId === null && (
-                      <CheckCircle size={20} style={{ color: "#FFFFFF" }} />
+                      <CheckCircle size={20} style={{ color: "#0A0A0A" }} />
                     )}
                   </button>
 
@@ -190,33 +190,33 @@ export default function EintragenPage() {
                   {/* Anderes Mitglied */}
                   <div>
                     <button
-                      className="w-full flex items-center gap-3 px-4 py-4 transition-colors hover:bg-white/[0.03]"
+                      className="w-full flex items-center gap-3 px-4 py-4 transition-colors hover:bg-black/[0.04]"
                       onClick={() => setPickerOpen((p) => !p)}
                     >
                       {selectedMemberId && selectedMemberObj ? (
                         <TAvatar name={getMemberFullName(selectedMemberObj)} id={selectedMemberObj.id} size={36} />
                       ) : (
                         <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                             style={{ background: "rgba(255,255,255,0.06)" }}>
-                          <User size={16} style={{ color: "#8A8A8A" }} />
+                             style={{ background: "rgba(0,0,0,0.07)" }}>
+                          <User size={16} style={{ color: "#52525B" }} />
                         </div>
                       )}
                       <div className="flex flex-col items-start flex-1">
                         {selectedMemberId && selectedMemberObj ? (
                           <>
-                            <span className="font-poppins font-semibold text-[14px] text-white leading-tight">
+                            <span className="font-poppins font-semibold text-[14px] text-[#0A0A0A] leading-tight">
                               {getMemberFullName(selectedMemberObj)}
                             </span>
-                            <span className="text-[11px]" style={{ color: "#8A8A8A" }}>Anderes Mitglied</span>
+                            <span className="text-[11px]" style={{ color: "#52525B" }}>Anderes Mitglied</span>
                           </>
                         ) : (
-                          <span className="font-poppins font-semibold text-[14px]" style={{ color: "#8A8A8A" }}>
+                          <span className="font-poppins font-semibold text-[14px]" style={{ color: "#52525B" }}>
                             Anderes Mitglied wählen…
                           </span>
                         )}
                       </div>
-                      {selectedMemberId !== null && <CheckCircle size={20} style={{ color: "#FFFFFF" }} />}
-                      {pickerOpen ? <ChevronUp size={16} style={{ color: "#555" }} /> : <ChevronDown size={16} style={{ color: "#555" }} />}
+                      {selectedMemberId !== null && <CheckCircle size={20} style={{ color: "#0A0A0A" }} />}
+                      {pickerOpen ? <ChevronUp size={16} style={{ color: "#71717A" }} /> : <ChevronDown size={16} style={{ color: "#71717A" }} />}
                     </button>
 
                     <AnimatePresence>
@@ -229,39 +229,39 @@ export default function EintragenPage() {
                         >
                           <TLine />
                           <div className="px-4 py-2.5 flex items-center gap-2"
-                               style={{ background: "rgba(255,255,255,0.02)" }}>
-                            <Search size={14} style={{ color: "#555" }} />
+                               style={{ background: "rgba(0,0,0,0.03)" }}>
+                            <Search size={14} style={{ color: "#71717A" }} />
                             <input
                               value={memberSearch}
                               onChange={(e) => setMemberSearch(e.target.value)}
                               placeholder="Suchen…"
-                              className="flex-1 bg-transparent text-[14px] font-poppins text-white placeholder-[#444] focus:outline-none"
+                              className="flex-1 bg-transparent text-[14px] font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none"
                             />
                             {memberSearch && (
                               <button onClick={() => setMemberSearch("")}>
-                                <X size={14} style={{ color: "#555" }} />
+                                <X size={14} style={{ color: "#71717A" }} />
                               </button>
                             )}
                           </div>
                           <TLine />
                           <div className="max-h-52 overflow-y-auto no-scrollbar">
                             {filteredMembers.length === 0 ? (
-                              <p className="text-center py-5 text-[13px]" style={{ color: "#555" }}>Keine Treffer</p>
+                              <p className="text-center py-5 text-[13px]" style={{ color: "#71717A" }}>Keine Treffer</p>
                             ) : (
                               filteredMembers.map((m, idx) => (
                                 <div key={m.id}>
                                   <button
-                                    className="w-full flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03]"
+                                    className="w-full flex items-center gap-3 px-4 py-3 transition-colors hover:bg-black/[0.04]"
                                     onClick={() => { setSelectedMemberId(m.id); setPickerOpen(false); }}
                                   >
                                     <TAvatar name={getMemberFullName(m)} id={m.id} size={32} />
                                     <div className="flex flex-col items-start flex-1">
-                                      <span className="font-poppins font-semibold text-[13px] text-white leading-tight">
+                                      <span className="font-poppins font-semibold text-[13px] text-[#0A0A0A] leading-tight">
                                         {getMemberFullName(m)}
                                       </span>
-                                      <span className="text-[11px]" style={{ color: "#8A8A8A" }}>{m.memberType}</span>
+                                      <span className="text-[11px]" style={{ color: "#52525B" }}>{m.memberType}</span>
                                     </div>
-                                    {selectedMemberId === m.id && <CheckCircle size={17} style={{ color: "#FFFFFF" }} />}
+                                    {selectedMemberId === m.id && <CheckCircle size={17} style={{ color: "#0A0A0A" }} />}
                                   </button>
                                   {idx < filteredMembers.length - 1 && <TLine className="ml-[52px]" />}
                                 </div>
@@ -280,20 +280,20 @@ export default function EintragenPage() {
             {!isAdmin && currentMember && (
               <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
                           className="flex items-center gap-3 px-4 py-3.5 rounded-2xl"
-                          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                          style={{ background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.07)" }}>
                 <TAvatar name={`${currentMember.firstName} ${currentMember.lastName}`} id={currentMember.id} size={38} />
                 <div className="flex flex-col flex-1">
-                  <span className="font-poppins font-semibold text-[14px] text-white leading-tight">
+                  <span className="font-poppins font-semibold text-[14px] text-[#0A0A0A] leading-tight">
                     {currentMember.firstName} {currentMember.lastName}
                   </span>
-                  <span className="text-[11px]" style={{ color: "#8A8A8A" }}>{currentMember.memberType}</span>
+                  <span className="text-[11px]" style={{ color: "#52525B" }}>{currentMember.memberType}</span>
                 </div>
               </motion.div>
             )}
 
             {/* ── Aktivitäten */}
             <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.08 } }}>
-              <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#555" }}>
+              <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#71717A" }}>
                 Tätigkeit wählen
               </p>
 
@@ -312,29 +312,29 @@ export default function EintragenPage() {
 
               {/* Search */}
               <div className="relative mb-3">
-                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "#555" }} />
+                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "#71717A" }} />
                 <input
                   value={activitySearch}
                   onChange={(e) => setActivitySearch(e.target.value)}
                   placeholder="Tätigkeit suchen…"
-                  className="w-full rounded-2xl pl-9 pr-9 py-3 text-[13px] font-poppins text-white placeholder-[#444] focus:outline-none transition-all"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                  className="w-full rounded-2xl pl-9 pr-9 py-3 text-[13px] font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none transition-all"
+                  style={{ background: "rgba(0,0,0,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
                 />
                 {activitySearch && (
                   <button onClick={() => setActivitySearch("")} className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                    <X size={14} style={{ color: "#555" }} />
+                    <X size={14} style={{ color: "#71717A" }} />
                   </button>
                 )}
               </div>
 
               {loadingActs ? (
                 <div className="flex justify-center py-10">
-                  <div className="w-6 h-6 rounded-full border-2 border-white/10 border-t-white animate-spin" />
+                  <div className="w-6 h-6 rounded-full border-2 border-black/10 border-t-[#0A0A0A] animate-spin" />
                 </div>
               ) : (
                 <GlassSection>
                   {filteredActivities.length === 0 ? (
-                    <p className="text-center py-8 text-[13px]" style={{ color: "#555" }}>
+                    <p className="text-center py-8 text-[13px]" style={{ color: "#71717A" }}>
                       Keine Tätigkeiten gefunden.
                     </p>
                   ) : (
@@ -344,17 +344,17 @@ export default function EintragenPage() {
                         <div key={a.id}>
                           <button
                             className="w-full flex items-center gap-3.5 px-4 py-4 transition-all text-left"
-                            style={{ background: isSelected ? "rgba(255,255,255,0.04)" : "transparent" }}
+                            style={{ background: isSelected ? "rgba(0,0,0,0.05)" : "transparent" }}
                             onClick={() => setSelectedActivity(isSelected ? null : a)}
                           >
                             <TCatBadge category={a.category} size={38} />
-                            <span className="font-poppins text-[14px] text-white flex-1">{a.name}</span>
-                            <span className="font-mono font-bold text-[14px] mr-2" style={{ color: "#8A8A8A" }}>
+                            <span className="font-poppins text-[14px] text-[#0A0A0A] flex-1">{a.name}</span>
+                            <span className="font-mono font-bold text-[14px] mr-2" style={{ color: "#52525B" }}>
                               {a.points.toFixed(1)}
                             </span>
                             {isSelected
-                              ? <CheckCircle size={20} style={{ color: "#FFFFFF" }} />
-                              : <Circle     size={20} style={{ color: "#383838" }} />
+                              ? <CheckCircle size={20} style={{ color: "#0A0A0A" }} />
+                              : <Circle     size={20} style={{ color: "#B4B4BA" }} />
                             }
                           </button>
                           {idx < filteredActivities.length - 1 && <TLine />}
@@ -372,19 +372,19 @@ export default function EintragenPage() {
 
             {/* ── Details */}
             <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.12 } }}>
-              <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#555" }}>
+              <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#71717A" }}>
                 Details
               </p>
               <GlassSection>
                 {/* Datum */}
                 <div className="flex items-center gap-3 px-4 py-4">
-                  <Calendar size={16} style={{ color: "#555" }} />
-                  <span className="font-poppins text-[14px] text-white flex-1">Datum</span>
+                  <Calendar size={16} style={{ color: "#71717A" }} />
+                  <span className="font-poppins text-[14px] text-[#0A0A0A] flex-1">Datum</span>
                   <input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="font-poppins text-[13px] text-white bg-transparent focus:outline-none cursor-pointer"
+                    className="font-poppins text-[13px] text-[#0A0A0A] bg-transparent focus:outline-none cursor-pointer"
                     style={{ colorScheme: "dark" }}
                   />
                 </div>
@@ -393,11 +393,11 @@ export default function EintragenPage() {
 
                 {/* Punkte */}
                 <div className="flex items-center gap-3 px-4 py-4">
-                  <Star size={16} style={{ color: "#555" }} />
-                  <span className="font-poppins text-[14px] text-white flex-1">Punkte</span>
+                  <Star size={16} style={{ color: "#71717A" }} />
+                  <span className="font-poppins text-[14px] text-[#0A0A0A] flex-1">Punkte</span>
                   <span
                     className="font-mono font-black text-[22px] transition-all"
-                    style={{ color: selectedActivity ? "#FFFFFF" : "#383838" }}
+                    style={{ color: selectedActivity ? "#0A0A0A" : "#B4B4BA" }}
                   >
                     {selectedActivity ? selectedActivity.points.toFixed(1) : "—"}
                   </span>
@@ -407,9 +407,9 @@ export default function EintragenPage() {
 
                 {/* Gewählte Tätigkeit Preview */}
                 <div className="flex items-center gap-3 px-4 py-4">
-                  <CheckCircle size={16} style={{ color: selectedActivity ? "#FFFFFF" : "#383838" }} />
+                  <CheckCircle size={16} style={{ color: selectedActivity ? "#0A0A0A" : "#B4B4BA" }} />
                   <span className="font-poppins text-[14px] flex-1 transition-colors"
-                        style={{ color: selectedActivity ? "#FFFFFF" : "#383838" }}>
+                        style={{ color: selectedActivity ? "#0A0A0A" : "#B4B4BA" }}>
                     {selectedActivity ? selectedActivity.name : "Keine Tätigkeit gewählt"}
                   </span>
                   {selectedActivity && (
@@ -421,13 +421,13 @@ export default function EintragenPage() {
 
                 {/* Notiz */}
                 <div className="flex items-start gap-3 px-4 py-4">
-                  <MessageSquare size={16} style={{ color: "#555", marginTop: 2 }} />
+                  <MessageSquare size={16} style={{ color: "#71717A", marginTop: 2 }} />
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Notiz (optional)"
                     rows={3}
-                    className="flex-1 bg-transparent font-poppins text-[14px] text-white placeholder-[#444] focus:outline-none resize-none"
+                    className="flex-1 bg-transparent font-poppins text-[14px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none resize-none"
                   />
                 </div>
               </GlassSection>
@@ -454,8 +454,8 @@ export default function EintragenPage() {
                         <CheckCircle size={20} style={{ color: "#34C759" }} />
                       </div>
                       <div>
-                        <p className="font-poppins font-bold text-[15px] text-white">Erfolgreich eingetragen!</p>
-                        <p className="text-[12px]" style={{ color: "#8A8A8A" }}>
+                        <p className="font-poppins font-bold text-[15px] text-[#0A0A0A]">Erfolgreich eingetragen!</p>
+                        <p className="text-[12px]" style={{ color: "#52525B" }}>
                           {entryStatus === EntryStatus.Approved ? "Direkt genehmigt ✓" : "Wartet auf Genehmigung"}
                         </p>
                       </div>

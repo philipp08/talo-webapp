@@ -69,7 +69,7 @@ export default function GenehmigungPage() {
   if (!isAdmin) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p style={{ color: "#8A8A8A" }} className="font-poppins text-sm">
+        <p style={{ color: "#52525B" }} className="font-poppins text-sm">
           Nur Admins können Genehmigungen verwalten.
         </p>
       </div>
@@ -82,10 +82,10 @@ export default function GenehmigungPage() {
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center justify-between border-b border-white/5 pb-8">
+          <div className="flex items-center justify-between border-b border-black/5 pb-8">
             <div className="flex flex-col gap-2">
-              <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Genehmigungen</h1>
-              <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">Einträge prüfen und freigeben</p>
+              <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Genehmigungen</h1>
+              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Einträge prüfen und freigeben</p>
             </div>
             <div className="flex items-center gap-2">
               {pending.length > 0 && (
@@ -107,7 +107,7 @@ export default function GenehmigungPage() {
         {/* Loading */}
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="w-7 h-7 rounded-full border-2 border-white/10 border-t-white animate-spin" />
+            <div className="w-7 h-7 rounded-full border-2 border-black/10 border-t-[#0A0A0A] animate-spin" />
           </div>
 
         ) : pending.length === 0 ? (
@@ -121,8 +121,8 @@ export default function GenehmigungPage() {
                  style={{ background: "rgba(52,199,89,0.1)" }}>
               <Sparkles size={28} style={{ color: "#34C759" }} />
             </div>
-            <p className="font-poppins font-bold text-[18px] text-white mb-2">Alles erledigt!</p>
-            <p className="text-[13px]" style={{ color: "#8A8A8A" }}>
+            <p className="font-poppins font-bold text-[18px] text-[#0A0A0A] mb-2">Alles erledigt!</p>
+            <p className="text-[13px]" style={{ color: "#52525B" }}>
               Keine ausstehenden Einträge.
             </p>
           </motion.div>
@@ -152,13 +152,13 @@ export default function GenehmigungPage() {
                         <TAvatar name={getMemberFullName(member)} id={member.id} size={40} />
                       ) : (
                         <div className="w-10 h-10 rounded-full shrink-0"
-                             style={{ background: "rgba(255,255,255,0.06)" }} />
+                             style={{ background: "rgba(0,0,0,0.07)" }} />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="font-poppins font-semibold text-[14px] text-white leading-tight truncate">
+                        <p className="font-poppins font-semibold text-[14px] text-[#0A0A0A] leading-tight truncate">
                           {member ? getMemberFullName(member) : "Unbekanntes Mitglied"}
                         </p>
-                        <p className="text-[11px] mt-0.5" style={{ color: "#8A8A8A" }}>
+                        <p className="text-[11px] mt-0.5" style={{ color: "#52525B" }}>
                           {member?.memberType ?? ""}
                         </p>
                       </div>
@@ -171,15 +171,15 @@ export default function GenehmigungPage() {
                     <div className="flex items-center gap-3 px-4 py-3.5">
                       <TCatBadge category={entry.activityCategory as string} size={36} />
                       <div className="flex-1 min-w-0">
-                        <p className="font-poppins font-semibold text-[14px] text-white truncate">
+                        <p className="font-poppins font-semibold text-[14px] text-[#0A0A0A] truncate">
                           {entry.activityName}
                         </p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <Calendar size={11} style={{ color: "#555" }} />
-                          <span className="text-[11px]" style={{ color: "#8A8A8A" }}>{dateStr}</span>
+                          <Calendar size={11} style={{ color: "#71717A" }} />
+                          <span className="text-[11px]" style={{ color: "#52525B" }}>{dateStr}</span>
                         </div>
                       </div>
-                      <span className="font-mono font-black text-[20px] text-white shrink-0">
+                      <span className="font-mono font-black text-[20px] text-[#0A0A0A] shrink-0">
                         +{entry.points.toFixed(1)}
                       </span>
                     </div>
@@ -189,8 +189,8 @@ export default function GenehmigungPage() {
                       <>
                         <TLine />
                         <div className="px-4 py-3">
-                          <p className="text-[12px] font-poppins italic" style={{ color: "#8A8A8A" }}>
-                            „{entry.notes}“
+                          <p className=”text-[12px] font-poppins italic” style={{ color: “#52525B” }}>
+                            „{entry.notes}”
                           </p>
                         </div>
                       </>
@@ -242,14 +242,14 @@ export default function GenehmigungPage() {
             >
               <GlassSection className="p-6 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <p className="font-poppins font-bold text-[17px] text-white">Eintrag ablehnen</p>
+                  <p className="font-poppins font-bold text-[17px] text-[#0A0A0A]">Eintrag ablehnen</p>
                   <button onClick={() => setRejectTarget(null)}>
-                    <X size={18} style={{ color: "#8A8A8A" }} />
+                    <X size={18} style={{ color: "#52525B" }} />
                   </button>
                 </div>
 
-                <p className="text-[13px]" style={{ color: "#8A8A8A" }}>
-                  <span className="text-white font-semibold">{rejectTarget.activityName}</span>
+                <p className="text-[13px]" style={{ color: "#52525B" }}>
+                  <span className="text-[#0A0A0A] font-semibold">{rejectTarget.activityName}</span>
                   {" – "}
                   {memberMap.get(rejectTarget.memberId)
                     ? getMemberFullName(memberMap.get(rejectTarget.memberId)!)
@@ -258,7 +258,7 @@ export default function GenehmigungPage() {
 
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest pl-0.5"
-                         style={{ color: "#555" }}>
+                         style={{ color: "#71717A" }}>
                     Ablehnungsgrund (optional)
                   </label>
                   <textarea
@@ -266,10 +266,10 @@ export default function GenehmigungPage() {
                     onChange={(e) => setRejectReason(e.target.value)}
                     placeholder="z.B. Nachweis fehlt"
                     rows={3}
-                    className="w-full rounded-2xl px-4 py-3 text-[14px] font-poppins text-white placeholder-[#444] focus:outline-none resize-none transition-all"
+                    className="w-full rounded-2xl px-4 py-3 text-[14px] font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none resize-none transition-all"
                     style={{
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.08)",
+                      background: "rgba(0,0,0,0.05)",
+                      border: "1px solid rgba(0,0,0,0.09)",
                     }}
                   />
                 </div>

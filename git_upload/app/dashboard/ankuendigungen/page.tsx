@@ -95,15 +95,15 @@ export default function AnnouncementsPage() {
       <div className="relative z-10 max-w-[1600px] mx-auto py-8 px-6 lg:px-10 flex flex-col gap-8 pb-16">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center justify-between border-b border-white/5 pb-8">
+          <div className="flex items-center justify-between border-b border-black/5 pb-8">
             <div className="flex flex-col gap-2">
-              <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Ankündigungen</h1>
-              <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">Neuigkeiten & Mitteilungen</p>
+              <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Ankündigungen</h1>
+              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Neuigkeiten & Mitteilungen</p>
             </div>
             {isAdminOrTrainer && (
               <button
                 onClick={openAdd}
-                className="flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
+                className="flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
               >
                 <Plus size={16} /> Neu
               </button>
@@ -117,12 +117,12 @@ export default function AnnouncementsPage() {
         {/* List */}
         {loading ? (
           <div className="flex items-center justify-center p-20 opacity-20">
-             <div className="h-8 w-8 animate-spin rounded-full border-2 border-white border-t-transparent" />
+             <div className="h-8 w-8 animate-spin rounded-full border-2 border-black/15 border-t-transparent" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center opacity-40">
-            <Megaphone size={40} className="text-white mb-4" />
-            <p className="font-poppins text-[#8A8A8A]">Keine Ankündigungen vorhanden.</p>
+            <Megaphone size={40} className="text-[#0A0A0A] mb-4" />
+            <p className="font-poppins text-[#52525B]">Keine Ankündigungen vorhanden.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -158,15 +158,15 @@ export default function AnnouncementsPage() {
                              size={38} 
                            />
                            <div className="flex flex-col min-w-0">
-                              <span className="font-poppins font-semibold text-white text-[14px] truncate leading-tight">
+                              <span className="font-poppins font-semibold text-[#0A0A0A] text-[14px] truncate leading-tight">
                                 {announcement.authorName}
                               </span>
                               <div className="flex items-center gap-1.5 mt-0.5">
-                                 <span className="text-[10px] font-mono text-[#8A8A8A]">
+                                 <span className="text-[10px] font-mono text-[#52525B]">
                                     {date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                  </span>
-                                 <span className="w-1 h-1 rounded-full bg-white/10" />
-                                 <span className="text-[10px] font-mono text-[#8A8A8A]">
+                                 <span className="w-1 h-1 rounded-full bg-black/[0.07]" />
+                                 <span className="text-[10px] font-mono text-[#52525B]">
                                     {date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                                  </span>
                                  {announcement.isPinned && (
@@ -184,14 +184,14 @@ export default function AnnouncementsPage() {
                              <button 
                                onClick={() => togglePin(announcement)}
                                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                                 announcement.isPinned ? "text-[#E87AA0] bg-[#E87AA0]/10" : "text-[#383838] hover:text-white bg-white/5"
+                                 announcement.isPinned ? "text-[#E87AA0] bg-[#E87AA0]/10" : "text-[#A1A1AA] hover:text-[#0A0A0A] bg-black/[0.04]"
                                }`}
                              >
                                 <Pin size={14} strokeWidth={announcement.isPinned ? 3 : 2} />
                              </button>
                              <button 
                                onClick={() => setDeleteTarget(announcement)}
-                               className="w-8 h-8 rounded-lg flex items-center justify-center text-[#383838] hover:text-red-400 bg-white/5 transition-all"
+                               className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-red-400 bg-black/[0.04] transition-all"
                              >
                                 <Trash2 size={14} />
                              </button>
@@ -203,7 +203,7 @@ export default function AnnouncementsPage() {
                       
                       {/* Message body */}
                       <div className="px-5 py-5">
-                         <p className="font-poppins text-[15px] text-white/90 whitespace-pre-wrap leading-relaxed">
+                         <p className="font-poppins text-[15px] text-[#0A0A0A]/90 whitespace-pre-wrap leading-relaxed">
                             {announcement.message}
                          </p>
                       </div>
@@ -228,35 +228,35 @@ export default function AnnouncementsPage() {
             >
               <GlassSection className="p-6 flex flex-col gap-5">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-poppins font-bold text-white text-lg">
+                  <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
                     Ankündigung
                   </h3>
-                  <button onClick={() => setShowForm(false)} className="text-[#8A8A8A] hover:text-white">
+                  <button onClick={() => setShowForm(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
                     <X size={20} />
                   </button>
                 </div>
 
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-poppins font-bold text-[#8A8A8A] uppercase tracking-widest pl-1">Nachricht</label>
+                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Nachricht</label>
                     <textarea
                       autoFocus
                       rows={6}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Was gibt es Neues?"
-                      className="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3.5 font-poppins text-[15px] text-white placeholder-[#444] focus:outline-none focus:border-white/20 transition-all resize-none"
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all resize-none"
                     />
                   </div>
 
                   <div className="flex items-center justify-between px-1">
                       <div className="flex flex-col gap-0.5">
-                         <span className="font-poppins font-semibold text-white text-sm">Oben anheften</span>
-                         <span className="text-[11px] font-poppins text-[#8A8A8A]">Ganz oben als wichtig markieren</span>
+                         <span className="font-poppins font-semibold text-[#0A0A0A] text-sm">Oben anheften</span>
+                         <span className="text-[11px] font-poppins text-[#52525B]">Ganz oben als wichtig markieren</span>
                       </div>
                       <button 
                         onClick={() => setIsPinned(!isPinned)}
-                        className={`w-11 h-6 rounded-full relative transition-all ${isPinned ? "bg-[#E87AA0]" : "bg-white/10"}`}
+                        className={`w-11 h-6 rounded-full relative transition-all ${isPinned ? "bg-[#E87AA0]" : "bg-black/[0.07]"}`}
                       >
                          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${isPinned ? "left-6" : "left-1"}`} />
                       </button>
@@ -284,8 +284,8 @@ export default function AnnouncementsPage() {
                <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4 border border-red-500/20">
                   <Trash2 size={32} className="text-red-400" />
                </div>
-               <h3 className="text-xl font-bold text-white mb-2">Löschen?</h3>
-               <p className="text-sm text-[#8A8A8A] mb-8 px-4">Soll diese Ankündigung wirklich unwiderruflich gelöscht werden?</p>
+               <h3 className="text-xl font-bold text-[#0A0A0A] mb-2">Löschen?</h3>
+               <p className="text-sm text-[#52525B] mb-8 px-4">Soll diese Ankündigung wirklich unwiderruflich gelöscht werden?</p>
                <div className="flex flex-col gap-2">
                  <TButton label="Löschen" variant="danger" onClick={deleteAnnouncement} />
                  <TButton label="Abbrechen" variant="secondary" onClick={() => setDeleteTarget(null)} />

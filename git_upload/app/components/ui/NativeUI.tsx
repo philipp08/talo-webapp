@@ -6,15 +6,15 @@ import { ReactNode } from "react";
 
 // ─── Colors – 1:1 wie native DesignSystem.swift ──────────────────────────────
 export const colors = {
-  bg:         "#080808",
-  bgSoft:     "#0D0D0D",
-  bgCard:     "#101010",
-  bgMuted:    "#1A1A1A",
-  text:       "#FFFFFF",
-  textSub:    "#8A8A8A",
-  textMuted:  "#383838",
-  border:     "#242424",
-  teal:       "#FFFFFF",   // Akzentfarbe = weiß, wie native tTeal
+  bg:         "#FAFAFA",
+  bgSoft:     "#FFFFFF",
+  bgCard:     "#FFFFFF",
+  bgMuted:    "#F4F4F5",
+  text:       "#0A0A0A",
+  textSub:    "#52525B",
+  textMuted:  "#B4B4BA",
+  border:     "#E4E4E7",
+  teal:       "#0A0A0A",   // Akzentfarbe = dunkel (light mode)
   pink:       "#E87AA0",
   green:      "#34C759",
   orange:     "#FF9500",
@@ -34,7 +34,7 @@ export const TCatBadge = ({
 }) => {
   const styles: Record<string, { bg: string; color: string }> = {
     A: { bg: "rgba(232,122,160,0.15)", color: "#E87AA0" },
-    B: { bg: "rgba(255,255,255,0.08)", color: "#FFFFFF" },
+    B: { bg: "rgba(0,0,0,0.09)", color: "#0A0A0A" },
     C: { bg: "rgba(52,199,89,0.15)",   color: "#34C759" },
     S: { bg: "rgba(255,149,0,0.15)",   color: "#FF9500" },
   };
@@ -67,8 +67,8 @@ export const GlassSection = ({
   <div
     className={`rounded-[18px] overflow-hidden ${className}`}
     style={{
-      background: "rgba(16,16,16,0.85)",
-      border: "1px solid rgba(255,255,255,0.06)",
+      background: "rgba(255,255,255,0.85)",
+      border: "1px solid rgba(0,0,0,0.07)",
       backdropFilter: "blur(20px)",
       WebkitBackdropFilter: "blur(20px)",
     }}
@@ -79,7 +79,7 @@ export const GlassSection = ({
 
 // ─── TLine ────────────────────────────────────────────────────────────────────
 export const TLine = ({ className = "" }: { className?: string }) => (
-  <div className={`h-[1px] w-full ${className}`} style={{ background: "rgba(255,255,255,0.06)" }} />
+  <div className={`h-[1px] w-full ${className}`} style={{ background: "rgba(0,0,0,0.07)" }} />
 );
 
 // ─── TAvatar ──────────────────────────────────────────────────────────────────
@@ -108,14 +108,14 @@ export const TAvatar = ({
       style={{
         width: size,
         height: size,
-        background: "rgba(255,255,255,0.08)",
+        background: "rgba(0,0,0,0.09)",
       }}
     >
       {imageUrl ? (
         <Image src={imageUrl} alt={name} width={size} height={size} className="w-full h-full object-cover" />
       ) : (
         <span
-          className="font-poppins font-bold text-white/80"
+          className="font-poppins font-bold text-[#0A0A0A]/80"
           style={{ fontSize: size * 0.38 }}
         >
           {initials}
@@ -144,10 +144,10 @@ export const TButton = ({
   type?: "button" | "submit";
 }) => {
   const themes: Record<string, string> = {
-    primary:   "bg-white text-[#080808] hover:bg-white/90",
-    secondary: "bg-white/8 text-white hover:bg-white/15 border border-white/10",
+    primary:   "bg-[#0A0A0A] text-white hover:bg-[#0A0A0A]/90",
+    secondary: "bg-black/[0.06] text-[#0A0A0A] hover:bg-black/[0.1] border border-black/10",
     danger:    "bg-[#FF453A]/10 text-[#FF453A] hover:bg-[#FF453A]/20 border border-[#FF453A]/20",
-    ghost:     "bg-transparent text-[#8A8A8A] hover:text-white",
+    ghost:     "bg-transparent text-[#52525B] hover:text-[#0A0A0A]",
   };
 
   return (
@@ -174,23 +174,23 @@ export const TSearchBar = ({
   placeholder?: string;
 }) => (
   <div className="relative w-full">
-    <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#555]" />
+    <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#71717A]" />
     <input
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full rounded-2xl pl-11 pr-10 py-3.5 text-sm font-poppins text-white placeholder-[#444] focus:outline-none transition-all"
+      className="w-full rounded-2xl pl-11 pr-10 py-3.5 text-sm font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none transition-all"
       style={{
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(0,0,0,0.05)",
+        border: "1px solid rgba(0,0,0,0.09)",
       }}
-      onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)")}
-      onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+      onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.2)")}
+      onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.09)")}
     />
     {value && (
       <button
         onClick={() => onChange("")}
-        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#555] hover:text-white transition-colors"
+        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-[#0A0A0A] transition-colors"
       >
         <X size={15} />
       </button>
@@ -204,7 +204,7 @@ export const AmbientBackground = () => (
     <div className="absolute -top-24 -left-12 w-96 h-72 rounded-full blur-[120px]"
          style={{ background: "rgba(232,122,160,0.06)" }} />
     <div className="absolute top-1/3 -right-20 w-80 h-60 rounded-full blur-[100px]"
-         style={{ background: "rgba(255,255,255,0.03)" }} />
+         style={{ background: "rgba(0,0,0,0.04)" }} />
     <div className="absolute -bottom-20 left-1/4 w-72 h-48 rounded-full blur-[90px]"
          style={{ background: "rgba(52,199,89,0.04)" }} />
   </div>
@@ -214,7 +214,7 @@ export const AmbientBackground = () => (
 export const TBadge = ({
   label,
   icon: Icon,
-  color = "white",
+  color = "#0A0A0A",
   className = "",
 }: {
   label: string;
@@ -225,8 +225,8 @@ export const TBadge = ({
   <div
     className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-poppins font-bold uppercase tracking-wider ${className}`}
     style={{
-      background: "rgba(255,255,255,0.05)",
-      border: "1px solid rgba(255,255,255,0.1)",
+      background: "rgba(0,0,0,0.06)",
+      border: "1px solid rgba(0,0,0,0.11)",
       color,
     }}
   >
@@ -269,8 +269,8 @@ export const TFilterPill = ({
     className="shrink-0 px-4 py-1.5 rounded-full text-xs font-poppins font-bold transition-all"
     style={
       isSelected
-        ? { background: "#FFFFFF", color: "#080808", border: "1px solid #FFFFFF" }
-        : { background: "rgba(255,255,255,0.05)", color: "#8A8A8A", border: "1px solid rgba(255,255,255,0.08)" }
+        ? { background: "#0A0A0A", color: "#FAFAFA", border: "1px solid #FFFFFF" }
+        : { background: "rgba(0,0,0,0.06)", color: "#52525B", border: "1px solid rgba(0,0,0,0.09)" }
     }
   >
     {label}

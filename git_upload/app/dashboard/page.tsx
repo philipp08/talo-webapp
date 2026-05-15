@@ -22,8 +22,8 @@ const StatCard = ({
 }) => (
   <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.5 }}>
     <div
-      className="p-6 rounded-[28px] flex flex-col gap-5 relative overflow-hidden group cursor-default h-full transition-all hover:border-white/10"
-      style={{ background: "#0C0C0C", border: "1px solid rgba(255,255,255,0.05)" }}
+      className="p-6 rounded-[28px] flex flex-col gap-5 relative overflow-hidden group cursor-default h-full transition-all hover:border-black/10"
+      style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}
     >
       {/* Glow blob */}
       <div className="absolute top-0 right-0 w-28 h-28 rounded-full -mr-14 -mt-14 transition-colors"
@@ -37,9 +37,9 @@ const StatCard = ({
       </div>
 
       <div className="flex flex-col gap-0.5 relative z-10">
-        <p className="text-[34px] font-poppins font-bold text-white leading-none tracking-tight">{value}</p>
-        <p className="text-[10px] font-poppins font-black tracking-[0.2em] uppercase mt-1" style={{ color: "#555" }}>{label}</p>
-        {subtext && <p className="text-[10px] font-bold mt-1.5" style={{ color: "#383838" }}>{subtext}</p>}
+        <p className="text-[34px] font-poppins font-bold text-[#0A0A0A] leading-none tracking-tight">{value}</p>
+        <p className="text-[10px] font-poppins font-black tracking-[0.2em] uppercase mt-1" style={{ color: "#71717A" }}>{label}</p>
+        {subtext && <p className="text-[10px] font-bold mt-1.5" style={{ color: "#B4B4BA" }}>{subtext}</p>}
       </div>
     </div>
   </motion.div>
@@ -87,20 +87,20 @@ export default function DashboardPage() {
     .slice(0, 3);
 
   return (
-    <div className="relative min-h-screen" style={{ background: "#080808" }}>
+    <div className="relative min-h-screen" style={{ background: "#FAFAFA" }}>
       <div className="relative z-10 p-6 flex flex-col gap-10 max-w-[1400px] mx-auto">
 
         {/* Page Header */}
-        <div className="flex items-center justify-between border-b border-white/5 pb-8">
+        <div className="flex items-center justify-between border-b border-black/5 pb-8">
           <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Dashboard</h1>
-            <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Dein Überblick</p>
+            <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Dashboard</h1>
+            <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Dein Überblick</p>
           </div>
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center min-h-[400px]">
-            <div className="w-8 h-8 animate-spin rounded-full border-[3px] border-white/5 border-t-white" />
+            <div className="w-8 h-8 animate-spin rounded-full border-[3px] border-black/5 border-t-[#0A0A0A]" />
           </div>
         ) : (
           <>
@@ -108,21 +108,21 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
               <StatCard label="Bestätigte Punkte" value={approved.toFixed(1)} icon={CheckCircle} color="#34C759" delay={0.05} subtext="Erfolgreich verbucht" />
               <StatCard label="Warteschlange"     value={pending.toFixed(1)}  icon={Clock}        color="#FF9500" delay={0.10} subtext="In Prüfung" />
-              <StatCard label="Soll-Erfüllung"    value={`${progress.toFixed(0)}%`} icon={Zap}   color="#FFFFFF" delay={0.15} subtext={`${remaining.toFixed(1)} Pkt. verbleibend`} />
+              <StatCard label="Soll-Erfüllung"    value={`${progress.toFixed(0)}%`} icon={Zap}   color="#0A0A0A" delay={0.15} subtext={`${remaining.toFixed(1)} Pkt. verbleibend`} />
               <StatCard label="Jahresziel"        value={targetPts.toFixed(1)} icon={BarChart3}  color="#E87AA0" delay={0.20} subtext={`Ziel ${new Date().getFullYear()}`} />
             </div>
 
             {/* ── Progress bar ────────────────────────────────────── */}
             <div className="flex flex-col gap-2 -mt-4">
               <div className="flex items-center justify-between text-[11px] font-poppins font-bold uppercase tracking-widest px-1"
-                   style={{ color: "#555" }}>
+                   style={{ color: "#71717A" }}>
                 <span>Fortschritt</span>
-                <span style={{ color: progress >= 100 ? "#34C759" : "#8A8A8A" }}>{progress.toFixed(0)}%</span>
+                <span style={{ color: progress >= 100 ? "#34C759" : "#52525B" }}>{progress.toFixed(0)}%</span>
               </div>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.06)" }}>
                 <motion.div
                   className="h-full rounded-full"
-                  style={{ background: progress >= 100 ? "#34C759" : "rgba(255,255,255,0.6)" }}
+                  style={{ background: progress >= 100 ? "#34C759" : "rgba(0,0,0,0.6)" }}
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
@@ -136,18 +136,18 @@ export default function DashboardPage() {
               {/* LEFT: Activity log */}
               <div className="xl:col-span-2 flex flex-col gap-5">
                 <div className="flex items-center justify-between pb-3"
-                     style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                     style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
                   <div>
-                    <h2 className="text-[20px] font-poppins font-bold text-white">Aktivitätsverlauf</h2>
-                    <p className="text-[11px] font-black uppercase tracking-widest mt-0.5" style={{ color: "#555" }}>
+                    <h2 className="text-[20px] font-poppins font-bold text-[#0A0A0A]">Aktivitätsverlauf</h2>
+                    <p className="text-[11px] font-black uppercase tracking-widest mt-0.5" style={{ color: "#71717A" }}>
                       Deine letzten 10 Einträge
                     </p>
                   </div>
                   {isAdmin && (
                     <Link
                       href="/dashboard/genehmigungen"
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all hover:border-white/20"
-                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#8A8A8A" }}
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all hover:border-black/15"
+                      style={{ background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.09)", color: "#52525B" }}
                     >
                       Genehmigungen <ArrowUpRight size={12} />
                     </Link>
@@ -156,16 +156,16 @@ export default function DashboardPage() {
 
                 {entries.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-center rounded-[32px]"
-                       style={{ background: "#0C0C0C", border: "1px solid rgba(255,255,255,0.04)" }}>
+                       style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.05)" }}>
                     <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
-                         style={{ background: "rgba(255,255,255,0.04)" }}>
-                      <PenLine size={22} style={{ color: "#383838" }} />
+                         style={{ background: "rgba(0,0,0,0.05)" }}>
+                      <PenLine size={22} style={{ color: "#B4B4BA" }} />
                     </div>
-                    <p className="font-poppins font-bold text-white text-[16px] mb-1">Kein Verlauf</p>
-                    <p className="text-[13px] mb-6" style={{ color: "#555" }}>Erfasse deine erste Tätigkeit.</p>
+                    <p className="font-poppins font-bold text-[#0A0A0A] text-[16px] mb-1">Kein Verlauf</p>
+                    <p className="text-[13px] mb-6" style={{ color: "#71717A" }}>Erfasse deine erste Tätigkeit.</p>
                     <Link
                       href="/dashboard/eintragen"
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full font-poppins font-semibold text-[13px] text-black bg-white hover:bg-white/90 transition-all"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full font-poppins font-semibold text-[13px] text-white bg-[#0A0A0A] hover:bg-[#0A0A0A]/90 transition-all"
                     >
                       <PenLine size={14} /> Jetzt eintragen
                     </Link>
@@ -179,21 +179,21 @@ export default function DashboardPage() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.05 * idx }}
                         className="flex items-center gap-4 p-4 rounded-[22px] group transition-all cursor-default"
-                        style={{ background: "#0C0C0C", border: "1px solid rgba(255,255,255,0.04)" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.04)")}
+                        style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.05)" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.11)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)")}
                       >
                         <TCatBadge category={entry.activityCategory as string} size={46} />
 
                         <div className="flex flex-col flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="font-poppins font-semibold text-[15px] text-white truncate">
+                            <span className="font-poppins font-semibold text-[15px] text-[#0A0A0A] truncate">
                               {entry.activityName}
                             </span>
                           </div>
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <Calendar size={11} style={{ color: "#555" }} />
-                            <span className="text-[11px]" style={{ color: "#8A8A8A" }}>
+                            <Calendar size={11} style={{ color: "#71717A" }} />
+                            <span className="text-[11px]" style={{ color: "#52525B" }}>
                               {entry.date instanceof Date
                                 ? entry.date.toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })
                                 : "–"}
@@ -203,10 +203,10 @@ export default function DashboardPage() {
 
                         <div className="flex items-center gap-3 shrink-0">
                           <TStatusBadge status={entry.status as string} />
-                          <span className="font-mono font-black text-[18px] text-white">
+                          <span className="font-mono font-black text-[18px] text-[#0A0A0A]">
                             +{entry.points.toFixed(1)}
                           </span>
-                          <ChevronRight size={16} style={{ color: "#383838" }} />
+                          <ChevronRight size={16} style={{ color: "#B4B4BA" }} />
                         </div>
                       </motion.div>
                     ))}
@@ -220,15 +220,15 @@ export default function DashboardPage() {
                 {/* Quick Actions */}
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 pl-1 flex items-center h-10"
-                     style={{ color: "#555", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                     style={{ color: "#71717A", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
                     Quick Actions
                   </p>
                   <div className="flex flex-col gap-3">
                     <Link
                       href="/dashboard/eintragen"
-                      className="group flex items-center gap-4 p-5 rounded-[26px] bg-white text-black hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-white/5"
+                      className="group flex items-center gap-4 p-5 rounded-[26px] bg-[#0A0A0A] text-white hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-black/5"
                     >
-                      <div className="w-11 h-11 rounded-xl bg-black flex items-center justify-center text-white transition-transform group-hover:-rotate-6 shrink-0">
+                      <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-[#0A0A0A] transition-transform group-hover:-rotate-6 shrink-0">
                         <PenLine size={20} strokeWidth={2.5} />
                       </div>
                       <div className="flex flex-col">
@@ -240,17 +240,17 @@ export default function DashboardPage() {
                     <Link
                       href="/dashboard/ankuendigungen"
                       className="flex items-center gap-4 p-5 rounded-[26px] transition-all group"
-                      style={{ background: "#0C0C0C", border: "1px solid rgba(255,255,255,0.05)" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)")}
+                      style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.13)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.06)")}
                     >
                       <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                           style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                        <Megaphone size={20} style={{ color: "#FFFFFF" }} />
+                           style={{ background: "rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.07)" }}>
+                        <Megaphone size={20} style={{ color: "#0A0A0A" }} />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[15px] font-poppins font-semibold text-white">Ankündigungen</span>
-                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#555" }}>
+                        <span className="text-[15px] font-poppins font-semibold text-[#0A0A0A]">Ankündigungen</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#71717A" }}>
                           {announcements.length} Einträge
                         </span>
                       </div>
@@ -261,40 +261,40 @@ export default function DashboardPage() {
                 {/* Announcements */}
                 <div>
                   <div className="flex items-center justify-between mb-4"
-                       style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "12px" }}>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: "#555" }}>
+                       style={{ borderBottom: "1px solid rgba(0,0,0,0.06)", paddingBottom: "12px" }}>
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: "#71717A" }}>
                       Letzte Ankündigungen
                     </p>
-                    <Bell size={13} style={{ color: "#383838" }} />
+                    <Bell size={13} style={{ color: "#B4B4BA" }} />
                   </div>
 
                   {topAnnouncements.length === 0 ? (
                     <div className="py-8 text-center rounded-[24px]"
-                         style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                      <p className="text-[13px] font-poppins" style={{ color: "#555" }}>Keine Ankündigungen</p>
+                         style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.05)" }}>
+                      <p className="text-[13px] font-poppins" style={{ color: "#71717A" }}>Keine Ankündigungen</p>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2.5">
                       {topAnnouncements.map((ann) => (
                         <div key={ann.id} className="p-4 rounded-[20px] flex flex-col gap-2"
                              style={{
-                               background: ann.isPinned ? "rgba(232,122,160,0.06)" : "rgba(255,255,255,0.02)",
-                               border: ann.isPinned ? "1px solid rgba(232,122,160,0.2)" : "1px solid rgba(255,255,255,0.05)",
+                               background: ann.isPinned ? "rgba(232,122,160,0.06)" : "rgba(0,0,0,0.03)",
+                               border: ann.isPinned ? "1px solid rgba(232,122,160,0.2)" : "1px solid rgba(0,0,0,0.06)",
                              }}>
                           <div className="flex items-center gap-2">
                             {ann.isPinned
                               ? <Pin size={11} style={{ color: "#E87AA0" }} />
-                              : <Megaphone size={11} style={{ color: "#555" }} />
+                              : <Megaphone size={11} style={{ color: "#71717A" }} />
                             }
                             <span className="text-[11px] font-poppins font-bold"
-                                  style={{ color: ann.isPinned ? "#E87AA0" : "#8A8A8A" }}>
+                                  style={{ color: ann.isPinned ? "#E87AA0" : "#52525B" }}>
                               {ann.authorName}
                             </span>
                           </div>
-                          <p className="text-[13px] font-poppins text-white leading-relaxed line-clamp-2">
+                          <p className="text-[13px] font-poppins text-[#0A0A0A] leading-relaxed line-clamp-2">
                             {ann.message}
                           </p>
-                          <p className="text-[10px]" style={{ color: "#555" }}>
+                          <p className="text-[10px]" style={{ color: "#71717A" }}>
                             {ann.createdAt instanceof Date
                               ? ann.createdAt.toLocaleDateString("de-DE", { day: "2-digit", month: "short" })
                               : ""}
@@ -304,9 +304,9 @@ export default function DashboardPage() {
                       <Link
                         href="/dashboard/ankuendigungen"
                         className="text-center text-[10px] font-black uppercase tracking-[0.2em] py-3 rounded-full transition-colors"
-                        style={{ color: "#555" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = "#FFFFFF")}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = "#555")}
+                        style={{ color: "#71717A" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "#0A0A0A")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = "#71717A")}
                       >
                         Alle anzeigen
                       </Link>

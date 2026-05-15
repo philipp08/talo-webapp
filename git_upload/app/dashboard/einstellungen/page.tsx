@@ -99,10 +99,10 @@ export default function SettingsPage() {
     <div className="relative min-h-screen">
       <div className="relative z-10 max-w-[1600px] mx-auto py-8 px-6 lg:px-10 pb-16">
         {/* Page Header */}
-        <div className="flex items-center justify-between border-b border-white/5 pb-8 mb-10">
+        <div className="flex items-center justify-between border-b border-black/5 pb-8 mb-10">
           <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font-poppins font-black text-white tracking-tighter">Einstellungen</h1>
-            <p className="text-gray-500 font-bold text-xs uppercase tracking-[0.2em]">Konto & Verein</p>
+            <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Einstellungen</h1>
+            <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Konto & Verein</p>
           </div>
         </div>
 
@@ -116,7 +116,7 @@ export default function SettingsPage() {
            className="lg:sticky lg:top-6"
         >
           <GlassSection className="relative overflow-hidden">
-             <div className="absolute inset-0 bg-white/5 opacity-40" />
+             <div className="absolute inset-0 bg-black/[0.04] opacity-40" />
 
              <div className="relative z-10 flex flex-col items-center">
                 <div className="pt-8 pb-4 relative">
@@ -126,7 +126,7 @@ export default function SettingsPage() {
 
                    <div className="relative w-[104px] h-[104px] rounded-full flex items-center justify-center">
                       <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
+                        <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="4" />
                         <motion.circle
                           cx="50" cy="50" r="46" fill="none" stroke={progressColor} strokeWidth="4" strokeLinecap="round"
                           initial={{ strokeDasharray: "0, 289" }}
@@ -144,15 +144,15 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="flex flex-col items-center gap-1.5 px-6 pb-2 text-center">
-                   <h2 className="text-[22px] font-poppins font-bold text-white leading-tight">
+                   <h2 className="text-[22px] font-poppins font-bold text-[#0A0A0A] leading-tight">
                       {currentMember.firstName} {currentMember.lastName}
                    </h2>
-                   <p className="text-[13px] font-poppins text-[#8A8A8A] leading-none mb-2">{currentMember.email}</p>
+                   <p className="text-[13px] font-poppins text-[#52525B] leading-none mb-2">{currentMember.email}</p>
 
                    <div className="flex items-center gap-2 flex-wrap justify-center">
-                      {isAdmin && <TBadge label="Admin" icon={ShieldCheck} color="white" />}
-                      {isTrainer && !isAdmin && <TBadge label="Trainer" icon={Dumbbell} color="#8A8A8A" />}
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-poppins font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-[#8A8A8A]">
+                      {isAdmin && <TBadge label="Admin" icon={ShieldCheck} color="#0A0A0A" />}
+                      {isTrainer && !isAdmin && <TBadge label="Trainer" icon={Dumbbell} color="#52525B" />}
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-poppins font-bold uppercase tracking-wider bg-black/[0.04] border border-black/10 text-[#52525B]">
                         {currentMember.memberType}
                       </span>
                    </div>
@@ -160,10 +160,10 @@ export default function SettingsPage() {
 
                 <TLine />
 
-                <div className="grid grid-cols-3 w-full divide-x divide-white/[0.08]">
+                <div className="grid grid-cols-3 w-full divide-x divide-black/[0.08]">
                    <HeroStat value={approvedPts.toFixed(1)} label="Punkte" color={progressColor} />
                    <HeroStat value={`${Math.round(progress * 100)}%`} label="Ziel" color={progressColor} />
-                   <HeroStat value={String(entries.length)} label="Einträge" color="#FFFFFF" />
+                   <HeroStat value={String(entries.length)} label="Einträge" color="#0A0A0A" />
                 </div>
              </div>
           </GlassSection>
@@ -179,7 +179,7 @@ export default function SettingsPage() {
                    icon={Lock} 
                    label="Passwort ändern" 
                    sub="Reset-Link an deine E-Mail" 
-                   color="#FFFFFF" 
+                   color="#0A0A0A" 
                    onClick={sendPasswordReset}
                    loading={resetLoading}
                    success={resetSent}
@@ -200,31 +200,31 @@ export default function SettingsPage() {
               {isAdmin ? (
                 <GlassSection className="p-4 flex flex-col gap-5">
                    <div className="flex flex-col gap-1.5 px-1">
-                      <label className="text-[11px] font-poppins font-bold text-[#8A8A8A] uppercase tracking-widest pl-1">Vereinsname</label>
+                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Vereinsname</label>
                       <input 
                         value={clubName}
                         onChange={(e) => setClubName(e.target.value)}
-                        className="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 font-poppins text-sm text-white focus:outline-none focus:border-white/20 transition-all"
+                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                       />
                    </div>
                    <div className="flex flex-col gap-1.5 px-1">
-                      <label className="text-[11px] font-poppins font-bold text-[#8A8A8A] uppercase tracking-widest pl-1">Pflichtpunkte</label>
+                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Pflichtpunkte</label>
                       <input 
                         type="number"
                         value={requiredPoints}
                         onChange={(e) => setRequiredPoints(e.target.value)}
-                        className="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 font-poppins text-sm text-white focus:outline-none focus:border-white/20 transition-all"
+                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                       />
                    </div>
                    <TLine />
                    <div className="flex items-center justify-between px-1">
                       <div className="flex flex-col gap-0.5">
-                         <span className="font-poppins font-semibold text-white text-sm">Genehmigungspflicht</span>
-                         <span className="text-[11px] font-poppins text-[#8A8A8A]">{approvalRequired ? "Einträge brauchen Admin-Freigabe" : "Auto-Genehmigung"}</span>
+                         <span className="font-poppins font-semibold text-[#0A0A0A] text-sm">Genehmigungspflicht</span>
+                         <span className="text-[11px] font-poppins text-[#52525B]">{approvalRequired ? "Einträge brauchen Admin-Freigabe" : "Auto-Genehmigung"}</span>
                       </div>
                       <button
                         onClick={() => setApprovalRequired(!approvalRequired)}
-                        className={`w-11 h-6 rounded-full relative transition-all ${approvalRequired ? "bg-[#34C759]" : "bg-white/10"}`}
+                        className={`w-11 h-6 rounded-full relative transition-all ${approvalRequired ? "bg-[#34C759]" : "bg-black/[0.07]"}`}
                       >
                          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${approvalRequired ? "left-6" : "left-1"}`} />
                       </button>
@@ -233,9 +233,9 @@ export default function SettingsPage() {
                 </GlassSection>
               ) : (
                 <GlassSection>
-                   <SettingsRow icon={Building2} label={currentClub?.name ?? "–"} sub="Dein aktiver Verein" color="#8A8A8A" chevron={false} />
+                   <SettingsRow icon={Building2} label={currentClub?.name ?? "–"} sub="Dein aktiver Verein" color="#52525B" chevron={false} />
                    <TLine className="ml-[68px]" />
-                   <SettingsRow icon={Target} label={`${currentClub?.requiredPoints ?? 15} Punkte`} sub="Jahrespflichtpunkte" color="#FFFFFF" chevron={false} />
+                   <SettingsRow icon={Target} label={`${currentClub?.requiredPoints ?? 15} Punkte`} sub="Jahrespflichtpunkte" color="#0A0A0A" chevron={false} />
                    <TLine className="ml-[68px]" />
                    <SettingsRow icon={Calendar} label={currentClub?.seasonType ?? "–"} sub="Saisontyp" color="#7C6FE0" chevron={false} />
                 </GlassSection>
@@ -244,11 +244,11 @@ export default function SettingsPage() {
 
            {/* App Info Section */}
            <div className="flex flex-col gap-3">
-              <SectionHeader title="APP-INFO" icon={Info} color="#8A8A8A" />
+              <SectionHeader title="APP-INFO" icon={Info} color="#52525B" />
               <GlassSection>
-                 <SettingsRow icon={AppWindow} label="Neu gelauncht (Web)" sub="Talo – Jeder Beitrag zählt" color="#8A8A8A" chevron={false} />
+                 <SettingsRow icon={AppWindow} label="Neu gelauncht (Web)" sub="Talo – Jeder Beitrag zählt" color="#52525B" chevron={false} />
                  <TLine className="ml-[68px]" />
-                 <SettingsRow icon={Database} label="Backend" sub="Synced with iOS App" color="#8A8A8A" chevron={false} />
+                 <SettingsRow icon={Database} label="Backend" sub="Synced with iOS App" color="#52525B" chevron={false} />
               </GlassSection>
            </div>
 
@@ -277,7 +277,7 @@ function HeroStat({ value, label, color }: { value: string, label: string, color
   return (
     <div className="flex flex-col items-center py-4 gap-0.5">
        <span className="font-mono font-bold text-[18px]" style={{ color }}>{value}</span>
-       <span className="text-[10px] font-poppins font-bold text-[#8A8A8A] uppercase tracking-wider">{label}</span>
+       <span className="text-[10px] font-poppins font-bold text-[#52525B] uppercase tracking-wider">{label}</span>
     </div>
   );
 }
@@ -286,7 +286,7 @@ function SectionHeader({ title, icon: Icon, color }: { title: string, icon: Luci
   return (
     <div className="flex items-center gap-2 px-2 pb-1">
        <Icon size={12} style={{ color }} strokeWidth={3} />
-       <span className="text-[10px] font-poppins font-bold text-[#8A8A8A] tracking-[0.15em] uppercase">{title}</span>
+       <span className="text-[10px] font-poppins font-bold text-[#52525B] tracking-[0.15em] uppercase">{title}</span>
     </div>
   );
 }
@@ -296,7 +296,7 @@ function SettingsRow({ icon: Icon, label, sub, color, onClick, chevron = true, l
     <button 
       onClick={onClick}
       disabled={loading}
-      className="w-full flex items-center gap-4 px-4 py-3.5 transition-all active:bg-white/5 group text-left"
+      className="w-full flex items-center gap-4 px-4 py-3.5 transition-all active:bg-black/[0.04] group text-left"
     >
        <div 
          className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-opacity group-active:opacity-60"
@@ -305,15 +305,15 @@ function SettingsRow({ icon: Icon, label, sub, color, onClick, chevron = true, l
           <Icon size={18} strokeWidth={2.5} />
        </div>
        <div className="flex-1 flex flex-col min-w-0">
-          <span className="font-poppins font-semibold text-white text-[15px] leading-tight">{label}</span>
-          <span className="text-[12px] font-poppins text-[#8A8A8A] truncate">{sub}</span>
+          <span className="font-poppins font-semibold text-[#0A0A0A] text-[15px] leading-tight">{label}</span>
+          <span className="text-[12px] font-poppins text-[#52525B] truncate">{sub}</span>
        </div>
        {loading ? (
-         <RefreshCcw size={14} className="text-[#8A8A8A] animate-spin" />
+         <RefreshCcw size={14} className="text-[#52525B] animate-spin" />
        ) : success ? (
          <Check size={16} className="text-[#34C759]" />
        ) : chevron && (
-         <ChevronRight size={14} className="text-[#383838]" />
+         <ChevronRight size={14} className="text-[#A1A1AA]" />
        )}
     </button>
   );
