@@ -13,7 +13,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut, sendPasswordResetEmail } from "firebase/auth";
-import { SeasonType, Entry, Member } from "@/lib/firebase/models";
+import { SeasonType, Entry, Member, getPlanFeatures } from "@/lib/firebase/models";
 import {
   GlassSection, TLine, TAvatar, TButton, TBadge,
 } from "@/app/components/ui/NativeUI";
@@ -172,6 +172,20 @@ export default function SettingsPage() {
 
   const runExport = async (key: ExportKey) => {
     if (!currentClub) return;
+    
+    const planFeatures = getPlanFeatures(currentClub.plan);
+    const isPdf = key.includes("pdf");
+    const isCsv = key.includes("csv");
+
+    if (isCsv && !planFeatures.canExportCsv) {
+      alert("CSV-Exporte sind in deinem aktuellen Plan nicht enthalten (nur in Club oder Pro).");
+      return;
+    }
+    if (isPdf && !planFeatures.canExportPdf) {
+      alert("PDF-Exporte sind in deinem aktuellen Plan nicht enthalten (nur in Club oder Pro).");
+      return;
+    }
+
     setBusyExport(key);
     try {
       const from = new Date(fromDate);
@@ -405,6 +419,7 @@ export default function SettingsPage() {
                         sub="CSV · alle Einträge im Zeitraum"
                         badge="CSV"
                         busy={busyExport === "entries-csv"}
+                        disabledStr={!getPlanFeatures(currentClub?.plan).canExportCsv ? "Plan Upgrade erforderlich" : undefined}
                         onClick={() => runExport("entries-csv")}
                       />
                       <ExportCard
@@ -413,6 +428,7 @@ export default function SettingsPage() {
                         sub="CSV · Punkte, Fehlend, Ausgleich €"
                         badge="CSV"
                         busy={busyExport === "members-csv"}
+                        disabledStr={!getPlanFeatures(currentClub?.plan).canExportCsv ? "Plan Upgrade erforderlich" : undefined}
                         onClick={() => runExport("members-csv")}
                       />
                       <ExportCard
@@ -421,6 +437,7 @@ export default function SettingsPage() {
                         sub="PDF · Übersicht, Tabelle, Kategorien"
                         badge="PDF"
                         busy={busyExport === "annual-report-pdf"}
+                        disabledStr={!getPlanFeatures(currentClub?.plan).canExportPdf ? "Plan Upgrade erforderlich" : undefined}
                         onClick={() => runExport("annual-report-pdf")}
                       />
                       <ExportCard
@@ -429,6 +446,7 @@ export default function SettingsPage() {
                         sub="PDF · Status pro Mitglied"
                         badge="PDF"
                         busy={busyExport === "member-list-pdf"}
+                        disabledStr={!getPlanFeatures(currentClub?.plan).canExportPdf ? "Plan Upgrade erforderlich" : undefined}
                         onClick={() => runExport("member-list-pdf")}
                       />
                     </div>
@@ -599,33 +617,38 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
 }
 
 function ExportCard({
-  icon: Icon, title, sub, badge, busy, onClick,
+  icon: Icon, title, sub, badge, busy, disabledStr, onClick,
 }: {
   icon: React.ElementType;
   title: string;
   sub: string;
   badge: string;
   busy?: boolean;
+  disabledStr?: string;
   onClick: () => void;
 }) {
   return (
     <button
-      onClick={onClick}
-      disabled={busy}
-      className="group relative flex items-start gap-3 px-4 py-3.5 rounded-2xl border border-black/10 bg-black/[0.02] hover:bg-black/[0.05] hover:border-black/20 active:scale-[0.98] transition-all text-left disabled:opacity-60"
+      onClick={disabledStr ? undefined : onClick}
+      disabled={busy || !!disabledStr}
+      title={disabledStr}
+      className={`group relative flex items-start gap-3 px-4 py-3.5 rounded-2xl border border-black/10 transition-all text-left ${disabledStr ? "opacity-50 cursor-not-allowed bg-black/5" : "bg-black/[0.02] hover:bg-black/[0.05] hover:border-black/20 active:scale-[0.98]"}`}
     >
-      <div className="w-10 h-10 rounded-xl bg-[#0A0A0A] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+      <div className={`w-10 h-10 rounded-xl ${disabledStr ? "bg-[#71717A]" : "bg-[#0A0A0A] group-hover:scale-105 transition-transform"} text-white flex items-center justify-center shrink-0`}>
         <Icon size={18} strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-poppins font-bold text-[14px] text-[#0A0A0A] leading-tight">{title}</span>
-          <span className="text-[9px] font-poppins font-black px-1.5 py-0.5 rounded bg-[#0A0A0A] text-white tracking-wider">{badge}</span>
+          <span className={`text-[9px] font-poppins font-black px-1.5 py-0.5 rounded ${disabledStr ? "bg-[#71717A]" : "bg-[#0A0A0A]"} text-white tracking-wider`}>{badge}</span>
         </div>
         <span className="block text-[11.5px] font-poppins text-[#52525B] mt-0.5">{sub}</span>
+        {disabledStr && <span className="block text-[10px] font-poppins font-medium text-red-500 mt-1">{disabledStr}</span>}
       </div>
       {busy ? (
         <span className="absolute right-3 top-3 text-[10px] font-poppins font-bold text-[#71717A]">…</span>
+      ) : disabledStr ? (
+        <Lock size={14} className="absolute right-3 top-3 text-[#A1A1AA]" />
       ) : (
         <Download size={14} className="absolute right-3 top-3 text-[#A1A1AA] group-hover:text-[#0A0A0A] transition-colors" />
       )}

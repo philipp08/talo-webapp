@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Member, MemberType, calculateTargetPoints, Entry } from "@/lib/firebase/models";
+import { Member, MemberType, calculateTargetPoints, Entry, getPlanFeatures } from "@/lib/firebase/models";
 import { AuthService } from "@/lib/firebase/authService";
 import { EmailService } from "@/lib/firebase/emailService";
 import { TAvatar, GlassSection, TLine, TSearchBar } from "@/app/components/ui/NativeUI";
@@ -60,6 +60,8 @@ export default function MembersPage() {
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
   const isAdmin = currentMember?.isAdmin === true;
   const canViewMembers = isAdmin || currentMember?.isTrainer === true;
+  const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
+  const isLimitReached = members.length >= planFeatures.maxMembers;
 
   useEffect(() => {
     if (!currentClub) return;
@@ -115,15 +117,28 @@ export default function MembersPage() {
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-1.5">
               <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Team & Engagement</h1>
-              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name}</p>
+                <div className="px-2 py-0.5 roundedbg-black/[0.05] border border-black/10 rounded-full">
+                  <p className="text-[#52525B] font-bold text-[10px] uppercase tracking-widest">{members.length} / {planFeatures.maxMembers} Mitglieder</p>
+                </div>
+              </div>
             </div>
             {isAdmin && (
               <button
-                onClick={() => setIsInviteOpen(true)}
-                className="shrink-0 flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-4 py-3 md:px-6 rounded-2xl border border-black/10 transition-all font-black text-[11px] uppercase tracking-widest shadow-xl shadow-black/5"
+                onClick={() => {
+                  if (isLimitReached) {
+                    alert(`Das Mitgliederlimit (${planFeatures.maxMembers}) deines aktuellen Plans ist erreicht. Bitte im Bereich 'Einstellungen' eine neue Lizenz aktivieren.`);
+                    return;
+                  }
+                  setIsInviteOpen(true);
+                }}
+                className={`shrink-0 flex items-center gap-2 px-4 py-3 md:px-6 rounded-2xl border transition-all font-black text-[11px] uppercase tracking-widest shadow-xl shadow-black/5 ${
+                  isLimitReached ? "bg-black/[0.05] text-[#71717A] border-black/10 cursor-not-allowed" : "bg-[#0A0A0A] text-white hover:bg-[#1F1F23] border-black/10"
+                }`}
               >
                 <UserPlus size={16} />
-                <span className="hidden sm:inline">Mitglied hinzufügen</span>
+                <span className="hidden sm:inline">{isLimitReached ? "Limit erreicht" : "Mitglied hinzufügen"}</span>
               </button>
             )}
           </div>

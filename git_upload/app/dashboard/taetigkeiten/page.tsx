@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, Pencil, X } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Activity, ActivityCategory } from "@/lib/firebase/models";
-import { GlassSection, TCatBadge, TSearchBar, TButton } from "@/app/components/ui/NativeUI";
+import { Activity, ActivityCategory, getPlanFeatures } from "@/lib/firebase/models";
+import { GlassSection, TCatBadge, TSearchBar, TButton, TBadge } from "@/app/components/ui/NativeUI";
 
 const categoryLabels: Record<string, string> = {
   A: "Kategorie A",
@@ -39,6 +39,10 @@ export default function ActivitiesPage() {
   const [form, setForm] = useState<FormData>(defaultForm());
   const [saving, setSaving] = useState(false);
 
+  const isAdmin = currentMember?.isAdmin === true;
+  const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
+  const isLimitReached = activities.length >= planFeatures.maxActivities;
+
   useEffect(() => {
     if (!currentClub) return;
     const unsub = FirebaseManager.listenToActivities(currentClub.id, (acts) => {
@@ -59,6 +63,10 @@ export default function ActivitiesPage() {
   }, [activities, filterCat, searchText]);
 
   const openAdd = () => {
+    if (isLimitReached) {
+      alert(`Das Kategorienlimit (${planFeatures.maxActivities}) deines aktuellen Plans ist erreicht. Bitte im Bereich 'Einstellungen' den Plan upgraden.`);
+      return;
+    }
     setEditTarget(null);
     setForm(defaultForm());
     setShowForm(true);
@@ -91,8 +99,6 @@ export default function ActivitiesPage() {
     }
   };
 
-  const isAdmin = currentMember?.isAdmin === true;
-
   return (
     <div className="relative min-h-screen">
       <div className="relative z-10 max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10 flex flex-col gap-7 lg:gap-8">
@@ -100,13 +106,17 @@ export default function ActivitiesPage() {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-start justify-between gap-4 border-b border-black/5 pb-6 lg:pb-8 mb-2">
             <div className="flex flex-col gap-2">
-              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Tätigkeiten</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Tätigkeiten</h1>
+                <TBadge color={isLimitReached ? "#EF4444" : "#0A0A0A"} className="hidden sm:inline-flex" label={`${activities.length} ${planFeatures.maxActivities < 999 ? `/ ${planFeatures.maxActivities}` : ""}  Kategorien`} />
+              </div>
               <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Aktivitätskatalog verwalten</p>
             </div>
             {isAdmin && (
               <button
                 onClick={openAdd}
-                className="shrink-0 flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
+                disabled={isLimitReached}
+                className={`shrink-0 flex items-center gap-2 ${isLimitReached ? "bg-[#E4E4E7] text-[#A1A1AA] cursor-not-allowed" : "bg-[#0A0A0A] text-white hover:bg-[#1F1F23]"} px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all`}
               >
                 <Plus size={16} /> Neu
               </button>

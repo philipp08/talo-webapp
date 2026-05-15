@@ -109,3 +109,22 @@ export const calculateTargetPoints = (
   const factor = PointFactors[member.memberType] ?? 1.0;
   return Number((base * factor).toFixed(1));
 };
+
+export const getPlanFeatures = (plan?: string) => {
+  const p = (plan || "free").toLowerCase();
+  
+  if (p === "individual") {
+    return { maxMembers: 99999, maxActivities: 999, canExportCsv: true, canExportPdf: true, hasGroups: true };
+  }
+  if (p === "pro") {
+    return { maxMembers: 300, maxActivities: 999, canExportCsv: true, canExportPdf: true, hasGroups: true };
+  }
+  if (p === "club") {
+    return { maxMembers: 150, maxActivities: 999, canExportCsv: true, canExportPdf: true, hasGroups: true };
+  }
+  if (p === "verein") {
+    return { maxMembers: 75, maxActivities: 999, canExportCsv: true, canExportPdf: false, hasGroups: false };
+  }
+  // Default to Free
+  return { maxMembers: 10, maxActivities: 3, canExportCsv: false, canExportPdf: false, hasGroups: false };
+};

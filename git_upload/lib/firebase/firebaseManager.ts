@@ -17,6 +17,11 @@ import { Club, Member, Entry, Activity, SeasonType, TrainingAnnouncement } from 
 
 export class FirebaseManager {
   // === CLUBS ===
+  static async createClub(club: Omit<Club, "id">): Promise<string> {
+    const docRef = await addDoc(collection(db, "clubs"), club);
+    return docRef.id;
+  }
+
   static async getClub(clubId: string): Promise<Club | null> {
     try {
       const docRef = doc(db, "clubs", clubId);

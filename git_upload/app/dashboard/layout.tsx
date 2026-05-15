@@ -18,6 +18,7 @@ import AuthGuard from "@/app/components/AuthGuard";
 import { TAvatar } from "@/app/components/ui/NativeUI";
 import ScrollReveal from "@/app/components/ScrollReveal";
 import { motion, AnimatePresence } from "framer-motion";
+import OnboardingFlow from "@/app/components/OnboardingFlow";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -67,6 +68,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const isOverflowActive =
     hasMore && navItems.slice(MAX_TABS).some((i) => isTabActive(i.href));
+
+  // If no clubId is assigned, show onboarding to create a club
+  if (currentMember && !currentMember.clubId) {
+    return (
+      <AuthGuard>
+        <OnboardingFlow />
+      </AuthGuard>
+    );
+  }
 
   return (
     <AuthGuard>
