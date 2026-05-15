@@ -67,10 +67,9 @@ export const GlassSection = ({
   <div
     className={`rounded-[18px] overflow-hidden ${className}`}
     style={{
-      background: "rgba(255,255,255,0.85)",
-      border: "1px solid rgba(0,0,0,0.07)",
-      backdropFilter: "blur(20px)",
-      WebkitBackdropFilter: "blur(20px)",
+      background: "#FFFFFF",
+      border: "1px solid rgba(0,0,0,0.06)",
+      boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.03)",
     }}
   >
     {children}

@@ -116,8 +116,6 @@ export default function SettingsPage() {
            className="lg:sticky lg:top-6"
         >
           <GlassSection className="relative overflow-hidden">
-             <div className="absolute inset-0 bg-black/[0.04] opacity-40" />
-
              <div className="relative z-10 flex flex-col items-center">
                 <div className="pt-8 pb-4 relative">
                    <div className="absolute inset-0 flex items-center justify-center">
@@ -126,7 +124,7 @@ export default function SettingsPage() {
 
                    <div className="relative w-[104px] h-[104px] rounded-full flex items-center justify-center">
                       <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="4" />
+                        <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(0,0,0,0.1)" strokeWidth="4" />
                         <motion.circle
                           cx="50" cy="50" r="46" fill="none" stroke={progressColor} strokeWidth="4" strokeLinecap="round"
                           initial={{ strokeDasharray: "0, 289" }}
@@ -255,7 +253,7 @@ export default function SettingsPage() {
            {/* Action Zone */}
            <div className="flex flex-col gap-3 pt-4">
               <SectionHeader title="KONTO-AKTIONEN" icon={AlertTriangle} color="#FF453A" />
-              <GlassSection className="bg-red-500/[0.03] border-red-500/10">
+              <div className="rounded-[18px] overflow-hidden" style={{ background: "rgba(255,69,58,0.04)", border: "1px solid rgba(255,69,58,0.15)", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
                  <SettingsRow
                    icon={LogOut}
                    label="Abmelden"
@@ -263,7 +261,7 @@ export default function SettingsPage() {
                    color="#FF453A"
                    onClick={() => signOut(auth)}
                  />
-              </GlassSection>
+              </div>
            </div>
         </div>
 
