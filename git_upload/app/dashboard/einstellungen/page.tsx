@@ -1,318 +1,398 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import {
-  type LucideIcon,
-  Lock, LogOut, Building2, Info, User,
-  ChevronRight, Check, AlertTriangle, Target,
-  Calendar, Bell, ShieldCheck, Dumbbell,
-  AppWindow, Database, RefreshCcw
-} from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut, sendPasswordResetEmail } from "firebase/auth";
-import { SeasonType, calculateTargetPoints, Entry } from "@/lib/firebase/models";
-import { GlassSection, TLine, TAvatar, TButton, TBadge } from "@/app/components/ui/NativeUI";
+import {
+  SeasonType,
+  Entry,
+  Member,
+} from "@/lib/firebase/models";
+import {
+  csvForEntries,
+  csvForMembers,
+  downloadTextFile,
+  exportFilename,
+} from "@/lib/exports/csv";
+
+const SEASON_TYPES = [
+  SeasonType.Calendar,
+  SeasonType.Club,
+  SeasonType.School,
+];
 
 export default function SettingsPage() {
-  const currentMember = useAppStore((state) => state.currentMember);
-  const currentClub = useAppStore((state) => state.currentClub);
-  const setCurrentClub = useAppStore((state) => state.setCurrentClub);
+  const currentMember = useAppStore((s) => s.currentMember);
+  const currentClub = useAppStore((s) => s.currentClub);
+  const setCurrentClub = useAppStore((s) => s.setCurrentClub);
 
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [resetSent, setResetSent] = useState(false);
-  const [resetLoading, setResetLoading] = useState(false);
+  const [resetState, setResetState] = useState<"idle" | "loading" | "sent">("idle");
 
-  // Club edit state
+  // Club form
   const [clubName, setClubName] = useState(currentClub?.name ?? "");
   const [requiredPoints, setRequiredPoints] = useState(String(currentClub?.requiredPoints ?? 15));
+  const [compensation, setCompensation] = useState(String(currentClub?.compensationPerMissingPoint ?? 0));
   const [seasonType, setSeasonType] = useState<string>(currentClub?.seasonType ?? SeasonType.Calendar);
   const [approvalRequired, setApprovalRequired] = useState(currentClub?.approvalRequired ?? true);
-  const [savingClub, setSavingClub] = useState(false);
-  const [clubSaved, setClubSaved] = useState(false);
+  const [clubState, setClubState] = useState<"idle" | "saving" | "saved">("idle");
+
+  // Export period
+  const thisYear = new Date().getFullYear();
+  const [fromDate, setFromDate] = useState(`${thisYear}-01-01`);
+  const [toDate, setToDate] = useState(`${thisYear}-12-31`);
+
+  // Data for export
+  const [allMembers, setAllMembers] = useState<Member[]>([]);
+  const [allEntries, setAllEntries] = useState<Entry[]>([]);
 
   const isAdmin = currentMember?.isAdmin === true;
   const isTrainer = currentMember?.isTrainer === true;
-  // Load own entries for stats
-  useEffect(() => {
-    if (!currentClub || !currentMember) return;
-    const unsub = FirebaseManager.listenToEntries(currentClub.id, (all) => {
-      setEntries(all.filter((e) => e.memberId === currentMember.id));
-    });
-    return unsub;
-  }, [currentClub, currentMember]);
 
-  // Sync club form when club changes
   useEffect(() => {
     if (!currentClub) return;
     setClubName(currentClub.name);
     setRequiredPoints(String(currentClub.requiredPoints));
+    setCompensation(String(currentClub.compensationPerMissingPoint ?? 0));
     setSeasonType(currentClub.seasonType);
     setApprovalRequired(currentClub.approvalRequired);
   }, [currentClub]);
 
-  const approvedPts = entries
-    .filter((e) => e.status === "Genehmigt")
-    .reduce((s, e) => s + e.points, 0);
-
-  const targetPts = currentMember && currentClub
-    ? calculateTargetPoints(currentMember, currentClub.requiredPoints)
-    : 15;
-
-  const progress = targetPts > 0 ? Math.min(1, approvedPts / targetPts) : 0;
-  const progressColor = progress >= 1 ? "#34C759" : progress >= 0.6 ? "#FF9500" : "#FF453A";
+  useEffect(() => {
+    if (!currentClub || !isAdmin) return;
+    const u1 = FirebaseManager.listenToMembers(currentClub.id, setAllMembers);
+    const u2 = FirebaseManager.listenToEntries(currentClub.id, setAllEntries);
+    return () => {
+      u1();
+      u2();
+    };
+  }, [currentClub, isAdmin]);
 
   const sendPasswordReset = async () => {
     if (!currentMember?.email) return;
-    setResetLoading(true);
+    setResetState("loading");
     try {
       await sendPasswordResetEmail(auth, currentMember.email);
-      setResetSent(true);
-    } catch {}
-    setResetLoading(false);
+      setResetState("sent");
+    } catch {
+      setResetState("idle");
+    }
   };
 
   const saveClub = async () => {
     if (!currentClub) return;
-    setSavingClub(true);
+    setClubState("saving");
     try {
       const updates = {
         name: clubName.trim(),
         requiredPoints: parseFloat(requiredPoints) || 15,
+        compensationPerMissingPoint: parseFloat(compensation) || 0,
         seasonType,
         approvalRequired,
       };
       await FirebaseManager.updateClub(currentClub.id, updates);
       setCurrentClub({ ...currentClub, ...updates });
-      setClubSaved(true);
-      setTimeout(() => setClubSaved(false), 2500);
-    } finally {
-      setSavingClub(false);
+      setClubState("saved");
+      setTimeout(() => setClubState("idle"), 2200);
+    } catch {
+      setClubState("idle");
     }
+  };
+
+  const downloadCsv = (type: "entries-csv" | "members-csv") => {
+    if (!currentClub) return;
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+    to.setHours(23, 59, 59, 999);
+    const content =
+      type === "entries-csv"
+        ? csvForEntries(allEntries, allMembers, from, to)
+        : csvForMembers(allMembers, allEntries, currentClub, from, to);
+    downloadTextFile(exportFilename(type, currentClub, from, to), content);
+  };
+
+  const openPdfReport = (type: "jahresbericht" | "mitgliederliste") => {
+    const params = new URLSearchParams({
+      type,
+      from: fromDate,
+      to: toDate,
+    });
+    window.open(`/dashboard/berichte?${params.toString()}`, "_blank");
   };
 
   if (!currentMember) return null;
 
+  const memberTypeLabel = isAdmin ? "Admin" : isTrainer ? "Trainer" : String(currentMember.memberType);
+
   return (
-    <div className="relative min-h-screen">
-      <div className="relative z-10 max-w-[1600px] mx-auto py-8 px-6 lg:px-10 pb-16">
-        {/* Page Header */}
-        <div className="flex items-center justify-between border-b border-black/5 pb-8 mb-10">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Einstellungen</h1>
-            <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Konto & Verein</p>
-          </div>
+    <div className="min-h-screen">
+      <div className="max-w-3xl mx-auto py-10 px-6 lg:px-10 pb-16">
+        <div className="mb-8">
+          <h1 className="text-2xl font-poppins font-bold text-[#0A0A0A] tracking-tight">Einstellungen</h1>
+          <p className="text-[13px] text-[#71717A] mt-1">Konto, Verein und Exporte</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* PROFIL */}
+        <Section title="Profil">
+          <Row label="Name" value={`${currentMember.firstName} ${currentMember.lastName}`} />
+          <Row label="E-Mail" value={currentMember.email} />
+          <Row label="Rolle" value={memberTypeLabel} />
+          <Row label="Mitgliedstyp" value={String(currentMember.memberType)} />
+        </Section>
 
-        {/* LEFT: Profile Hero Card */}
-        <motion.div
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ duration: 0.6 }}
-           className="lg:sticky lg:top-6"
-        >
-          <GlassSection className="relative overflow-hidden">
-             <div className="relative z-10 flex flex-col items-center">
-                <div className="pt-8 pb-4 relative">
-                   <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-[120px] h-[120px] rounded-full blur-2xl opacity-20" style={{ background: progressColor }} />
-                   </div>
+        {/* KONTO */}
+        <Section title="Konto">
+          <ActionRow
+            label="Passwort ändern"
+            sub="Reset-Link an deine E-Mail senden"
+            buttonLabel={
+              resetState === "loading" ? "Sende…" :
+              resetState === "sent" ? "Gesendet ✓" :
+              "Senden"
+            }
+            onClick={sendPasswordReset}
+            disabled={resetState !== "idle"}
+          />
+          <ActionRow
+            label="Abmelden"
+            sub="Von diesem Gerät ausloggen"
+            buttonLabel="Logout"
+            danger
+            onClick={() => signOut(auth)}
+          />
+        </Section>
 
-                   <div className="relative w-[104px] h-[104px] rounded-full flex items-center justify-center">
-                      <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(0,0,0,0.1)" strokeWidth="4" />
-                        <motion.circle
-                          cx="50" cy="50" r="46" fill="none" stroke={progressColor} strokeWidth="4" strokeLinecap="round"
-                          initial={{ strokeDasharray: "0, 289" }}
-                          animate={{ strokeDasharray: `${progress * 289}, 289` }}
-                          transition={{ duration: 1.2, delay: 0.3 }}
-                        />
-                      </svg>
-                      <TAvatar
-                        name={`${currentMember.firstName} ${currentMember.lastName}`}
-                        id={currentMember.id}
-                        size={88}
-                        imageUrl={currentMember.profileImageUrl}
-                      />
-                   </div>
-                </div>
+        {/* VEREIN */}
+        {isAdmin ? (
+          <Section title="Verein verwalten">
+            <Field label="Vereinsname">
+              <input
+                value={clubName}
+                onChange={(e) => setClubName(e.target.value)}
+                className="settings-input"
+              />
+            </Field>
+            <Field label="Pflichtpunkte / Jahr">
+              <input
+                type="number"
+                step="0.5"
+                value={requiredPoints}
+                onChange={(e) => setRequiredPoints(e.target.value)}
+                className="settings-input"
+              />
+            </Field>
+            <Field label="Ausgleichsbetrag pro fehlendem Punkt (€)">
+              <input
+                type="number"
+                step="0.5"
+                value={compensation}
+                onChange={(e) => setCompensation(e.target.value)}
+                className="settings-input"
+              />
+            </Field>
+            <Field label="Saisontyp">
+              <select
+                value={seasonType}
+                onChange={(e) => setSeasonType(e.target.value)}
+                className="settings-input"
+              >
+                {SEASON_TYPES.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Genehmigungspflicht">
+              <label className="flex items-center gap-2 text-[13px] text-[#0A0A0A]">
+                <input
+                  type="checkbox"
+                  checked={approvalRequired}
+                  onChange={(e) => setApprovalRequired(e.target.checked)}
+                />
+                Einträge brauchen Admin-Freigabe
+              </label>
+            </Field>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={saveClub}
+                disabled={clubState === "saving"}
+                className="px-4 py-2 rounded-lg bg-[#0A0A0A] text-white text-[13px] font-semibold disabled:opacity-50"
+              >
+                {clubState === "saving" ? "Speichert…" : clubState === "saved" ? "Gespeichert ✓" : "Speichern"}
+              </button>
+            </div>
+          </Section>
+        ) : (
+          <Section title="Verein">
+            <Row label="Verein" value={currentClub?.name ?? "–"} />
+            <Row label="Pflichtpunkte" value={`${currentClub?.requiredPoints ?? 15}`} />
+            <Row label="Ausgleichsbetrag" value={`${(currentClub?.compensationPerMissingPoint ?? 0).toFixed(2)} € / Punkt`} />
+            <Row label="Saisontyp" value={currentClub?.seasonType ?? "–"} />
+            <Row label="Genehmigungspflicht" value={currentClub?.approvalRequired ? "Aktiviert" : "Auto-Genehmigung"} />
+          </Section>
+        )}
 
-                <div className="flex flex-col items-center gap-1.5 px-6 pb-2 text-center">
-                   <h2 className="text-[22px] font-poppins font-bold text-[#0A0A0A] leading-tight">
-                      {currentMember.firstName} {currentMember.lastName}
-                   </h2>
-                   <p className="text-[13px] font-poppins text-[#52525B] leading-none mb-2">{currentMember.email}</p>
+        {/* EXPORTE (Admin only) */}
+        {isAdmin && (
+          <Section title="Berichte & Exporte">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+              <Field label="Von">
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="settings-input"
+                />
+              </Field>
+              <Field label="Bis">
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="settings-input"
+                />
+              </Field>
+            </div>
 
-                   <div className="flex items-center gap-2 flex-wrap justify-center">
-                      {isAdmin && <TBadge label="Admin" icon={ShieldCheck} color="#0A0A0A" />}
-                      {isTrainer && !isAdmin && <TBadge label="Trainer" icon={Dumbbell} color="#52525B" />}
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-poppins font-bold uppercase tracking-wider bg-black/[0.04] border border-black/10 text-[#52525B]">
-                        {currentMember.memberType}
-                      </span>
-                   </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <ExportButton
+                title="Einträge (CSV)"
+                sub="Alle Einträge im Zeitraum"
+                onClick={() => downloadCsv("entries-csv")}
+              />
+              <ExportButton
+                title="Mitglieder (CSV)"
+                sub="Punkte, fehlende Punkte, Ausgleich"
+                onClick={() => downloadCsv("members-csv")}
+              />
+              <ExportButton
+                title="Jahresbericht (PDF)"
+                sub="Übersicht, Mitgliedertabelle, Kategorien"
+                onClick={() => openPdfReport("jahresbericht")}
+              />
+              <ExportButton
+                title="Mitgliederliste (PDF)"
+                sub="Karten pro Mitglied mit Status"
+                onClick={() => openPdfReport("mitgliederliste")}
+              />
+            </div>
+            <p className="text-[11px] text-[#71717A] mt-3">
+              PDFs öffnen den Druckdialog des Browsers — wähle „Als PDF speichern".
+            </p>
+          </Section>
+        )}
 
-                <TLine />
-
-                <div className="grid grid-cols-3 w-full divide-x divide-black/[0.08]">
-                   <HeroStat value={approvedPts.toFixed(1)} label="Punkte" color={progressColor} />
-                   <HeroStat value={`${Math.round(progress * 100)}%`} label="Ziel" color={progressColor} />
-                   <HeroStat value={String(entries.length)} label="Einträge" color="#0A0A0A" />
-                </div>
-             </div>
-          </GlassSection>
-        </motion.div>
-
-        {/* RIGHT: Sections */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
-           {/* Account Section */}
-           <div className="flex flex-col gap-3">
-              <SectionHeader title="KONTO" icon={User} color="#E87AA0" />
-              <GlassSection>
-                 <SettingsRow 
-                   icon={Lock} 
-                   label="Passwort ändern" 
-                   sub="Reset-Link an deine E-Mail" 
-                   color="#0A0A0A" 
-                   onClick={sendPasswordReset}
-                   loading={resetLoading}
-                   success={resetSent}
-                 />
-                 <TLine className="ml-[68px]" />
-                 <SettingsRow 
-                   icon={Bell} 
-                   label="Benachrichtigungen" 
-                   sub="Systemeinstellungen" 
-                   color="#7C6FE0" 
-                 />
-              </GlassSection>
-           </div>
-
-           {/* Club Section */}
-           <div className="flex flex-col gap-3">
-              <SectionHeader title={isAdmin ? "VEREIN VERWALTEN" : "VEREIN"} icon={Building2} color="#FF9500" />
-              {isAdmin ? (
-                <GlassSection className="p-4 flex flex-col gap-5">
-                   <div className="flex flex-col gap-1.5 px-1">
-                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Vereinsname</label>
-                      <input 
-                        value={clubName}
-                        onChange={(e) => setClubName(e.target.value)}
-                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
-                      />
-                   </div>
-                   <div className="flex flex-col gap-1.5 px-1">
-                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Pflichtpunkte</label>
-                      <input 
-                        type="number"
-                        value={requiredPoints}
-                        onChange={(e) => setRequiredPoints(e.target.value)}
-                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
-                      />
-                   </div>
-                   <TLine />
-                   <div className="flex items-center justify-between px-1">
-                      <div className="flex flex-col gap-0.5">
-                         <span className="font-poppins font-semibold text-[#0A0A0A] text-sm">Genehmigungspflicht</span>
-                         <span className="text-[11px] font-poppins text-[#52525B]">{approvalRequired ? "Einträge brauchen Admin-Freigabe" : "Auto-Genehmigung"}</span>
-                      </div>
-                      <button
-                        onClick={() => setApprovalRequired(!approvalRequired)}
-                        className={`w-11 h-6 rounded-full relative transition-all ${approvalRequired ? "bg-[#34C759]" : "bg-black/[0.07]"}`}
-                      >
-                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${approvalRequired ? "left-6" : "left-1"}`} />
-                      </button>
-                   </div>
-                   <TButton label={savingClub ? "Speichert…" : (clubSaved ? "Gespeichert!" : "Änderungen speichern")} onClick={saveClub} disabled={savingClub} />
-                </GlassSection>
-              ) : (
-                <GlassSection>
-                   <SettingsRow icon={Building2} label={currentClub?.name ?? "–"} sub="Dein aktiver Verein" color="#52525B" chevron={false} />
-                   <TLine className="ml-[68px]" />
-                   <SettingsRow icon={Target} label={`${currentClub?.requiredPoints ?? 15} Punkte`} sub="Jahrespflichtpunkte" color="#0A0A0A" chevron={false} />
-                   <TLine className="ml-[68px]" />
-                   <SettingsRow icon={Calendar} label={currentClub?.seasonType ?? "–"} sub="Saisontyp" color="#7C6FE0" chevron={false} />
-                </GlassSection>
-              )}
-           </div>
-
-           {/* App Info Section */}
-           <div className="flex flex-col gap-3">
-              <SectionHeader title="APP-INFO" icon={Info} color="#52525B" />
-              <GlassSection>
-                 <SettingsRow icon={AppWindow} label="Neu gelauncht (Web)" sub="Talo – Jeder Beitrag zählt" color="#52525B" chevron={false} />
-                 <TLine className="ml-[68px]" />
-                 <SettingsRow icon={Database} label="Backend" sub="Synced with iOS App" color="#52525B" chevron={false} />
-              </GlassSection>
-           </div>
-
-           {/* Action Zone */}
-           <div className="flex flex-col gap-3 pt-4">
-              <SectionHeader title="KONTO-AKTIONEN" icon={AlertTriangle} color="#FF453A" />
-              <div className="rounded-[18px] overflow-hidden" style={{ background: "rgba(255,69,58,0.04)", border: "1px solid rgba(255,69,58,0.15)", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
-                 <SettingsRow
-                   icon={LogOut}
-                   label="Abmelden"
-                   sub="Von diesem Gerät ausloggen"
-                   color="#FF453A"
-                   onClick={() => signOut(auth)}
-                 />
-              </div>
-           </div>
-        </div>
-
-        </div>{/* end grid */}
+        {/* APP INFO */}
+        <Section title="App">
+          <Row label="Version" value="Talo Web · 0.1" />
+          <Row label="Backend" value="Synchronisiert mit iOS-App" />
+        </Section>
       </div>
+
+      <style jsx global>{`
+        .settings-input {
+          width: 100%;
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 13px;
+          color: #0A0A0A;
+          background: #ffffff;
+          font-family: inherit;
+          outline: none;
+          transition: border-color 0.12s ease;
+        }
+        .settings-input:focus {
+          border-color: #0A0A0A;
+        }
+      `}</style>
     </div>
   );
 }
 
-function HeroStat({ value, label, color }: { value: string, label: string, color?: string }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center py-4 gap-0.5">
-       <span className="font-mono font-bold text-[18px]" style={{ color }}>{value}</span>
-       <span className="text-[10px] font-poppins font-bold text-[#52525B] uppercase tracking-wider">{label}</span>
+    <section className="mb-10">
+      <h2 className="text-[11px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em] mb-3 pb-2 border-b border-black/10">
+        {title}
+      </h2>
+      <div className="flex flex-col gap-3">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-1.5">
+      <span className="text-[13px] text-[#52525B]">{label}</span>
+      <span className="text-[13px] text-[#0A0A0A] font-medium text-right">{value}</span>
     </div>
   );
 }
 
-function SectionHeader({ title, icon: Icon, color }: { title: string, icon: LucideIcon, color: string }) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2 px-2 pb-1">
-       <Icon size={12} style={{ color }} strokeWidth={3} />
-       <span className="text-[10px] font-poppins font-bold text-[#52525B] tracking-[0.15em] uppercase">{title}</span>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[11px] font-poppins font-semibold text-[#52525B]">{label}</label>
+      {children}
     </div>
   );
 }
 
-function SettingsRow({ icon: Icon, label, sub, color, onClick, chevron = true, loading = false, success = false }: { icon: LucideIcon, label: string, sub: string, color: string, onClick?: () => void, chevron?: boolean, loading?: boolean, success?: boolean }) {
+function ActionRow({
+  label,
+  sub,
+  buttonLabel,
+  onClick,
+  danger,
+  disabled,
+}: {
+  label: string;
+  sub: string;
+  buttonLabel: string;
+  onClick: () => void;
+  danger?: boolean;
+  disabled?: boolean;
+}) {
   return (
-    <button 
+    <div className="flex items-center justify-between gap-4 py-1.5">
+      <div className="flex flex-col">
+        <span className="text-[13px] text-[#0A0A0A] font-medium">{label}</span>
+        <span className="text-[11px] text-[#71717A]">{sub}</span>
+      </div>
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className={`shrink-0 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all disabled:opacity-50 ${
+          danger
+            ? "text-[#B91C1C] hover:bg-[#B91C1C]/[0.08] border border-[#B91C1C]/30"
+            : "bg-[#0A0A0A] text-white hover:bg-[#0A0A0A]/90"
+        }`}
+      >
+        {buttonLabel}
+      </button>
+    </div>
+  );
+}
+
+function ExportButton({
+  title,
+  sub,
+  onClick,
+}: {
+  title: string;
+  sub: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
       onClick={onClick}
-      disabled={loading}
-      className="w-full flex items-center gap-4 px-4 py-3.5 transition-all active:bg-black/[0.04] group text-left"
+      className="text-left px-4 py-3 border border-black/10 rounded-lg hover:bg-black/[0.03] hover:border-black/20 transition-all"
     >
-       <div 
-         className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-opacity group-active:opacity-60"
-         style={{ background: `${color}15`, color }}
-       >
-          <Icon size={18} strokeWidth={2.5} />
-       </div>
-       <div className="flex-1 flex flex-col min-w-0">
-          <span className="font-poppins font-semibold text-[#0A0A0A] text-[15px] leading-tight">{label}</span>
-          <span className="text-[12px] font-poppins text-[#52525B] truncate">{sub}</span>
-       </div>
-       {loading ? (
-         <RefreshCcw size={14} className="text-[#52525B] animate-spin" />
-       ) : success ? (
-         <Check size={16} className="text-[#34C759]" />
-       ) : chevron && (
-         <ChevronRight size={14} className="text-[#A1A1AA]" />
-       )}
+      <div className="text-[13px] font-semibold text-[#0A0A0A]">{title}</div>
+      <div className="text-[11px] text-[#71717A] mt-0.5">{sub}</div>
     </button>
   );
 }
