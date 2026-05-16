@@ -147,7 +147,7 @@ export function generateAnnualReportPdf(
 
   const activeMembers = members.filter((m) => !isExemptMember(m));
   const onTrack = activeMembers.filter(
-    (m) => missingPointsForMember(m, club.requiredPoints, inRange) === 0
+    (m) => missingPointsForMember(m, club, inRange) === 0
   ).length;
   const approved = inRange.filter((e) => e.status === EntryStatus.Approved);
   const pending = inRange.filter((e) => e.status === EntryStatus.Pending);
@@ -178,12 +178,12 @@ export function generateAnnualReportPdf(
     startY: y,
     head: [["Name", "Typ", "Ziel", "Erreicht", "Fehlend", "Ausgleich", "Status"]],
     body: sortedMembers.map((m) => {
-      const target = calculateTargetPoints(m, club.requiredPoints);
+      const target = calculateTargetPoints(m, club);
       const ap = approvedPointsForMember(m.id, inRange);
-      const missing = missingPointsForMember(m, club.requiredPoints, inRange);
+      const missing = missingPointsForMember(m, club, inRange);
       const comp = compensationAmountForMember(
         m,
-        club.requiredPoints,
+        club,
         club.compensationPerMissingPoint,
         inRange
       );
@@ -223,10 +223,10 @@ export function generateAnnualReportPdf(
       if (data.section !== "body") return;
       const row = sortedMembers[data.row.index];
       if (!row) return;
-      const missing = missingPointsForMember(row, club.requiredPoints, inRange);
+      const missing = missingPointsForMember(row, club, inRange);
       const comp = compensationAmountForMember(
         row,
-        club.requiredPoints,
+        club,
         club.compensationPerMissingPoint,
         inRange
       );
@@ -326,12 +326,12 @@ export function generateMemberListPdf(
       y = 42;
     }
 
-    const target = calculateTargetPoints(m, club.requiredPoints);
+    const target = calculateTargetPoints(m, club);
     const ap = approvedPointsForMember(m.id, inRange);
-    const missing = missingPointsForMember(m, club.requiredPoints, inRange);
+    const missing = missingPointsForMember(m, club, inRange);
     const comp = compensationAmountForMember(
       m,
-      club.requiredPoints,
+      club,
       club.compensationPerMissingPoint,
       inRange
     );

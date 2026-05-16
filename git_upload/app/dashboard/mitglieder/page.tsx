@@ -46,7 +46,7 @@ export default function MembersPage() {
   const [groups, setGroups] = useState<ClubGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
-  const [memberTypeFilter, setMemberTypeFilter] = useState<MemberType | "all">("all");
+  const [memberTypeFilter, setMemberTypeFilter] = useState<string | "all">("all");
   const [groupFilter, setGroupFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("administration");
   

@@ -91,20 +91,20 @@ export const csvForMembers = (
     .slice()
     .sort((a, b) => a.lastName.localeCompare(b.lastName))
     .forEach((member) => {
-      const target = calculateTargetPoints(member, club.requiredPoints);
+      const target = calculateTargetPoints(member, club);
       const approved = approvedPointsForMember(member.id, inRange);
       const missing = missingPointsForMember(
         member,
-        club.requiredPoints,
+        club,
         inRange
       );
       const compensation = compensationAmountForMember(
         member,
-        club.requiredPoints,
+        club,
         club.compensationPerMissingPoint,
         inRange
       );
-      const status = memberStatusLabel(member, club.requiredPoints, inRange);
+      const status = memberStatusLabel(member, club, inRange);
 
       lines.push(
         [

@@ -20,32 +20,32 @@ export const approvedPointsForMember = (
 
 export const missingPointsForMember = (
   member: Member,
-  clubDefaultPoints: number,
+  club: any,
   entries: Entry[]
 ): number => {
   if (isExemptMember(member)) return 0;
-  const target = calculateTargetPoints(member, clubDefaultPoints);
+  const target = calculateTargetPoints(member, club);
   const approved = approvedPointsForMember(member.id, entries);
   return Math.max(0, target - approved);
 };
 
 export const compensationAmountForMember = (
   member: Member,
-  clubDefaultPoints: number,
+  club: any,
   compensationRate: number,
   entries: Entry[]
 ): number => {
-  const missing = missingPointsForMember(member, clubDefaultPoints, entries);
+  const missing = missingPointsForMember(member, club, entries);
   return missing * compensationRate;
 };
 
 export const memberStatusLabel = (
   member: Member,
-  clubDefaultPoints: number,
+  club: any,
   entries: Entry[]
 ): "Befreit" | "Erfüllt" | "Rückstand" => {
   if (isExemptMember(member)) return "Befreit";
-  return missingPointsForMember(member, clubDefaultPoints, entries) === 0
+  return missingPointsForMember(member, club, entries) === 0
     ? "Erfüllt"
     : "Rückstand";
 };
