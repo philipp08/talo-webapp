@@ -789,13 +789,13 @@ export default function TrainingPage() {
                   </select>
                 </Field>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field label="Datum">
                     <input
                       type="date"
                       value={extraForm.date}
                       onChange={(e) => setExtraForm((f) => ({ ...f, date: e.target.value }))}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all min-h-[48px]"
                     />
                   </Field>
                   <Field label="Uhrzeit">
@@ -803,7 +803,7 @@ export default function TrainingPage() {
                       type="time"
                       value={extraForm.time}
                       onChange={(e) => setExtraForm((f) => ({ ...f, time: e.target.value }))}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all min-h-[48px]"
                     />
                   </Field>
                 </div>
