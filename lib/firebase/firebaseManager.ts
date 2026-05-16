@@ -853,20 +853,32 @@ export class FirebaseManager {
     });
   }
 
-  static async removeMemberFromClub(member: Member, clubId: string): Promise<void> {
+  static async removeMemberFromClub(
+    member: Member,
+    clubId: string
+  ): Promise<{ fullyDeleted: boolean }> {
     const remainingClubIds = normalizeClubIds(member.clubIds, member.clubId).filter(
       (id) => id !== clubId
     );
-    const updates: Record<string, unknown> = {
-      clubIds: remainingClubIds,
-      [`clubMemberships.${clubId}`]: deleteField(),
-    };
 
-    if (!remainingClubIds.includes(member.clubId)) {
-      updates.clubId = remainingClubIds[0] ?? "";
+    // If the member still belongs to other clubs, just remove this club's data
+    if (remainingClubIds.length > 0) {
+      const updates: Record<string, unknown> = {
+        clubIds: remainingClubIds,
+        [`clubMemberships.${clubId}`]: deleteField(),
+      };
+
+      if (!remainingClubIds.includes(member.clubId)) {
+        updates.clubId = remainingClubIds[0] ?? "";
+      }
+
+      await updateDoc(doc(db, "members", member.id), updates);
+      return { fullyDeleted: false };
     }
 
-    await updateDoc(doc(db, "members", member.id), updates);
+    // No clubs remaining — delete the entire member document
+    await deleteDoc(doc(db, "members", member.id));
+    return { fullyDeleted: true };
   }
 
   // === ENTRIES (write) ===

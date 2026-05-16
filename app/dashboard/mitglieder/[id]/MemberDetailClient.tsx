@@ -160,7 +160,29 @@ export default function MemberDetailPage() {
 
   const removeMember = async () => {
     if (!isAdmin || !currentClub || !member) return;
-    await FirebaseManager.removeMemberFromClub(member, currentClub.id);
+    const { fullyDeleted } = await FirebaseManager.removeMemberFromClub(member, currentClub.id);
+
+    // If the member has no remaining clubs, also delete their Firebase Auth account
+    if (fullyDeleted) {
+      try {
+        const { getAuth } = await import("firebase/auth");
+        const auth = getAuth();
+        const token = await auth.currentUser?.getIdToken();
+        if (token) {
+          await fetch("/api/members/delete-auth", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ uid: member.id, clubId: currentClub.id }),
+          });
+        }
+      } catch (err) {
+        console.error("Auth-Konto konnte nicht gelöscht werden:", err);
+      }
+    }
+
     router.push("/dashboard/mitglieder");
   };
 
@@ -639,8 +661,14 @@ export default function MemberDetailPage() {
                 <div className="w-20 h-20 rounded-[24px] bg-red-500/10 flex items-center justify-center mb-5 border border-red-500/20">
                   <AlertTriangle size={40} className="text-red-500" />
                 </div>
-                <h3 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic uppercase">Mitglied Löschen</h3>
-                <p className="text-[#71717A] font-bold text-sm mb-6 px-4">Soll <span className="text-[#0A0A0A] underline decoration-red-500/40">{member.firstName} {member.lastName}</span> wirklich permanent aus der Datenbank des Vereins entfernt werden?</p>
+                <h3 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic uppercase">Mitglied Entfernen</h3>
+                <p className="text-[#71717A] font-bold text-sm mb-6 px-4">
+                  {member.clubIds.length <= 1 ? (
+                    <>Soll <span className="text-[#0A0A0A] underline decoration-red-500/40">{member.firstName} {member.lastName}</span> endgültig entfernt werden? Das Konto und alle Daten werden unwiderruflich gelöscht.</>
+                  ) : (
+                    <>Soll <span className="text-[#0A0A0A] underline decoration-red-500/40">{member.firstName} {member.lastName}</span> aus diesem Verein entfernt werden? Das Konto bleibt bestehen, da noch andere Vereine verknüpft sind.</>
+                  )}
+                </p>
                 <div className="flex flex-col gap-3 w-full">
                   <button onClick={removeMember} className="w-full py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95">Endgültig Löschen</button>
                   <button onClick={() => setMemberToDelete(false)} className="w-full py-4 bg-black/[0.04] hover:bg-black/[0.08] text-[#0A0A0A] rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all border border-black/5 active:scale-95">Abbrechen</button>
