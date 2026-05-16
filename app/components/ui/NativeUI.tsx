@@ -181,7 +181,7 @@ export const TSearchBar = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full rounded-2xl pl-11 pr-10 py-3.5 text-sm font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none transition-all"
+      className="w-full rounded-2xl pl-11 pr-10 py-3.5 text-base font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none transition-all"
       style={{
         background: "rgba(0,0,0,0.05)",
         border: "1px solid rgba(0,0,0,0.09)",

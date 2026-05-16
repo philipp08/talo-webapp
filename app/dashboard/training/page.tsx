@@ -50,6 +50,12 @@ const getDaySession = (
 ): TrainingSession | undefined =>
   sessions.find((s) => s.groupId === groupId && s.dateString === dateStr && !s.isExtra);
 
+const getRootGroup = (group: TrainingGroup, all: TrainingGroup[]): TrainingGroup => {
+  if (!group.parentGroupId) return group;
+  const parent = all.find((g) => g.id === group.parentGroupId);
+  return parent ? getRootGroup(parent, all) : group;
+};
+
 // ── types ─────────────────────────────────────────────────────────────────────
 
 // A slot rendered for a specific day: either a regular schedule entry or an extra session
@@ -154,44 +160,57 @@ export default function TrainingPage() {
     const iosDay  = jsToIos(date.getDay());
     const dateStr = toDateString(date);
     const slots: DaySlot[] = [];
+    const seenKeys = new Set<string>();
 
-    const visibleForMember = (g: TrainingGroup) => {
-      if (isAdminOrTrainer || !currentMember) return true;
-      if (g.memberIds.includes(currentMember.id)) return true;
-      if (g.parentGroupId) {
-        const parent = trainingGroups.find((p) => p.id === g.parentGroupId);
-        if (parent?.memberIds.includes(currentMember.id)) return true;
-      }
-      return false;
-    };
+    const isMemberOnly = !isAdminOrTrainer && currentMember;
 
     for (const group of trainingGroups) {
-      if (!visibleForMember(group)) continue;
+      // Determine if this group should contribute to slots
+      let isVisible = false;
+      if (!isMemberOnly) {
+        isVisible = true; // Admins/Trainers see everything
+      } else {
+        // Members see groups they are in
+        if (group.memberIds.includes(currentMember.id)) isVisible = true;
+      }
 
-      // Regular schedule entries (with inheritance from parent)
+      if (!isVisible) continue;
+
+      // For members, we display the root group (the "Training")
+      const displayGroup = isMemberOnly ? getRootGroup(group, trainingGroups) : group;
+
+      // Regular schedule entries
       const schedule = getEffectiveSchedule(group, trainingGroups);
       const daySession = getDaySession(trainingSessions, group.id, dateStr);
       const cancelledTimes = daySession?.cancelledTimes ?? [];
 
       for (const entry of schedule) {
         if (entry.dayOfWeek === iosDay) {
+          const key = `${displayGroup.id}_${entry.time}_reg`;
+          if (isMemberOnly && seenKeys.has(key)) continue;
+          seenKeys.add(key);
+
           slots.push({
             kind: "regular",
-            group,
+            group: displayGroup,
             time: entry.time,
             cancelled: cancelledTimes.includes(entry.time),
           });
         }
       }
 
-      // Extra sessions on this exact date for this group
+      // Extra sessions
       const extras = trainingSessions.filter(
         (s) => s.groupId === group.id && s.dateString === dateStr && s.isExtra
       );
       for (const extra of extras) {
+        const key = `${displayGroup.id}_${extra.extraTime}_ext`;
+        if (isMemberOnly && seenKeys.has(key)) continue;
+        seenKeys.add(key);
+
         slots.push({
           kind: "extra",
-          group,
+          group: displayGroup,
           time: extra.extraTime ?? "00:00",
           sessionId: extra.id,
           note: extra.note,
@@ -428,6 +447,7 @@ export default function TrainingPage() {
             trainingGroups={trainingGroups}
             allMembers={allMembers}
             isAdminOrTrainer={!!isAdminOrTrainer}
+            currentMember={currentMember}
             onEdit={openEditGroup}
             onDelete={setDeleteTarget}
           />
@@ -463,7 +483,7 @@ export default function TrainingPage() {
                     value={customReason}
                     onChange={(e) => setCustomReason(e.target.value)}
                     placeholder="Eigenen Grund eingeben…"
-                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                   />
                 )}
                 <TButton
@@ -495,7 +515,7 @@ export default function TrainingPage() {
                     value={form.name}
                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                     placeholder="z. B. U15 Leistungskader"
-                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                   />
                 </Field>
 
@@ -521,7 +541,7 @@ export default function TrainingPage() {
                     <select
                       value={form.parentGroupId}
                       onChange={(e) => setForm((f) => ({ ...f, parentGroupId: e.target.value }))}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                     >
                       <option value="">Keine (Hauptgruppe)</option>
                       {trainingGroups
@@ -559,7 +579,7 @@ export default function TrainingPage() {
                         <select
                           value={newEntryDay}
                           onChange={(e) => setNewEntryDay(Number(e.target.value))}
-                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                         >
                           {[1,2,3,4,5,6,7].map((d) => (
                             <option key={d} value={d}>
@@ -574,7 +594,7 @@ export default function TrainingPage() {
                           type="time"
                           value={newEntryTime}
                           onChange={(e) => setNewEntryTime(e.target.value)}
-                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                         />
                       </div>
                       <button
@@ -641,7 +661,7 @@ export default function TrainingPage() {
                     autoFocus
                     value={extraForm.groupId}
                     onChange={(e) => setExtraForm((f) => ({ ...f, groupId: e.target.value }))}
-                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                   >
                     <option value="">Gruppe auswählen…</option>
                     {trainingGroups.map((g) => (
@@ -656,7 +676,7 @@ export default function TrainingPage() {
                       type="date"
                       value={extraForm.date}
                       onChange={(e) => setExtraForm((f) => ({ ...f, date: e.target.value }))}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                     />
                   </Field>
                   <Field label="Uhrzeit">
@@ -664,7 +684,7 @@ export default function TrainingPage() {
                       type="time"
                       value={extraForm.time}
                       onChange={(e) => setExtraForm((f) => ({ ...f, time: e.target.value }))}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                     />
                   </Field>
                 </div>
@@ -675,7 +695,7 @@ export default function TrainingPage() {
                     value={extraForm.note}
                     onChange={(e) => setExtraForm((f) => ({ ...f, note: e.target.value }))}
                     placeholder="z. B. Turniervorbereitung, Auswärtsspiel…"
-                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all resize-none"
+                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all resize-none"
                   />
                 </Field>
 
@@ -797,6 +817,8 @@ function WeekView({
                 date={selectedDate}
                 dateStr={dateStr}
                 session={getDaySession(trainingSessions, slot.group.id, dateStr)}
+                trainingGroups={trainingGroups}
+                trainingSessions={trainingSessions}
                 allMembers={allMembers}
                 currentMember={currentMember}
                 isAdminOrTrainer={isAdminOrTrainer}
@@ -825,6 +847,8 @@ function AttendanceCard({
   date: Date;
   dateStr: string;
   session: TrainingSession | undefined;
+  trainingGroups: TrainingGroup[];
+  trainingSessions: TrainingSession[];
   allMembers: Member[];
   currentMember: Member | null;
   isAdminOrTrainer: boolean;
@@ -840,17 +864,38 @@ function AttendanceCard({
   const isExtra = slot.kind === "extra";
   const isCancelled = slot.kind === "regular" && slot.cancelled;
 
+  const rootGroup = useMemo(() => getRootGroup(group, trainingGroups), [group, trainingGroups]);
+
   const groupMembers = useMemo(
     () => allMembers.filter((m) => group.memberIds.includes(m.id)),
     [allMembers, group.memberIds]
   );
-  const absentIds    = session?.absentMemberIds ?? [];
+
+  // Effective absences: anyone in this group's session OR the root group's session
+  const absentIds = useMemo(() => {
+    const ids = new Set(session?.absentMemberIds ?? []);
+    if (rootGroup.id !== group.id) {
+      const rootSession = getDaySession(trainingSessions, rootGroup.id, dateStr);
+      rootSession?.absentMemberIds.forEach((id) => ids.add(id));
+    }
+    return Array.from(ids);
+  }, [session, rootGroup, group.id, trainingSessions, dateStr]);
+
   const total        = groupMembers.length;
   const presentCount = total - absentIds.filter((id) => group.memberIds.includes(id)).length;
   const ratio        = total > 0 ? presentCount / total : 1;
 
   const myAbsent = currentMember ? absentIds.includes(currentMember.id) : false;
-  const myReason = currentMember ? (session?.absenceReasons[currentMember.id] ?? "") : "";
+  const myReason = useMemo(() => {
+    if (!currentMember) return "";
+    let reason = session?.absenceReasons[currentMember.id] || "";
+    if (!reason && rootGroup.id !== group.id) {
+      const rootSession = getDaySession(trainingSessions, rootGroup.id, dateStr);
+      reason = rootSession?.absenceReasons[currentMember.id] || "";
+    }
+    return reason;
+  }, [currentMember, session, rootGroup, group.id, trainingSessions, dateStr]);
+
   const iAmInGroup = currentMember ? group.memberIds.includes(currentMember.id) : false;
 
   const barColor = ratio >= 0.7 ? "#34C759" : ratio >= 0.4 ? "#FF9500" : "#FF3B30";
@@ -1042,16 +1087,27 @@ function AttendanceCard({
 // ── Groups View ────────────────────────────────────────────────────────────────
 
 function GroupsView({
-  trainingGroups, allMembers, isAdminOrTrainer, onEdit, onDelete,
+  trainingGroups, allMembers, isAdminOrTrainer, currentMember, onEdit, onDelete,
 }: {
   trainingGroups: TrainingGroup[];
   allMembers: Member[];
   isAdminOrTrainer: boolean;
+  currentMember: Member | null;
   onEdit: (g: TrainingGroup) => void;
   onDelete: (g: TrainingGroup) => void;
 }) {
-  const rootGroups = trainingGroups.filter((g) => !g.parentGroupId);
-  const subGroups  = trainingGroups.filter((g) => !!g.parentGroupId);
+  const isMemberOnly = !isAdminOrTrainer && currentMember;
+
+  const rootGroups = trainingGroups.filter((g) => {
+    if (!g.parentGroupId) {
+      if (!isMemberOnly) return true;
+      // Member only sees root groups they are part of (direct or via descendant)
+      return g.memberIds.includes(currentMember.id) || trainingGroups.some(child => child.parentGroupId === g.id && child.memberIds.includes(currentMember.id));
+    }
+    return false;
+  });
+
+  const subGroups = isMemberOnly ? [] : trainingGroups.filter((g) => !!g.parentGroupId);
 
   if (trainingGroups.length === 0) {
     return (

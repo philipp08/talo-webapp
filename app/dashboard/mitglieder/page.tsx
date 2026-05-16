@@ -420,7 +420,7 @@ export default function MembersPage() {
                                     value={inviteFirstName}
                                     onChange={(e) => setInviteFirstName(e.target.value)}
                                     placeholder="z.B. Max"
-                                    className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                                    className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-base font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
                                   />
                                 </div>
                             </div>
@@ -430,7 +430,7 @@ export default function MembersPage() {
                                   value={inviteLastName}
                                   onChange={(e) => setInviteLastName(e.target.value)}
                                   placeholder="Mustermann"
-                                  className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 px-4 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                                  className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 px-4 text-base font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
                                 />
                             </div>
                             <div className="flex flex-col gap-2 col-span-2">
@@ -442,7 +442,7 @@ export default function MembersPage() {
                                     value={inviteEmail}
                                     onChange={(e) => setInviteEmail(e.target.value)}
                                     placeholder="name@beispiel.de"
-                                    className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                                    className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-base font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
                                   />
                                 </div>
                             </div>
