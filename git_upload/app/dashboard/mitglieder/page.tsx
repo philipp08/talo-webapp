@@ -65,6 +65,21 @@ export default function MembersPage() {
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
   const isAdmin = currentMember?.isAdmin === true;
   const canViewMembers = isAdmin || currentMember?.isTrainer === true;
+
+  const closeInviteModal = () => {
+    setIsInviteOpen(false);
+    setInviteEmail("");
+    setInviteFirstName("");
+    setInviteLastName("");
+    setInviteType(MemberType.Active);
+    setInviteGroupId("");
+    setIsCreating(false);
+    setIsSendingMail(false);
+    setMailSent(false);
+    setUserAlreadyExisted(false);
+    setErrorMessage(null);
+    setGeneratedPassword(null);
+  };
   const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
   const isLimitReached = members.length >= planFeatures.maxMembers;
 
@@ -270,12 +285,15 @@ export default function MembersPage() {
        {/* Invite Member Modal */}
       <AnimatePresence>
         {isInviteOpen && isAdmin && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div
+            className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 bg-black/40 backdrop-blur-sm overflow-y-auto"
+            onClick={(e) => { if (e.target === e.currentTarget) closeInviteModal(); }}
+          >
              <motion.div
                initial={{ opacity: 0, scale: 0.95, y: 20 }}
                animate={{ opacity: 1, scale: 1, y: 0 }}
                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-               className="w-full max-w-lg"
+               className="w-full max-w-lg mb-8"
              >
                 <GlassSection className="relative overflow-hidden border-black/10 shadow-3xl">
                    {/* Gradient Glow */}
@@ -288,14 +306,8 @@ export default function MembersPage() {
                             <h2 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic">MITGLIED ANLEGEN</h2>
                             <p className="text-[#71717A] font-bold text-[10px] uppercase tracking-[0.2em]">Konto erstellen und Zugangsdaten senden</p>
                          </div>
-                         <button 
-                           onClick={() => {
-                             setIsInviteOpen(false);
-                             setGeneratedPassword(null);
-                             setErrorMessage(null);
-                             setUserAlreadyExisted(false);
-                             setInviteGroupId("");
-                           }}
+                         <button
+                           onClick={closeInviteModal}
                            className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
                          >
                             <X size={20} />
@@ -380,14 +392,8 @@ export default function MembersPage() {
                                 )}
                               </button>
                             )}
-                            <button 
-                              onClick={() => {
-                                setIsInviteOpen(false);
-                                setGeneratedPassword(null);
-                                setMailSent(false);
-                                setUserAlreadyExisted(false);
-                                setInviteGroupId("");
-                              }}
+                            <button
+                              onClick={closeInviteModal}
                               className={`w-full h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${userAlreadyExisted ? "bg-[#0A0A0A] text-white hover:bg-[#1F1F23]" : "text-[#71717A] hover:text-[#0A0A0A]"}`}
                             >
                               Schließen

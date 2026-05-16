@@ -14,7 +14,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
-import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures, CustomMemberType, isLightColor } from "@/lib/firebase/models";
+import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures, CustomMemberType, isLightColor, MemberType, PointFactors } from "@/lib/firebase/models";
 import {
   GlassSection, TLine, TAvatar, TButton, TBadge,
 } from "@/app/components/ui/NativeUI";
@@ -58,6 +58,7 @@ export default function SettingsPage() {
   const [brandColor, setBrandColor] = useState(currentClub?.brandColor ?? "#0A0A0A");
   const [accentColor, setAccentColor] = useState(currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A");
   const [customMemberTypes, setCustomMemberTypes] = useState<CustomMemberType[]>(currentClub?.customMemberTypes ?? []);
+  const [memberTypeFactors, setMemberTypeFactors] = useState<Record<string, number>>(currentClub?.memberTypeFactors ?? {});
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypeFactor, setNewTypeFactor] = useState("100");
   const [clubState, setClubState] = useState<"idle" | "saving" | "saved">("idle");
@@ -95,6 +96,7 @@ export default function SettingsPage() {
     setBrandColor(currentClub.brandColor ?? "#0A0A0A");
     setAccentColor(currentClub.accentColor ?? currentClub.brandColor ?? "#0A0A0A");
     setCustomMemberTypes(currentClub.customMemberTypes ?? []);
+    setMemberTypeFactors(currentClub.memberTypeFactors ?? {});
   }, [currentClub]);
 
   useEffect(() => {
@@ -227,7 +229,7 @@ export default function SettingsPage() {
         approvalRequired,
         ...(planFeatures.hasClubLogo ? { logoUrl: logoUrl.trim() } : {}),
         ...(planFeatures.hasClubColors ? { brandColor, accentColor } : {}),
-        ...(planFeatures.hasCustomMemberTypes ? { customMemberTypes } : {}),
+        ...(planFeatures.hasCustomMemberTypes ? { customMemberTypes, memberTypeFactors } : {}),
       };
       await FirebaseManager.updateClub(currentClub.id, updates);
       setCurrentClub({ ...currentClub, ...updates });
@@ -259,21 +261,37 @@ export default function SettingsPage() {
     await FirebaseManager.deleteGroup(currentClub.id, groupId);
   };
 
-  const addCustomMemberType = () => {
-    if (!newTypeName.trim()) return;
+  const addCustomMemberType = async () => {
+    if (!newTypeName.trim() || !currentClub) return;
     const factor = Math.min(Math.max(parseFloat(newTypeFactor) || 100, 0), 200) / 100;
     const newType: CustomMemberType = {
       id: crypto.randomUUID(),
       name: newTypeName.trim(),
       pointFactor: factor,
     };
-    setCustomMemberTypes((prev) => [...prev, newType]);
+    const updated = [...customMemberTypes, newType];
+    setCustomMemberTypes(updated);
     setNewTypeName("");
     setNewTypeFactor("100");
+    await FirebaseManager.updateClub(currentClub.id, { customMemberTypes: updated });
+    setCurrentClub({ ...currentClub, customMemberTypes: updated });
   };
 
-  const removeCustomMemberType = (id: string) => {
-    setCustomMemberTypes((prev) => prev.filter((t) => t.id !== id));
+  const removeCustomMemberType = async (id: string) => {
+    if (!currentClub) return;
+    const updated = customMemberTypes.filter((t) => t.id !== id);
+    setCustomMemberTypes(updated);
+    await FirebaseManager.updateClub(currentClub.id, { customMemberTypes: updated });
+    setCurrentClub({ ...currentClub, customMemberTypes: updated });
+  };
+
+  const updateBuiltInFactor = async (typeName: string, pct: string) => {
+    if (!currentClub) return;
+    const factor = Math.min(Math.max(parseFloat(pct) || 0, 0), 200) / 100;
+    const updated = { ...memberTypeFactors, [typeName]: factor };
+    setMemberTypeFactors(updated);
+    await FirebaseManager.updateClub(currentClub.id, { memberTypeFactors: updated });
+    setCurrentClub({ ...currentClub, memberTypeFactors: updated });
   };
 
   const runExport = async (key: ExportKey) => {
@@ -566,36 +584,77 @@ export default function SettingsPage() {
                 <GlassSection>
                   {!planFeatures.hasCustomMemberTypes ? (
                     <PlanUpsell
-                      title="Eigene Mitgliedertypen sind ab dem Club-Plan verfügbar."
-                      text="Erstelle individuelle Mitgliedertypen mit eigenen Punktezielen, z.B. Fördermitglied mit 50 % der Pflichtpunkte."
+                      title="Mitgliedertypen konfigurieren ist ab dem Club-Plan verfügbar."
+                      text="Passe die Punkt-Faktoren für Aktiv, Passiv & Co. an und erstelle eigene Typen wie Fördermitglied."
                     />
                   ) : (
-                    <div className="p-5 flex flex-col gap-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
-                        <Field icon={Users} label="Bezeichnung">
-                          <Input value={newTypeName} onChange={setNewTypeName} placeholder="z.B. Fördermitglied" />
-                        </Field>
-                        <Field label="Punkte-% der Pflicht">
-                          <Input value={newTypeFactor} onChange={setNewTypeFactor} type="number" step="5" suffix="%" />
-                        </Field>
-                        <TButton
-                          label="Anlegen"
-                          icon={Plus}
-                          onClick={addCustomMemberType}
-                          disabled={!newTypeName.trim()}
-                          className="rounded-xl py-2.5"
-                        />
+                    <div className="p-5 flex flex-col gap-5">
+
+                      {/* Built-in types */}
+                      <div className="flex flex-col gap-2">
+                        <p className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em] pl-1">Standardtypen – Punkte-Faktor</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {([MemberType.Active, MemberType.Passive, MemberType.Youth, MemberType.Board] as const).map((type) => {
+                            const defaultPct = Math.round((PointFactors[type] ?? 0) * 100);
+                            const currentPct = memberTypeFactors[type] !== undefined
+                              ? Math.round(memberTypeFactors[type] * 100)
+                              : defaultPct;
+                            return (
+                              <div key={type} className="flex items-center gap-3 rounded-2xl bg-black/[0.03] border border-black/5 px-3 py-2.5">
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-poppins font-bold text-sm text-[#0A0A0A]">{type}</p>
+                                  <p className="text-[10px] text-[#A1A1AA]">Standard: {defaultPct} %</p>
+                                </div>
+                                <div className="w-24 shrink-0">
+                                  <Input
+                                    value={String(currentPct)}
+                                    onChange={(v) => setMemberTypeFactors((prev) => ({
+                                      ...prev,
+                                      [type]: Math.min(Math.max(parseFloat(v) || 0, 0), 200) / 100,
+                                    }))}
+                                    type="number"
+                                    step="5"
+                                    suffix="%"
+                                  />
+                                </div>
+                                <button
+                                  onClick={() => updateBuiltInFactor(type, String(currentPct))}
+                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#0A0A0A] hover:bg-black/[0.06] transition-all shrink-0"
+                                  title="Speichern"
+                                >
+                                  <Check size={14} />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
 
-                      {customMemberTypes.length > 0 && (
-                        <>
-                          <TLine />
+                      <TLine />
+
+                      {/* Custom types */}
+                      <div className="flex flex-col gap-3">
+                        <p className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em] pl-1">Eigene Typen anlegen</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
+                          <Field icon={Users} label="Bezeichnung">
+                            <Input value={newTypeName} onChange={setNewTypeName} placeholder="z.B. Fördermitglied" />
+                          </Field>
+                          <Field label="Punkte-%">
+                            <Input value={newTypeFactor} onChange={setNewTypeFactor} type="number" step="5" suffix="%" />
+                          </Field>
+                          <TButton
+                            label="Anlegen"
+                            icon={Plus}
+                            onClick={addCustomMemberType}
+                            disabled={!newTypeName.trim()}
+                            className="rounded-xl py-2.5"
+                          />
+                        </div>
+
+                        {customMemberTypes.length > 0 && (
                           <div className="flex flex-col gap-2">
                             {customMemberTypes.map((t) => (
                               <div key={t.id} className="flex items-center gap-3 rounded-2xl bg-black/[0.03] border border-black/5 px-4 py-3">
-                                <div className="w-9 h-9 rounded-xl bg-white border border-black/5 flex items-center justify-center shrink-0">
-                                  <Users size={15} className="text-[#0A0A0A]" />
-                                </div>
                                 <div className="min-w-0 flex-1">
                                   <p className="truncate font-poppins font-bold text-sm text-[#0A0A0A]">{t.name}</p>
                                   <p className="text-[11px] text-[#71717A]">{Math.round(t.pointFactor * 100)} % der Pflichtpunkte</p>
@@ -609,11 +668,11 @@ export default function SettingsPage() {
                               </div>
                             ))}
                           </div>
-                        </>
-                      )}
+                        )}
+                      </div>
 
                       <p className="text-[11px] font-poppins text-[#71717A]">
-                        Eigene Typen erscheinen bei der Mitgliederverwaltung. Pflichtpunkte werden anteilig berechnet. Speichern nicht vergessen.
+                        Änderungen werden sofort gespeichert. Eigene Typen erscheinen beim Mitglied anlegen.
                       </p>
                     </div>
                   )}

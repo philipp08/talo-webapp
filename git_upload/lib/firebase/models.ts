@@ -44,6 +44,7 @@ export interface Club {
   logoUrl?: string;
   brandColor?: string;
   accentColor?: string;
+  memberTypeFactors?: Record<string, number>;
   licenseStatus?: string;
   licenseExpiresAt?: Timestamp | Date | null;
   customMemberTypes?: CustomMemberType[];
@@ -168,15 +169,21 @@ export const getEffectiveMemberForClub = (
 
 export const calculateTargetPoints = (
   member: Member,
-  clubDefaultPoints: number
+  clubDefaultPoints: number,
+  memberTypeFactors?: Record<string, number>
 ): number => {
+  const base = member.customTargetPoints ?? clubDefaultPoints;
+  // Per-club factor override (covers both built-in and custom types)
+  const overrideFactor = memberTypeFactors?.[member.memberType];
+  if (overrideFactor !== undefined) {
+    return Number((base * overrideFactor).toFixed(1));
+  }
   if (
     member.memberType === MemberType.Board ||
     member.memberType === MemberType.Youth
   ) {
     return 0;
   }
-  const base = member.customTargetPoints ?? clubDefaultPoints;
   const factor = PointFactors[member.memberType] ?? 1.0;
   return Number((base * factor).toFixed(1));
 };
