@@ -918,6 +918,7 @@ function AttendanceCard({
   const group = slot.group;
   const time = slot.time;
   const isExtra = slot.kind === "extra";
+  const isAdmin = currentMember?.isAdmin === true;
   const isCancelled = slot.kind === "regular" && slot.cancelled;
 
   const rootGroup = useMemo(() => getRootGroup(group, trainingGroups), [group, trainingGroups]);
@@ -1035,30 +1036,48 @@ function AttendanceCard({
                   </span>
                 </div>
               </div>
-              {isTrainerAbsent && (
-                <span className="text-[9px] font-black uppercase tracking-widest text-red-500 bg-red-500/10 px-2 py-1 rounded-full animate-pulse">
-                  Fällt aus
-                </span>
-              )}
-              {isAdminOrTrainer && (
-                <div className="relative">
-                  <select
-                    className="absolute inset-0 opacity-0 cursor-pointer w-full"
-                    onChange={(e) => onSetTrainer(group.id, date, e.target.value)}
-                    value=""
+              <div className="flex items-center gap-2">
+                {(isAdmin || currentMember?.id === effectiveTrainerId) && (
+                  <button
+                    onClick={() => onToggleTrainerAbsence(group.id, date)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                      isTrainerAbsent 
+                        ? "bg-green-50 border-green-200 text-green-600 hover:bg-green-100" 
+                        : "bg-white border-black/10 text-[#52525B] hover:text-red-500 hover:border-red-200"
+                    }`}
                   >
-                    <option value="" disabled>Trainer wählen…</option>
-                    {allMembers
-                      .filter(m => m.isTrainer || m.isAdmin)
-                      .map(m => (
-                        <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
-                      ))}
-                  </select>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-[#52525B] hover:text-[#0A0A0A] transition-all text-[10px] font-black uppercase tracking-widest shadow-sm">
-                    <Pencil size={12} /> Ändern
+                    {isTrainerAbsent ? (
+                      <>
+                        <RotateCcw size={12} /> Wieder eintragen
+                      </>
+                    ) : (
+                      <>
+                        <Ban size={12} /> Abmelden
+                      </>
+                    )}
                   </button>
-                </div>
-              )}
+                )}
+
+                {isAdmin && (
+                  <div className="relative">
+                    <select
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full"
+                      onChange={(e) => onSetTrainer(group.id, date, e.target.value)}
+                      value=""
+                    >
+                      <option value="" disabled>Trainer wählen…</option>
+                      {allMembers
+                        .filter(m => m.isTrainer || m.isAdmin)
+                        .map(m => (
+                          <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
+                        ))}
+                    </select>
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-[#52525B] hover:text-[#0A0A0A] transition-all text-[10px] font-black uppercase tracking-widest shadow-sm">
+                      <Pencil size={12} /> Ändern
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
