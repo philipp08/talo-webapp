@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Trophy,
   ChevronRight, Shield, UserPlus,
-  ArrowUpRight, Target, MoreVertical,
+  Target, MoreVertical,
   X, Mail, User, Check, Layers, Filter
 } from "lucide-react";
 import Link from "next/link";
@@ -643,15 +643,14 @@ function ListView({
             </div>
           </div>
 
-          {/* Desktop table */}
-          <div className="hidden md:block bg-white border border-black/5 rounded-[32px] overflow-hidden shadow-xl">
-            <table className="w-full text-left border-collapse">
+          <div className="bg-white border border-black/5 rounded-[32px] overflow-x-auto shadow-xl">
+            <table className="w-full text-left border-collapse min-w-[520px]">
               <thead>
                 <tr className="border-b border-black/5 bg-black/[0.02]">
-                  <th className="px-7 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest w-[40%]">Mitglied</th>
-                  <th className="px-7 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Fortschritt</th>
-                  <th className="px-7 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-right">Punkte</th>
-                  <th className="px-7 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-center w-16"></th>
+                  <th className="px-6 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Mitglied</th>
+                  <th className="px-6 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Fortschritt</th>
+                  <th className="px-6 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-right">Punkte</th>
+                  <th className="px-6 py-5 w-12"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/[0.04]">
@@ -664,11 +663,11 @@ function ListView({
 
                   return (
                     <tr key={member.id} className="group hover:bg-black/[0.03] transition-colors cursor-pointer">
-                      <td className="px-7 py-4">
-                        <Link href={`/dashboard/mitglieder/${member.id}`} className="flex items-center gap-4">
-                          <TAvatar name={`${member.firstName} ${member.lastName}`} id={member.id} imageUrl={member.profileImageUrl} size={44} />
+                      <td className="px-6 py-4">
+                        <Link href={`/dashboard/mitglieder/${member.id}`} className="flex items-center gap-3">
+                          <TAvatar name={`${member.firstName} ${member.lastName}`} id={member.id} imageUrl={member.profileImageUrl} size={40} />
                           <div className="flex flex-col">
-                            <span className="text-[15px] font-poppins font-bold text-[#0A0A0A] group-hover:underline underline-offset-4 decoration-black/20">
+                            <span className="text-sm font-poppins font-bold text-[#0A0A0A] group-hover:underline underline-offset-4 decoration-black/20 whitespace-nowrap">
                               {member.firstName} {member.lastName}
                             </span>
                             <div className="flex items-center gap-1.5 mt-0.5">
@@ -683,8 +682,8 @@ function ListView({
                           </div>
                         </Link>
                       </td>
-                      <td className="px-7 py-4">
-                        <div className="flex flex-col gap-1.5 max-w-[180px]">
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1.5 min-w-[120px] max-w-[200px]">
                           <div className="h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
                             <motion.div
                               initial={{ width: 0 }}
@@ -694,20 +693,20 @@ function ListView({
                             />
                           </div>
                           <span className="text-[9px] font-black text-[#52525B] uppercase tracking-[0.15em]">
-                            {(progress * 100).toFixed(0)}% Erreicht
+                            {(progress * 100).toFixed(0)}% erreicht
                           </span>
                         </div>
                       </td>
-                      <td className="px-7 py-4 text-right font-mono font-black text-base" style={{ color }}>
+                      <td className="px-6 py-4 text-right font-mono font-black text-sm whitespace-nowrap" style={{ color }}>
                         {approved.toFixed(1)}{" "}
                         <span className="text-[10px] font-black text-gray-700">/ {target.toFixed(1)}</span>
                       </td>
-                      <td className="px-7 py-4 text-center">
+                      <td className="px-6 py-4">
                         <Link
                           href={`/dashboard/mitglieder/${member.id}`}
-                          className="w-9 h-9 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all ml-auto"
+                          className="w-8 h-8 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all"
                         >
-                          <MoreVertical size={15} />
+                          <MoreVertical size={14} />
                         </Link>
                       </td>
                     </tr>
@@ -715,51 +714,6 @@ function ListView({
                 })}
               </tbody>
             </table>
-          </div>
-
-          {/* Mobile card list */}
-          <div className="md:hidden flex flex-col gap-2.5">
-            {group.map((member) => {
-              const mEntries = entries.filter((e) => e.memberId === member.id && e.status === "Genehmigt");
-              const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
-                  const target = currentClub ? calculateTargetPoints(member, currentClub) : 15;
-              const progress = target > 0 ? Math.min(1, approved / target) : 1;
-              const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF453A";
-
-              return (
-                <Link
-                  key={member.id}
-                  href={`/dashboard/mitglieder/${member.id}`}
-                  className="flex items-center gap-3.5 p-4 rounded-[22px] transition-all"
-                  style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}
-                >
-                  <TAvatar name={`${member.firstName} ${member.lastName}`} id={member.id} imageUrl={member.profileImageUrl} size={46} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="font-poppins font-bold text-[15px] text-[#0A0A0A] truncate">
-                        {member.firstName} {member.lastName}
-                      </span>
-                      {member.isAdmin && <Shield size={11} className="text-[#52525B] shrink-0" />}
-                    </div>
-                    {showGroups && member.groupId && (
-                      <p className="text-[10px] font-black text-[#A1A1AA] uppercase tracking-widest">
-                        {groupNameById.get(member.groupId) ?? "Gruppe"}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex-1 h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
-                        <div className="h-full rounded-full transition-all" style={{ width: `${progress * 100}%`, background: color }} />
-                      </div>
-                      <span className="text-[10px] font-mono font-bold shrink-0" style={{ color }}>
-                        {approved.toFixed(1)}
-                        <span className="text-gray-700"> / {target.toFixed(1)}</span>
-                      </span>
-                    </div>
-                  </div>
-                  <ArrowUpRight size={16} className="text-gray-700 shrink-0" />
-                </Link>
-              );
-            })}
           </div>
         </div>
       ))}
