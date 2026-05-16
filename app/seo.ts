@@ -53,11 +53,20 @@ export function createPageMetadata({
       siteName,
       locale: "de_DE",
       type: "website",
+      images: [
+        {
+          url: absoluteUrl("/og-image.png"),
+          width: 1200,
+          height: 630,
+          alt: "Talo - Die moderne Vereinsverwaltung",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [absoluteUrl("/og-image.png")],
     },
   };
 }
