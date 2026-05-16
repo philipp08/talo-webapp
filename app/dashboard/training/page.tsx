@@ -626,6 +626,24 @@ export default function TrainingPage() {
                   </div>
                 </Field>
 
+                {/* Trainer */}
+                {isAdminOrTrainer && (
+                  <Field label="Standard-Trainer">
+                    <select
+                      value={form.trainerId}
+                      onChange={(e) => setForm((f) => ({ ...f, trainerId: e.target.value }))}
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                    >
+                      <option value="">Kein Trainer zugewiesen</option>
+                      {allMembers
+                        .filter((m) => m.isTrainer || m.isAdmin)
+                        .map((m) => (
+                          <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
+                        ))}
+                    </select>
+                  </Field>
+                )}
+
                 {/* Members */}
                 <Field label={`Mitglieder (${form.memberIds.length} ausgewählt)`}>
                   <TSearchBar value={memberSearch} onChange={setMemberSearch} placeholder="Mitglied suchen…" />
@@ -654,24 +672,6 @@ export default function TrainingPage() {
                       ))}
                   </div>
                 </Field>
-
-                {/* Trainer */}
-                {isAdminOrTrainer && (
-                  <Field label="Standard-Trainer">
-                    <select
-                      value={form.trainerId}
-                      onChange={(e) => setForm((f) => ({ ...f, trainerId: e.target.value }))}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
-                    >
-                      <option value="">Kein Trainer zugewiesen</option>
-                      {allMembers
-                        .filter((m) => m.isTrainer || m.isAdmin)
-                        .map((m) => (
-                          <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
-                        ))}
-                    </select>
-                  </Field>
-                )}
               </div>
 
               <div className="p-5 border-t border-black/5">
@@ -1029,9 +1029,9 @@ function AttendanceCard({
                 </span>
               )}
               {isAdminOrTrainer && (
-                <div className="flex items-center gap-1">
-                   <select
-                    className="opacity-0 absolute w-8 h-8 cursor-pointer"
+                <div className="relative">
+                  <select
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full"
                     onChange={(e) => onSetTrainer(group.id, date, e.target.value)}
                     value=""
                   >
@@ -1042,8 +1042,8 @@ function AttendanceCard({
                         <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
                       ))}
                   </select>
-                  <button className="w-8 h-8 rounded-xl bg-white border border-black/5 flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all">
-                    <Pencil size={14} />
+                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-[#52525B] hover:text-[#0A0A0A] transition-all text-[10px] font-black uppercase tracking-widest shadow-sm">
+                    <Pencil size={12} /> Ändern
                   </button>
                 </div>
               )}
