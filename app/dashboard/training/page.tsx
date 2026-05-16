@@ -11,7 +11,7 @@ import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import {
   TrainingGroup, TrainingSession, TrainingScheduleEntry,
   Member, getPlanFeatures, getMemberFullName,
-  TRAINING_GROUP_COLORS, ABSENCE_REASONS,
+  TRAINING_GROUP_COLORS, ABSENCE_REASONS, PlanFeatures,
 } from "@/lib/firebase/models";
 import {
   GlassSection, TLine, TAvatar, TButton, TSearchBar, PlanUpsell,
