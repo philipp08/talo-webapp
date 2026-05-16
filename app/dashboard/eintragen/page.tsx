@@ -1,0 +1,491 @@
+"use client";
+
+import { useEffect, useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle, Circle, ChevronDown, ChevronUp, Search, X, Calendar, Star, MessageSquare, User } from "lucide-react";
+import { useAppStore } from "@/lib/store/useAppStore";
+import { FirebaseManager } from "@/lib/firebase/firebaseManager";
+import { Activity, ActivityCategory, EntryStatus, Member, getMemberFullName } from "@/lib/firebase/models";
+import { GlassSection, TLine, TCatBadge, TAvatar, TFilterPill, TButton } from "@/app/components/ui/NativeUI";
+
+const ALL_CATS = [ActivityCategory.A, ActivityCategory.B, ActivityCategory.C, ActivityCategory.S];
+
+function todayString() {
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
+  return local.toISOString().split("T")[0];
+}
+
+function parseDateInput(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+export default function EintragenPage() {
+  const currentMember = useAppStore((s) => s.currentMember);
+  const currentClub   = useAppStore((s) => s.currentClub);
+
+  const [activities,     setActivities]     = useState<Activity[]>([]);
+  const [members,        setMembers]        = useState<Member[]>([]);
+  const [loadingActs,    setLoadingActs]    = useState(true);
+  const isOverLimit = useAppStore((state) => state.isOverLimit);
+
+  // Form state
+  const [selectedActivity,   setSelectedActivity]   = useState<Activity | null>(null);
+  const [filterCategory,     setFilterCategory]     = useState<ActivityCategory | null>(null);
+  const [activitySearch,     setActivitySearch]     = useState("");
+  const [selectedMemberId,   setSelectedMemberId]   = useState<string | null>(null); // null = self
+  const [date,               setDate]               = useState(todayString());
+  const [notes,              setNotes]              = useState("");
+
+  // Member-picker expand/search
+  const [pickerOpen,    setPickerOpen]    = useState(false);
+  const [memberSearch,  setMemberSearch]  = useState("");
+
+  // Submission
+  const [submitting,  setSubmitting]  = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [error,       setError]       = useState<string | null>(null);
+
+  const isAdmin   = currentMember?.isAdmin   === true;
+  const isTrainer = currentMember?.isTrainer === true;
+
+  // Status logic: Admin/Trainer → direkt genehmigt
+  const entryStatus: string = (isAdmin || isTrainer)
+    ? EntryStatus.Approved
+    : (currentClub?.approvalRequired ? EntryStatus.Pending : EntryStatus.Approved);
+
+  const targetMemberId = isAdmin
+    ? (selectedMemberId ?? currentMember?.id ?? "")
+    : (currentMember?.id ?? "");
+
+  const canSubmit = selectedActivity !== null && targetMemberId !== "" && !isOverLimit;
+
+  // Lade Tätigkeiten
+  useEffect(() => {
+    if (!currentClub) return;
+    const unsub = FirebaseManager.listenToActivities(currentClub.id, (acts) => {
+      setActivities(acts.sort((a, b) => a.name.localeCompare(b.name)));
+      setLoadingActs(false);
+    });
+    return unsub;
+  }, [currentClub]);
+
+  // Lade Mitglieder (nur für Admins)
+  useEffect(() => {
+    if (!currentClub || !isAdmin) return;
+    const unsub = FirebaseManager.listenToMembers(currentClub.id, setMembers);
+    return unsub;
+  }, [currentClub, isAdmin]);
+
+  const filteredActivities = useMemo(() => {
+    let list = activities;
+    if (filterCategory) list = list.filter((a) => a.category === filterCategory);
+    if (activitySearch.trim()) {
+      const q = activitySearch.toLowerCase();
+      list = list.filter((a) => a.name.toLowerCase().includes(q));
+    }
+    return list;
+  }, [activities, filterCategory, activitySearch]);
+
+  const filteredMembers = useMemo(() => {
+    const others = members.filter((m) => m.id !== currentMember?.id);
+    if (!memberSearch.trim()) return others;
+    const q = memberSearch.toLowerCase();
+    return others.filter((m) =>
+      `${m.firstName} ${m.lastName}`.toLowerCase().includes(q)
+    );
+  }, [members, memberSearch, currentMember]);
+
+  const selectedMemberObj = members.find((m) => m.id === selectedMemberId);
+  const targetMemberObj = isAdmin ? (selectedMemberObj ?? currentMember) : currentMember;
+
+  async function submit() {
+    if (!currentClub || !selectedActivity || !targetMemberId || isOverLimit) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const entryId = crypto.randomUUID();
+      await FirebaseManager.addEntry(currentClub.id, entryId, {
+        memberId:         targetMemberId,
+        date:             parseDateInput(date),
+        notes:            notes.trim(),
+        points:           selectedActivity.points,
+        status:           entryStatus,
+        activityName:     selectedActivity.name,
+        activityCategory: selectedActivity.category,
+        groupId:          targetMemberObj?.groupId,
+      });
+
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setSelectedActivity(null);
+        setNotes("");
+        setDate(todayString());
+        setActivitySearch("");
+        if (isAdmin) { setSelectedMemberId(null); setPickerOpen(false); }
+      }, 2500);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Fehler beim Speichern.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="relative min-h-screen">
+      <div className="relative z-10 max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10 flex flex-col gap-7 lg:gap-8 pb-16">
+
+        {/* Page Header */}
+        <div className="flex items-start justify-between gap-4 border-b border-black/5 pb-6 lg:pb-8">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Eintragen</h1>
+            <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Tätigkeit erfassen</p>
+          </div>
+          {/* Status-Badge im Header */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.05 } }}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full"
+                      style={{ background: entryStatus === EntryStatus.Approved ? "rgba(52,199,89,0.08)" : "rgba(255,149,0,0.08)", border: `1px solid ${entryStatus === EntryStatus.Approved ? "rgba(52,199,89,0.2)" : "rgba(255,149,0,0.2)"}` }}>
+            <div className="w-1.5 h-1.5 rounded-full"
+                 style={{ background: entryStatus === EntryStatus.Approved ? "#34C759" : "#FF9500" }} />
+            <span className="text-[11px] font-poppins font-medium hidden sm:block"
+                  style={{ color: entryStatus === EntryStatus.Approved ? "#34C759" : "#FF9500" }}>
+              {entryStatus === EntryStatus.Approved
+                ? "Wird direkt genehmigt"
+                : "Muss genehmigt werden"}
+            </span>
+          </motion.div>
+        </div>
+
+        {/* Main Grid: Left = Aktivitäten, Right = Details */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+          {/* ── LINKE SPALTE: Für wen + Tätigkeit wählen ─────────── */}
+          <div className="flex flex-col gap-5">
+
+            {/* ── Für wen (nur Admin) */}
+            {isAdmin && (
+              <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
+                <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#71717A" }}>
+                  Für wen
+                </p>
+                <GlassSection>
+                  {/* Selbst */}
+                  <button
+                    className="w-full flex items-center gap-3 px-4 py-4 transition-colors hover:bg-black/[0.04]"
+                    onClick={() => { setSelectedMemberId(null); setPickerOpen(false); }}
+                  >
+                    <TAvatar name={`${currentMember?.firstName ?? ""} ${currentMember?.lastName ?? ""}`} id={currentMember?.id ?? ""} size={36} />
+                    <div className="flex flex-col items-start flex-1">
+                      <span className="font-poppins font-semibold text-[14px] text-[#0A0A0A] leading-tight">
+                        {currentMember?.firstName} {currentMember?.lastName}
+                      </span>
+                      <span className="text-[11px]" style={{ color: "#52525B" }}>Für mich selbst</span>
+                    </div>
+                    {selectedMemberId === null && (
+                      <CheckCircle size={20} style={{ color: "#0A0A0A" }} />
+                    )}
+                  </button>
+
+                  <TLine />
+
+                  {/* Anderes Mitglied */}
+                  <div>
+                    <button
+                      className="w-full flex items-center gap-3 px-4 py-4 transition-colors hover:bg-black/[0.04]"
+                      onClick={() => setPickerOpen((p) => !p)}
+                    >
+                      {selectedMemberId && selectedMemberObj ? (
+                        <TAvatar name={getMemberFullName(selectedMemberObj)} id={selectedMemberObj.id} size={36} />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                             style={{ background: "rgba(0,0,0,0.07)" }}>
+                          <User size={16} style={{ color: "#52525B" }} />
+                        </div>
+                      )}
+                      <div className="flex flex-col items-start flex-1">
+                        {selectedMemberId && selectedMemberObj ? (
+                          <>
+                            <span className="font-poppins font-semibold text-[14px] text-[#0A0A0A] leading-tight">
+                              {getMemberFullName(selectedMemberObj)}
+                            </span>
+                            <span className="text-[11px]" style={{ color: "#52525B" }}>Anderes Mitglied</span>
+                          </>
+                        ) : (
+                          <span className="font-poppins font-semibold text-[14px]" style={{ color: "#52525B" }}>
+                            Anderes Mitglied wählen…
+                          </span>
+                        )}
+                      </div>
+                      {selectedMemberId !== null && <CheckCircle size={20} style={{ color: "#0A0A0A" }} />}
+                      {pickerOpen ? <ChevronUp size={16} style={{ color: "#71717A" }} /> : <ChevronDown size={16} style={{ color: "#71717A" }} />}
+                    </button>
+
+                    <AnimatePresence>
+                      {pickerOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          style={{ overflow: "hidden" }}
+                        >
+                          <TLine />
+                          <div className="px-4 py-2.5 flex items-center gap-2"
+                               style={{ background: "rgba(0,0,0,0.03)" }}>
+                            <Search size={14} style={{ color: "#71717A" }} />
+                            <input
+                              value={memberSearch}
+                              onChange={(e) => setMemberSearch(e.target.value)}
+                              placeholder="Suchen…"
+                              className="flex-1 bg-transparent text-[14px] font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none"
+                            />
+                            {memberSearch && (
+                              <button onClick={() => setMemberSearch("")}>
+                                <X size={14} style={{ color: "#71717A" }} />
+                              </button>
+                            )}
+                          </div>
+                          <TLine />
+                          <div className="max-h-52 overflow-y-auto no-scrollbar">
+                            {filteredMembers.length === 0 ? (
+                              <p className="text-center py-5 text-[13px]" style={{ color: "#71717A" }}>Keine Treffer</p>
+                            ) : (
+                              filteredMembers.map((m, idx) => (
+                                <div key={m.id}>
+                                  <button
+                                    className="w-full flex items-center gap-3 px-4 py-3 transition-colors hover:bg-black/[0.04]"
+                                    onClick={() => { setSelectedMemberId(m.id); setPickerOpen(false); }}
+                                  >
+                                    <TAvatar name={getMemberFullName(m)} id={m.id} size={32} />
+                                    <div className="flex flex-col items-start flex-1">
+                                      <span className="font-poppins font-semibold text-[13px] text-[#0A0A0A] leading-tight">
+                                        {getMemberFullName(m)}
+                                      </span>
+                                      <span className="text-[11px]" style={{ color: "#52525B" }}>{m.memberType}</span>
+                                    </div>
+                                    {selectedMemberId === m.id && <CheckCircle size={17} style={{ color: "#0A0A0A" }} />}
+                                  </button>
+                                  {idx < filteredMembers.length - 1 && <TLine className="ml-[52px]" />}
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </GlassSection>
+              </motion.div>
+            )}
+
+            {/* ── Aktueller Benutzer (non-admin) */}
+            {!isAdmin && currentMember && (
+              <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+                          className="flex items-center gap-3 px-4 py-3.5 rounded-2xl"
+                          style={{ background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.07)" }}>
+                <TAvatar name={`${currentMember.firstName} ${currentMember.lastName}`} id={currentMember.id} size={38} />
+                <div className="flex flex-col flex-1">
+                  <span className="font-poppins font-semibold text-[14px] text-[#0A0A0A] leading-tight">
+                    {currentMember.firstName} {currentMember.lastName}
+                  </span>
+                  <span className="text-[11px]" style={{ color: "#52525B" }}>{currentMember.memberType}</span>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── Aktivitäten */}
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.08 } }}>
+              <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#71717A" }}>
+                Tätigkeit wählen
+              </p>
+
+              {/* Category filter */}
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 mb-3">
+                <TFilterPill label="Alle" isSelected={filterCategory === null} onClick={() => setFilterCategory(null)} />
+                {ALL_CATS.map((cat) => (
+                  <TFilterPill
+                    key={cat}
+                    label={cat}
+                    isSelected={filterCategory === cat}
+                    onClick={() => setFilterCategory(filterCategory === cat ? null : cat)}
+                  />
+                ))}
+              </div>
+
+              {/* Search */}
+              <div className="relative mb-3">
+                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "#71717A" }} />
+                <input
+                  value={activitySearch}
+                  onChange={(e) => setActivitySearch(e.target.value)}
+                  placeholder="Tätigkeit suchen…"
+                  className="w-full rounded-2xl pl-9 pr-9 py-3 text-[13px] font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none transition-all"
+                  style={{ background: "rgba(0,0,0,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
+                />
+                {activitySearch && (
+                  <button onClick={() => setActivitySearch("")} className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                    <X size={14} style={{ color: "#71717A" }} />
+                  </button>
+                )}
+              </div>
+
+              {loadingActs ? (
+                <div className="flex justify-center py-10">
+                  <div className="w-6 h-6 rounded-full border-2 border-black/10 border-t-[#0A0A0A] animate-spin" />
+                </div>
+              ) : (
+                <GlassSection>
+                  {filteredActivities.length === 0 ? (
+                    <p className="text-center py-8 text-[13px]" style={{ color: "#71717A" }}>
+                      Keine Tätigkeiten gefunden.
+                    </p>
+                  ) : (
+                    filteredActivities.map((a, idx) => {
+                      const isSelected = selectedActivity?.id === a.id;
+                      return (
+                        <div key={a.id}>
+                          <button
+                            className="w-full flex items-center gap-3.5 px-4 py-4 transition-all text-left"
+                            style={{ background: isSelected ? "rgba(0,0,0,0.05)" : "transparent" }}
+                            onClick={() => setSelectedActivity(isSelected ? null : a)}
+                          >
+                            <TCatBadge category={a.category} size={38} />
+                            <span className="font-poppins text-[14px] text-[#0A0A0A] flex-1 min-w-0 break-words">{a.name}</span>
+                            <span className="font-mono font-bold text-[14px] mr-2" style={{ color: "#52525B" }}>
+                              {a.points.toFixed(1)}
+                            </span>
+                            {isSelected
+                              ? <CheckCircle size={20} style={{ color: "#0A0A0A" }} />
+                              : <Circle     size={20} style={{ color: "#B4B4BA" }} />
+                            }
+                          </button>
+                          {idx < filteredActivities.length - 1 && <TLine />}
+                        </div>
+                      );
+                    })
+                  )}
+                </GlassSection>
+              )}
+            </motion.div>
+          </div>
+
+          {/* ── RECHTE SPALTE: Details + Submit ───────────────────── */}
+          <div className="flex flex-col gap-5 lg:sticky lg:top-6">
+
+            {/* ── Details */}
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.12 } }}>
+              <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#71717A" }}>
+                Details
+              </p>
+              <GlassSection>
+                {/* Datum */}
+                <div className="flex items-center gap-3 px-4 py-4">
+                  <Calendar size={16} style={{ color: "#71717A" }} />
+                  <span className="font-poppins text-[14px] text-[#0A0A0A] flex-1">Datum</span>
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="font-poppins text-[13px] text-[#0A0A0A] bg-transparent focus:outline-none cursor-pointer"
+                    style={{ colorScheme: "dark" }}
+                  />
+                </div>
+
+                <TLine />
+
+                {/* Punkte */}
+                <div className="flex items-center gap-3 px-4 py-4">
+                  <Star size={16} style={{ color: "#71717A" }} />
+                  <span className="font-poppins text-[14px] text-[#0A0A0A] flex-1">Punkte</span>
+                  <span
+                    className="font-mono font-black text-[22px] transition-all"
+                    style={{ color: selectedActivity ? "#0A0A0A" : "#B4B4BA" }}
+                  >
+                    {selectedActivity ? selectedActivity.points.toFixed(1) : "—"}
+                  </span>
+                </div>
+
+                <TLine />
+
+                {/* Gewählte Tätigkeit Preview */}
+                <div className="flex items-center gap-3 px-4 py-4">
+                  <CheckCircle size={16} style={{ color: selectedActivity ? "#0A0A0A" : "#B4B4BA" }} />
+                  <span className="font-poppins text-[14px] flex-1 transition-colors"
+                        style={{ color: selectedActivity ? "#0A0A0A" : "#B4B4BA" }}>
+                    {selectedActivity ? selectedActivity.name : "Keine Tätigkeit gewählt"}
+                  </span>
+                  {selectedActivity && (
+                    <TCatBadge category={selectedActivity.category} size={28} />
+                  )}
+                </div>
+
+                <TLine />
+
+                {/* Notiz */}
+                <div className="flex items-start gap-3 px-4 py-4">
+                  <MessageSquare size={16} style={{ color: "#71717A", marginTop: 2 }} />
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Notiz (optional)"
+                    rows={3}
+                    className="flex-1 bg-transparent font-poppins text-[14px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none resize-none"
+                  />
+                </div>
+              </GlassSection>
+            </motion.div>
+
+            {/* ── Error */}
+            {error && (
+              <p className="text-[13px] font-poppins text-center" style={{ color: "#FF453A" }}>{error}</p>
+            )}
+
+            {/* ── Submit */}
+            <AnimatePresence>
+              {(canSubmit || showSuccess) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                >
+                  {showSuccess ? (
+                    <div className="flex items-center gap-3 p-4 rounded-2xl"
+                         style={{ background: "rgba(52,199,89,0.1)", border: "1px solid rgba(52,199,89,0.2)" }}>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                           style={{ background: "rgba(52,199,89,0.15)" }}>
+                        <CheckCircle size={20} style={{ color: "#34C759" }} />
+                      </div>
+                      <div>
+                        <p className="font-poppins font-bold text-[15px] text-[#0A0A0A]">Erfolgreich eingetragen!</p>
+                        <p className="text-[12px]" style={{ color: "#52525B" }}>
+                          {entryStatus === EntryStatus.Approved ? "Direkt genehmigt ✓" : "Wartet auf Genehmigung"}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <TButton
+                        label={submitting ? "Wird gespeichert…" : (entryStatus === EntryStatus.Pending ? "Zur Genehmigung einreichen" : "Eintrag speichern")}
+                        onClick={submit}
+                        disabled={submitting || !canSubmit}
+                        className="w-full py-4 text-[15px]"
+                      />
+                      {isOverLimit && (
+                        <p className="text-[11px] text-[#FF3B30] text-center font-poppins font-medium mt-1">
+                          Limit erreicht: Eintragen gesperrt.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
