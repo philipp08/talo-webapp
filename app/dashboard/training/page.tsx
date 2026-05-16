@@ -672,13 +672,6 @@ export default function TrainingPage() {
                               )}
                             </button>
                           ))}
-                          <TAvatar name={getMemberFullName(m)} id={m.id} size={30} />
-                          <span className="text-sm font-poppins font-bold text-[#0A0A0A] flex-1">{getMemberFullName(m)}</span>
-                          {form.memberIds.includes(m.id) && (
-                            <Check size={14} className="text-[#34C759]" />
-                          )}
-                        </button>
-                      ))}
                   </div>
                 </Field>
               </div>
