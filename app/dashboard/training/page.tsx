@@ -605,7 +605,7 @@ export default function TrainingPage() {
                             <select
                               value={newEntryDay}
                               onChange={(e) => setNewEntryDay(Number(e.target.value))}
-                              className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                              className="w-full h-[46px] rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                             >
                               {[1,2,3,4,5,6,7].map((d) => (
                                 <option key={d} value={d}>
@@ -620,18 +620,15 @@ export default function TrainingPage() {
                               type="time"
                               value={newEntryTime}
                               onChange={(e) => setNewEntryTime(e.target.value)}
-                              className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                              className="w-full h-[46px] rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                             />
                           </div>
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[9px] font-black text-transparent uppercase tracking-widest pl-1 select-none">A</label>
-                            <button
-                              onClick={addScheduleEntry}
-                              className="flex items-center justify-center gap-1.5 px-4 h-[46px] rounded-2xl bg-[#0A0A0A] text-white text-[10px] font-black uppercase tracking-widest shrink-0 transition-all hover:bg-black/80"
-                            >
-                              <Plus size={14} /> Hinzufügen
-                            </button>
-                          </div>
+                          <button
+                            onClick={addScheduleEntry}
+                            className="flex items-center justify-center gap-1.5 px-4 h-[46px] rounded-2xl bg-[#0A0A0A] text-white text-[10px] font-black uppercase tracking-widest shrink-0 transition-all hover:bg-black/80"
+                          >
+                            <Plus size={14} /> Hinzufügen
+                          </button>
                         </div>
                       </div>
                     </Field>
