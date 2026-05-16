@@ -146,7 +146,7 @@ export const TButton = ({
   type?: "button" | "submit";
 }) => {
   const themes: Record<string, string> = {
-    primary:   "bg-[var(--accent-color,#0A0A0A)] text-white hover:opacity-90 shadow-[0_4px_14px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)]",
+    primary:   "bg-[#0A0A0A] text-white hover:bg-[#0A0A0A]/90",
     secondary: "bg-black/[0.06] text-[#0A0A0A] hover:bg-black/[0.1] border border-black/10",
     danger:    "bg-[#FF453A]/10 text-[#FF453A] hover:bg-[#FF453A]/20 border border-[#FF453A]/20",
     ghost:     "bg-transparent text-[#52525B] hover:text-[#0A0A0A]",
@@ -186,7 +186,7 @@ export const TSearchBar = ({
         background: "rgba(0,0,0,0.05)",
         border: "1px solid rgba(0,0,0,0.09)",
       }}
-      onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-color, rgba(0,0,0,0.2))")}
+      onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.2)")}
       onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.09)")}
     />
     {value && (
@@ -204,11 +204,11 @@ export const TSearchBar = ({
 export const AmbientBackground = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div className="absolute -top-24 -left-12 w-96 h-72 rounded-full blur-[120px]"
-         style={{ background: "var(--brand-color, rgba(232,122,160,0.06))", opacity: 0.12 }} />
+         style={{ background: "rgba(232,122,160,0.06)" }} />
     <div className="absolute top-1/3 -right-20 w-80 h-60 rounded-full blur-[100px]"
-         style={{ background: "var(--accent-color, rgba(0,0,0,0.04))", opacity: 0.08 }} />
+         style={{ background: "rgba(0,0,0,0.04)" }} />
     <div className="absolute -bottom-20 left-1/4 w-72 h-48 rounded-full blur-[90px]"
-         style={{ background: "var(--brand-color, rgba(52,199,89,0.04))", opacity: 0.08 }} />
+         style={{ background: "rgba(52,199,89,0.04)" }} />
   </div>
 );
 
@@ -321,9 +321,3 @@ export const PlanUpsell = ({ title, text }: { title: string; text: string }) => 
   );
 };
 
-// ─── BrandingBar ──────────────────────────────────────────────────────────────
-export const BrandingBar = () => (
-  <div className="absolute top-0 left-0 right-0 h-1 z-50 overflow-hidden">
-    <div className="h-full w-full opacity-60" style={{ background: "linear-gradient(90deg, var(--brand-color) 0%, var(--accent-color) 100%)" }} />
-  </div>
-);
