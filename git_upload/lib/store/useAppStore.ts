@@ -18,6 +18,10 @@ interface AppState {
   // Loading states
   isLoadingAuthedState: boolean;
   setIsLoadingAuthedState: (isLoading: boolean) => void;
+
+  // Plan limit states
+  isOverLimit: boolean;
+  setIsOverLimit: (val: boolean) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -34,4 +38,7 @@ export const useAppStore = create<AppState>((set) => ({
   isLoadingAuthedState: true,
   setIsLoadingAuthedState: (isLoading) =>
     set({ isLoadingAuthedState: isLoading }),
+
+  isOverLimit: false,
+  setIsOverLimit: (isOverLimit) => set({ isOverLimit }),
 }));

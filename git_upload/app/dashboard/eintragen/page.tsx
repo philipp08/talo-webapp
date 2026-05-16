@@ -28,6 +28,7 @@ export default function EintragenPage() {
   const [activities,     setActivities]     = useState<Activity[]>([]);
   const [members,        setMembers]        = useState<Member[]>([]);
   const [loadingActs,    setLoadingActs]    = useState(true);
+  const isOverLimit = useAppStore((state) => state.isOverLimit);
 
   // Form state
   const [selectedActivity,   setSelectedActivity]   = useState<Activity | null>(null);
@@ -58,7 +59,7 @@ export default function EintragenPage() {
     ? (selectedMemberId ?? currentMember?.id ?? "")
     : (currentMember?.id ?? "");
 
-  const canSubmit = selectedActivity !== null && targetMemberId !== "";
+  const canSubmit = selectedActivity !== null && targetMemberId !== "" && !isOverLimit;
 
   // Lade Tätigkeiten
   useEffect(() => {
@@ -100,7 +101,7 @@ export default function EintragenPage() {
   const targetMemberObj = isAdmin ? (selectedMemberObj ?? currentMember) : currentMember;
 
   async function submit() {
-    if (!currentClub || !selectedActivity || !targetMemberId) return;
+    if (!currentClub || !selectedActivity || !targetMemberId || isOverLimit) return;
     setSubmitting(true);
     setError(null);
     try {
@@ -463,12 +464,19 @@ export default function EintragenPage() {
                       </div>
                     </div>
                   ) : (
-                    <TButton
-                      label={submitting ? "Wird gespeichert…" : (entryStatus === EntryStatus.Pending ? "Zur Genehmigung einreichen" : "Eintrag speichern")}
-                      onClick={submit}
-                      disabled={submitting || !canSubmit}
-                      className="w-full py-4 text-[15px]"
-                    />
+                    <div className="flex flex-col gap-2">
+                      <TButton
+                        label={submitting ? "Wird gespeichert…" : (entryStatus === EntryStatus.Pending ? "Zur Genehmigung einreichen" : "Eintrag speichern")}
+                        onClick={submit}
+                        disabled={submitting || !canSubmit}
+                        className="w-full py-4 text-[15px]"
+                      />
+                      {isOverLimit && (
+                        <p className="text-[11px] text-[#FF3B30] text-center font-poppins font-medium mt-1">
+                          Limit erreicht: Eintragen gesperrt.
+                        </p>
+                      )}
+                    </div>
                   )}
                 </motion.div>
               )}

@@ -38,12 +38,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [clubMenuOpen, setClubMenuOpen] = useState(false);
   const [switchingClubId, setSwitchingClubId] = useState<string | null>(null);
+  const [memberCount, setMemberCount] = useState<number | null>(null);
+  const [activityCount, setActivityCount] = useState<number | null>(null);
+  const setIsOverLimit = useAppStore((state) => state.setIsOverLimit);
+  const isOverLimit = useAppStore((state) => state.isOverLimit);
 
   // Close menu on route change
   useEffect(() => {
     queueMicrotask(() => setMobileMenuOpen(false));
     queueMicrotask(() => setClubMenuOpen(false));
   }, [pathname]);
+
+  // Listen to limits
+  useEffect(() => {
+    if (!currentClub) return;
+    const unsubM = FirebaseManager.listenToMembers(currentClub.id, (m) => setMemberCount(m.length));
+    const unsubA = FirebaseManager.listenToActivities(currentClub.id, (a) => setActivityCount(a.length));
+    return () => { unsubM(); unsubA(); };
+  }, [currentClub]);
+
+  useEffect(() => {
+    if (!currentClub) return;
+    const pf = getPlanFeatures(currentClub.plan);
+    const mOver = memberCount !== null && memberCount > pf.maxMembers;
+    const aOver = activityCount !== null && activityCount > pf.maxActivities;
+    setIsOverLimit(mOver || aOver);
+  }, [memberCount, activityCount, currentClub, setIsOverLimit]);
 
   // Redirect admin to their dedicated console
   useEffect(() => {
@@ -439,8 +459,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* ── MAIN CONTENT ────────────────────────────────────────────── */}
-        <main className="flex-1 relative overflow-hidden" style={{ background: "#FAFAFA" }}>
-          <div className="absolute inset-0 overflow-y-auto no-scrollbar lg:pt-0 pt-14 pb-[calc(80px+env(safe-area-inset-bottom))] lg:pb-0">
+        <main className="flex-1 relative overflow-hidden flex flex-col" style={{ background: "#FAFAFA" }}>
+          
+          <AnimatePresence>
+            {isOverLimit && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="bg-[#FF3B30] text-white flex-shrink-0"
+              >
+                <div className="px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 max-w-[1600px] mx-auto">
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-poppins font-black text-[13px] uppercase tracking-widest text-white/90">Achtung: Plan-Limit überschritten</h3>
+                    <p className="text-sm font-medium">Dein Verein hat mehr Mitglieder ({memberCount}/{planFeatures.maxMembers}) oder Tätigkeiten ({activityCount}/{planFeatures.maxActivities}) als der aktuelle Plan erlaubt. Talo befindet sich im Read-Only Modus. Bitte lösche Daten oder wechsle den Plan.</p>
+                  </div>
+                  <Link href="/dashboard/einstellungen" className="shrink-0 bg-white text-[#FF3B30] px-5 py-2.5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-sm hover:scale-105 transition-all">
+                    Plan upraden
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="flex-1 overflow-y-auto no-scrollbar lg:pt-0 pt-14 pb-[calc(80px+env(safe-area-inset-bottom))] lg:pb-0">
             <ScrollReveal direction="up" delay={0.05}>
               {children}
             </ScrollReveal>
