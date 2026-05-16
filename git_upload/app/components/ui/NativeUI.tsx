@@ -2,7 +2,7 @@
 
 import { LucideIcon, Search, X, Lock } from "lucide-react";
 import Image from "next/image";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 
 // ─── Colors – 1:1 wie native DesignSystem.swift ──────────────────────────────
 export const colors = {
@@ -60,9 +60,11 @@ export const TCatBadge = ({
 export const GlassSection = ({
   children,
   className = "",
+  style,
 }: {
   children: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }) => (
   <div
     className={`rounded-[18px] overflow-hidden ${className}`}
@@ -70,6 +72,7 @@ export const GlassSection = ({
       background: "#FFFFFF",
       border: "1px solid rgba(0,0,0,0.06)",
       boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.03)",
+      ...style,
     }}
   >
     {children}

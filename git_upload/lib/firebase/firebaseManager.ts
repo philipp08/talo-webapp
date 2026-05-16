@@ -26,12 +26,21 @@ import {
   SeasonType,
   Training,
   TrainingSchedule,
+  TrainingGroup,
+  TrainingSession,
   TrainingAnnouncement,
   ClubMembership,
   ClubGroup,
   getEffectiveMemberForClub,
   normalizeClubIds,
 } from "./models";
+
+const toDateString = (date: Date): string => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
 
 const buildClub = (id: string, data: DocumentData): Club => ({
   id,
@@ -347,7 +356,7 @@ export class FirebaseManager {
           result.push({
             id: docSnap.id,
             clubId: data.clubId,
-            groupId: data.groupId,
+            trainingGroupId: data.trainingGroupId,
             authorId: data.authorId,
             authorName: data.authorName,
             message: data.message,
@@ -381,7 +390,8 @@ export class FirebaseManager {
           result.push({
             id: docSnap.id,
             clubId: data.clubId,
-            groupId: data.groupId,
+            trainingGroupId: data.trainingGroupId,
+            scheduleId: data.scheduleId,
             title: data.title,
             description: data.description,
             date: data.date instanceof Timestamp ? data.date.toDate() : data.date,
@@ -421,7 +431,7 @@ export class FirebaseManager {
           result.push({
             id: docSnap.id,
             clubId: data.clubId,
-            groupId: data.groupId,
+            trainingGroupId: data.trainingGroupId,
             title: data.title,
             description: data.description,
             weekday: data.weekday,
@@ -438,6 +448,121 @@ export class FirebaseManager {
         console.error("Error listening to training schedules:", error);
       }
     );
+  }
+
+  // === TRAINING GROUPS ===
+  static listenToTrainingGroups(
+    clubId: string,
+    callback: (groups: TrainingGroup[]) => void
+  ) {
+    const q = query(collection(db, `clubs/${clubId}/trainingGroups`));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const groups: TrainingGroup[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          groups.push({
+            id: docSnap.id,
+            name: data.name,
+            parentGroupId: data.parentGroupId ?? undefined,
+            memberIds: data.memberIds ?? [],
+            schedule: (data.schedule ?? []).map((e: Record<string, unknown>) => ({
+              id: (e.id as string) || crypto.randomUUID(),
+              dayOfWeek: e.dayOfWeek as number,
+              time: e.time as string,
+            })),
+            colorHex: (data.colorHex as string) || "#007AFF",
+            clubId: data.clubId,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
+          });
+        });
+        groups.sort((a, b) => a.name.localeCompare(b.name));
+        callback(groups);
+      },
+      (error) => {
+        console.error("Error listening to training groups:", error);
+      }
+    );
+  }
+
+  // === TRAINING SESSIONS ===
+  static listenToTrainingSessions(
+    clubId: string,
+    callback: (sessions: TrainingSession[]) => void
+  ) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const future = new Date(today);
+    future.setDate(future.getDate() + 7);
+    const todayStr = toDateString(today);
+    const futureStr = toDateString(future);
+
+    const q = query(
+      collection(db, `clubs/${clubId}/trainingSessions`),
+      where("dateString", ">=", todayStr),
+      where("dateString", "<=", futureStr)
+    );
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const sessions: TrainingSession[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          sessions.push({
+            id: docSnap.id,
+            groupId: data.groupId,
+            dateString: data.dateString,
+            date: data.date instanceof Timestamp ? data.date.toDate() : new Date(),
+            absentMemberIds: data.absentMemberIds ?? [],
+            absenceReasons: data.absenceReasons ?? {},
+          });
+        });
+        callback(sessions);
+      },
+      (error) => {
+        console.error("Error listening to training sessions:", error);
+      }
+    );
+  }
+
+  static async setAbsence(
+    clubId: string,
+    groupId: string,
+    date: Date,
+    memberId: string,
+    absent: boolean,
+    reason?: string
+  ): Promise<void> {
+    const dateString = toDateString(date);
+    const sessionId = `${groupId}_${dateString}`;
+    const sessionRef = doc(db, `clubs/${clubId}/trainingSessions`, sessionId);
+
+    if (absent) {
+      const sessionSnap = await getDoc(sessionRef);
+      if (!sessionSnap.exists()) {
+        await setDoc(sessionRef, {
+          groupId,
+          dateString,
+          date: Timestamp.fromDate(date),
+          absentMemberIds: [memberId],
+          absenceReasons: reason ? { [memberId]: reason } : {},
+        });
+      } else {
+        const updates: Record<string, unknown> = {
+          absentMemberIds: arrayUnion(memberId),
+        };
+        if (reason) updates[`absenceReasons.${memberId}`] = reason;
+        await updateDoc(sessionRef, updates);
+      }
+    } else {
+      const sessionSnap = await getDoc(sessionRef);
+      if (!sessionSnap.exists()) return;
+      await updateDoc(sessionRef, {
+        absentMemberIds: arrayRemove(memberId),
+        [`absenceReasons.${memberId}`]: deleteField(),
+      });
+    }
   }
 
   // === MEMBERS (realtime) ===
@@ -738,5 +863,36 @@ export class FirebaseManager {
     scheduleId: string
   ): Promise<void> {
     await deleteDoc(doc(db, `clubs/${clubId}/trainingSchedules`, scheduleId));
+  }
+
+  // === TRAINING GROUPS (write) ===
+  static async addTrainingGroup(
+    clubId: string,
+    group: Omit<TrainingGroup, "id" | "createdAt" | "clubId">
+  ): Promise<void> {
+    await addDoc(collection(db, `clubs/${clubId}/trainingGroups`), {
+      name: group.name,
+      parentGroupId: group.parentGroupId ?? null,
+      memberIds: group.memberIds ?? [],
+      schedule: group.schedule ?? [],
+      colorHex: group.colorHex ?? "#007AFF",
+      clubId,
+      createdAt: Timestamp.now(),
+    });
+  }
+
+  static async updateTrainingGroup(
+    clubId: string,
+    groupId: string,
+    updates: Partial<Omit<TrainingGroup, "id" | "clubId">>
+  ): Promise<void> {
+    await updateDoc(doc(db, `clubs/${clubId}/trainingGroups`, groupId), updates);
+  }
+
+  static async deleteTrainingGroup(
+    clubId: string,
+    groupId: string
+  ): Promise<void> {
+    await deleteDoc(doc(db, `clubs/${clubId}/trainingGroups`, groupId));
   }
 }

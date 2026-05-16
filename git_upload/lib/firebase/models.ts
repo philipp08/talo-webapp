@@ -1,4 +1,3 @@
-// Model definitions for Talo Club
 import { Timestamp } from "firebase/firestore";
 
 export enum SeasonType {
@@ -60,7 +59,8 @@ export interface ClubMembership {
   customTargetPoints?: number;
   isAdmin: boolean;
   isTrainer: boolean;
-  groupId?: string;
+  groupId?: string; // General Club Group (e.g. Abteilung)
+  trainingGroupIds?: string[]; // Training-specific groups
 }
 
 export interface Member {
@@ -75,7 +75,8 @@ export interface Member {
   clubId: string;
   clubIds: string[];
   clubMemberships?: Record<string, ClubMembership>;
-  groupId?: string;
+  groupId?: string; // General Club Group
+  trainingGroupIds?: string[]; // Training-specific groups
   profileImageUrl?: string;
 }
 
@@ -111,14 +112,14 @@ export interface Entry {
 export interface Training {
   id: string;
   clubId: string;
-  groupId?: string; // Optional: Link to a specific ClubGroup
-  scheduleId?: string; // Optional: Link to the TrainingSchedule it was generated from
+  trainingGroupId?: string; // Link to TrainingGroup
+  scheduleId?: string; 
   title: string;
   description?: string;
   date: Timestamp | Date;
   location?: string;
-  attendeeIds: string[]; // IDs of members who accepted
-  absenteeIds: string[]; // IDs of members who declined
+  attendeeIds: string[]; 
+  absenteeIds: string[]; 
   createdAt: Timestamp | Date;
   authorId: string;
 }
@@ -126,11 +127,11 @@ export interface Training {
 export interface TrainingSchedule {
   id: string;
   clubId: string;
-  groupId?: string; 
+  trainingGroupId?: string; 
   title: string;
   description?: string;
-  weekday: number; // 0-6 (So-Sa)
-  time: string; // "HH:mm"
+  weekday: number; 
+  time: string; 
   location?: string;
   createdAt: Timestamp | Date;
   isActive: boolean;
@@ -139,13 +140,60 @@ export interface TrainingSchedule {
 export interface TrainingAnnouncement {
   id: string;
   clubId: string;
-  groupId?: string;
+  trainingGroupId?: string;
   authorId: string;
   authorName: string;
   message: string;
   createdAt: Timestamp | Date;
   isPinned: boolean;
 }
+
+// Weekly recurring schedule entry embedded in a TrainingGroup
+export interface TrainingScheduleEntry {
+  id: string;
+  dayOfWeek: number; // 1=Monday … 7=Sunday (iOS convention)
+  time: string; // "HH:mm"
+}
+
+export interface TrainingGroup {
+  id: string;
+  name: string;
+  parentGroupId?: string; // optional: creates subgroup hierarchy
+  memberIds: string[]; // member IDs belonging to this group
+  schedule: TrainingScheduleEntry[]; // embedded recurring schedule
+  colorHex: string; // UI accent color
+  // legacy compat
+  clubId?: string;
+  createdAt?: Timestamp | Date;
+}
+
+// One session document per group per day — only records absences
+export interface TrainingSession {
+  id: string; // "{groupId}_{yyyy-MM-dd}"
+  groupId: string;
+  dateString: string; // "yyyy-MM-dd" for Firestore range queries
+  date: Date;
+  absentMemberIds: string[];
+  absenceReasons: Record<string, string>; // memberId → reason string
+}
+
+export const TRAINING_GROUP_COLORS = [
+  "#34C759", // Green
+  "#007AFF", // Blue
+  "#FF9500", // Orange
+  "#FF2D55", // Red/Pink
+  "#5856D6", // Purple
+  "#00C7BE", // Teal
+] as const;
+
+export const ABSENCE_REASONS = [
+  "Krank",
+  "Urlaub",
+  "Arbeit",
+  "Verletzt",
+  "Familie",
+  "Sonstiges",
+] as const;
 
 // Helpers
 export const PointFactors: Record<string, number> = {
@@ -197,6 +245,7 @@ export const getEffectiveMemberForClub = (
     isAdmin: membership.isAdmin === true,
     isTrainer: membership.isTrainer === true,
     groupId: membership.groupId ?? member.groupId,
+    trainingGroupIds: membership.trainingGroupIds ?? member.trainingGroupIds ?? [],
   };
 };
 

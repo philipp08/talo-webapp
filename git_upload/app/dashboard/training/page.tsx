@@ -1,641 +1,1031 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Plus, Trash2, X, Calendar, MapPin, 
-  Users, CheckCircle2, XCircle, Clock,
-  ChevronRight, Info, AlertCircle, Repeat,
-  ChevronDown, Filter, User
+import {
+  Plus, Trash2, X, Users, ChevronDown, ChevronUp,
+  Check, AlertCircle, Pencil, Circle,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { 
-  Training, Member, getPlanFeatures, getMemberFullName, 
-  TrainingSchedule, ClubGroup 
+import {
+  TrainingGroup, TrainingSession, TrainingScheduleEntry,
+  Member, getPlanFeatures, getMemberFullName,
+  TRAINING_GROUP_COLORS, ABSENCE_REASONS,
 } from "@/lib/firebase/models";
-import { 
-  GlassSection, TLine, TAvatar,
-  TButton, TSearchBar, TBadge, PlanUpsell
+import {
+  GlassSection, TLine, TAvatar, TButton, TSearchBar, PlanUpsell,
 } from "@/app/components/ui/NativeUI";
 
-type ViewMode = "sessions" | "schedules";
+// ── helpers ──────────────────────────────────────────────────────────────────
 
-const WEEKDAYS = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+const WEEKDAY_LABELS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+const WEEKDAY_FULL   = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+
+const toDateString = (d: Date): string => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
+};
+
+// JS getDay() (0=Sun) → iOS dayOfWeek (1=Mon … 7=Sun)
+const jsToIos = (jsDay: number) => (jsDay === 0 ? 7 : jsDay);
+
+const getEffectiveSchedule = (
+  group: TrainingGroup,
+  all: TrainingGroup[]
+): TrainingScheduleEntry[] => {
+  if (group.schedule.length > 0) return group.schedule;
+  if (!group.parentGroupId) return [];
+  const parent = all.find((g) => g.id === group.parentGroupId);
+  return parent ? getEffectiveSchedule(parent, all) : [];
+};
+
+const getSession = (
+  sessions: TrainingSession[],
+  groupId: string,
+  dateStr: string
+): TrainingSession | undefined =>
+  sessions.find((s) => s.groupId === groupId && s.dateString === dateStr);
+
+// ── types ─────────────────────────────────────────────────────────────────────
+
+interface GroupForm {
+  name: string;
+  colorHex: string;
+  parentGroupId: string;
+  schedule: TrainingScheduleEntry[];
+  memberIds: string[];
+}
+
+const emptyForm = (): GroupForm => ({
+  name: "",
+  colorHex: "#007AFF",
+  parentGroupId: "",
+  schedule: [],
+  memberIds: [],
+});
+
+// ── main page ─────────────────────────────────────────────────────────────────
 
 export default function TrainingPage() {
-  const currentClub = useAppStore((state) => state.currentClub);
-  const currentMember = useAppStore((state) => state.currentMember);
-  
-  const [viewMode, setViewMode] = useState<ViewMode>("sessions");
-  const [trainings, setTrainings] = useState<Training[]>([]);
-  const [schedules, setSchedules] = useState<TrainingSchedule[]>([]);
-  const [allMembers, setAllMembers] = useState<Member[]>([]);
-  const [groups, setGroups] = useState<ClubGroup[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = useState("");
-  
-  // Forms
-  const [showForm, setShowForm] = useState(false);
-  const [isScheduleForm, setIsScheduleForm] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [weekday, setWeekday] = useState(3); // Default Wed
-  const [location, setLocation] = useState("");
-  const [selectedGroupId, setSelectedGroupId] = useState("");
-  const [saving, setSaving] = useState(false);
-  
-  const [selectedTraining, setSelectedTraining] = useState<Training | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Training | TrainingSchedule | null>(null);
+  const currentClub  = useAppStore((s) => s.currentClub);
+  const currentMember = useAppStore((s) => s.currentMember);
 
-  const isAdminOrTrainer = currentMember?.isAdmin === true || currentMember?.isTrainer === true;
-  const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
-  const hasAccess = planFeatures.hasTrainingRSVP;
+  const planFeatures  = getPlanFeatures(currentClub?.plan);
+  const hasAccess     = planFeatures.hasTrainingRSVP;
+  const isAdminOrTrainer = currentMember?.isAdmin || currentMember?.isTrainer;
 
+  const [tab, setTab]                         = useState<"woche" | "gruppen">("woche");
+  const [selectedDayIdx, setSelectedDayIdx]   = useState(0);
+  const [trainingGroups, setTrainingGroups]   = useState<TrainingGroup[]>([]);
+  const [trainingSessions, setTrainingSessions] = useState<TrainingSession[]>([]);
+  const [allMembers, setAllMembers]           = useState<Member[]>([]);
+  const [loading, setLoading]                 = useState(true);
+
+  // absence modal
+  const [absenceTarget, setAbsenceTarget] = useState<{ groupId: string; date: Date } | null>(null);
+  const [absenceReason, setAbsenceReason] = useState("");
+  const [customReason, setCustomReason]   = useState("");
+  const [savingAbsence, setSavingAbsence] = useState(false);
+
+  // group form
+  const [showGroupForm, setShowGroupForm]   = useState(false);
+  const [editingGroup, setEditingGroup]     = useState<TrainingGroup | null>(null);
+  const [form, setForm]                     = useState<GroupForm>(emptyForm());
+  const [newEntryDay, setNewEntryDay]       = useState(1);
+  const [newEntryTime, setNewEntryTime]     = useState("18:00");
+  const [memberSearch, setMemberSearch]     = useState("");
+  const [savingGroup, setSavingGroup]       = useState(false);
+
+  // delete
+  const [deleteTarget, setDeleteTarget] = useState<TrainingGroup | null>(null);
+
+  // ── subscriptions ──────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!currentClub || !hasAccess) {
-        setLoading(false);
-        return;
-    }
-    const u1 = FirebaseManager.listenToTrainings(currentClub.id, setTrainings);
-    const u2 = FirebaseManager.listenToMembers(currentClub.id, setAllMembers);
-    const u3 = FirebaseManager.listenToTrainingSchedules(currentClub.id, setSchedules);
-    const u4 = planFeatures.hasGroups ? FirebaseManager.listenToGroups(currentClub.id, setGroups) : () => {};
-    
+    if (!currentClub || !hasAccess) { setLoading(false); return; }
+    const u1 = FirebaseManager.listenToTrainingGroups(currentClub.id, setTrainingGroups);
+    const u2 = FirebaseManager.listenToTrainingSessions(currentClub.id, setTrainingSessions);
+    const u3 = FirebaseManager.listenToMembers(currentClub.id, setAllMembers);
     setLoading(false);
-    return () => { u1(); u2(); u3(); u4(); };
-  }, [currentClub, hasAccess, planFeatures.hasGroups]);
+    return () => { u1(); u2(); u3(); };
+  }, [currentClub, hasAccess]);
 
-  const filteredSessions = trainings.filter((t) => {
-    if (!searchText.trim()) return true;
-    const q = searchText.toLowerCase();
-    return t.title.toLowerCase().includes(q) || (t.location?.toLowerCase().includes(q));
-  });
+  // ── week days ──────────────────────────────────────────────────────────────
+  const weekDays = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }),
+    []
+  );
 
-  const filteredSchedules = schedules.filter((s) => {
-    if (!searchText.trim()) return true;
-    const q = searchText.toLowerCase();
-    return s.title.toLowerCase().includes(q) || (s.location?.toLowerCase().includes(q));
-  });
+  // ── groups for selected day ────────────────────────────────────────────────
+  const groupsForDay = useMemo(() => {
+    const date   = weekDays[selectedDayIdx];
+    const iosDay = jsToIos(date.getDay());
+    const results: { group: TrainingGroup; time: string }[] = [];
 
-  const openAdd = (asSchedule = false) => {
-    setTitle("");
-    setDescription("");
-    setDate("");
-    setTime("");
-    setWeekday(3);
-    setLocation("");
-    setSelectedGroupId("");
-    setIsScheduleForm(asSchedule);
-    setShowForm(true);
-  };
-
-  const saveForm = async () => {
-    if (!currentClub || !currentMember || !title.trim() || (!isScheduleForm && !date) || !time) return;
-    setSaving(true);
-    
-    try {
-      if (isScheduleForm) {
-        await FirebaseManager.addTrainingSchedule(currentClub.id, {
-          title: title.trim(),
-          description: description.trim(),
-          weekday,
-          time,
-          location: location.trim(),
-          groupId: selectedGroupId || undefined,
-          isActive: true
-        });
-      } else {
-        const trainingDate = new Date(`${date}T${time}`);
-        await FirebaseManager.addTraining(currentClub.id, {
-          title: title.trim(),
-          description: description.trim(),
-          date: trainingDate,
-          location: location.trim(),
-          authorId: currentMember.id,
-          groupId: selectedGroupId || undefined,
-        });
+    for (const group of trainingGroups) {
+      // members only see their own groups; trainers see all
+      if (!isAdminOrTrainer && currentMember) {
+        const inGroup = group.memberIds.includes(currentMember.id);
+        const parentInGroup = group.parentGroupId
+          ? trainingGroups.find((g) => g.id === group.parentGroupId)?.memberIds.includes(currentMember.id) ?? false
+          : false;
+        if (!inGroup && !parentInGroup) continue;
       }
-      setShowForm(false);
-    } catch (e) {
-      console.error("Error saving training:", e);
+
+      const schedule = getEffectiveSchedule(group, trainingGroups);
+      for (const entry of schedule) {
+        if (entry.dayOfWeek === iosDay) results.push({ group, time: entry.time });
+      }
+    }
+    return results.sort((a, b) => a.time.localeCompare(b.time));
+  }, [trainingGroups, selectedDayIdx, weekDays, currentMember, isAdminOrTrainer]);
+
+  // ── absence handlers ───────────────────────────────────────────────────────
+  const openAbsenceModal = (groupId: string, date: Date) => {
+    setAbsenceTarget({ groupId, date });
+    setAbsenceReason("");
+    setCustomReason("");
+  };
+
+  const saveAbsence = async () => {
+    if (!currentClub || !currentMember || !absenceTarget) return;
+    const reason = absenceReason === "Sonstiges" && customReason.trim()
+      ? customReason.trim()
+      : absenceReason;
+    if (!reason) return;
+    setSavingAbsence(true);
+    try {
+      await FirebaseManager.setAbsence(
+        currentClub.id, absenceTarget.groupId, absenceTarget.date,
+        currentMember.id, true, reason
+      );
+      setAbsenceTarget(null);
     } finally {
-      setSaving(false);
+      setSavingAbsence(false);
     }
   };
 
-  const handleRSVP = async (trainingId: string, status: "attend" | "decline") => {
+  const markPresent = async (groupId: string, date: Date) => {
     if (!currentClub || !currentMember) return;
+    await FirebaseManager.setAbsence(currentClub.id, groupId, date, currentMember.id, false);
+  };
+
+  // ── group form handlers ────────────────────────────────────────────────────
+  const openAddGroup = () => {
+    setEditingGroup(null);
+    setForm(emptyForm());
+    setNewEntryDay(1);
+    setNewEntryTime("18:00");
+    setMemberSearch("");
+    setShowGroupForm(true);
+  };
+
+  const openEditGroup = (group: TrainingGroup) => {
+    setEditingGroup(group);
+    setForm({
+      name: group.name,
+      colorHex: group.colorHex,
+      parentGroupId: group.parentGroupId ?? "",
+      schedule: [...group.schedule],
+      memberIds: [...group.memberIds],
+    });
+    setNewEntryDay(1);
+    setNewEntryTime("18:00");
+    setMemberSearch("");
+    setShowGroupForm(true);
+  };
+
+  const addScheduleEntry = () => {
+    setForm((f) => ({
+      ...f,
+      schedule: [
+        ...f.schedule,
+        { id: crypto.randomUUID(), dayOfWeek: newEntryDay, time: newEntryTime },
+      ],
+    }));
+  };
+
+  const removeScheduleEntry = (id: string) =>
+    setForm((f) => ({ ...f, schedule: f.schedule.filter((e) => e.id !== id) }));
+
+  const toggleMember = (memberId: string) =>
+    setForm((f) => ({
+      ...f,
+      memberIds: f.memberIds.includes(memberId)
+        ? f.memberIds.filter((id) => id !== memberId)
+        : [...f.memberIds, memberId],
+    }));
+
+  const saveGroup = async () => {
+    if (!currentClub || !form.name.trim()) return;
+    setSavingGroup(true);
     try {
-      await FirebaseManager.rsvpTraining(currentClub.id, trainingId, currentMember.id, status);
-    } catch (e) {
-      console.error("Error RSVPing:", e);
+      const payload = {
+        name: form.name.trim(),
+        colorHex: form.colorHex,
+        parentGroupId: form.parentGroupId || undefined,
+        schedule: form.schedule,
+        memberIds: form.memberIds,
+      };
+      if (editingGroup) {
+        await FirebaseManager.updateTrainingGroup(currentClub.id, editingGroup.id, payload);
+      } else {
+        await FirebaseManager.addTrainingGroup(currentClub.id, payload);
+      }
+      setShowGroupForm(false);
+    } finally {
+      setSavingGroup(false);
     }
   };
 
-  const generateFromSchedule = async (s: TrainingSchedule) => {
-    if (!currentClub || !currentMember) return;
-    
-    // Find next date for this weekday
-    const now = new Date();
-    const resultDate = new Date();
-    resultDate.setDate(now.getDate() + (s.weekday + 7 - now.getDay()) % 7);
-    if (resultDate < now) resultDate.setDate(resultDate.getDate() + 7);
-    
-    const [h, m] = s.time.split(":").map(Number);
-    resultDate.setHours(h, m, 0, 0);
-
-    try {
-      await FirebaseManager.addTraining(currentClub.id, {
-        title: s.title,
-        description: s.description,
-        date: resultDate,
-        location: s.location,
-        authorId: currentMember.id,
-        groupId: s.groupId,
-        scheduleId: s.id
-      });
-      setViewMode("sessions");
-    } catch (e) {
-      console.error("Error generating training:", e);
-    }
+  const confirmDelete = async () => {
+    if (!currentClub || !deleteTarget) return;
+    await FirebaseManager.deleteTrainingGroup(currentClub.id, deleteTarget.id);
+    setDeleteTarget(null);
   };
 
+  // ── upsell ─────────────────────────────────────────────────────────────────
   if (!hasAccess) {
     return (
       <div className="relative min-h-screen">
         <div className="relative z-10 max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10">
-           <PlanUpsell 
-             title="Trainings-RSVP ist ab dem Club-Plan verfügbar."
-             text="Plane deine Trainings effizienter mit Zu- und Absagen deiner Mitglieder in Echtzeit."
-           />
+          <PlanUpsell
+            title="Trainings-Modul ist ab dem Club-Plan verfügbar."
+            text="Verwalte Trainingsgruppen mit eingebettetem Wochenplan und tracke Abwesenheiten ganz einfach."
+          />
         </div>
       </div>
     );
   }
 
+  // ── render ─────────────────────────────────────────────────────────────────
   return (
     <div className="relative min-h-screen bg-[#FAFAFA]">
       <div className="relative z-10 max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10 flex flex-col gap-7 lg:gap-8 pb-16">
-        
-        {/* Header */}
-        <div className="flex flex-col gap-5">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="flex items-start justify-between gap-4 border-b border-black/5 pb-6 lg:pb-8">
-              <div className="flex flex-col gap-2">
-                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Training</h1>
-                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Zusagen & Planung</p>
-              </div>
-              {isAdminOrTrainer && (
-                <button
-                  onClick={() => openAdd(viewMode === "schedules")}
-                  className="shrink-0 flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-black/5"
-                >
-                  <Plus size={16} /> {viewMode === "schedules" ? "Regelmäßiges Training" : "Termin"}
-                </button>
-              )}
-            </div>
-          </motion.div>
 
-          {/* View Toggle */}
-          <div className="flex p-1 rounded-2xl bg-black/[0.03] border border-black/5 self-start">
-            <button
-              onClick={() => setViewMode("sessions")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                viewMode === "sessions" ? "bg-white text-[#0A0A0A] shadow-sm border border-black/5" : "text-[#71717A] hover:text-[#0A0A0A]"
-              }`}
-            >
-              <Calendar size={14} /> Termine
-            </button>
-            <button
-              onClick={() => setViewMode("schedules")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                viewMode === "schedules" ? "bg-white text-[#0A0A0A] shadow-sm border border-black/5" : "text-[#71717A] hover:text-[#0A0A0A]"
-              }`}
-            >
-              <Repeat size={14} /> Regelmäßig
-            </button>
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="flex items-start justify-between gap-4 border-b border-black/5 pb-6 lg:pb-8">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Training</h1>
+              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Gruppen & Anwesenheit</p>
+            </div>
+            {isAdminOrTrainer && (
+              <button
+                onClick={openAddGroup}
+                className="shrink-0 flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-black/5"
+              >
+                <Plus size={16} />
+                <span className="hidden sm:inline">Neue Gruppe</span>
+                <span className="sm:hidden">Neu</span>
+              </button>
+            )}
           </div>
+        </motion.div>
+
+        {/* Tabs */}
+        <div className="flex p-1 rounded-2xl bg-black/[0.03] border border-black/5 self-start">
+          {(["woche", "gruppen"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                tab === t
+                  ? "bg-white text-[#0A0A0A] shadow-sm border border-black/5"
+                  : "text-[#71717A] hover:text-[#0A0A0A]"
+              }`}
+            >
+              {t === "woche" ? "Woche" : "Gruppen"}
+            </button>
+          ))}
         </div>
 
-        {/* Search */}
-        <TSearchBar value={searchText} onChange={setSearchText} placeholder={viewMode === "sessions" ? "Termine suchen…" : "Regelmäßige Trainings suchen…"} />
-
-        {/* List Content */}
+        {/* Content */}
         {loading ? (
           <div className="flex items-center justify-center p-20 opacity-20">
-             <div className="h-8 w-8 animate-spin rounded-full border-2 border-black/15 border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-black/15 border-t-transparent" />
           </div>
+        ) : tab === "woche" ? (
+          <WeekView
+            weekDays={weekDays}
+            selectedDayIdx={selectedDayIdx}
+            onSelectDay={setSelectedDayIdx}
+            groupsForDay={groupsForDay}
+            trainingSessions={trainingSessions}
+            allMembers={allMembers}
+            currentMember={currentMember}
+            isAdminOrTrainer={!!isAdminOrTrainer}
+            onMarkAbsent={openAbsenceModal}
+            onMarkPresent={markPresent}
+          />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
-            <AnimatePresence mode="popLayout">
-              {viewMode === "sessions" ? (
-                filteredSessions.length === 0 ? (
-                  <div className="col-span-full py-20 flex flex-col items-center justify-center text-center opacity-40">
-                    <Calendar size={40} className="text-[#0A0A0A] mb-4" />
-                    <p className="font-poppins text-[#52525B]">Keine Trainings geplant.</p>
-                  </div>
-                ) : (
-                  filteredSessions.map((training, idx) => (
-                    <SessionCard 
-                      key={training.id} 
-                      training={training} 
-                      idx={idx} 
-                      currentMember={currentMember}
-                      isAdminOrTrainer={isAdminOrTrainer}
-                      groups={groups}
-                      onRSVP={handleRSVP}
-                      onDelete={() => setDeleteTarget(training)}
-                      onShowList={() => setSelectedTraining(training)}
-                    />
-                  ))
-                )
-              ) : (
-                filteredSchedules.length === 0 ? (
-                  <div className="col-span-full py-20 flex flex-col items-center justify-center text-center opacity-40">
-                    <Repeat size={40} className="text-[#0A0A0A] mb-4" />
-                    <p className="font-poppins text-[#52525B]">Keine regelmäßigen Trainings angelegt.</p>
-                  </div>
-                ) : (
-                  filteredSchedules.map((schedule, idx) => (
-                    <ScheduleCard 
-                      key={schedule.id} 
-                      schedule={schedule} 
-                      idx={idx} 
-                      isAdminOrTrainer={isAdminOrTrainer}
-                      groups={groups}
-                      onDelete={() => setDeleteTarget(schedule)}
-                      onGenerate={() => generateFromSchedule(schedule)}
-                    />
-                  ))
-                )
-              )}
-            </AnimatePresence>
-          </div>
+          <GroupsView
+            trainingGroups={trainingGroups}
+            allMembers={allMembers}
+            isAdminOrTrainer={!!isAdminOrTrainer}
+            onEdit={openEditGroup}
+            onDelete={setDeleteTarget}
+          />
         )}
       </div>
 
-      {/* Forms Modal */}
+      {/* Absence Modal */}
       <AnimatePresence>
-        {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-sm">
-              <GlassSection className="p-6 flex flex-col gap-5">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-poppins font-black text-[#0A0A0A] text-lg uppercase tracking-tight">
-                    {isScheduleForm ? "Regelmäßiges Training" : "Termin anlegen"}
-                  </h3>
-                  <button onClick={() => setShowForm(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
-                    <X size={20} />
-                  </button>
+        {absenceTarget && (
+          <Backdrop onClick={() => setAbsenceTarget(null)}>
+            <Modal>
+              <ModalHeader title="Abwesenheit melden" onClose={() => setAbsenceTarget(null)} />
+              <div className="p-5 flex flex-col gap-4">
+                <p className="text-xs text-[#71717A] font-bold uppercase tracking-widest pl-1">Grund wählen</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {ABSENCE_REASONS.map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => { setAbsenceReason(r); if (r !== "Sonstiges") setCustomReason(""); }}
+                      className={`py-2.5 px-3 rounded-2xl text-[11px] font-black uppercase tracking-widest border transition-all ${
+                        absenceReason === r
+                          ? "bg-[#0A0A0A] text-white border-[#0A0A0A]"
+                          : "bg-black/[0.03] text-[#52525B] border-black/5 hover:border-black/10"
+                      }`}
+                    >
+                      {r}
+                    </button>
+                  ))}
                 </div>
+                {absenceReason === "Sonstiges" && (
+                  <input
+                    autoFocus
+                    value={customReason}
+                    onChange={(e) => setCustomReason(e.target.value)}
+                    placeholder="Eigenen Grund eingeben…"
+                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                  />
+                )}
+                <TButton
+                  label={savingAbsence ? "Wird gespeichert…" : "Abwesenheit bestätigen"}
+                  onClick={saveAbsence}
+                  disabled={savingAbsence || !absenceReason || (absenceReason === "Sonstiges" && !customReason.trim())}
+                />
+              </div>
+            </Modal>
+          </Backdrop>
+        )}
+      </AnimatePresence>
 
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Titel</label>
-                    <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="z.B. Dienstagstraining" className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all" />
+      {/* Group Form Modal */}
+      <AnimatePresence>
+        {showGroupForm && (
+          <Backdrop onClick={() => setShowGroupForm(false)}>
+            <Modal wide onClick={(e) => e.stopPropagation()}>
+              <ModalHeader
+                title={editingGroup ? "Gruppe bearbeiten" : "Neue Trainingsgruppe"}
+                onClose={() => setShowGroupForm(false)}
+              />
+              <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-5">
+
+                {/* Name */}
+                <Field label="Name der Gruppe">
+                  <input
+                    autoFocus
+                    value={form.name}
+                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    placeholder="z. B. U15 Leistungskader"
+                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                  />
+                </Field>
+
+                {/* Color */}
+                <Field label="Farbe">
+                  <div className="flex gap-3 flex-wrap">
+                    {TRAINING_GROUP_COLORS.map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => setForm((f) => ({ ...f, colorHex: c }))}
+                        className={`w-8 h-8 rounded-full border-2 transition-all ${
+                          form.colorHex === c ? "border-[#0A0A0A] scale-110" : "border-transparent"
+                        }`}
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
                   </div>
+                </Field>
 
-                  {isScheduleForm ? (
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Wochentag</label>
-                        <select value={weekday} onChange={(e) => setWeekday(Number(e.target.value))} className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all">
-                          {WEEKDAYS.map((day, i) => <option key={i} value={i}>{day}</option>)}
+                {/* Parent group */}
+                {trainingGroups.length > 0 && (
+                  <Field label="Übergeordnete Gruppe (optional)">
+                    <select
+                      value={form.parentGroupId}
+                      onChange={(e) => setForm((f) => ({ ...f, parentGroupId: e.target.value }))}
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                    >
+                      <option value="">Keine (Hauptgruppe)</option>
+                      {trainingGroups
+                        .filter((g) => g.id !== editingGroup?.id)
+                        .map((g) => (
+                          <option key={g.id} value={g.id}>{g.name}</option>
+                        ))}
+                    </select>
+                  </Field>
+                )}
+
+                {/* Schedule */}
+                <Field label="Trainingszeiten">
+                  <div className="flex flex-col gap-2">
+                    {form.schedule.map((entry) => (
+                      <div key={entry.id} className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-black/[0.03] border border-black/5">
+                        <div
+                          className="w-2 h-2 rounded-full shrink-0"
+                          style={{ backgroundColor: form.colorHex }}
+                        />
+                        <span className="text-xs font-black text-[#0A0A0A] uppercase tracking-widest flex-1">
+                          {WEEKDAY_FULL[entry.dayOfWeek === 7 ? 0 : entry.dayOfWeek]} · {entry.time} Uhr
+                        </span>
+                        <button
+                          onClick={() => removeScheduleEntry(entry.id)}
+                          className="text-[#A1A1AA] hover:text-red-500 transition-all"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="flex gap-2 items-end">
+                      <div className="flex flex-col gap-1 flex-1">
+                        <label className="text-[9px] font-black text-[#71717A] uppercase tracking-widest pl-1">Tag</label>
+                        <select
+                          value={newEntryDay}
+                          onChange={(e) => setNewEntryDay(Number(e.target.value))}
+                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                        >
+                          {[1,2,3,4,5,6,7].map((d) => (
+                            <option key={d} value={d}>
+                              {WEEKDAY_FULL[d === 7 ? 0 : d]}
+                            </option>
+                          ))}
                         </select>
                       </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Zeit</label>
-                        <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all" />
+                      <div className="flex flex-col gap-1 flex-1">
+                        <label className="text-[9px] font-black text-[#71717A] uppercase tracking-widest pl-1">Zeit</label>
+                        <input
+                          type="time"
+                          value={newEntryTime}
+                          onChange={(e) => setNewEntryTime(e.target.value)}
+                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                        />
                       </div>
+                      <button
+                        onClick={addScheduleEntry}
+                        className="flex items-center gap-1.5 px-3 py-2.5 rounded-2xl bg-[#0A0A0A] text-white text-[10px] font-black uppercase tracking-widest shrink-0"
+                      >
+                        <Plus size={14} /> Add
+                      </button>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Datum</label>
-                        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all" />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Zeit</label>
-                        <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all" />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Ort</label>
-                    <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="z.B. Sportplatz A" className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all" />
                   </div>
+                </Field>
 
-                  {planFeatures.hasGroups && (
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Trainingsgruppe</label>
-                      <select value={selectedGroupId} onChange={(e) => setSelectedGroupId(e.target.value)} className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all">
-                        <option value="">Gesamter Verein</option>
-                        {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-                      </select>
-                    </div>
-                  )}
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Beschreibung (optional)</label>
-                    <textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Zusatzinfos..." className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all resize-none" />
+                {/* Members */}
+                <Field label={`Mitglieder (${form.memberIds.length} ausgewählt)`}>
+                  <TSearchBar value={memberSearch} onChange={setMemberSearch} placeholder="Mitglied suchen…" />
+                  <div className="mt-2 max-h-52 overflow-y-auto flex flex-col gap-1">
+                    {allMembers
+                      .filter((m) => {
+                        if (!memberSearch.trim()) return true;
+                        return getMemberFullName(m).toLowerCase().includes(memberSearch.toLowerCase());
+                      })
+                      .map((m) => (
+                        <button
+                          key={m.id}
+                          onClick={() => toggleMember(m.id)}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-2xl text-left transition-all border ${
+                            form.memberIds.includes(m.id)
+                              ? "bg-[#0A0A0A]/[0.05] border-[#0A0A0A]/10"
+                              : "border-transparent hover:bg-black/[0.02]"
+                          }`}
+                        >
+                          <TAvatar name={getMemberFullName(m)} id={m.id} size={30} />
+                          <span className="text-sm font-poppins font-bold text-[#0A0A0A] flex-1">{getMemberFullName(m)}</span>
+                          {form.memberIds.includes(m.id) && (
+                            <Check size={14} className="text-[#34C759]" />
+                          )}
+                        </button>
+                      ))}
                   </div>
-                </div>
+                </Field>
+              </div>
 
-                <div className="pt-2">
-                  <TButton label={saving ? "Wird gespeichert…" : "Speichern"} onClick={saveForm} disabled={saving || !title.trim() || (!isScheduleForm && !date) || !time} />
-                </div>
-              </GlassSection>
-            </motion.div>
-          </div>
+              <div className="p-5 border-t border-black/5">
+                <TButton
+                  label={savingGroup ? "Wird gespeichert…" : editingGroup ? "Änderungen speichern" : "Gruppe erstellen"}
+                  onClick={saveGroup}
+                  disabled={savingGroup || !form.name.trim()}
+                />
+              </div>
+            </Modal>
+          </Backdrop>
         )}
       </AnimatePresence>
 
-      {/* Attendee List Modal with Group Breakdown */}
-      <AnimatePresence>
-        {selectedTraining && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-md">
-              <GlassSection className="max-h-[85vh] flex flex-col">
-                <div className="p-6 border-b border-black/5 flex items-center justify-between bg-black/[0.01]">
-                  <div className="flex flex-col">
-                    <h3 className="font-poppins font-black text-[#0A0A0A] text-lg uppercase tracking-tight">Anwesenheit</h3>
-                    <p className="text-[10px] font-bold text-[#71717A] uppercase tracking-widest">{selectedTraining.title}</p>
-                  </div>
-                  <button onClick={() => setSelectedTraining(null)} className="text-[#52525B] hover:text-[#0A0A0A] transition-all">
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-8">
-                  {/* Attendance Stats per Group */}
-                  {planFeatures.hasGroups && groups.length > 0 && (
-                    <div className="flex flex-col gap-3">
-                       <h4 className="text-[10px] font-black uppercase tracking-widest text-[#71717A] pl-1">Status nach Gruppen</h4>
-                       <div className="grid grid-cols-2 gap-3">
-                          {groups.map(group => {
-                            const groupMembers = allMembers.filter(m => (m.groupId === group.id));
-                            const groupAttendees = selectedTraining.attendeeIds.filter(id => groupMembers.find(m => m.id === id));
-                            const groupAbsentees = selectedTraining.absenteeIds.filter(id => groupMembers.find(m => m.id === id));
-                            const total = groupMembers.length;
-                            if (total === 0) return null;
-
-                            return (
-                              <div key={group.id} className="p-3 rounded-2xl bg-black/[0.03] border border-black/5">
-                                 <p className="text-xs font-poppins font-bold text-[#0A0A0A] truncate mb-2">{group.name}</p>
-                                 <div className="flex items-center gap-2">
-                                    <div className="flex flex-col flex-1">
-                                       <div className="flex items-center justify-between text-[10px] font-mono font-bold">
-                                          <span className="text-[#34C759]">{groupAttendees.length} Ja</span>
-                                          <span className="text-[#FF3B30]">{groupAbsentees.length} Nein</span>
-                                       </div>
-                                       <div className="h-1 rounded-full bg-black/5 mt-1 overflow-hidden flex">
-                                          <div className="h-full bg-[#34C759]" style={{ width: `${(groupAttendees.length / total) * 100}%` }} />
-                                          <div className="h-full bg-[#FF3B30]" style={{ width: `${(groupAbsentees.length / total) * 100}%` }} />
-                                       </div>
-                                       <p className="text-[9px] text-[#71717A] mt-1 font-bold uppercase tracking-widest">{groupAttendees.length} von {total} Mitgliedern</p>
-                                    </div>
-                                 </div>
-                              </div>
-                            );
-                          })}
-                       </div>
-                    </div>
-                  )}
-
-                  {/* List of Attendees */}
-                  <div className="flex flex-col gap-6">
-                    <AttendanceSection 
-                      title="Zusagen" 
-                      count={selectedTraining.attendeeIds.length} 
-                      ids={selectedTraining.attendeeIds} 
-                      allMembers={allMembers} 
-                      color="#34C759"
-                      icon={CheckCircle2}
-                    />
-                    <AttendanceSection 
-                      title="Absagen" 
-                      count={selectedTraining.absenteeIds.length} 
-                      ids={selectedTraining.absenteeIds} 
-                      allMembers={allMembers} 
-                      color="#FF3B30"
-                      icon={XCircle}
-                    />
-                    {isAdminOrTrainer && (
-                      <AttendanceSection 
-                        title="Noch offen" 
-                        ids={allMembers.filter(m => !selectedTraining.attendeeIds.includes(m.id) && !selectedTraining.absenteeIds.includes(m.id)).map(m => m.id)} 
-                        allMembers={allMembers} 
-                        color="#71717A"
-                        icon={Clock}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                <div className="p-4 border-t border-black/5 bg-black/[0.01]">
-                   <TButton label="Schließen" onClick={() => setSelectedTraining(null)} />
-                </div>
-              </GlassSection>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Delete Confirmation */}
+      {/* Delete Confirm */}
       <AnimatePresence>
         {deleteTarget && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="w-full max-w-xs">
+          <Backdrop onClick={() => setDeleteTarget(null)}>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-xs"
+              onClick={(e) => e.stopPropagation()}
+            >
               <GlassSection className="p-7 flex flex-col items-center text-center gap-1 font-poppins">
                 <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-3 border border-red-500/20">
                   <Trash2 size={28} className="text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold text-[#0A0A0A]">Löschen?</h3>
-                <p className="text-sm text-[#52525B] mb-4 px-2">Soll dieser Eintrag wirklich gelöscht werden?</p>
+                <h3 className="text-xl font-bold text-[#0A0A0A]">Gruppe löschen?</h3>
+                <p className="text-sm text-[#52525B] mb-4 px-2">
+                  &ldquo;{deleteTarget.name}&rdquo; wird dauerhaft gelöscht.
+                </p>
                 <div className="flex flex-col gap-2 w-full">
-                  <TButton label="Löschen" variant="danger" onClick={async () => {
-                    if (!currentClub || !deleteTarget) return;
-                    if ('weekday' in deleteTarget) {
-                      await FirebaseManager.deleteTrainingSchedule(currentClub.id, deleteTarget.id);
-                    } else {
-                      await FirebaseManager.deleteTraining(currentClub.id, deleteTarget.id);
-                    }
-                    setDeleteTarget(null);
-                  }} />
+                  <TButton label="Löschen" variant="danger" onClick={confirmDelete} />
                   <TButton label="Abbrechen" variant="secondary" onClick={() => setDeleteTarget(null)} />
                 </div>
               </GlassSection>
             </motion.div>
-          </div>
+          </Backdrop>
         )}
       </AnimatePresence>
     </div>
   );
 }
 
-function SessionCard({ training, idx, currentMember, isAdminOrTrainer, groups, onRSVP, onDelete, onShowList }: any) {
-  const dateObj = training.date instanceof Date ? training.date : (training.date as any).toDate();
-  const isPast = dateObj < new Date();
-  const hasJoined = training.attendeeIds.includes(currentMember?.id || "");
-  const hasDeclined = training.absenteeIds.includes(currentMember?.id || "");
-  const group = groups.find((g: any) => g.id === training.groupId);
+// ── Week View ─────────────────────────────────────────────────────────────────
+
+function WeekView({
+  weekDays, selectedDayIdx, onSelectDay, groupsForDay,
+  trainingSessions, allMembers, currentMember, isAdminOrTrainer,
+  onMarkAbsent, onMarkPresent,
+}: {
+  weekDays: Date[];
+  selectedDayIdx: number;
+  onSelectDay: (i: number) => void;
+  groupsForDay: { group: TrainingGroup; time: string }[];
+  trainingSessions: TrainingSession[];
+  allMembers: Member[];
+  currentMember: Member | null;
+  isAdminOrTrainer: boolean;
+  onMarkAbsent: (groupId: string, date: Date) => void;
+  onMarkPresent: (groupId: string, date: Date) => void;
+}) {
+  const selectedDate = weekDays[selectedDayIdx];
+  const dateStr = toDateString(selectedDate);
 
   return (
-    <motion.div layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: idx * 0.05 }}>
-      <GlassSection className={`overflow-hidden flex flex-col h-full ${isPast ? "opacity-60" : ""}`}>
-         <div className="p-5 flex flex-col gap-4 flex-1">
-            <div className="flex items-start justify-between gap-3">
-               <div className="flex flex-col gap-1">
-                  <h3 className="font-poppins font-black text-[#0A0A0A] text-lg leading-tight uppercase tracking-tight truncate max-w-[200px]">
-                     {training.title}
-                  </h3>
-                  <div className="flex items-center gap-2 text-[#71717A]">
-                     <Clock size={12} strokeWidth={2.5} />
-                     <span className="text-[11px] font-mono font-bold">
-                        {dateObj.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })} · {dateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
-                     </span>
-                  </div>
-               </div>
-               {isAdminOrTrainer && (
-                 <button onClick={onDelete} className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-red-500 bg-black/[0.04] transition-all">
-                    <Trash2 size={14} />
-                 </button>
-               )}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {group && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/5 border border-black/5">
-                   <Users size={10} className="text-[#0A0A0A]" />
-                   <span className="text-[10px] font-black uppercase tracking-widest text-[#0A0A0A]">{group.name}</span>
-                </div>
-              )}
-              {training.location && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/5 border border-black/5">
-                   <MapPin size={10} className="text-[#71717A]" />
-                   <span className="text-[10px] font-poppins font-bold text-[#71717A]">{training.location}</span>
-                </div>
-              )}
-            </div>
-
-            <TLine />
-
-            <div className="flex items-center justify-between">
-               <div className="flex items-center gap-4">
-                  <div className="flex flex-col gap-0.5">
-                     <span className="text-[10px] font-black uppercase tracking-widest text-[#34C759]">Zusagen</span>
-                     <span className="text-sm font-poppins font-bold text-[#0A0A0A]">{training.attendeeIds.length}</span>
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                     <span className="text-[10px] font-black uppercase tracking-widest text-[#FF3B30]">Absagen</span>
-                     <span className="text-sm font-poppins font-bold text-[#0A0A0A]">{training.absenteeIds.length}</span>
-                  </div>
-               </div>
-               
-               <button onClick={onShowList} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/[0.04] text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.07] transition-all">
-                  <Users size={14} />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Details</span>
-               </button>
-            </div>
-         </div>
-
-         {!isPast && (
-           <div className="p-3 bg-black/[0.02] border-t border-black/5 grid grid-cols-2 gap-2">
-              <button onClick={() => onRSVP(training.id, "attend")} className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${hasJoined ? "bg-[#34C759] text-white shadow-lg shadow-green-500/20" : "bg-white border border-black/5 text-[#34C759] hover:bg-green-50"}`}>
-                 <CheckCircle2 size={14} /> {hasJoined ? "Dabei" : "Zusagen"}
-              </button>
-              <button onClick={() => onRSVP(training.id, "decline")} className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${hasDeclined ? "bg-[#FF3B30] text-white shadow-lg shadow-red-500/20" : "bg-white border border-black/5 text-[#FF3B30] hover:bg-red-50"}`}>
-                 <XCircle size={14} /> {hasDeclined ? "Absage" : "Absagen"}
-              </button>
-           </div>
-         )}
-      </GlassSection>
-    </motion.div>
-  );
-}
-
-function ScheduleCard({ schedule, idx, isAdminOrTrainer, groups, onDelete, onGenerate }: any) {
-  const group = groups.find((g: any) => g.id === schedule.groupId);
-
-  return (
-    <motion.div layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: idx * 0.05 }}>
-      <GlassSection className="p-5 flex flex-col gap-4 h-full">
-         <div className="flex items-start justify-between gap-3">
-            <div className="flex flex-col gap-1">
-               <h3 className="font-poppins font-black text-[#0A0A0A] text-lg leading-tight uppercase tracking-tight">
-                  {schedule.title}
-               </h3>
-               <div className="flex items-center gap-2 text-[#71717A]">
-                  <Repeat size={12} strokeWidth={2.5} />
-                  <span className="text-[11px] font-poppins font-bold uppercase tracking-widest">
-                     Jeden {WEEKDAYS[schedule.weekday]} · {schedule.time} Uhr
-                  </span>
-               </div>
-            </div>
-            {isAdminOrTrainer && (
-              <button onClick={onDelete} className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-red-500 bg-black/[0.04] transition-all">
-                 <Trash2 size={14} />
-              </button>
-            )}
-         </div>
-
-         {schedule.location && (
-           <div className="flex items-center gap-2 text-[#52525B]">
-              <MapPin size={12} strokeWidth={2.5} />
-              <span className="text-[11px] font-poppins font-bold">{schedule.location}</span>
-           </div>
-         )}
-
-         {group && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/5 border border-black/5 self-start">
-               <Users size={10} className="text-[#0A0A0A]" />
-               <span className="text-[10px] font-black uppercase tracking-widest text-[#0A0A0A]">{group.name}</span>
-            </div>
-          )}
-
-         <TLine />
-
-         <TButton 
-           label="Termin erstellen" 
-           variant="secondary" 
-           icon={Plus} 
-           onClick={onGenerate}
-           className="w-full"
-         />
-      </GlassSection>
-    </motion.div>
-  );
-}
-
-function AttendanceSection({ title, count, ids, allMembers, color, icon: Icon }: any) {
-  if (!ids || ids.length === 0) return null;
-  
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2 px-1">
-         <Icon size={14} style={{ color }} />
-         <span className="text-[11px] font-black uppercase tracking-widest" style={{ color }}>{title} {count !== undefined && `(${count})`}</span>
-      </div>
-      <div className="flex flex-col gap-1">
-        {ids.map((id: string) => {
-          const m = allMembers.find((member: any) => member.id === id);
+    <div className="flex flex-col gap-5">
+      {/* Day selector */}
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+        {weekDays.map((day, i) => {
+          const iosDay = jsToIos(day.getDay());
+          const hasTraining = (() => {
+            // check if any group trains on this day
+            return false; // simplified – indicator not critical for MVP
+          })();
+          const isToday = i === 0;
+          const isSelected = i === selectedDayIdx;
           return (
-            <div key={id} className="flex items-center gap-3 px-3 py-2 rounded-2xl hover:bg-black/[0.02] transition-colors border border-transparent hover:border-black/5">
-               <TAvatar name={m ? getMemberFullName(m) : "Unbekannt"} id={id} size={34} />
-               <div className="flex flex-col">
-                  <span className="text-sm font-poppins font-bold text-[#0A0A0A]">{m ? getMemberFullName(m) : "Unbekannt"}</span>
-                  {m?.memberType && (
-                    <span className="text-[10px] font-bold text-[#71717A] uppercase tracking-widest">{m.memberType}</span>
-                  )}
-               </div>
-            </div>
+            <button
+              key={i}
+              onClick={() => onSelectDay(i)}
+              className={`flex flex-col items-center gap-1 px-3 py-2.5 rounded-2xl transition-all shrink-0 min-w-[56px] border ${
+                isSelected
+                  ? "bg-[#0A0A0A] text-white border-[#0A0A0A]"
+                  : "bg-black/[0.03] text-[#52525B] border-black/5 hover:border-black/10"
+              }`}
+            >
+              <span className={`text-[9px] font-black uppercase tracking-widest ${isSelected ? "text-white/60" : "text-[#A1A1AA]"}`}>
+                {isToday ? "Heute" : WEEKDAY_LABELS[day.getDay()]}
+              </span>
+              <span className="text-sm font-black">{day.getDate()}</span>
+            </button>
           );
         })}
       </div>
+
+      {/* Selected day label */}
+      <div className="flex items-center gap-2">
+        <h2 className="text-sm font-black uppercase tracking-widest text-[#0A0A0A]">
+          {selectedDayIdx === 0 ? "Heutiges Training" : `${WEEKDAY_FULL[selectedDate.getDay()]}, ${selectedDate.getDate()}. ${selectedDate.toLocaleDateString("de-DE", { month: "long" })}`}
+        </h2>
+        {groupsForDay.length > 0 && (
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+            · {groupsForDay.length} {groupsForDay.length === 1 ? "Gruppe" : "Gruppen"}
+          </span>
+        )}
+      </div>
+
+      {groupsForDay.length === 0 ? (
+        <EmptyDay isToday={selectedDayIdx === 0} />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+          <AnimatePresence mode="popLayout">
+            {groupsForDay.map(({ group, time }, idx) => (
+              <AttendanceCard
+                key={`${group.id}_${dateStr}`}
+                group={group}
+                time={time}
+                date={selectedDate}
+                dateStr={dateStr}
+                session={getSession(trainingSessions, group.id, dateStr)}
+                allMembers={allMembers}
+                currentMember={currentMember}
+                isAdminOrTrainer={isAdminOrTrainer}
+                idx={idx}
+                onMarkAbsent={onMarkAbsent}
+                onMarkPresent={onMarkPresent}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Attendance Card ────────────────────────────────────────────────────────────
+
+function AttendanceCard({
+  group, time, date, dateStr, session, allMembers, currentMember,
+  isAdminOrTrainer, idx, onMarkAbsent, onMarkPresent,
+}: {
+  group: TrainingGroup;
+  time: string;
+  date: Date;
+  dateStr: string;
+  session: TrainingSession | undefined;
+  allMembers: Member[];
+  currentMember: Member | null;
+  isAdminOrTrainer: boolean;
+  idx: number;
+  onMarkAbsent: (groupId: string, date: Date) => void;
+  onMarkPresent: (groupId: string, date: Date) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  const groupMembers = useMemo(
+    () => allMembers.filter((m) => group.memberIds.includes(m.id)),
+    [allMembers, group.memberIds]
+  );
+  const absentIds   = session?.absentMemberIds ?? [];
+  const presentCount = groupMembers.length - absentIds.filter((id) => group.memberIds.includes(id)).length;
+  const total        = groupMembers.length;
+  const ratio        = total > 0 ? presentCount / total : 1;
+
+  const myAbsent = currentMember ? absentIds.includes(currentMember.id) : false;
+  const myReason = currentMember ? (session?.absenceReasons[currentMember.id] ?? "") : "";
+  const iAmInGroup = currentMember ? group.memberIds.includes(currentMember.id) : false;
+
+  const barColor = ratio >= 0.7 ? "#34C759" : ratio >= 0.4 ? "#FF9500" : "#FF3B30";
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ delay: idx * 0.05 }}
+    >
+      <GlassSection className="overflow-hidden flex flex-col">
+        {/* Color stripe */}
+        <div className="h-1 w-full" style={{ backgroundColor: group.colorHex }} />
+
+        <div className="p-5 flex flex-col gap-4">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col gap-0.5">
+              <div className="flex items-center gap-2">
+                <Circle size={8} fill={group.colorHex} stroke="none" />
+                <h3 className="font-poppins font-black text-[#0A0A0A] text-base leading-tight uppercase tracking-tight">
+                  {group.name}
+                </h3>
+              </div>
+              <span className="text-[11px] font-mono font-bold text-[#71717A] pl-4">{time} Uhr</span>
+            </div>
+            {total > 0 && (
+              <span className="text-xs font-poppins font-bold text-[#0A0A0A] shrink-0">
+                {presentCount}/{total}
+              </span>
+            )}
+          </div>
+
+          {/* Progress bar */}
+          {total > 0 && (
+            <div className="h-1.5 rounded-full bg-black/[0.06] overflow-hidden">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ backgroundColor: barColor }}
+                initial={{ width: 0 }}
+                animate={{ width: `${ratio * 100}%` }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              />
+            </div>
+          )}
+
+          {/* My status (for group members) */}
+          {iAmInGroup && currentMember && (
+            <>
+              <TLine />
+              {myAbsent ? (
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#FF3B30]">Abwesend</span>
+                    {myReason && (
+                      <span className="text-xs font-poppins font-bold text-[#52525B]">{myReason}</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => onMarkPresent(group.id, date)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-black/[0.04] text-[#52525B] hover:text-[#34C759] hover:bg-green-50 border border-black/5 transition-all text-[10px] font-black uppercase tracking-widest"
+                  >
+                    <Check size={12} /> Anwesend
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#34C759]">Anwesend</span>
+                  <button
+                    onClick={() => onMarkAbsent(group.id, date)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-black/[0.04] text-[#52525B] hover:text-[#FF3B30] hover:bg-red-50 border border-black/5 transition-all text-[10px] font-black uppercase tracking-widest"
+                  >
+                    <X size={12} /> Abmelden
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Trainer: expand for full list */}
+          {isAdminOrTrainer && total > 0 && (
+            <>
+              <TLine />
+              <button
+                onClick={() => setExpanded((v) => !v)}
+                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#71717A] hover:text-[#0A0A0A] transition-all"
+              >
+                {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                {expanded ? "Ausblenden" : "Anwesenheitsliste"}
+              </button>
+
+              <AnimatePresence>
+                {expanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex flex-col gap-1 pt-1">
+                      {groupMembers.map((m) => {
+                        const absent = absentIds.includes(m.id);
+                        const reason = session?.absenceReasons[m.id] ?? "";
+                        return (
+                          <div
+                            key={m.id}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-2xl transition-all ${
+                              absent ? "bg-red-50/60" : "hover:bg-black/[0.02]"
+                            }`}
+                          >
+                            <TAvatar name={getMemberFullName(m)} id={m.id} size={30} />
+                            <div className="flex-1 min-w-0">
+                              <span className="text-sm font-poppins font-bold text-[#0A0A0A] block truncate">
+                                {getMemberFullName(m)}
+                              </span>
+                              {absent && reason && (
+                                <span className="text-[10px] text-[#FF3B30] font-bold">{reason}</span>
+                              )}
+                            </div>
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${absent ? "bg-[#FF3B30]" : "bg-[#34C759]"}`}>
+                              {absent
+                                ? <X size={10} className="text-white" />
+                                : <Check size={10} className="text-white" />}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </>
+          )}
+        </div>
+      </GlassSection>
+    </motion.div>
+  );
+}
+
+// ── Groups View ────────────────────────────────────────────────────────────────
+
+function GroupsView({
+  trainingGroups, allMembers, isAdminOrTrainer, onEdit, onDelete,
+}: {
+  trainingGroups: TrainingGroup[];
+  allMembers: Member[];
+  isAdminOrTrainer: boolean;
+  onEdit: (g: TrainingGroup) => void;
+  onDelete: (g: TrainingGroup) => void;
+}) {
+  const rootGroups = trainingGroups.filter((g) => !g.parentGroupId);
+  const subGroups  = trainingGroups.filter((g) => !!g.parentGroupId);
+
+  if (trainingGroups.length === 0) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center text-center opacity-40">
+        <Users size={40} className="text-[#0A0A0A] mb-4" />
+        <p className="font-poppins text-[#52525B] font-bold uppercase tracking-widest text-xs">
+          Noch keine Trainingsgruppen angelegt.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+      <AnimatePresence mode="popLayout">
+        {rootGroups.map((group, idx) => (
+          <motion.div
+            key={group.id}
+            layout
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ delay: idx * 0.05 }}
+            className="flex flex-col gap-3"
+          >
+            <GroupCard
+              group={group}
+              allMembers={allMembers}
+              isAdminOrTrainer={isAdminOrTrainer}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+            {/* Subgroups */}
+            {subGroups
+              .filter((sg) => sg.parentGroupId === group.id)
+              .map((sg) => (
+                <div key={sg.id} className="pl-4">
+                  <GroupCard
+                    group={sg}
+                    allMembers={allMembers}
+                    isAdminOrTrainer={isAdminOrTrainer}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    isSubgroup
+                  />
+                </div>
+              ))}
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function GroupCard({
+  group, allMembers, isAdminOrTrainer, onEdit, onDelete, isSubgroup,
+}: {
+  group: TrainingGroup;
+  allMembers: Member[];
+  isAdminOrTrainer: boolean;
+  onEdit: (g: TrainingGroup) => void;
+  onDelete: (g: TrainingGroup) => void;
+  isSubgroup?: boolean;
+}) {
+  const members = allMembers.filter((m) => group.memberIds.includes(m.id));
+
+  return (
+    <GlassSection className={`overflow-hidden flex flex-col ${isSubgroup ? "border-l-2" : ""}`} style={isSubgroup ? { borderLeftColor: group.colorHex } : {}}>
+      <div className="h-1 w-full" style={{ backgroundColor: group.colorHex }} />
+      <div className="p-4 flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <Circle size={8} fill={group.colorHex} stroke="none" />
+              <h3 className="font-poppins font-black text-[#0A0A0A] text-sm uppercase tracking-tight">
+                {group.name}
+              </h3>
+            </div>
+            <span className="text-[10px] text-[#71717A] font-bold uppercase tracking-widest pl-4">
+              {members.length} Mitglieder
+            </span>
+          </div>
+          {isAdminOrTrainer && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => onEdit(group)}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#0A0A0A] bg-black/[0.04] transition-all"
+              >
+                <Pencil size={12} />
+              </button>
+              <button
+                onClick={() => onDelete(group)}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-red-500 bg-black/[0.04] transition-all"
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Schedule */}
+        {group.schedule.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {group.schedule.map((entry) => (
+              <div
+                key={entry.id}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest"
+                style={{ borderColor: `${group.colorHex}40`, color: group.colorHex, backgroundColor: `${group.colorHex}10` }}
+              >
+                {WEEKDAY_LABELS[entry.dayOfWeek === 7 ? 0 : entry.dayOfWeek]} · {entry.time}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Member avatars */}
+        {members.length > 0 && (
+          <div className="flex -space-x-2 pt-1">
+            {members.slice(0, 6).map((m) => (
+              <div key={m.id} className="border-2 border-white rounded-full">
+                <TAvatar name={getMemberFullName(m)} id={m.id} size={26} />
+              </div>
+            ))}
+            {members.length > 6 && (
+              <div className="w-[26px] h-[26px] rounded-full bg-black/5 border-2 border-white flex items-center justify-center text-[8px] font-black text-[#71717A]">
+                +{members.length - 6}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </GlassSection>
+  );
+}
+
+// ── small helpers ──────────────────────────────────────────────────────────────
+
+function EmptyDay({ isToday }: { isToday: boolean }) {
+  return (
+    <div className="py-16 flex flex-col items-center justify-center text-center opacity-40">
+      <AlertCircle size={36} className="text-[#0A0A0A] mb-3" />
+      <p className="font-poppins text-[#52525B] font-bold uppercase tracking-widest text-xs">
+        {isToday ? "Kein Training heute." : "Kein Training an diesem Tag."}
+      </p>
+    </div>
+  );
+}
+
+function Backdrop({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm" onClick={onClick}>
+      {children}
+    </div>
+  );
+}
+
+function Modal({ children, wide, onClick }: { children: React.ReactNode; wide?: boolean; onClick?: React.MouseEventHandler }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className={`w-full ${wide ? "max-w-lg max-h-[90vh] flex flex-col" : "max-w-sm"}`}
+      onClick={onClick ?? ((e) => e.stopPropagation())}
+    >
+      <GlassSection className={wide ? "flex flex-col overflow-hidden max-h-[90vh]" : ""}>
+        {children}
+      </GlassSection>
+    </motion.div>
+  );
+}
+
+function ModalHeader({ title, onClose }: { title: string; onClose: () => void }) {
+  return (
+    <div className="flex items-center justify-between p-5 border-b border-black/5">
+      <h3 className="font-poppins font-black text-[#0A0A0A] text-base uppercase tracking-tight">{title}</h3>
+      <button onClick={onClose} className="text-[#52525B] hover:text-[#0A0A0A] transition-all">
+        <X size={20} />
+      </button>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">{label}</label>
+      {children}
     </div>
   );
 }
