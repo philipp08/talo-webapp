@@ -984,9 +984,10 @@ function AttendanceCard({
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ delay: idx * 0.05 }}
     >
-      <GlassSection className={`overflow-hidden flex flex-col ${dimmedClass}`}>
-        {/* Color stripe (or grey when cancelled) */}
-        <div className="h-1 w-full" style={{ backgroundColor: isCancelled ? "#A1A1AA" : group.colorHex }} />
+      <GlassSection
+        className={`overflow-hidden flex flex-col ${dimmedClass} transition-all`}
+        style={{ borderColor: isCancelled ? "#A1A1AA40" : `${group.colorHex}40`, borderWidth: "1px", borderStyle: "solid" }}
+      >
 
         <div className="p-5 flex flex-col gap-4">
           {/* Header */}
@@ -1354,8 +1355,10 @@ function GroupCard({
   const members = allMembers.filter((m) => group.memberIds.includes(m.id));
 
   return (
-    <GlassSection className={`overflow-hidden flex flex-col ${isSubgroup ? "border-l-2" : ""}`} style={isSubgroup ? { borderLeftColor: group.colorHex } : {}}>
-      <div className="h-1 w-full" style={{ backgroundColor: group.colorHex }} />
+    <GlassSection
+      className="overflow-hidden flex flex-col transition-all hover:scale-[1.01]"
+      style={{ borderColor: `${group.colorHex}40`, borderWidth: "1px", borderStyle: "solid" }}
+    >
       <div className="p-4 flex flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-col gap-0.5">
