@@ -114,23 +114,6 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
       "
     >
 
-      <div
-        style="
-        display:inline-block;
-        padding:8px 18px;
-        border-radius:999px;
-        background:rgba(255,255,255,0.10);
-        border:1px solid rgba(255,255,255,0.12);
-        backdrop-filter:blur(10px);
-        color:#dbeafe;
-        font-size:13px;
-        font-weight:600;
-        letter-spacing:0.4px;
-        margin-bottom:24px;
-        "
-      >
-        Willkommen bei Talo
-      </div>
 
       <h1
         style="
@@ -516,7 +499,7 @@ ${adminName} · ${clubName}`.trim();
 
   return {
     personalizations: [{ to: [{ email: to, name }], subject }],
-    from: { email: FROM_EMAIL, name: FROM_NAME },
+    from: { email: "zugangsdaten@talo-club.de", name: "Zugangsdaten-Service von Talo" },
     content: [
       { type: "text/plain", value: plainText },
       { type: "text/html", value: renderWelcomeHtml(memberName, to, password, clubName, adminName) },
