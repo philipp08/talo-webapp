@@ -24,6 +24,8 @@ interface License {
   createdAt: Timestamp | null;
   usedByOrgId: string | null;
   usedAt: Timestamp | null;
+  isTrial?: boolean;
+  trialDays?: number;
 }
 
 const PLAN_OPTIONS = [
@@ -53,6 +55,8 @@ export default function LizenzenAdminPage() {
   const [selectedPlan, setSelectedPlan] = useState("club");
   const [expiresAtStr, setExpiresAtStr] = useState("");
   const [creating, setCreating] = useState(false);
+  const [isTrial, setIsTrial] = useState(false);
+  const [trialDays, setTrialDays] = useState("30");
 
   // Delete
   const [deleteTarget, setDeleteTarget] = useState<License | null>(null);
@@ -74,6 +78,8 @@ export default function LizenzenAdminPage() {
           createdAt: data.createdAt ?? null,
           usedByOrgId: data.usedByOrgId ?? null,
           usedAt: data.usedAt ?? null,
+          isTrial: data.isTrial ?? false,
+          trialDays: data.trialDays ?? 0,
         };
       });
       docs.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
@@ -105,7 +111,9 @@ export default function LizenzenAdminPage() {
     setCreating(true);
     try {
       const plan = PLAN_OPTIONS.find((p) => p.value === selectedPlan);
-      const expiresDate = expiresAtStr
+      const expiresDate = isTrial
+        ? new Date(Date.now() + (parseInt(trialDays) || 30) * 24 * 60 * 60 * 1000)
+        : expiresAtStr
         ? new Date(expiresAtStr)
         : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
@@ -118,6 +126,8 @@ export default function LizenzenAdminPage() {
         status: "active",
         usedByOrgId: null,
         usedAt: null,
+        isTrial,
+        trialDays: isTrial ? (parseInt(trialDays) || 30) : 0,
       });
 
       setShowCreate(false);
@@ -244,15 +254,45 @@ export default function LizenzenAdminPage() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="text-[10px] font-black uppercase tracking-widest pl-1" style={{ color: "#71717A" }}>
-                        Ablaufdatum
+                        Trial-Modus
                       </label>
-                      <input
-                        type="date"
-                        value={expiresAtStr}
-                        onChange={(e) => setExpiresAtStr(e.target.value)}
-                        className="w-full rounded-2xl bg-black/[0.04] border border-black/5 px-4 py-3 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
-                      />
-                      <p className="text-[10px] font-bold pl-1" style={{ color: "#A1A1AA" }}>Standard: 1 Jahr ab heute</p>
+                      <div className="flex items-center gap-4 bg-black/[0.04] border border-black/5 rounded-2xl px-4 py-2">
+                        <div className="flex-1 flex flex-col">
+                          <span className="text-[11px] font-bold text-[#0A0A0A]">Kostenloser Testlauf</span>
+                          <span className="text-[10px] text-[#71717A]">Zeitlich begrenzter Zugriff</span>
+                        </div>
+                        <input 
+                          type="checkbox" 
+                          checked={isTrial} 
+                          onChange={(e) => setIsTrial(e.target.checked)}
+                          className="w-5 h-5 accent-[#0A0A0A]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest pl-1" style={{ color: "#71717A" }}>
+                        {isTrial ? "Trial-Dauer (Tage)" : "Ablaufdatum"}
+                      </label>
+                      {isTrial ? (
+                        <input
+                          type="number"
+                          value={trialDays}
+                          onChange={(e) => setTrialDays(e.target.value)}
+                          className="w-full rounded-2xl bg-black/[0.04] border border-black/5 px-4 py-3 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                          placeholder="z.B. 30"
+                        />
+                      ) : (
+                        <input
+                          type="date"
+                          value={expiresAtStr}
+                          onChange={(e) => setExpiresAtStr(e.target.value)}
+                          className="w-full rounded-2xl bg-black/[0.04] border border-black/5 px-4 py-3 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                        />
+                      )}
+                      <p className="text-[10px] font-bold pl-1" style={{ color: "#A1A1AA" }}>
+                        {isTrial ? "Dauer des Testzeitraums" : "Standard: 1 Jahr ab heute"}
+                      </p>
                     </div>
                   </div>
 
@@ -439,6 +479,9 @@ function LicenseCard({
             {isUsed ? "Eingelöst" : "Verfügbar"}
           </span>
           <span className="text-[11px] font-poppins font-bold text-[#0A0A0A] uppercase tracking-wider">{planLabel}</span>
+          {license.isTrial && (
+            <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#0A0A0A] text-white">Trial</span>
+          )}
           {license.expiresAt && (
             <span className="flex items-center gap-1 text-[10px] ml-auto" style={{ color: "#A1A1AA" }}>
               <Calendar size={10} />

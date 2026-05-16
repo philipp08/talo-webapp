@@ -269,7 +269,8 @@ export default function SettingsPage() {
       const updates = {
         plan: licData.plan,
         licenseStatus: "active",
-        licenseExpiresAt: licData.expiresAt
+        licenseExpiresAt: licData.expiresAt,
+        isTrial: licData.isTrial ?? false
       };
       
       await FirebaseManager.updateClub(currentClub.id, updates);
@@ -769,11 +770,14 @@ export default function SettingsPage() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex flex-col gap-1.5 p-4 rounded-xl bg-black/[0.03] border border-black/5 flex-1">
                           <span className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">Aktueller Plan</span>
-                          <span className="font-poppins font-bold text-lg text-[#0A0A0A]">
+                          <span className="font-poppins font-bold text-lg text-[#0A0A0A] flex items-center gap-2">
                             {planFeatures.name}
+                            {currentClub?.isTrial && (
+                              <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#0A0A0A] text-white">Trial</span>
+                            )}
                           </span>
                           <span className="text-xs text-[#52525B]">
-                            {currentClub?.licenseExpiresAt ? `Ablauf: ${formatLicenseDate(currentClub.licenseExpiresAt)}` : "Kostenlose Version"}
+                            {currentClub?.licenseExpiresAt ? `${currentClub.isTrial ? "Testphase läuft bis" : "Ablauf"}: ${formatLicenseDate(currentClub.licenseExpiresAt)}` : "Kostenlose Version"}
                           </span>
                         </div>
                         

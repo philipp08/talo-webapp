@@ -47,6 +47,7 @@ export interface Club {
   memberTypeFactors?: Record<string, number>;
   licenseStatus?: string;
   licenseExpiresAt?: Timestamp | Date | null;
+  isTrial?: boolean;
   customMemberTypes?: CustomMemberType[];
 }
 
