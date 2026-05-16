@@ -1,17 +1,19 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Player, PlayerRef } from "@remotion/player";
 import { TALODashboard } from "./HeroAnimation";
 
 export function HeroAnimationPlayer() {
   const ref = useRef<PlayerRef>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [hasIntersected, setHasIntersected] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          setHasIntersected(true);
           ref.current?.play();
         } else {
           ref.current?.pause();
@@ -28,17 +30,19 @@ export function HeroAnimationPlayer() {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ width: "100%" }}>
-      <Player
-        ref={ref}
-        component={TALODashboard}
-        durationInFrames={200}
-        fps={30}
-        compositionWidth={960}
-        compositionHeight={540}
-        style={{ width: "100%", display: "block", borderRadius: 16 }}
-        loop
-      />
+    <div ref={containerRef} style={{ width: "100%", aspectRatio: "960/540" }}>
+      {hasIntersected && (
+        <Player
+          ref={ref}
+          component={TALODashboard}
+          durationInFrames={200}
+          fps={30}
+          compositionWidth={960}
+          compositionHeight={540}
+          style={{ width: "100%", display: "block", borderRadius: 16 }}
+          loop
+        />
+      )}
     </div>
   );
 }
