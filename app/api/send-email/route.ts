@@ -15,6 +15,12 @@ type SendGridPayload = {
   from: { email: string; name: string };
   reply_to?: { email: string; name?: string };
   content: Array<{ type: "text/plain" | "text/html"; value: string }>;
+  tracking_settings?: {
+    click_tracking: {
+      enable: boolean;
+      enable_text?: boolean;
+    };
+  };
 };
 
 type RateLimitBucket = {
@@ -521,6 +527,12 @@ ${adminName} · ${clubName}`.trim();
       { type: "text/plain", value: plainText },
       { type: "text/html", value: renderWelcomeHtml(memberName, to, password, clubName, adminName) },
     ],
+    tracking_settings: {
+      click_tracking: {
+        enable: false,
+        enable_text: false,
+      },
+    },
   };
 }
 
