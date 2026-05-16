@@ -26,6 +26,7 @@ import {
   SeasonType,
   Training,
   TrainingSchedule,
+  TrainingGroup,
   TrainingAnnouncement,
   ClubMembership,
   ClubGroup,
@@ -347,7 +348,7 @@ export class FirebaseManager {
           result.push({
             id: docSnap.id,
             clubId: data.clubId,
-            groupId: data.groupId,
+            trainingGroupId: data.trainingGroupId,
             authorId: data.authorId,
             authorName: data.authorName,
             message: data.message,
@@ -381,7 +382,8 @@ export class FirebaseManager {
           result.push({
             id: docSnap.id,
             clubId: data.clubId,
-            groupId: data.groupId,
+            trainingGroupId: data.trainingGroupId,
+            scheduleId: data.scheduleId,
             title: data.title,
             description: data.description,
             date: data.date instanceof Timestamp ? data.date.toDate() : data.date,
@@ -421,7 +423,7 @@ export class FirebaseManager {
           result.push({
             id: docSnap.id,
             clubId: data.clubId,
-            groupId: data.groupId,
+            trainingGroupId: data.trainingGroupId,
             title: data.title,
             description: data.description,
             weekday: data.weekday,
@@ -436,6 +438,35 @@ export class FirebaseManager {
       },
       (error) => {
         console.error("Error listening to training schedules:", error);
+      }
+    );
+  }
+
+  // === TRAINING GROUPS ===
+  static listenToTrainingGroups(
+    clubId: string,
+    callback: (groups: TrainingGroup[]) => void
+  ) {
+    const q = query(collection(db, `clubs/${clubId}/trainingGroups`));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const groups: TrainingGroup[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          groups.push({
+            id: docSnap.id,
+            clubId: data.clubId,
+            name: data.name,
+            description: data.description,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
+          });
+        });
+        groups.sort((a, b) => a.name.localeCompare(b.name));
+        callback(groups);
+      },
+      (error) => {
+        console.error("Error listening to training groups:", error);
       }
     );
   }
@@ -738,5 +769,41 @@ export class FirebaseManager {
     scheduleId: string
   ): Promise<void> {
     await deleteDoc(doc(db, `clubs/${clubId}/trainingSchedules`, scheduleId));
+  }
+
+  // === TRAINING GROUPS (write) ===
+  static async addTrainingGroup(
+    clubId: string,
+    group: Omit<TrainingGroup, "id" | "createdAt" | "clubId">
+  ): Promise<void> {
+    await addDoc(collection(db, `clubs/${clubId}/trainingGroups`), {
+      ...group,
+      clubId,
+      createdAt: Timestamp.now(),
+    });
+  }
+
+  static async updateTrainingGroup(
+    clubId: string,
+    groupId: string,
+    updates: Partial<Omit<TrainingGroup, "id" | "clubId">>
+  ): Promise<void> {
+    await updateDoc(doc(db, `clubs/${clubId}/trainingGroups`, groupId), updates);
+  }
+
+  static async deleteTrainingGroup(
+    clubId: string,
+    groupId: string
+  ): Promise<void> {
+    // Also clean up member references
+    const membersSnap = await getDocs(query(collection(db, "members"), where("trainingGroupIds", "array-contains", groupId)));
+    const batch: Promise<void>[] = [];
+    membersSnap.forEach((docSnap) => {
+      batch.push(updateDoc(docSnap.ref, {
+        trainingGroupIds: arrayRemove(groupId)
+      }));
+    });
+    await Promise.all(batch);
+    await deleteDoc(doc(db, `clubs/${clubId}/trainingGroups`, groupId));
   }
 }

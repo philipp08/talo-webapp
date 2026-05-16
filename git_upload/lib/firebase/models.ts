@@ -59,7 +59,8 @@ export interface ClubMembership {
   customTargetPoints?: number;
   isAdmin: boolean;
   isTrainer: boolean;
-  groupId?: string;
+  groupId?: string; // General Club Group (e.g. Abteilung)
+  trainingGroupIds?: string[]; // Training-specific groups
 }
 
 export interface Member {
@@ -74,7 +75,8 @@ export interface Member {
   clubId: string;
   clubIds: string[];
   clubMemberships?: Record<string, ClubMembership>;
-  groupId?: string;
+  groupId?: string; // General Club Group
+  trainingGroupIds?: string[]; // Training-specific groups
   profileImageUrl?: string;
 }
 
@@ -110,14 +112,14 @@ export interface Entry {
 export interface Training {
   id: string;
   clubId: string;
-  groupId?: string; // Optional: Link to a specific ClubGroup
-  scheduleId?: string; // Optional: Link to the TrainingSchedule it was generated from
+  trainingGroupId?: string; // Link to TrainingGroup
+  scheduleId?: string; 
   title: string;
   description?: string;
   date: Timestamp | Date;
   location?: string;
-  attendeeIds: string[]; // IDs of members who accepted
-  absenteeIds: string[]; // IDs of members who declined
+  attendeeIds: string[]; 
+  absenteeIds: string[]; 
   createdAt: Timestamp | Date;
   authorId: string;
 }
@@ -125,11 +127,11 @@ export interface Training {
 export interface TrainingSchedule {
   id: string;
   clubId: string;
-  groupId?: string; 
+  trainingGroupId?: string; 
   title: string;
   description?: string;
-  weekday: number; // 0-6 (So-Sa)
-  time: string; // "HH:mm"
+  weekday: number; 
+  time: string; 
   location?: string;
   createdAt: Timestamp | Date;
   isActive: boolean;
@@ -138,12 +140,20 @@ export interface TrainingSchedule {
 export interface TrainingAnnouncement {
   id: string;
   clubId: string;
-  groupId?: string;
+  trainingGroupId?: string;
   authorId: string;
   authorName: string;
   message: string;
   createdAt: Timestamp | Date;
   isPinned: boolean;
+}
+
+export interface TrainingGroup {
+  id: string;
+  clubId: string;
+  name: string;
+  description?: string;
+  createdAt: Timestamp | Date;
 }
 
 // Helpers
@@ -196,6 +206,7 @@ export const getEffectiveMemberForClub = (
     isAdmin: membership.isAdmin === true,
     isTrainer: membership.isTrainer === true,
     groupId: membership.groupId ?? member.groupId,
+    trainingGroupIds: membership.trainingGroupIds ?? member.trainingGroupIds ?? [],
   };
 };
 
