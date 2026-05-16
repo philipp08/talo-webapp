@@ -5,9 +5,9 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase/config";
 import {
-  collection, query, getDocs, Timestamp, addDoc, doc, updateDoc, orderBy
+  collection, getDocs, Timestamp, addDoc,
 } from "firebase/firestore";
-import { Key, PlusCircle, CheckCircle2, Copy, Loader2, XCircle } from "lucide-react";
+import { PlusCircle, Copy, Loader2 } from "lucide-react";
 
 export default function LizenzenAdminPage() {
   const [licenses, setLicenses] = useState<any[]>([]);
@@ -57,7 +57,7 @@ export default function LizenzenAdminPage() {
       if (selectedPlan === "individual") limit = 99999;
 
       const newKey = generateKey();
-      const expiresDate = expiresAtStr ? new Date(expiresAtStr) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // Default 1 year
+      const expiresDate = expiresAtStr ? new Date(expiresAtStr) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
       await addDoc(collection(db, "licenses"), {
         key: newKey,
@@ -65,7 +65,7 @@ export default function LizenzenAdminPage() {
         memberLimit: limit,
         expiresAt: Timestamp.fromDate(expiresDate),
         createdAt: Timestamp.now(),
-        status: "active", // active, used
+        status: "active",
         usedByOrgId: null,
         usedAt: null
       });
@@ -83,28 +83,33 @@ export default function LizenzenAdminPage() {
     <div className="max-w-5xl mx-auto px-6 py-10">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white font-poppins">Lizenzen</h1>
-          <p className="text-sm mt-1" style={{ color: "#555" }}>Lizenzschlüssel für Vereine generieren.</p>
+          <h1 className="text-2xl font-bold text-[#0A0A0A] font-poppins">Lizenzen</h1>
+          <p className="text-sm mt-1" style={{ color: "#71717A" }}>Lizenzschlüssel für Vereine generieren.</p>
         </div>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-white text-black hover:opacity-90"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-[#0A0A0A] text-white hover:opacity-90"
         >
-          <PlusCircle size={16} /> 
+          <PlusCircle size={16} />
           Neue Lizenz
         </button>
       </div>
 
       {showCreate && (
-        <form onSubmit={handleCreate} className="mb-8 p-6 rounded-[1.25rem] border border-white/10" style={{ background: "rgba(255,255,255,0.03)" }}>
-          <h2 className="text-lg font-bold mb-4">Lizenz generieren</h2>
+        <form
+          onSubmit={handleCreate}
+          className="mb-8 p-6 rounded-[1.25rem]"
+          style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}
+        >
+          <h2 className="text-lg font-bold mb-4 text-[#0A0A0A]">Lizenz generieren</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-xs uppercase tracking-widest text-[#8A8A8A] mb-2 font-bold">Plan</label>
+              <label className="block text-[10px] uppercase tracking-widest mb-2 font-black" style={{ color: "#B4B4BA" }}>Plan</label>
               <select
                 value={selectedPlan}
                 onChange={e => setSelectedPlan(e.target.value)}
-                className="w-full px-4 py-3 rounded-[10px] text-white text-sm outline-none bg-white/5 border border-white/10"
+                className="w-full px-4 py-3 rounded-[10px] text-[#0A0A0A] text-sm outline-none"
+                style={{ background: "#FAFAFA", border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 <option value="free">Free (10)</option>
                 <option value="verein">Verein (75)</option>
@@ -114,19 +119,34 @@ export default function LizenzenAdminPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs uppercase tracking-widest text-[#8A8A8A] mb-2 font-bold">Ablaufdatum (optional)</label>
+              <label className="block text-[10px] uppercase tracking-widest mb-2 font-black" style={{ color: "#B4B4BA" }}>Ablaufdatum (optional)</label>
               <input
                 type="date"
                 value={expiresAtStr}
                 onChange={e => setExpiresAtStr(e.target.value)}
-                className="w-full px-4 py-3 rounded-[10px] text-white text-sm outline-none bg-white/5 border border-white/10 [color-scheme:dark]"
+                className="w-full px-4 py-3 rounded-[10px] text-[#0A0A0A] text-sm outline-none"
+                style={{ background: "#FAFAFA", border: "1px solid rgba(0,0,0,0.08)" }}
               />
-              <p className="text-[10px] text-gray-500 mt-1">Standard: 1 Jahr ab Erstellung.</p>
+              <p className="text-[10px] mt-1" style={{ color: "#B4B4BA" }}>Standard: 1 Jahr ab Erstellung.</p>
             </div>
           </div>
           <div className="flex justify-end gap-3">
-            <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-xl text-sm text-gray-400 hover:text-white transition-colors">Abbrechen</button>
-            <button type="submit" disabled={creating} className="px-6 py-2 rounded-xl text-sm font-semibold bg-[#7DD8D8] text-black hover:opacity-90 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowCreate(false)}
+              className="px-4 py-2 rounded-xl text-sm transition-colors"
+              style={{ color: "#71717A" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#0A0A0A")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#71717A")}
+            >
+              Abbrechen
+            </button>
+            <button
+              type="submit"
+              disabled={creating}
+              className="px-6 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all disabled:opacity-50"
+              style={{ background: "#0A0A0A", color: "#FFFFFF" }}
+            >
               {creating && <Loader2 className="w-4 h-4 animate-spin" />} Generieren
             </button>
           </div>
@@ -134,42 +154,49 @@ export default function LizenzenAdminPage() {
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center p-10"><Loader2 className="animate-spin text-white/50" /></div>
+        <div className="flex items-center justify-center p-10"><Loader2 className="animate-spin" style={{ color: "rgba(0,0,0,0.3)" }} /></div>
       ) : (
-        <div className="rounded-[1.25rem] overflow-hidden border border-white/10" style={{ background: "rgba(255,255,255,0.03)" }}>
+        <div className="rounded-[1.25rem] overflow-hidden" style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}>
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="text-[#8A8A8A] text-xs uppercase tracking-widest border-b border-white/10 bg-white/5">
+            <thead className="text-xs uppercase tracking-widest" style={{ color: "#B4B4BA", borderBottom: "1px solid rgba(0,0,0,0.06)", background: "#FAFAFA" }}>
               <tr>
-                <th className="px-6 py-4 font-bold">Schlüssel</th>
-                <th className="px-6 py-4 font-bold">Plan</th>
-                <th className="px-6 py-4 font-bold">Status</th>
-                <th className="px-6 py-4 font-bold">Abläuft am</th>
+                <th className="px-6 py-4 font-black">Schlüssel</th>
+                <th className="px-6 py-4 font-black">Plan</th>
+                <th className="px-6 py-4 font-black">Status</th>
+                <th className="px-6 py-4 font-black">Abläuft am</th>
               </tr>
             </thead>
             <tbody>
               {licenses.map(lic => (
-                <tr key={lic.id} className="border-b border-white/5 last:border-0 hover:bg-white/5">
-                  <td className="px-6 py-4 font-mono">
-                    <button onClick={() => navigator.clipboard.writeText(lic.key)} className="flex items-center gap-2 hover:text-[#7DD8D8] transition-colors" title="Kopieren">
+                <tr key={lic.id} style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }} className="hover:bg-black/[0.02]">
+                  <td className="px-6 py-4 font-mono text-[#0A0A0A]">
+                    <button
+                      onClick={() => navigator.clipboard.writeText(lic.key)}
+                      className="flex items-center gap-2 transition-colors"
+                      style={{ color: "#0A0A0A" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "#3FA7A7")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "#0A0A0A")}
+                      title="Kopieren"
+                    >
                       {lic.key} <Copy size={12} />
                     </button>
                   </td>
-                  <td className="px-6 py-4 capitalize">{lic.plan}</td>
+                  <td className="px-6 py-4 capitalize text-[#0A0A0A]">{lic.plan}</td>
                   <td className="px-6 py-4 text-xs font-bold">
                     {lic.status === "active" ? (
-                      <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded">Aktiv</span>
+                      <span className="px-2 py-1 rounded" style={{ background: "rgba(16,185,129,0.12)", color: "#059669" }}>Aktiv</span>
                     ) : (
-                      <span className="bg-red-500/20 text-red-400 px-2 py-1 rounded">Genutzt</span>
+                      <span className="px-2 py-1 rounded" style={{ background: "rgba(239,68,68,0.10)", color: "#DC2626" }}>Genutzt</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-gray-400">
+                  <td className="px-6 py-4" style={{ color: "#71717A" }}>
                     {lic.expiresAt?.toDate().toLocaleDateString("de-DE")}
                   </td>
                 </tr>
               ))}
               {licenses.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-gray-500">Keine Lizenzen vorhanden.</td>
+                  <td colSpan={4} className="px-6 py-10 text-center" style={{ color: "#B4B4BA" }}>Keine Lizenzen vorhanden.</td>
                 </tr>
               )}
             </tbody>

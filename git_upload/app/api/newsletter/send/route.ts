@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyAdminRequest } from "@/lib/server/firebaseAuth";
+import { buildNewsletterHtml } from "@/lib/newsletter/template";
 
 interface Subscriber {
   email: string;
@@ -53,18 +54,7 @@ function readSubscribers(value: unknown): Subscriber[] | null {
 
 async function sendOne(apiKey: string, email: string, token: string, subject: string, htmlBody: string, baseUrl: string) {
   const unsubLink = `${baseUrl}/newsletter/abmelden?token=${encodeURIComponent(token)}`;
-  const htmlWithFooter = `
-    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:48px 24px;color:#1a1a1a;background:#fff">
-      <div style="width:36px;height:36px;background:#000;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:28px">
-        <span style="color:#fff;font-weight:800;font-size:14px;letter-spacing:0.1em">T</span>
-      </div>
-      ${htmlBody}
-      <hr style="border:none;border-top:1px solid #eee;margin:40px 0 20px">
-      <p style="font-size:12px;color:#aaa;line-height:1.6">
-        Du erhältst diese E-Mail als Abonnent des Talo Newsletters.<br>
-        <a href="${unsubLink}" style="color:#aaa;text-decoration:underline">Vom Newsletter-Versand abmelden</a>
-      </p>
-    </div>`;
+  const htmlWithFooter = buildNewsletterHtml({ htmlBody, baseUrl, unsubLink });
 
   const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
     method: "POST",
