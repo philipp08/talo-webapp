@@ -672,8 +672,10 @@ export default function TrainingPage() {
                               )}
                             </button>
                           ))}
+                      </div>
+                    </Field>
                   </div>
-                </Field>
+                </div>
               </div>
 
               <div className="p-5 border-t border-black/5">
