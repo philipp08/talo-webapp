@@ -520,149 +520,158 @@ export default function TrainingPage() {
       <AnimatePresence>
         {showGroupForm && (
           <Backdrop onClick={() => setShowGroupForm(false)}>
-            <Modal wide onClick={(e) => e.stopPropagation()}>
+            <Modal extraWide onClick={(e) => e.stopPropagation()}>
               <ModalHeader
                 title={editingGroup ? "Gruppe bearbeiten" : "Neue Trainingsgruppe"}
                 onClose={() => setShowGroupForm(false)}
               />
-              <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-5">
-
-                {/* Name */}
-                <Field label="Name der Gruppe">
-                  <input
-                    autoFocus
-                    value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    placeholder="z. B. U15 Leistungskader"
-                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
-                  />
-                </Field>
-
-                {/* Color */}
-                <Field label="Farbe">
-                  <div className="flex gap-3 flex-wrap">
-                    {TRAINING_GROUP_COLORS.map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => setForm((f) => ({ ...f, colorHex: c }))}
-                        className={`w-8 h-8 rounded-full border-2 transition-all ${
-                          form.colorHex === c ? "border-[#0A0A0A] scale-110" : "border-transparent"
-                        }`}
-                        style={{ backgroundColor: c }}
+              <div className="p-8 overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  {/* Left Column: Group Details */}
+                  <div className="flex flex-col gap-6">
+                    <Field label="Name der Gruppe">
+                      <input
+                        autoFocus
+                        value={form.name}
+                        onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                        placeholder="z. B. U15 Leistungskader"
+                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                       />
-                    ))}
-                  </div>
-                </Field>
+                    </Field>
 
-                {/* Parent group */}
-                {trainingGroups.length > 0 && (
-                  <Field label="Übergeordnete Gruppe (optional)">
-                    <select
-                      value={form.parentGroupId}
-                      onChange={(e) => setForm((f) => ({ ...f, parentGroupId: e.target.value }))}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
-                    >
-                      <option value="">Keine (Hauptgruppe)</option>
-                      {trainingGroups
-                        .filter((g) => g.id !== editingGroup?.id)
-                        .map((g) => (
-                          <option key={g.id} value={g.id}>{g.name}</option>
+                    <Field label="Farbe">
+                      <div className="flex gap-3 flex-wrap">
+                        {TRAINING_GROUP_COLORS.map((c) => (
+                          <button
+                            key={c}
+                            onClick={() => setForm((f) => ({ ...f, colorHex: c }))}
+                            className={`w-8 h-8 rounded-full border-2 transition-all ${
+                              form.colorHex === c ? "border-[#0A0A0A] scale-110" : "border-transparent opacity-60 hover:opacity-100"
+                            }`}
+                            style={{ backgroundColor: c }}
+                          />
                         ))}
-                    </select>
-                  </Field>
-                )}
-
-                {/* Schedule */}
-                <Field label="Trainingszeiten">
-                  <div className="flex flex-col gap-2">
-                    {form.schedule.map((entry) => (
-                      <div key={entry.id} className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-black/[0.03] border border-black/5">
-                        <div
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: form.colorHex }}
-                        />
-                        <span className="text-xs font-black text-[#0A0A0A] uppercase tracking-widest flex-1">
-                          {WEEKDAY_FULL[entry.dayOfWeek === 7 ? 0 : entry.dayOfWeek]} · {entry.time} Uhr
-                        </span>
-                        <button
-                          onClick={() => removeScheduleEntry(entry.id)}
-                          className="text-[#A1A1AA] hover:text-red-500 transition-all"
-                        >
-                          <X size={14} />
-                        </button>
                       </div>
-                    ))}
-                    <div className="flex gap-2 items-end">
-                      <div className="flex flex-col gap-1 flex-1">
-                        <label className="text-[9px] font-black text-[#71717A] uppercase tracking-widest pl-1">Tag</label>
+                    </Field>
+
+                    {/* Parent group */}
+                    {trainingGroups.length > 0 && (
+                      <Field label="Übergeordnete Gruppe (optional)">
                         <select
-                          value={newEntryDay}
-                          onChange={(e) => setNewEntryDay(Number(e.target.value))}
-                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                          value={form.parentGroupId}
+                          onChange={(e) => setForm((f) => ({ ...f, parentGroupId: e.target.value }))}
+                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                         >
-                          {[1,2,3,4,5,6,7].map((d) => (
-                            <option key={d} value={d}>
-                              {WEEKDAY_FULL[d === 7 ? 0 : d]}
-                            </option>
-                          ))}
+                          <option value="">Keine (Hauptgruppe)</option>
+                          {trainingGroups
+                            .filter((g) => g.id !== editingGroup?.id)
+                            .map((g) => (
+                              <option key={g.id} value={g.id}>{g.name}</option>
+                            ))}
                         </select>
-                      </div>
-                      <div className="flex flex-col gap-1 flex-1">
-                        <label className="text-[9px] font-black text-[#71717A] uppercase tracking-widest pl-1">Zeit</label>
-                        <input
-                          type="time"
-                          value={newEntryTime}
-                          onChange={(e) => setNewEntryTime(e.target.value)}
-                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
-                        />
-                      </div>
-                      <button
-                        onClick={addScheduleEntry}
-                        className="flex items-center gap-1.5 px-3 py-2.5 rounded-2xl bg-[#0A0A0A] text-white text-[10px] font-black uppercase tracking-widest shrink-0"
-                      >
-                        <Plus size={14} /> Add
-                      </button>
-                    </div>
-                  </div>
-                </Field>
+                      </Field>
+                    )}
 
-                {/* Trainer */}
-                {isAdminOrTrainer && (
-                  <Field label="Standard-Trainer">
-                    <select
-                      value={form.trainerId}
-                      onChange={(e) => setForm((f) => ({ ...f, trainerId: e.target.value }))}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
-                    >
-                      <option value="">Kein Trainer zugewiesen</option>
-                      {allMembers
-                        .filter((m) => m.isTrainer || m.isAdmin)
-                        .map((m) => (
-                          <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
+                    {/* Schedule */}
+                    <Field label="Trainingszeiten">
+                      <div className="flex flex-col gap-2">
+                        {form.schedule.map((entry) => (
+                          <div key={entry.id} className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-black/[0.03] border border-black/5">
+                            <div
+                              className="w-2 h-2 rounded-full shrink-0"
+                              style={{ backgroundColor: form.colorHex }}
+                            />
+                            <span className="text-xs font-black text-[#0A0A0A] uppercase tracking-widest flex-1">
+                              {WEEKDAY_FULL[entry.dayOfWeek === 7 ? 0 : entry.dayOfWeek]} · {entry.time} Uhr
+                            </span>
+                            <button
+                              onClick={() => removeScheduleEntry(entry.id)}
+                              className="text-[#A1A1AA] hover:text-red-500 transition-all"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
                         ))}
-                    </select>
-                  </Field>
-                )}
+                        <div className="flex gap-2 items-end">
+                          <div className="flex flex-col gap-1 flex-1">
+                            <label className="text-[9px] font-black text-[#71717A] uppercase tracking-widest pl-1">Tag</label>
+                            <select
+                              value={newEntryDay}
+                              onChange={(e) => setNewEntryDay(Number(e.target.value))}
+                              className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                            >
+                              {[1,2,3,4,5,6,7].map((d) => (
+                                <option key={d} value={d}>
+                                  {WEEKDAY_FULL[d === 7 ? 0 : d]}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex flex-col gap-1 flex-1">
+                            <label className="text-[9px] font-black text-[#71717A] uppercase tracking-widest pl-1">Zeit</label>
+                            <input
+                              type="time"
+                              value={newEntryTime}
+                              onChange={(e) => setNewEntryTime(e.target.value)}
+                              className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                            />
+                          </div>
+                          <button
+                            onClick={addScheduleEntry}
+                            className="flex items-center gap-1.5 px-3 py-2.5 rounded-2xl bg-[#0A0A0A] text-white text-[10px] font-black uppercase tracking-widest shrink-0"
+                          >
+                            <Plus size={14} /> Add
+                          </button>
+                        </div>
+                      </div>
+                    </Field>
 
-                {/* Members */}
-                <Field label={`Mitglieder (${form.memberIds.length} ausgewählt)`}>
-                  <TSearchBar value={memberSearch} onChange={setMemberSearch} placeholder="Mitglied suchen…" />
-                  <div className="mt-2 max-h-52 overflow-y-auto flex flex-col gap-1">
-                    {allMembers
-                      .filter((m) => {
-                        if (!memberSearch.trim()) return true;
-                        return getMemberFullName(m).toLowerCase().includes(memberSearch.toLowerCase());
-                      })
-                      .map((m) => (
-                        <button
-                          key={m.id}
-                          onClick={() => toggleMember(m.id)}
-                          className={`flex items-center gap-3 px-3 py-2 rounded-2xl text-left transition-all border ${
-                            form.memberIds.includes(m.id)
-                              ? "bg-[#0A0A0A]/[0.05] border-[#0A0A0A]/10"
-                              : "border-transparent hover:bg-black/[0.02]"
-                          }`}
+                    {/* Trainer */}
+                    {isAdminOrTrainer && (
+                      <Field label="Standard-Trainer">
+                        <select
+                          value={form.trainerId}
+                          onChange={(e) => setForm((f) => ({ ...f, trainerId: e.target.value }))}
+                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                         >
+                          <option value="">Kein Trainer zugewiesen</option>
+                          {allMembers
+                            .filter((m) => m.isTrainer || m.isAdmin)
+                            .map((m) => (
+                              <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
+                            ))}
+                        </select>
+                      </Field>
+                    )}
+                  </div>
+
+                  {/* Right Column: Members Selection */}
+                  <div className="flex flex-col gap-6">
+                    <Field label={`Mitglieder (${form.memberIds.length} ausgewählt)`}>
+                      <TSearchBar value={memberSearch} onChange={setMemberSearch} placeholder="Mitglied suchen…" />
+                      <div className="mt-2 max-h-[400px] overflow-y-auto flex flex-col gap-1 pr-1">
+                        {allMembers
+                          .filter((m) => {
+                            if (!memberSearch.trim()) return true;
+                            return getMemberFullName(m).toLowerCase().includes(memberSearch.toLowerCase());
+                          })
+                          .map((m) => (
+                            <button
+                              key={m.id}
+                              onClick={() => toggleMember(m.id)}
+                              className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl text-left transition-all border ${
+                                form.memberIds.includes(m.id)
+                                  ? "bg-[#0A0A0A]/[0.05] border-[#0A0A0A]/10"
+                                  : "border-transparent hover:bg-black/[0.02]"
+                              }`}
+                            >
+                              <TAvatar name={getMemberFullName(m)} id={m.id} size={32} />
+                              <span className="text-sm font-poppins font-bold text-[#0A0A0A] flex-1">{getMemberFullName(m)}</span>
+                              {form.memberIds.includes(m.id) && (
+                                <Check size={14} className="text-[#34C759]" />
+                              )}
+                            </button>
+                          ))}
                           <TAvatar name={getMemberFullName(m)} id={m.id} size={30} />
                           <span className="text-sm font-poppins font-bold text-[#0A0A0A] flex-1">{getMemberFullName(m)}</span>
                           {form.memberIds.includes(m.id) && (
@@ -1390,16 +1399,20 @@ function Backdrop({ children, onClick }: { children: React.ReactNode; onClick: (
   );
 }
 
-function Modal({ children, wide, onClick }: { children: React.ReactNode; wide?: boolean; onClick?: React.MouseEventHandler }) {
+function Modal({ children, wide, extraWide, onClick }: { children: React.ReactNode; wide?: boolean; extraWide?: boolean; onClick?: React.MouseEventHandler }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className={`w-full ${wide ? "max-w-lg max-h-[90vh] flex flex-col" : "max-w-sm"}`}
+      className={`w-full ${
+        extraWide ? "max-w-4xl max-h-[90vh] flex flex-col" :
+        wide ? "max-w-lg max-h-[90vh] flex flex-col" : 
+        "max-w-sm"
+      }`}
       onClick={onClick ?? ((e) => e.stopPropagation())}
     >
-      <GlassSection className={wide ? "flex flex-col overflow-hidden max-h-[90vh]" : ""}>
+      <GlassSection className={(wide || extraWide) ? "flex flex-col overflow-hidden max-h-[90vh]" : ""}>
         {children}
       </GlassSection>
     </motion.div>
