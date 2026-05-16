@@ -967,7 +967,8 @@ function WeekView({
 function AttendanceCard({
   slot, date, dateStr, session, trainingGroups, trainingSessions, allMembers, currentMember,
   isAdminOrTrainer, idx, onMarkAbsent, onMarkPresent,
-  onToggleCancellation, onDeleteExtra, onSetTrainer, onToggleTrainerAbsence,
+  onToggleCancellation, onDeleteExtra, onSetTrainer, onSetTrainers, onToggleTrainerAbsence,
+  onToggleIndividualTrainerAbsence, planFeatures,
 }: {
   slot: DaySlot;
   date: Date;
