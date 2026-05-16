@@ -42,6 +42,78 @@ type ExportKey =
   | "annual-report-pdf"
   | "member-list-pdf";
 
+function SettingsPricingCard({
+  tier,
+  isCurrent,
+  isSimulating,
+  simulateUpgrade
+}: {
+  tier: typeof PLAN_TIERS[0],
+  isCurrent: boolean,
+  isSimulating: string | null,
+  simulateUpgrade: (key: string) => void
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const visibleFeatures = showAll ? tier.features : tier.features.slice(0, 4);
+  const hasMore = tier.features.length > 4;
+
+  return (
+    <div className={`relative flex flex-col p-5 rounded-2xl bg-white border shrink-0 ${tier.popular ? "border-black/20 shadow-md scale-[1.01]" : "border-black/5 shadow-sm"} overflow-hidden`}>
+      {tier.popular && (
+        <div className="absolute top-0 right-0 bg-[#0A0A0A] text-white px-3 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] items-center gap-1 font-bold flex">
+          <Sparkles size={10} /> Favorit
+        </div>
+      )}
+      <h3 className="text-xl font-bold font-logo text-[#0A0A0A] uppercase tracking-wide">
+        {tier.name}
+      </h3>
+      <p className="text-xs text-[#52525B] mt-1 line-clamp-1">{tier.desc}</p>
+      
+      <div className="mt-4 mb-5">
+        <span className="text-3xl font-black font-poppins text-[#0A0A0A]">{tier.price}</span>
+        <span className="text-sm font-semibold text-[#71717A] ml-1">{tier.period}</span>
+      </div>
+
+      <div className="flex flex-col gap-2.5 mb-6 flex-1">
+        {visibleFeatures.map((feature, idx) => (
+          <div key={idx} className="flex items-start gap-2">
+            <Check className="w-3.5 h-3.5 text-[#0A0A0A] mt-0.5 shrink-0" strokeWidth={3} />
+            <span className="text-[11px] font-medium text-[#52525B] leading-snug">{feature}</span>
+          </div>
+        ))}
+        {hasMore && (
+          <button 
+            onClick={() => setShowAll(!showAll)}
+            className="text-[11px] font-semibold text-[#71717A] underline underline-offset-2 hover:text-[#0A0A0A] self-start mt-1"
+          >
+            {showAll ? "Weniger anzeigen" : `+ ${tier.features.length - 4} weitere`}
+          </button>
+        )}
+      </div>
+
+      <div className="mt-auto">
+        <button
+          onClick={() => simulateUpgrade(tier.key)}
+          disabled={isCurrent || isSimulating === tier.key}
+          className={`w-full py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all duration-200 border ${
+            isCurrent
+              ? "bg-green-50 text-green-700 border-green-200/50 cursor-default"
+              : tier.popular
+              ? "bg-[#0A0A0A] text-white hover:bg-black/80 border-transparent active:scale-95"
+              : "bg-white text-[#0A0A0A] border-black/10 hover:bg-black/5 active:scale-95"
+          }`}
+        >
+          {isSimulating === tier.key
+            ? "Lade..."
+            : isCurrent
+            ? "Aktueller Plan"
+            : "Plan auswählen"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const currentMember = useAppStore((s) => s.currentMember);
   const currentClub = useAppStore((s) => s.currentClub);
@@ -735,53 +807,14 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                   {PLAN_TIERS.map((tier) => {
                     const isCurrent = planFeatures.key === tier.key;
-                    
                     return (
-                      <div key={tier.key} className={`relative flex flex-col p-5 rounded-2xl bg-white border shrink-0 ${tier.popular ? "border-black/20 shadow-md scale-[1.01]" : "border-black/5 shadow-sm"} overflow-hidden`}>
-                        {tier.popular && (
-                          <div className="absolute top-0 right-0 bg-[#0A0A0A] text-white px-3 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] items-center gap-1 font-bold flex">
-                            <Sparkles size={10} /> Favorit
-                          </div>
-                        )}
-                        <h3 className="text-xl font-bold font-logo text-[#0A0A0A] uppercase tracking-wide">
-                          {tier.name}
-                        </h3>
-                        <p className="text-xs text-[#52525B] mt-1 line-clamp-1">{tier.desc}</p>
-                        
-                        <div className="mt-4 mb-5">
-                          <span className="text-3xl font-black font-poppins text-[#0A0A0A]">{tier.price}</span>
-                          <span className="text-sm font-semibold text-[#71717A] ml-1">{tier.period}</span>
-                        </div>
-
-                        <div className="flex flex-col gap-2.5 mb-6 flex-1">
-                          {tier.features.map((feature, idx) => (
-                            <div key={idx} className="flex items-start gap-2">
-                              <Check className="w-3.5 h-3.5 text-[#0A0A0A] mt-0.5 shrink-0" strokeWidth={3} />
-                              <span className="text-xs font-medium text-[#52525B] leading-snug">{feature}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="mt-auto">
-                          <button
-                            onClick={() => simulateUpgrade(tier.key)}
-                            disabled={isCurrent || isSimulating === tier.key}
-                            className={`w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border ${
-                              isCurrent
-                                ? "bg-green-50 text-green-700 border-green-200/50 cursor-default"
-                                : tier.popular
-                                ? "bg-[#0A0A0A] text-white hover:bg-black/80 border-transparent active:scale-95"
-                                : "bg-white text-[#0A0A0A] border-black/10 hover:bg-black/5 active:scale-95"
-                            }`}
-                          >
-                            {isSimulating === tier.key
-                              ? "Lade..."
-                              : isCurrent
-                              ? "Aktueller Plan"
-                              : "Plan auswählen"}
-                          </button>
-                        </div>
-                      </div>
+                      <SettingsPricingCard
+                        key={tier.key}
+                        tier={tier}
+                        isCurrent={isCurrent}
+                        isSimulating={isSimulating}
+                        simulateUpgrade={simulateUpgrade}
+                      />
                     );
                   })}
                 </div>

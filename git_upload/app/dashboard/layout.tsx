@@ -464,18 +464,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <AnimatePresence>
             {isOverLimit && (
               <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="bg-[#FF3B30] text-white flex-shrink-0"
+                initial={{ height: 0, opacity: 0, y: -10 }}
+                animate={{ height: "auto", opacity: 1, y: 0 }}
+                exit={{ height: 0, opacity: 0, y: -10 }}
+                className="px-4 pt-4 shrink-0 z-40"
               >
-                <div className="px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 max-w-[1600px] mx-auto">
-                  <div className="flex flex-col gap-1">
-                    <h3 className="font-poppins font-black text-[13px] uppercase tracking-widest text-white/90">Achtung: Plan-Limit überschritten</h3>
-                    <p className="text-sm font-medium">Dein Verein hat mehr Mitglieder ({memberCount}/{planFeatures.maxMembers}) oder Tätigkeiten ({activityCount}/{planFeatures.maxActivities}) als der aktuelle Plan erlaubt. Talo befindet sich im Read-Only Modus. Bitte lösche Daten oder wechsle den Plan.</p>
+                <div className="max-w-[1600px] mx-auto bg-gradient-to-r from-[#FFF0F0] to-[#FFE5E5] border border-[#FF3B30]/20 rounded-[24px] p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-[#FF3B30]/10 flex items-center justify-center shrink-0 mt-1">
+                      <ShieldCheck size={20} className="text-[#FF3B30]" />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <h3 className="font-poppins font-black text-[14px] uppercase tracking-widest text-[#FF3B30]">Limit überschritten</h3>
+                      <p className="text-[14px] font-medium text-[#0A0A0A] leading-relaxed">
+                        Dein Verein hat mehr Mitglieder ({memberCount} / {planFeatures.maxMembers}) oder Tätigkeiten ({activityCount} / {planFeatures.maxActivities}) als im aktuellen Plan erlaubt. Talo befindet sich im <strong className="font-bold">Lesezugriff</strong>.
+                      </p>
+                    </div>
                   </div>
-                  <Link href="/dashboard/einstellungen" className="shrink-0 bg-white text-[#FF3B30] px-5 py-2.5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-sm hover:scale-105 transition-all">
-                    Plan upraden
+                  <Link href="/dashboard/einstellungen" className="shrink-0 bg-[#FF3B30] text-white px-6 py-3.5 rounded-2xl font-poppins font-bold text-[13px] shadow-[0_4px_14px_rgba(255,59,48,0.3)] hover:shadow-[0_6px_20px_rgba(255,59,48,0.4)] hover:scale-[1.02] transition-all">
+                    Plan upgraden
                   </Link>
                 </div>
               </motion.div>

@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 
 import Navbar from "@/app/components/Navbar";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "@/app/components/ScrollReveal";
@@ -12,6 +13,82 @@ const tierCta: Record<string, { cta: string; href: string }> = {
   club: { cta: "Club-Lizenz aktivieren", href: "/anmelden" },
   pro: { cta: "Pro-Lizenz aktivieren", href: "/anmelden" },
 };
+
+function PricingCard({ tier, cta }: { tier: typeof PLAN_TIERS[0], cta: { cta: string, href: string } }) {
+  const [showAll, setShowAll] = React.useState(false);
+  const visibleFeatures = showAll ? tier.features : tier.features.slice(0, 5);
+  const hasMore = tier.features.length > 5;
+
+  return (
+    <div className={`relative h-full rounded-[2.5rem] p-8 border ${
+      tier.popular 
+        ? "bg-[#0c0c0c] text-white border-white/10 shadow-2xl md:scale-105" 
+        : "bg-white dark:bg-white/[0.03] text-gray-900 dark:text-white border-gray-100 dark:border-white/10"
+    } flex flex-col`}>
+      {tier.popular && (
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 whitespace-nowrap">
+          <Sparkles className="w-3 h-3" /> DER FAVORIT
+        </div>
+      )}
+      
+      <div className="mb-6">
+        <h3 className="text-xl font-bold font-logo mb-2 tracking-wide uppercase">{tier.name}</h3>
+        <div className="flex items-baseline gap-1">
+          <span className="text-5xl font-medium tracking-tighter">{tier.price}</span>
+          {tier.period && <span className="text-sm opacity-50">{tier.period}</span>}
+        </div>
+        <p className={`text-sm mt-4 ${tier.popular ? "text-gray-400" : "text-gray-500 dark:text-[#8A8A8A]"}`}>
+          {tier.desc}
+        </p>
+      </div>
+
+      <div className="space-y-4 mb-6 flex-1">
+        {visibleFeatures.map((feat, i) => (
+          <div key={i} className="flex gap-3">
+            <Check className={`w-5 h-5 shrink-0 ${tier.popular ? "text-white" : "text-gray-900 dark:text-white"}`} />
+            <span className="text-sm">{feat}</span>
+          </div>
+        ))}
+        {hasMore && (
+          <button 
+            onClick={() => setShowAll(!showAll)}
+            className={`text-sm font-semibold underline underline-offset-4 decoration-black/20 hover:decoration-black transition-all ${tier.popular ? "text-white/70 hover:text-white decoration-white/30 hover:decoration-white" : "text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white dark:decoration-white/20"}`}
+          >
+            {showAll ? "Weniger anzeigen" : `+ ${tier.features.length - 5} weitere`}
+          </button>
+        )}
+      </div>
+
+      {/* Desktop CTA */}
+      <div className="mt-4">
+        <a
+          href={cta.href}
+          className={`${cta.href === "/anmelden" ? "hidden sm:block" : "block"} w-full py-4 text-center font-bold rounded-2xl transition-all hover:scale-[1.02] ${
+            tier.popular
+              ? "bg-white text-black shadow-lg"
+              : "bg-[#0c0c0c] text-white dark:bg-white dark:text-black"
+          }`}
+        >
+          {cta.cta}
+        </a>
+        {/* Mobile CTA */}
+        {cta.href === "/anmelden" && (
+          <a
+            href="/anmelden"
+            className={`flex sm:hidden items-center justify-center gap-2 w-full py-4 text-center font-bold rounded-2xl transition-all hover:scale-[1.02] ${
+              tier.popular
+                ? "bg-white text-black shadow-lg"
+                : "bg-[#0c0c0c] text-white dark:bg-white dark:text-black"
+            }`}
+          >
+            <ArrowRight size={14} />
+            Starten
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function PricingPage() {
   return (
@@ -41,63 +118,7 @@ export default function PricingPage() {
               const cta = tierCta[tier.key];
               return (
               <StaggerItem key={tier.key}>
-                <div className={`relative h-full rounded-[2.5rem] p-8 border ${
-                  tier.popular 
-                    ? "bg-[#0c0c0c] text-white border-white/10 shadow-2xl scale-105" 
-                    : "bg-white dark:bg-white/[0.03] text-gray-900 dark:text-white border-gray-100 dark:border-white/10"
-                }`}>
-                  {tier.popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 whitespace-nowrap">
-                      <Sparkles className="w-3 h-3" /> DER FAVORIT
-                    </div>
-                  )}
-                  
-                  <div className="mb-6">
-                    <h3 className="text-xl font-bold font-logo mb-2 tracking-wide uppercase">{tier.name}</h3>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-medium tracking-tighter">{tier.price}</span>
-                      {tier.period && <span className="text-sm opacity-50">{tier.period}</span>}
-                    </div>
-                    <p className={`text-sm mt-4 ${tier.popular ? "text-gray-400" : "text-gray-500 dark:text-[#8A8A8A]"}`}>
-                      {tier.desc}
-                    </p>
-                  </div>
-
-                  <div className="space-y-4 mb-10">
-                    {tier.features.map((feat, i) => (
-                      <div key={i} className="flex gap-3">
-                        <Check className={`w-5 h-5 shrink-0 ${tier.popular ? "text-white" : "text-gray-900 dark:text-white"}`} />
-                        <span className="text-sm">{feat}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Desktop CTA */}
-                  <a
-                    href={cta.href}
-                    className={`${cta.href === "/anmelden" ? "hidden sm:block" : "block"} w-full py-4 text-center font-bold rounded-2xl transition-all hover:scale-[1.02] ${
-                      tier.popular
-                        ? "bg-white text-black shadow-lg"
-                        : "bg-[#0c0c0c] text-white dark:bg-white dark:text-black"
-                    }`}
-                  >
-                    {cta.cta}
-                  </a>
-                  {/* Mobile CTA */}
-                  {cta.href === "/anmelden" && (
-                    <a
-                      href="/anmelden"
-                      className={`flex sm:hidden items-center justify-center gap-2 w-full py-4 text-center font-bold rounded-2xl transition-all hover:scale-[1.02] ${
-                        tier.popular
-                          ? "bg-white text-black shadow-lg"
-                          : "bg-[#0c0c0c] text-white dark:bg-white dark:text-black"
-                      }`}
-                    >
-                      <ArrowRight size={14} />
-                      Starten
-                    </a>
-                  )}
-                </div>
+                <PricingCard tier={tier} cta={cta} />
               </StaggerItem>
               );
             })}
