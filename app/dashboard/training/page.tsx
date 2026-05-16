@@ -923,6 +923,11 @@ function AttendanceCard({
 
   const isTrainerAbsent = session?.isTrainerAbsent ?? false;
 
+  const effectiveTrainerId = useMemo(() => {
+    if (session?.trainerId) return session.trainerId;
+    return group.trainerId || "unknown";
+  }, [session, group.trainerId]);
+
   const groupMembers = useMemo(
     () => allMembers.filter((m) => group.memberIds.includes(m.id)),
     [allMembers, group.memberIds]
@@ -1010,7 +1015,7 @@ function AttendanceCard({
           {!isCancelled && (
             <div className="flex items-center justify-between gap-3 bg-black/[0.02] border border-black/5 rounded-[18px] p-3 -mt-1">
               <div className="flex items-center gap-3">
-                <TAvatar name={effectiveTrainerName} size={28} />
+                <TAvatar name={effectiveTrainerName} id={effectiveTrainerId} size={28} />
                 <div className="flex flex-col">
                   <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A]">Trainer</span>
                   <span className={`text-[12px] font-poppins font-bold ${isTrainerAbsent ? "text-red-500 line-through" : "text-[#0A0A0A]"}`}>
