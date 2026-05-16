@@ -4,6 +4,7 @@ export enum SeasonType {
   Calendar = "Kalenderjahr (Jan–Dez)",
   Club = "Vereinssaison (Jul–Jun)",
   School = "Schuljahr (Sep–Aug)",
+  Custom = "Individueller Zeitraum",
 }
 
 export enum MemberType {
@@ -49,6 +50,8 @@ export interface Club {
   licenseExpiresAt?: Timestamp | Date | null;
   isTrial?: boolean;
   customMemberTypes?: CustomMemberType[];
+  seasonStart?: Timestamp | Date | null;
+  seasonEnd?: Timestamp | Date | null;
 }
 
 export interface ClubMembership {
@@ -102,6 +105,20 @@ export interface Entry {
   groupId?: string;
   rejectionReason?: string;
   photoUrl?: string;
+}
+
+export interface Training {
+  id: string;
+  clubId: string;
+  groupId?: string;
+  title: string;
+  description?: string;
+  date: Timestamp | Date;
+  location?: string;
+  attendeeIds: string[]; // IDs of members who accepted
+  absenteeIds: string[]; // IDs of members who declined
+  createdAt: Timestamp | Date;
+  authorId: string;
 }
 
 export interface TrainingAnnouncement {
@@ -220,6 +237,8 @@ export interface PlanFeatures {
   hasPersonalOnboarding: boolean;
   hasCustomFeatures: boolean;
   hasCustomMemberTypes: boolean;
+  hasCustomSeason: boolean;
+  hasTrainingRSVP: boolean;
   popular?: boolean;
 }
 
@@ -256,19 +275,22 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasPersonalOnboarding: false,
     hasCustomFeatures: false,
     hasCustomMemberTypes: false,
+    hasCustomSeason: false,
+    hasTrainingRSVP: false,
   },
   verein: {
     key: "verein",
     name: "Verein",
-    price: "79€",
+    price: "49€",
     period: "/ Jahr",
-    desc: "Für kleine Vereine.",
+    desc: "Für aktive Vereine.",
     features: [
       "Bis zu 75 Mitglieder",
-      "Unbegrenzte Tätigkeiten",
-      "Vereinslogo hochladen (Dashboard & App)",
-      "Datenexport (Excel & CSV)",
-      "Alle Basis-Funktionen (Punkte, Genehmigungen, Ranglisten)",
+      "Unbegrenzte Tätigkeiten im Katalog",
+      "Eigene Saisonzeiträume (Tagesgenau)",
+      "CSV-Export für alle Daten",
+      "Individuelles Vereinslogo",
+      "Alles aus dem Free-Plan",
     ],
     maxMembers: 75,
     maxActivities: 999,
@@ -287,16 +309,18 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasPersonalOnboarding: false,
     hasCustomFeatures: false,
     hasCustomMemberTypes: false,
+    hasCustomSeason: true,
+    hasTrainingRSVP: false,
   },
   club: {
     key: "club",
     name: "Club",
-    price: "129€",
+    price: "99€",
     period: "/ Jahr",
-    desc: "Beliebteste Wahl.",
+    desc: "Professionelle Verwaltung.",
     features: [
       "Bis zu 150 Mitglieder",
-      "Gruppen & Teams (z. B. Jugend, 1. Herren)",
+      "Trainings-Anmeldung & RSVP (Zusagen/Absagen)",
       "Gruppenranglisten & Filter",
       "Eigene Mitgliedertypen (z. B. Fördermitglied)",
       "Individuelle Punktefaktoren pro Typ",
@@ -321,6 +345,8 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasPersonalOnboarding: false,
     hasCustomFeatures: false,
     hasCustomMemberTypes: true,
+    hasCustomSeason: true,
+    hasTrainingRSVP: true,
     popular: true,
   },
   pro: {
@@ -332,6 +358,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     features: [
       "Bis zu 300 Mitglieder",
       "Volles App-Branding (Vereinsfarben anpassen)",
+      "Trainings-Anmeldung & RSVP",
       "Mehrere Gruppen & Abteilungen",
       "Erweiterte Rollen für Funktionäre",
       "Detaillierte Auswertungen & Analysen",
@@ -356,6 +383,8 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasPersonalOnboarding: false,
     hasCustomFeatures: false,
     hasCustomMemberTypes: true,
+    hasCustomSeason: true,
+    hasTrainingRSVP: true,
   },
 };
 

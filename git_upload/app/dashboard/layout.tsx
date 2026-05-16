@@ -9,7 +9,7 @@ import {
   Settings, Megaphone, LogOut,
   ShieldCheck, PenLine, CheckSquare,
   Menu, X, MoreHorizontal, Building2,
-  ChevronDown, Check,
+  ChevronDown, Check, Calendar,
 } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
@@ -118,6 +118,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navItems = [
     { href: "/dashboard",                label: "Dashboard",      icon: LayoutGrid,    show: true },
     { href: "/dashboard/eintragen",      label: "Eintragen",      icon: PenLine,       show: true },
+    { href: "/dashboard/training",       label: "Training",       icon: Calendar,      show: true },
     { href: "/dashboard/genehmigungen",  label: "Genehmigungen",  icon: CheckSquare,   show: isAdmin },
     { href: "/dashboard/mitglieder",     label: "Mitglieder",     icon: Users,         show: isAdmin || isTrainer },
     { href: "/dashboard/taetigkeiten",   label: "Tätigkeiten",    icon: ClipboardList, show: isAdmin },

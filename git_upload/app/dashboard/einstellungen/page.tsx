@@ -17,6 +17,7 @@ import { signOut } from "firebase/auth";
 import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures, CustomMemberType, isLightColor, MemberType, PointFactors } from "@/lib/firebase/models";
 import {
   GlassSection, TLine, TAvatar, TButton, TBadge,
+  PlanLockedField, PlanUpsell
 } from "@/app/components/ui/NativeUI";
 import {
   csvForEntries, csvForMembers, downloadTextFile, exportFilename,
@@ -127,6 +128,8 @@ export default function SettingsPage() {
   const [seasonType, setSeasonType] = useState<string>(currentClub?.seasonType ?? SeasonType.Calendar);
   const [approvalRequired, setApprovalRequired] = useState(currentClub?.approvalRequired ?? true);
   const [logoUrl, setLogoUrl] = useState(currentClub?.logoUrl ?? "");
+  const [sStart, setSStart] = useState<string>("");
+  const [sEnd, setSEnd] = useState<string>("");
   const [brandColor, setBrandColor] = useState(currentClub?.brandColor ?? "#0A0A0A");
   const [accentColor, setAccentColor] = useState(currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A");
   const [customMemberTypes, setCustomMemberTypes] = useState<CustomMemberType[]>(currentClub?.customMemberTypes ?? []);
@@ -157,6 +160,12 @@ export default function SettingsPage() {
   const isTrainer = currentMember?.isTrainer === true;
   const planFeatures = getPlanFeatures(currentClub?.plan);
 
+  const formatTimestampForInput = (ts: any) => {
+    if (!ts) return "";
+    const date = ts instanceof Date ? ts : ts.toDate ? ts.toDate() : new Date(ts);
+    return date.toISOString().split("T")[0];
+  };
+
   useEffect(() => {
     if (!currentClub) return;
     setClubName(currentClub.name);
@@ -165,6 +174,8 @@ export default function SettingsPage() {
     setSeasonType(currentClub.seasonType);
     setApprovalRequired(currentClub.approvalRequired);
     setLogoUrl(currentClub.logoUrl ?? "");
+    setSStart(formatTimestampForInput(currentClub.seasonStart));
+    setSEnd(formatTimestampForInput(currentClub.seasonEnd));
     setBrandColor(currentClub.brandColor ?? "#0A0A0A");
     setAccentColor(currentClub.accentColor ?? currentClub.brandColor ?? "#0A0A0A");
     setCustomMemberTypes(currentClub.customMemberTypes ?? []);
@@ -301,6 +312,10 @@ export default function SettingsPage() {
         seasonType,
         approvalRequired,
         ...(planFeatures.hasClubLogo ? { logoUrl: logoUrl.trim() } : {}),
+        ...(planFeatures.hasCustomSeason && seasonType === SeasonType.Custom ? { 
+          seasonStart: sStart ? Timestamp.fromDate(new Date(sStart)) : null,
+          seasonEnd: sEnd ? Timestamp.fromDate(new Date(sEnd)) : null
+        } : {}),
         ...(planFeatures.hasClubColors ? { brandColor, accentColor } : {}),
         ...(planFeatures.hasCustomMemberTypes ? { customMemberTypes, memberTypeFactors } : {}),
       };
@@ -508,8 +523,23 @@ export default function SettingsPage() {
                       </Field>
                     </div>
                     <Field icon={Calendar} label="Saisontyp">
-                      <Select value={seasonType} onChange={setSeasonType} options={SEASON_TYPES.map(s => ({ value: s, label: s }))} />
+                      <Select value={seasonType} onChange={setSeasonType} options={Object.values(SeasonType).map(s => ({ value: s, label: s }))} />
                     </Field>
+
+                    <PlanLockedField
+                      locked={!planFeatures.hasCustomSeason}
+                      label="Individueller Zeitraum"
+                      unlockText="ab Verein"
+                    >
+                      <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 transition-opacity ${seasonType !== SeasonType.Custom ? "opacity-40 pointer-events-none" : ""}`}>
+                        <Field label="Saisonstart">
+                          <Input value={sStart} onChange={setSStart} type="date" />
+                        </Field>
+                        <Field label="Saisonende">
+                          <Input value={sEnd} onChange={setSEnd} type="date" />
+                        </Field>
+                      </div>
+                    </PlanLockedField>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <PlanLockedField
@@ -998,46 +1028,6 @@ function Field({ icon: Icon, label, children }: { icon?: React.ElementType; labe
         <label className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">{label}</label>
       </div>
       {children}
-    </div>
-  );
-}
-
-function PlanLockedField({
-  locked,
-  label,
-  unlockText,
-  children,
-}: {
-  locked: boolean;
-  label: string;
-  unlockText: string;
-  children: React.ReactNode;
-}) {
-  if (!locked) return <>{children}</>;
-
-  return (
-    <div className="rounded-2xl border border-black/5 bg-black/[0.03] px-4 py-3">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-poppins font-bold text-[#0A0A0A]">{label}</p>
-          <p className="text-[11px] font-poppins text-[#71717A]">Freischalten {unlockText}</p>
-        </div>
-        <Lock size={16} className="text-[#A1A1AA]" />
-      </div>
-    </div>
-  );
-}
-
-function PlanUpsell({ title, text }: { title: string; text: string }) {
-  return (
-    <div className="p-5 flex items-start gap-4">
-      <div className="w-10 h-10 rounded-xl bg-black/[0.05] flex items-center justify-center shrink-0">
-        <Lock size={17} className="text-[#52525B]" />
-      </div>
-      <div>
-        <p className="font-poppins font-bold text-[#0A0A0A] text-sm">{title}</p>
-        <p className="text-xs text-[#71717A] mt-1 leading-relaxed">{text}</p>
-      </div>
     </div>
   );
 }

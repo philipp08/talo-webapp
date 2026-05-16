@@ -1,6 +1,6 @@
 "use client";
 
-import { LucideIcon, Search, X } from "lucide-react";
+import { LucideIcon, Search, X, Lock } from "lucide-react";
 import Image from "next/image";
 import { ReactNode } from "react";
 
@@ -275,3 +275,45 @@ export const TFilterPill = ({
     {label}
   </button>
 );
+
+// ─── PlanLockedField ──────────────────────────────────────────────────────────
+export const PlanLockedField = ({
+  locked,
+  label,
+  unlockText,
+  children,
+}: {
+  locked: boolean;
+  label: string;
+  unlockText: string;
+  children: React.ReactNode;
+}) => {
+  if (!locked) return <>{children}</>;
+
+  return (
+    <div className="rounded-2xl border border-black/5 bg-black/[0.03] px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-poppins font-bold text-[#0A0A0A]">{label}</p>
+          <p className="text-[11px] font-poppins text-[#71717A]">Freischalten {unlockText}</p>
+        </div>
+        <Lock size={16} className="text-[#A1A1AA]" />
+      </div>
+    </div>
+  );
+};
+
+// ─── PlanUpsell ───────────────────────────────────────────────────────────────
+export const PlanUpsell = ({ title, text }: { title: string; text: string }) => {
+  return (
+    <div className="p-5 flex items-start gap-4">
+      <div className="w-10 h-10 rounded-xl bg-black/[0.05] flex items-center justify-center shrink-0">
+        <Lock size={17} className="text-[#52525B]" />
+      </div>
+      <div>
+        <p className="font-poppins font-bold text-[#0A0A0A] text-sm">{title}</p>
+        <p className="text-xs text-[#71717A] mt-1 leading-relaxed">{text}</p>
+      </div>
+    </div>
+  );
+};

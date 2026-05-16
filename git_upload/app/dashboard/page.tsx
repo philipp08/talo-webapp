@@ -238,6 +238,25 @@ export default function DashboardPage() {
                     </Link>
 
                     <Link
+                      href="/dashboard/training"
+                      className="flex items-center gap-4 p-5 rounded-[26px] transition-all group"
+                      style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.13)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(0,0,0,0.06)")}
+                    >
+                      <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                           style={{ background: "rgba(52,199,89,0.08)", border: "1px solid rgba(52,199,89,0.15)" }}>
+                        <Calendar size={20} style={{ color: "#34C759" }} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[15px] font-poppins font-semibold text-[#0A0A0A]">Training</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#71717A" }}>
+                           Zu- & Absagen
+                        </span>
+                      </div>
+                    </Link>
+
+                    <Link
                       href="/dashboard/ankuendigungen"
                       className="flex items-center gap-4 p-5 rounded-[26px] transition-all group"
                       style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}

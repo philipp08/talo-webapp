@@ -13,6 +13,7 @@ import {
   setDoc,
   Timestamp,
   arrayUnion,
+  arrayRemove,
   deleteField,
   QuerySnapshot,
   DocumentData,
@@ -23,6 +24,7 @@ import {
   Entry,
   Activity,
   SeasonType,
+  Training,
   TrainingAnnouncement,
   ClubMembership,
   ClubGroup,
@@ -360,8 +362,45 @@ export class FirebaseManager {
         });
         callback(result);
       },
+    );
+  }
+
+  // === TRAININGS ===
+  static listenToTrainings(
+    clubId: string,
+    callback: (trainings: Training[]) => void
+  ) {
+    const q = query(collection(db, `clubs/${clubId}/trainings`));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const result: Training[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          result.push({
+            id: docSnap.id,
+            clubId: data.clubId,
+            groupId: data.groupId,
+            title: data.title,
+            description: data.description,
+            date: data.date instanceof Timestamp ? data.date.toDate() : data.date,
+            location: data.location,
+            attendeeIds: data.attendeeIds || [],
+            absenteeIds: data.absenteeIds || [],
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
+            authorId: data.authorId,
+          });
+        });
+        // Sortieren aufsteigend nach Datum (nächste Trainings zuerst)
+        result.sort((a, b) => {
+          const t1 = a.date instanceof Date ? a.date.getTime() : 0;
+          const t2 = b.date instanceof Date ? b.date.getTime() : 0;
+          return t1 - t2; 
+        });
+        callback(result);
+      },
       (error) => {
-        console.error("Error listening to announcements:", error);
+        console.error("Error listening to trainings:", error);
       }
     );
   }
@@ -580,5 +619,61 @@ export class FirebaseManager {
     announcementId: string
   ): Promise<void> {
     await deleteDoc(doc(db, `clubs/${clubId}/announcements`, announcementId));
+  }
+
+  // === TRAININGS (write) ===
+  static async addTraining(
+    clubId: string,
+    training: Omit<Training, "id" | "createdAt" | "clubId" | "attendeeIds" | "absenteeIds">
+  ): Promise<void> {
+    const payload = {
+      ...training,
+      clubId,
+      attendeeIds: [],
+      absenteeIds: [],
+      date: training.date instanceof Date ? Timestamp.fromDate(training.date) : training.date,
+      createdAt: Timestamp.now(),
+    };
+    await addDoc(collection(db, `clubs/${clubId}/trainings`), payload);
+  }
+
+  static async updateTraining(
+    clubId: string,
+    trainingId: string,
+    updates: Partial<Omit<Training, "id" | "clubId">>
+  ): Promise<void> {
+    const payload: any = { ...updates };
+    if (updates.date && updates.date instanceof Date) {
+      payload.date = Timestamp.fromDate(updates.date);
+    }
+    await updateDoc(doc(db, `clubs/${clubId}/trainings`, trainingId), payload);
+  }
+
+  static async deleteTraining(
+    clubId: string,
+    trainingId: string
+  ): Promise<void> {
+    await deleteDoc(doc(db, `clubs/${clubId}/trainings`, trainingId));
+  }
+
+  static async rsvpTraining(
+    clubId: string,
+    trainingId: string,
+    memberId: string,
+    status: "attend" | "decline"
+  ): Promise<void> {
+    const trainingRef = doc(db, `clubs/${clubId}/trainings`, trainingId);
+    
+    if (status === "attend") {
+      await updateDoc(trainingRef, {
+        attendeeIds: arrayUnion(memberId),
+        absenteeIds: arrayRemove(memberId)
+      });
+    } else {
+      await updateDoc(trainingRef, {
+        absenteeIds: arrayUnion(memberId),
+        attendeeIds: arrayRemove(memberId)
+      });
+    }
   }
 }
