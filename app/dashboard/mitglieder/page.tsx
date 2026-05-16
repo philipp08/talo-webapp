@@ -305,7 +305,7 @@ export default function MembersPage() {
              >
                 <GlassSection className="relative overflow-hidden border-black/10 shadow-3xl">
                    {/* Gradient Glow */}
-                   <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px]" />
+                   <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px] pointer-events-none" />
                    
                    <div className="p-8 flex flex-col gap-8">
                       {/* Header */}
@@ -315,8 +315,9 @@ export default function MembersPage() {
                             <p className="text-[#71717A] font-bold text-[10px] uppercase tracking-[0.2em]">Konto erstellen und Zugangsdaten senden</p>
                          </div>
                          <button
-                           onClick={closeInviteModal}
-                           className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
+                           type="button"
+                           onClick={(e) => { e.stopPropagation(); closeInviteModal(); }}
+                           className="relative z-10 w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
                          >
                             <X size={20} />
                          </button>
