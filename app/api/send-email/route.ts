@@ -80,33 +80,324 @@ function renderWelcomeHtml(memberName: string, email: string, password: string, 
   return `
 <!DOCTYPE html>
 <html lang="de">
-<body style="margin:0;background:#0D0D0D;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0D0D0D;padding:32px 16px;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="background:#1C1C24;border-radius:24px;overflow:hidden;max-width:600px;width:100%;border:1px solid #2A2A38;">
-        <tr><td style="padding:20px 32px;border-bottom:1px solid #2A2A38;color:#F0F0FF;font-weight:800;letter-spacing:4px;">TALO</td></tr>
-        <tr><td style="background:#7DD8D8;padding:36px 32px;text-align:center;">
-          <h1 style="margin:0 0 8px;font-size:26px;color:#0D1A1A;">Willkommen bei ${escapeHtml(clubName)}!</h1>
-          <p style="margin:0;color:rgba(13,26,26,0.68);">Hallo ${escapeHtml(memberName)}, du bist jetzt dabei.</p>
-        </td></tr>
-        <tr><td style="padding:28px 32px 0;color:#8888A0;line-height:1.7;">
-          Du wurdest als Mitglied registriert und kannst Talo ab sofort nutzen.
-        </td></tr>
-        <tr><td style="padding:24px 32px 0;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:#111118;border-radius:14px;border:1px solid #2A2A38;">
-            <tr><td style="padding:14px 18px;border-bottom:1px solid #2A2A38;color:#F0F0FF;">E-Mail: ${escapeHtml(email)}</td></tr>
-            <tr><td style="padding:14px 18px;color:#7DD8D8;font-family:'Courier New',monospace;font-weight:700;letter-spacing:2px;">Passwort: ${escapeHtml(password)}</td></tr>
-          </table>
-        </td></tr>
-        <tr><td style="padding:28px 32px;text-align:center;">
-          <a href="${SITE_URL}/anmelden" style="display:inline-block;background:#7DD8D8;color:#0D1A1A;text-decoration:none;font-size:16px;font-weight:800;padding:16px 36px;border-radius:100px;">Talo öffnen &rarr;</a>
-        </td></tr>
-        <tr><td style="padding:20px 32px;border-top:1px solid #2A2A38;background:#111118;color:#505060;text-align:center;font-size:12px;">
-          Gesendet von ${escapeHtml(adminName)} &middot; ${escapeHtml(clubName)}
-        </td></tr>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Willkommen bei Talo</title>
+</head>
+
+<body style="margin:0; padding:0; background:#f3f4f6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px; background:#f3f4f6;">
+<tr>
+<td align="center">
+
+<table width="100%" cellpadding="0" cellspacing="0"
+style="
+max-width:640px;
+background:#ffffff;
+border-radius:32px;
+overflow:hidden;
+box-shadow:0 20px 60px rgba(0,0,0,0.08);
+">
+
+  <!-- HEADER -->
+  <tr>
+    <td
+      style="
+      background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 30%),
+      linear-gradient(135deg, #0f172a 0%, #111827 40%, #1e293b 100%);
+      padding:70px 40px 60px;
+      text-align:center;
+      position:relative;
+      "
+    >
+
+      <div
+        style="
+        display:inline-block;
+        padding:8px 18px;
+        border-radius:999px;
+        background:rgba(255,255,255,0.10);
+        border:1px solid rgba(255,255,255,0.12);
+        backdrop-filter:blur(10px);
+        color:#dbeafe;
+        font-size:13px;
+        font-weight:600;
+        letter-spacing:0.4px;
+        margin-bottom:24px;
+        "
+      >
+        Willkommen bei Talo
+      </div>
+
+      <h1
+        style="
+        margin:0;
+        font-size:42px;
+        line-height:1.05;
+        font-weight:800;
+        color:#ffffff;
+        letter-spacing:-1.6px;
+        "
+      >
+        Dein Zugang<br />
+        ist bereit.
+      </h1>
+
+      <p
+        style="
+        margin:24px auto 0;
+        max-width:460px;
+        font-size:18px;
+        line-height:1.7;
+        color:rgba(255,255,255,0.72);
+        "
+      >
+        Du wurdest erfolgreich zu ${escapeHtml(clubName)} hinzugefügt und kannst dich jetzt bei Talo anmelden.
+      </p>
+
+    </td>
+  </tr>
+
+  <!-- CONTENT -->
+  <tr>
+    <td style="padding:48px 40px;">
+
+      <p
+        style="
+        margin:0 0 22px;
+        font-size:17px;
+        line-height:1.8;
+        color:#374151;
+        "
+      >
+        Hallo ${escapeHtml(memberName)},
+      </p>
+
+      <p
+        style="
+        margin:0 0 34px;
+        font-size:17px;
+        line-height:1.8;
+        color:#4b5563;
+        "
+      >
+        dein Verein nutzt <strong style="color:#111827;">Talo</strong>, um Engagement, Aktivitäten und Vereinsorganisation digital und transparent zu verwalten.
+      </p>
+
+      <!-- LOGIN BOX -->
+      <table width="100%" cellpadding="0" cellspacing="0"
+      style="
+      background:#f8fafc;
+      border:1px solid #e5e7eb;
+      border-radius:24px;
+      overflow:hidden;
+      margin-bottom:36px;
+      ">
+        <tr>
+          <td style="padding:30px;">
+
+            <div
+              style="
+              font-size:13px;
+              font-weight:700;
+              text-transform:uppercase;
+              letter-spacing:1px;
+              color:#64748b;
+              margin-bottom:24px;
+              "
+            >
+              Deine Zugangsdaten
+            </div>
+
+            <table width="100%" cellpadding="0" cellspacing="0">
+
+              <tr>
+                <td
+                  style="
+                  padding:14px 0;
+                  color:#6b7280;
+                  font-size:15px;
+                  border-bottom:1px solid #e5e7eb;
+                  "
+                >
+                  Benutzername
+                </td>
+
+                <td
+                  align="right"
+                  style="
+                  padding:14px 0;
+                  color:#111827;
+                  font-size:15px;
+                  font-weight:700;
+                  border-bottom:1px solid #e5e7eb;
+                  "
+                >
+                  ${escapeHtml(email)}
+                </td>
+              </tr>
+
+              <tr>
+                <td
+                  style="
+                  padding:14px 0;
+                  color:#6b7280;
+                  font-size:15px;
+                  "
+                >
+                  Passwort
+                </td>
+
+                <td
+                  align="right"
+                  style="
+                  padding:14px 0;
+                  color:#111827;
+                  font-size:15px;
+                  font-weight:700;
+                  "
+                >
+                  ${escapeHtml(password)}
+                </td>
+              </tr>
+
+            </table>
+
+          </td>
+        </tr>
       </table>
-    </td></tr>
-  </table>
+
+      <!-- BUTTON -->
+      <div style="text-align:center; margin-bottom:34px;">
+
+        <a
+          href="${SITE_URL}/anmelden"
+          style="
+          display:inline-block;
+          background:#111827;
+          color:#ffffff;
+          text-decoration:none;
+          padding:18px 34px;
+          border-radius:999px;
+          font-size:16px;
+          font-weight:700;
+          letter-spacing:-0.2px;
+          box-shadow:0 10px 30px rgba(17,24,39,0.18);
+          "
+        >
+          Bei Talo anmelden
+        </a>
+
+      </div>
+
+      <!-- LINK -->
+      <p
+        style="
+        margin:0 0 30px;
+        font-size:14px;
+        line-height:1.8;
+        color:#6b7280;
+        text-align:center;
+        "
+      >
+        Oder direkt hier öffnen:<br />
+
+        <a
+          href="${SITE_URL}/anmelden"
+          style="
+          color:#111827;
+          font-weight:600;
+          text-decoration:none;
+          "
+        >
+          talo-club.de/anmelden
+        </a>
+      </p>
+
+      <!-- INFO BOX -->
+      <table width="100%" cellpadding="0" cellspacing="0"
+      style="
+      background:#f9fafb;
+      border-radius:20px;
+      border:1px solid #e5e7eb;
+      ">
+        <tr>
+          <td style="padding:22px 24px;">
+
+            <p
+              style="
+              margin:0;
+              color:#6b7280;
+              font-size:14px;
+              line-height:1.7;
+              "
+            >
+              Tipp: Ändere dein Passwort nach deinem ersten Login für maximale Sicherheit.
+            </p>
+
+          </td>
+        </tr>
+      </table>
+
+      <p
+        style="
+        margin:38px 0 0;
+        font-size:16px;
+        line-height:1.8;
+        color:#374151;
+        "
+      >
+        Viel Spaß mit Talo!<br />
+        <strong style="color:#111827;">${escapeHtml(adminName)} · ${escapeHtml(clubName)}</strong>
+      </p>
+
+    </td>
+  </tr>
+
+  <!-- FOOTER -->
+  <tr>
+    <td
+      style="
+      background:#f9fafb;
+      border-top:1px solid #e5e7eb;
+      padding:24px;
+      text-align:center;
+      "
+    >
+
+      <p
+        style="
+        margin:0;
+        font-size:12px;
+        line-height:1.7;
+        color:#9ca3af;
+        "
+      >
+        Diese E-Mail wurde automatisch versendet, weil du zu einem Verein in Talo hinzugefügt wurdest.
+      </p>
+
+      <p
+        style="
+        margin:8px 0 0;
+        font-size:12px;
+        color:#9ca3af;
+        "
+      >
+        © 2026 Talo
+      </p>
+
+    </td>
+  </tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
 </body>
 </html>`.trim();
 }
