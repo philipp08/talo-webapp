@@ -449,6 +449,7 @@ export default function TrainingPage() {
             selectedDayIdx={selectedDayIdx}
             onSelectDay={setSelectedDayIdx}
             slotsForDay={slotsForDay}
+            trainingGroups={trainingGroups}
             trainingSessions={trainingSessions}
             allMembers={allMembers}
             currentMember={currentMember}
@@ -780,13 +781,15 @@ export default function TrainingPage() {
 
 function WeekView({
   weekDays, selectedDayIdx, onSelectDay, slotsForDay,
-  trainingSessions, allMembers, currentMember, isAdminOrTrainer,
+  trainingGroups, trainingSessions, allMembers, currentMember, isAdminOrTrainer,
   onMarkAbsent, onMarkPresent, onToggleCancellation, onDeleteExtra,
+  onSetTrainer, onToggleTrainerAbsence,
 }: {
   weekDays: Date[];
   selectedDayIdx: number;
   onSelectDay: (i: number) => void;
   slotsForDay: DaySlot[];
+  trainingGroups: TrainingGroup[];
   trainingSessions: TrainingSession[];
   allMembers: Member[];
   currentMember: Member | null;
@@ -879,9 +882,9 @@ function WeekView({
 // ── Attendance Card ────────────────────────────────────────────────────────────
 
 function AttendanceCard({
-  slot, date, dateStr, session, allMembers, currentMember,
+  slot, date, dateStr, session, trainingGroups, trainingSessions, allMembers, currentMember,
   isAdminOrTrainer, idx, onMarkAbsent, onMarkPresent,
-  onToggleCancellation, onDeleteExtra,
+  onToggleCancellation, onDeleteExtra, onSetTrainer, onToggleTrainerAbsence,
 }: {
   slot: DaySlot;
   date: Date;
