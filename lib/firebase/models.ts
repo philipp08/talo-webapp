@@ -180,6 +180,7 @@ export interface TrainingSession {
   date: Date;
   absentMemberIds: string[];
   absenceReasons: Record<string, string>; // memberId → reason string
+  excludedMemberIds?: string[]; // IDs of members explicitly excluded/deleted from this session
   // Extra session (one-off training not part of the recurring schedule)
   isExtra?: boolean;
   extraTime?: string; // "HH:mm" — only set when isExtra is true

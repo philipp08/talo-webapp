@@ -392,6 +392,11 @@ export default function TrainingPage() {
     await FirebaseManager.toggleIndividualTrainerAbsence(currentClub.id, groupId, date, trainerId);
   };
 
+  const onToggleMemberExcluded = async (groupId: string, date: Date, memberId: string, excluded: boolean) => {
+    if (!currentClub) return;
+    await FirebaseManager.setSessionMemberExcluded(currentClub.id, groupId, date, memberId, excluded);
+  };
+
   // ── upsell ─────────────────────────────────────────────────────────────────
   if (!hasAccess) {
     return (
@@ -952,6 +957,7 @@ function WeekView({
                 onSetTrainers={onSetTrainers}
                 onToggleTrainerAbsence={onToggleTrainerAbsence}
                 onToggleIndividualTrainerAbsence={onToggleIndividualTrainerAbsence}
+                onToggleMemberExcluded={onToggleMemberExcluded}
                 planFeatures={planFeatures}
               />
             ))}
@@ -988,6 +994,7 @@ function AttendanceCard({
   onSetTrainers: (groupId: string, date: Date, trainerIds: string[]) => void;
   onToggleTrainerAbsence: (groupId: string, date: Date) => void;
   onToggleIndividualTrainerAbsence: (groupId: string, date: Date, trainerId: string) => void;
+  onToggleMemberExcluded: (groupId: string, date: Date, memberId: string, excluded: boolean) => void;
   planFeatures: PlanFeatures;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -1001,13 +1008,13 @@ function AttendanceCard({
 
   const assignedTrainers = useMemo(() => {
     // 1. Primary trainer
-    const primaryId = session?.trainerId !== undefined ? session.trainerId : group.trainerId;
+    const primaryId = session?.trainerId || group.trainerId;
     const trainers = [];
-    if (primaryId && primaryId !== "none" && primaryId !== "") trainers.push({ id: primaryId, isPrimary: true });
+    if (primaryId) trainers.push({ id: primaryId, isPrimary: true });
     
     // 2. Additional trainers (if Pro)
     if (planFeatures.hasMultiTrainer) {
-      const extraIds = session?.trainerIds !== undefined ? session.trainerIds : (group.trainerIds || []);
+      const extraIds = session?.trainerIds || group.trainerIds || [];
       extraIds.forEach(id => {
         if (id && id !== primaryId) trainers.push({ id, isPrimary: false });
       });
@@ -1032,9 +1039,16 @@ function AttendanceCard({
     return group.trainerId || "unknown";
   }, [session, group.trainerId]);
 
-  const groupMembers = useMemo(
-    () => allMembers.filter((m) => group.memberIds.includes(m.id)),
-    [allMembers, group.memberIds]
+  const excludedIds = useMemo(() => session?.excludedMemberIds ?? [], [session]);
+
+  const activeGroupMembers = useMemo(
+    () => allMembers.filter((m) => group.memberIds.includes(m.id) && !excludedIds.includes(m.id)),
+    [allMembers, group.memberIds, excludedIds]
+  );
+
+  const excludedGroupMembers = useMemo(
+    () => allMembers.filter((m) => group.memberIds.includes(m.id) && excludedIds.includes(m.id)),
+    [allMembers, group.memberIds, excludedIds]
   );
 
   // Effective absences: anyone in this group's session OR the root group's session
@@ -1047,8 +1061,8 @@ function AttendanceCard({
     return Array.from(ids);
   }, [session, rootGroup, group.id, trainingSessions, dateStr]);
 
-  const total        = groupMembers.length;
-  const presentCount = total - absentIds.filter((id) => group.memberIds.includes(id)).length;
+  const total        = activeGroupMembers.length;
+  const presentCount = total - absentIds.filter((id) => activeGroupMembers.some(m => m.id === id)).length;
   const ratio        = total > 0 ? presentCount / total : 1;
 
   const myAbsent = currentMember ? absentIds.includes(currentMember.id) : false;
@@ -1141,23 +1155,6 @@ function AttendanceCard({
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      {isAdmin && (
-                        <button
-                          onClick={() => {
-                            if (tInfo.isPrimary) {
-                              onSetTrainer(group.id, date, "");
-                            } else {
-                              const current = session?.trainerIds !== undefined ? session.trainerIds : (group.trainerIds || []);
-                              const updated = current.filter(id => id !== tInfo.id);
-                              onSetTrainers(group.id, date, updated);
-                            }
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 text-red-500 hover:bg-red-100 transition-all text-[10px] font-black uppercase tracking-widest shadow-sm"
-                          title="Trainer aus dieser Einheit entfernen"
-                        >
-                          <Trash2 size={12} /> Löschen
-                        </button>
-                      )}
                       {(isAdmin || currentMember?.id === tInfo.id) && (
                         <button
                           onClick={() => tInfo.isPrimary 
@@ -1343,13 +1340,13 @@ function AttendanceCard({
                     className="overflow-hidden"
                   >
                     <div className="flex flex-col gap-1 pt-1">
-                      {groupMembers.map((m) => {
+                      {activeGroupMembers.map((m) => {
                         const absent = absentIds.includes(m.id);
                         const reason = session?.absenceReasons[m.id] ?? "";
                         return (
                           <div
                             key={m.id}
-                            className={`flex items-center gap-3 px-3 py-2 rounded-2xl transition-all ${
+                            className={`flex items-center gap-3 px-3 py-2 rounded-2xl transition-all group ${
                               absent ? "bg-red-50/60" : "hover:bg-black/[0.02]"
                             }`}
                           >
@@ -1362,14 +1359,52 @@ function AttendanceCard({
                                 <span className="text-[10px] text-[#FF3B30] font-bold">{reason}</span>
                               )}
                             </div>
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${absent ? "bg-[#FF3B30]" : "bg-[#34C759]"}`}>
-                              {absent
-                                ? <X size={10} className="text-white" />
-                                : <Check size={10} className="text-white" />}
+                            
+                            <div className="flex items-center gap-2">
+                              {isAdminOrTrainer && (
+                                <button
+                                  onClick={() => onToggleMemberExcluded(group.id, date, m.id, true)}
+                                  className="w-7 h-7 rounded-full bg-black/[0.04] text-[#A1A1AA] hover:text-red-500 hover:bg-red-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                                  title="Aus dieser Einheit löschen"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              )}
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center ${absent ? "bg-[#FF3B30]" : "bg-[#34C759]"}`}>
+                                {absent
+                                  ? <X size={10} className="text-white" />
+                                  : <Check size={10} className="text-white" />}
+                              </div>
                             </div>
                           </div>
                         );
                       })}
+                      {isAdminOrTrainer && excludedGroupMembers.length > 0 && (
+                        <>
+                          <div className="mt-3 mb-1 px-3">
+                            <span className="text-[9px] font-black text-[#A1A1AA] uppercase tracking-widest">Ausgeschlossen</span>
+                          </div>
+                          {excludedGroupMembers.map((m) => (
+                            <div
+                              key={m.id}
+                              className="flex items-center gap-3 px-3 py-2 rounded-2xl bg-black/[0.02] opacity-60 hover:opacity-100 transition-all"
+                            >
+                              <TAvatar name={getMemberFullName(m)} id={m.id} size={30} />
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm font-poppins font-bold text-[#52525B] line-through block truncate">
+                                  {getMemberFullName(m)}
+                               </span>
+                              </div>
+                              <button
+                                onClick={() => onToggleMemberExcluded(group.id, date, m.id, false)}
+                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-black/[0.04] hover:bg-black/[0.08] text-[#52525B] hover:text-[#0A0A0A] transition-all text-[9px] font-black uppercase tracking-widest"
+                              >
+                                <RotateCcw size={10} /> Wiederherstellen
+                              </button>
+                            </div>
+                          ))}
+                        </>
+                      )}
                     </div>
                   </motion.div>
                 )}

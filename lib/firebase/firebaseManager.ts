@@ -558,6 +558,7 @@ export class FirebaseManager {
           date: Timestamp.fromDate(date),
           absentMemberIds: [memberId],
           absenceReasons: reason ? { [memberId]: reason } : {},
+          excludedMemberIds: [],
         });
       } else {
         const updates: Record<string, unknown> = {
@@ -572,6 +573,45 @@ export class FirebaseManager {
       await updateDoc(sessionRef, {
         absentMemberIds: arrayRemove(memberId),
         [`absenceReasons.${memberId}`]: deleteField(),
+      });
+    }
+  }
+
+  static async setSessionMemberExcluded(
+    clubId: string,
+    groupId: string,
+    date: Date,
+    memberId: string,
+    excluded: boolean
+  ): Promise<void> {
+    const dateString = toDateString(date);
+    const sessionId = `${groupId}_${dateString}`;
+    const sessionRef = doc(db, `clubs/${clubId}/trainingSessions`, sessionId);
+
+    if (excluded) {
+      const sessionSnap = await getDoc(sessionRef);
+      if (!sessionSnap.exists()) {
+        await setDoc(sessionRef, {
+          groupId,
+          dateString,
+          date: Timestamp.fromDate(date),
+          absentMemberIds: [],
+          absenceReasons: {},
+          excludedMemberIds: [memberId],
+        });
+      } else {
+        await updateDoc(sessionRef, {
+          excludedMemberIds: arrayUnion(memberId),
+          // Optionally also remove them from absent just to be clean
+          absentMemberIds: arrayRemove(memberId),
+          [`absenceReasons.${memberId}`]: deleteField(),
+        });
+      }
+    } else {
+      const sessionSnap = await getDoc(sessionRef);
+      if (!sessionSnap.exists()) return;
+      await updateDoc(sessionRef, {
+        excludedMemberIds: arrayRemove(memberId),
       });
     }
   }
