@@ -281,7 +281,7 @@ export default function MembersPage() {
                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
                               ) : mailSent ? (
                                 <>
-                                  <Check size={18} /> Mail gesendet ✓
+                                  <Check size={18} /> Mail gesendet
                                 </>
                               ) : (
                                 <>

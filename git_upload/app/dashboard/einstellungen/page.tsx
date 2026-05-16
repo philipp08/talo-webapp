@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   User, Lock, LogOut, Building2, ShieldCheck, Dumbbell,
   Calendar, Euro, Target, FileSpreadsheet, FileText,
-  Users, Settings2, Download, Check, ChevronRight, Key, Loader2
+  Users, Settings2, Download, Check, ChevronRight, Key, Loader2, Sparkles
 } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { collection, query, where, getDocs, doc, updateDoc, Timestamp } from "firebase/firestore";
@@ -28,6 +28,42 @@ const SEASON_TYPES = [
   SeasonType.Calendar,
   SeasonType.Club,
   SeasonType.School,
+];
+
+const PLAN_TIERS = [
+  {
+    key: "free",
+    name: "Free",
+    price: "0€",
+    period: "/ Jahr",
+    desc: "Für den Einstieg.",
+    features: ["Bis 10 Mitglieder", "Punkte erfassen", "3 Tätigkeitskategorien"],
+  },
+  {
+    key: "verein",
+    name: "Verein",
+    price: "79€",
+    period: "/ Jahr",
+    desc: "Für kleine Vereine.",
+    features: ["Bis 75 Mitglieder", "Unbegrenzte Kategorien", "CSV-Export", "Aktivitätsverlauf"],
+  },
+  {
+    key: "club",
+    name: "Club",
+    price: "129€",
+    period: "/ Jahr",
+    desc: "Beliebteste Wahl.",
+    features: ["Bis 150 Mitglieder", "Gruppen & Teams", "PDF-Export", "Jahresauswertung"],
+    popular: true
+  },
+  {
+    key: "pro",
+    name: "Pro",
+    price: "199€",
+    period: "/ Jahr",
+    desc: "Für große Vereine.",
+    features: ["Bis 300 Mitglieder", "Mehrere Abteilungen", "Vereinsfarben", "Priorisierter Support"],
+  }
 ];
 
 type ExportKey =
@@ -62,6 +98,7 @@ export default function SettingsPage() {
   const [licKeyInput, setLicKeyInput] = useState("");
   const [licState, setLicState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [licMsg, setLicMsg] = useState("");
+  const [isSimulating, setIsSimulating] = useState<string | null>(null);
 
   const isAdmin = currentMember?.isAdmin === true;
   const isTrainer = currentMember?.isTrainer === true;
@@ -93,6 +130,34 @@ export default function SettingsPage() {
       setResetState("sent");
     } catch {
       setResetState("idle");
+    }
+  };
+
+  const simulateUpgrade = async (planKey: string) => {
+    if (!currentClub) return;
+    setIsSimulating(planKey);
+    try {
+      const expiresAt = new Date();
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+      const updates = {
+        plan: planKey,
+        licenseStatus: "active",
+        licenseExpiresAt: expiresAt
+      };
+      await FirebaseManager.updateClub(currentClub.id, updates);
+      setCurrentClub({ ...currentClub, ...updates });
+      
+      setLicState("success");
+      setLicMsg(`Erfolgreich auf den ${planKey} Plan gewechselt! (Zahlungssimulation)`);
+      setTimeout(() => {
+        setLicState("idle");
+        setLicMsg("");
+      }, 4000);
+    } catch {
+      setLicState("error");
+      setLicMsg("Fehler beim Plan-Upgrade.");
+    } finally {
+      setIsSimulating(null);
     }
   };
 
@@ -356,37 +421,105 @@ export default function SettingsPage() {
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.12 }}
-                className="flex flex-col gap-3"
+                className="flex flex-col gap-4"
               >
-                <SectionHeader title="LIZENZ & PLAN" icon={Key} color="#0A0A0A" />
-                <GlassSection>
-                  <div className="p-5 flex flex-col gap-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-1.5 p-4 rounded-xl bg-black/[0.03] border border-black/5">
-                        <span className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">Aktueller Plan</span>
-                        <span className="font-poppins font-bold text-lg text-[#0A0A0A] capitalize">
-                          {currentClub?.plan || "Free"}
-                        </span>
-                        <span className="text-xs text-[#52525B]">
-                          {currentClub?.licenseExpiresAt ? `Ablauf: ${(currentClub.licenseExpiresAt as any).toDate?.().toLocaleDateString("de-DE") || (currentClub.licenseExpiresAt as Date).toLocaleDateString("de-DE")}` : "Kostenlose Version"}
-                        </span>
+                <div className="flex flex-col gap-3">
+                  <SectionHeader title="LIZENZ & PLAN" icon={Key} color="#0A0A0A" />
+                  
+                  {/* Current Plan Overview */}
+                  <GlassSection>
+                    <div className="p-5 flex flex-col gap-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex flex-col gap-1.5 p-4 rounded-xl bg-black/[0.03] border border-black/5 flex-1">
+                          <span className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">Aktueller Plan</span>
+                          <span className="font-poppins font-bold text-lg text-[#0A0A0A] capitalize">
+                            {currentClub?.plan || "Free"}
+                          </span>
+                          <span className="text-xs text-[#52525B]">
+                            {currentClub?.licenseExpiresAt ? `Ablauf: ${(currentClub.licenseExpiresAt as any).toDate?.().toLocaleDateString("de-DE") || new Date(currentClub.licenseExpiresAt as any).toLocaleDateString("de-DE")}` : "Kostenlose Version"}
+                          </span>
+                        </div>
+                        
+                        <div className="flex-1 flex flex-col gap-2 p-4 rounded-xl bg-black/[0.03] border border-black/5">
+                          <span className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">Lizenzschlüssel einlösen</span>
+                          <div className="flex gap-2 w-full">
+                            <div className="flex-1">
+                              <Input value={licKeyInput} onChange={setLicKeyInput} type="text" />
+                            </div>
+                            <div className="w-[120px]">
+                              <TButton
+                                label={licState === "loading" ? "..." : "Einlösen"}
+                                onClick={activateLicense}
+                                disabled={licState === "loading" || !licKeyInput.trim()}
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex flex-col justify-center gap-2">
-                        <Input value={licKeyInput} onChange={setLicKeyInput} type="text" />
-                        <TButton
-                          label={licState === "loading" ? "Überprüfen…" : "Lizenz aktivieren"}
-                          onClick={activateLicense}
-                          disabled={licState === "loading" || !licKeyInput.trim()}
-                        />
-                      </div>
+                      
+                      {licMsg && (
+                        <p className={`text-sm ${licState === "error" ? "text-red-500" : "text-green-600"}`}>
+                          {licMsg}
+                        </p>
+                      )}
                     </div>
-                    {licMsg && (
-                      <p className={`text-sm ${licState === "error" ? "text-red-500" : "text-green-600"}`}>
-                        {licMsg}
-                      </p>
-                    )}
-                  </div>
-                </GlassSection>
+                  </GlassSection>
+                </div>
+
+                {/* Plan Options */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                  {PLAN_TIERS.map((tier) => {
+                    const isCurrent = (currentClub?.plan || "free").toLowerCase() === tier.key;
+                    
+                    return (
+                      <div key={tier.key} className={`relative flex flex-col p-5 rounded-2xl bg-white border shrink-0 ${tier.popular ? "border-black/20 shadow-md scale-[1.01]" : "border-black/5 shadow-sm"} overflow-hidden`}>
+                        {tier.popular && (
+                          <div className="absolute top-0 right-0 bg-[#0A0A0A] text-white px-3 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] items-center gap-1 font-bold flex">
+                            <Sparkles size={10} /> Favorit
+                          </div>
+                        )}
+                        <h3 className="text-xl font-bold font-logo text-[#0A0A0A] uppercase tracking-wide">
+                          {tier.name}
+                        </h3>
+                        <p className="text-xs text-[#52525B] mt-1 line-clamp-1">{tier.desc}</p>
+                        
+                        <div className="mt-4 mb-5">
+                          <span className="text-3xl font-black font-poppins text-[#0A0A0A]">{tier.price}</span>
+                          <span className="text-sm font-semibold text-[#71717A] ml-1">{tier.period}</span>
+                        </div>
+
+                        <div className="flex flex-col gap-2.5 mb-6 flex-1">
+                          {tier.features.map((feature, idx) => (
+                            <div key={idx} className="flex items-start gap-2">
+                              <Check className="w-3.5 h-3.5 text-[#0A0A0A] mt-0.5 shrink-0" strokeWidth={3} />
+                              <span className="text-xs font-medium text-[#52525B] leading-snug">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-auto">
+                          <button
+                            onClick={() => simulateUpgrade(tier.key)}
+                            disabled={isCurrent || isSimulating === tier.key}
+                            className={`w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border ${
+                              isCurrent
+                                ? "bg-green-50 text-green-700 border-green-200/50 cursor-default"
+                                : tier.popular
+                                ? "bg-[#0A0A0A] text-white hover:bg-black/80 border-transparent active:scale-95"
+                                : "bg-white text-[#0A0A0A] border-black/10 hover:bg-black/5 active:scale-95"
+                            }`}
+                          >
+                            {isSimulating === tier.key
+                              ? "Lade..."
+                              : isCurrent
+                              ? "Aktueller Plan"
+                              : "Plan auswählen"}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </motion.div>
             )}
 
