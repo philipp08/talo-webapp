@@ -139,12 +139,12 @@ export default function MembersPage() {
 
   return (
     <div className="relative min-h-screen bg-[#FAFAFA]">
-      <div className="max-w-[1600px] mx-auto py-6 px-5 md:py-12 md:px-10 flex flex-col gap-8 md:gap-10">
+      <div className="max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10 flex flex-col gap-7 lg:gap-8 pb-16">
         
         {/* Header Action Bar */}
-        <div className="flex flex-col gap-5 border-b border-black/5 pb-8">
+        <div className="flex flex-col gap-5 border-b border-black/5 pb-6 lg:pb-8">
           <div className="flex items-start justify-between gap-4">
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-2">
               <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Team & Engagement</h1>
               <div className="flex items-center gap-2">
                 <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name}</p>
