@@ -936,7 +936,7 @@ export default function SettingsPage() {
                 <div className="p-2">
                   <InfoRow icon={Settings2} label="Version" value="Talo Web · 0.1" color="#0A0A0A" />
                   <TLine className="ml-[68px]" />
-                  <InfoRow icon={User} label="Synchronisation" value="Live mit iOS-App" color="#0A0A0A" />
+                  <InfoRow icon={User} label="Account" value="Aktiv" color="#0A0A0A" />
                 </div>
               </GlassSection>
             </motion.div>

@@ -29,8 +29,7 @@ const toDateString = (d: Date): string => {
   return `${y}-${m}-${dd}`;
 };
 
-// JS getDay() (0=Sun) → iOS dayOfWeek (1=Mon … 7=Sun)
-const jsToIos = (jsDay: number) => (jsDay === 0 ? 7 : jsDay);
+const getDayOfWeek = (jsDay: number) => (jsDay === 0 ? 7 : jsDay);
 
 const getEffectiveSchedule = (
   group: TrainingGroup,
@@ -70,6 +69,7 @@ interface GroupForm {
   schedule: TrainingScheduleEntry[];
   memberIds: string[];
   trainerId: string;
+  trainerIds: string[];
 }
 
 const emptyForm = (): GroupForm => ({
@@ -79,6 +79,7 @@ const emptyForm = (): GroupForm => ({
   schedule: [],
   memberIds: [],
   trainerId: "",
+  trainerIds: [],
 });
 
 interface ExtraForm {
@@ -166,7 +167,7 @@ export default function TrainingPage() {
   // ── slots for selected day (regular + extras, with cancellation state) ────
   const slotsForDay = useMemo<DaySlot[]>(() => {
     const date    = weekDays[selectedDayIdx];
-    const iosDay  = jsToIos(date.getDay());
+    const dayOfWeek = getDayOfWeek(date.getDay());
     const dateStr = toDateString(date);
     const slots: DaySlot[] = [];
     const seenKeys = new Set<string>();
@@ -194,7 +195,7 @@ export default function TrainingPage() {
       const cancelledTimes = daySession?.cancelledTimes ?? [];
 
       for (const entry of schedule) {
-        if (entry.dayOfWeek === iosDay) {
+        if (entry.dayOfWeek === dayOfWeek) {
           const key = `${displayGroup.id}_${entry.time}_reg`;
           if (isMemberOnly && seenKeys.has(key)) continue;
           seenKeys.add(key);
@@ -310,6 +311,7 @@ export default function TrainingPage() {
       schedule: [...group.schedule],
       memberIds: [...group.memberIds],
       trainerId: group.trainerId ?? "",
+      trainerIds: group.trainerIds ?? [],
     });
     setNewEntryDay(1);
     setNewEntryTime("18:00");
@@ -349,6 +351,7 @@ export default function TrainingPage() {
         schedule: form.schedule,
         memberIds: form.memberIds,
         trainerId: form.trainerId || undefined,
+        trainerIds: form.trainerIds,
       };
       if (editingGroup) {
         await FirebaseManager.updateTrainingGroup(currentClub.id, editingGroup.id, payload);
@@ -635,20 +638,69 @@ export default function TrainingPage() {
 
                     {/* Trainer */}
                     {isAdminOrTrainer && (
-                      <Field label="Standard-Trainer">
-                        <select
-                          value={form.trainerId}
-                          onChange={(e) => setForm((f) => ({ ...f, trainerId: e.target.value }))}
-                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
-                        >
-                          <option value="">Kein Trainer zugewiesen</option>
-                          {allMembers
-                            .filter((m) => m.isTrainer || m.isAdmin)
-                            .map((m) => (
-                              <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
-                            ))}
-                        </select>
-                      </Field>
+                      <div className="flex flex-col gap-4">
+                        <Field label="1. Trainer (Standard)">
+                          <select
+                            value={form.trainerId}
+                            onChange={(e) => setForm((f) => ({ ...f, trainerId: e.target.value }))}
+                            className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                          >
+                            <option value="">Kein Trainer zugewiesen</option>
+                            {allMembers
+                              .filter((m) => m.isTrainer || m.isAdmin)
+                              .map((m) => (
+                                <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
+                              ))}
+                          </select>
+                        </Field>
+
+                        {planFeatures.hasMultiTrainer ? (
+                          <>
+                            <Field label="2. Trainer (Optional)">
+                              <select
+                                value={form.trainerIds?.[0] || ""}
+                                onChange={(e) => {
+                                  const newIds = [...(form.trainerIds || [])];
+                                  newIds[0] = e.target.value;
+                                  setForm((f) => ({ ...f, trainerIds: newIds }));
+                                }}
+                                className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                              >
+                                <option value="">Kein 2. Trainer</option>
+                                {allMembers
+                                  .filter((m) => (m.isTrainer || m.isAdmin) && m.id !== form.trainerId)
+                                  .map((m) => (
+                                    <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
+                                  ))}
+                              </select>
+                            </Field>
+                            <Field label="3. Trainer (Optional)">
+                              <select
+                                value={form.trainerIds?.[1] || ""}
+                                onChange={(e) => {
+                                  const newIds = [...(form.trainerIds || [])];
+                                  newIds[1] = e.target.value;
+                                  setForm((f) => ({ ...f, trainerIds: newIds }));
+                                }}
+                                className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                              >
+                                <option value="">Kein 3. Trainer</option>
+                                {allMembers
+                                  .filter((m) => (m.isTrainer || m.isAdmin) && m.id !== form.trainerId && m.id !== form.trainerIds?.[0])
+                                  .map((m) => (
+                                    <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
+                                  ))}
+                              </select>
+                            </Field>
+                          </>
+                        ) : (
+                          <div className="px-4 py-3 rounded-2xl bg-black/[0.02] border border-dashed border-black/10">
+                            <p className="text-[10px] font-bold text-[#71717A] uppercase tracking-widest leading-relaxed">
+                              Multi-Trainer Support (2. & 3. Trainer) ab dem <span className="text-[#0A0A0A]">Pro-Plan</span> verfügbar.
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
 
@@ -880,7 +932,10 @@ function WeekView({
                 onToggleCancellation={onToggleCancellation}
                 onDeleteExtra={onDeleteExtra}
                 onSetTrainer={onSetTrainer}
+                onSetTrainers={onSetTrainers}
                 onToggleTrainerAbsence={onToggleTrainerAbsence}
+                onToggleIndividualTrainerAbsence={onToggleIndividualTrainerAbsence}
+                planFeatures={planFeatures}
               />
             ))}
           </AnimatePresence>
@@ -912,7 +967,10 @@ function AttendanceCard({
   onToggleCancellation: (groupId: string, date: Date, time: string) => void;
   onDeleteExtra: (sessionId: string) => void;
   onSetTrainer: (groupId: string, date: Date, trainerId: string) => void;
+  onSetTrainers: (groupId: string, date: Date, trainerIds: string[]) => void;
   onToggleTrainerAbsence: (groupId: string, date: Date) => void;
+  onToggleIndividualTrainerAbsence: (groupId: string, date: Date, trainerId: string) => void;
+  planFeatures: PlanFeatures;
 }) {
   const [expanded, setExpanded] = useState(false);
   const group = slot.group;
@@ -922,6 +980,22 @@ function AttendanceCard({
   const isCancelled = slot.kind === "regular" && slot.cancelled;
 
   const rootGroup = useMemo(() => getRootGroup(group, trainingGroups), [group, trainingGroups]);
+
+  const assignedTrainers = useMemo(() => {
+    // 1. Primary trainer
+    const primaryId = session?.trainerId || group.trainerId;
+    const trainers = [];
+    if (primaryId) trainers.push({ id: primaryId, isPrimary: true });
+    
+    // 2. Additional trainers (if Pro)
+    if (planFeatures.hasMultiTrainer) {
+      const extraIds = session?.trainerIds || group.trainerIds || [];
+      extraIds.forEach(id => {
+        if (id && id !== primaryId) trainers.push({ id, isPrimary: false });
+      });
+    }
+    return trainers;
+  }, [session, group, planFeatures]);
 
   // Trainer logic
   const effectiveTrainerName = useMemo(() => {
@@ -1026,46 +1100,62 @@ function AttendanceCard({
 
           {/* Trainer Info */}
           {!isCancelled && (
-            <div className="flex items-center justify-between gap-3 bg-black/[0.02] border border-black/5 rounded-[18px] p-3 -mt-1">
-              <div className="flex items-center gap-3">
-                <TAvatar name={effectiveTrainerName} id={effectiveTrainerId} size={28} />
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A]">Trainer</span>
-                  <span className={`text-[12px] font-poppins font-bold ${isTrainerAbsent ? "text-red-500 line-through" : "text-[#0A0A0A]"}`}>
-                    {effectiveTrainerName}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {(isAdmin || currentMember?.id === effectiveTrainerId) && (
-                  <button
-                    onClick={() => onToggleTrainerAbsence(group.id, date)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest shadow-sm ${
-                      isTrainerAbsent 
-                        ? "bg-green-50 border-green-200 text-green-600 hover:bg-green-100" 
-                        : "bg-white border-black/10 text-[#52525B] hover:text-red-500 hover:border-red-200"
-                    }`}
-                  >
-                    {isTrainerAbsent ? (
-                      <>
-                        <RotateCcw size={12} /> Wieder eintragen
-                      </>
-                    ) : (
-                      <>
-                        <Ban size={12} /> Abmelden
-                      </>
-                    )}
-                  </button>
-                )}
+            <div className="flex flex-col gap-2">
+              {assignedTrainers.map((tInfo, tIdx) => {
+                const trainer = allMembers.find(m => m.id === tInfo.id);
+                const tName = trainer ? getMemberFullName(trainer) : "Unbekannt";
+                const isThisTrainerAbsent = tInfo.isPrimary 
+                  ? (session?.isTrainerAbsent ?? false)
+                  : (session?.absentTrainerIds?.includes(tInfo.id) ?? false);
+                
+                return (
+                  <div key={tInfo.id} className="flex items-center justify-between gap-3 bg-black/[0.02] border border-black/5 rounded-[18px] p-3">
+                    <div className="flex items-center gap-3">
+                      <TAvatar name={tName} id={tInfo.id} size={28} />
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A]">
+                          {tInfo.isPrimary ? "Haupttrainer" : `${tIdx + 1}. Co-Trainer`}
+                        </span>
+                        <span className={`text-[12px] font-poppins font-bold ${isThisTrainerAbsent ? "text-red-500 line-through" : "text-[#0A0A0A]"}`}>
+                          {tName}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      {(isAdmin || currentMember?.id === tInfo.id) && (
+                        <button
+                          onClick={() => tInfo.isPrimary 
+                            ? onToggleTrainerAbsence(group.id, date)
+                            : onToggleIndividualTrainerAbsence(group.id, date, tInfo.id)
+                          }
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                            isThisTrainerAbsent 
+                              ? "bg-green-50 border-green-200 text-green-600 hover:bg-green-100" 
+                              : "bg-white border-black/10 text-[#52525B] hover:text-red-500 hover:border-red-200"
+                          }`}
+                        >
+                          {isThisTrainerAbsent ? (
+                            <><RotateCcw size={12} /> Wieder eintragen</>
+                          ) : (
+                            <><Ban size={12} /> Abmelden</>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
 
-                {isAdmin && (
+              {isAdmin && (
+                <div className="flex items-center gap-2 mt-1">
                   <div className="relative">
                     <select
                       className="absolute inset-0 opacity-0 cursor-pointer w-full"
                       onChange={(e) => onSetTrainer(group.id, date, e.target.value)}
                       value=""
                     >
-                      <option value="" disabled>Trainer wählen…</option>
+                      <option value="" disabled>Haupttrainer ändern…</option>
                       {allMembers
                         .filter(m => m.isTrainer || m.isAdmin)
                         .map(m => (
@@ -1073,11 +1163,35 @@ function AttendanceCard({
                         ))}
                     </select>
                     <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-[#52525B] hover:text-[#0A0A0A] transition-all text-[10px] font-black uppercase tracking-widest shadow-sm">
-                      <Pencil size={12} /> Ändern
+                      <Pencil size={12} /> Haupttrainer
                     </button>
                   </div>
-                )}
-              </div>
+
+                  {planFeatures.hasMultiTrainer && (
+                    <div className="relative">
+                      <select
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full"
+                        onChange={(e) => {
+                          const current = session?.trainerIds || group.trainerIds || [];
+                          const updated = [...current, e.target.value].slice(0, 2); // Max 2 additional
+                          onSetTrainers(group.id, date, updated);
+                        }}
+                        value=""
+                      >
+                        <option value="" disabled>Co-Trainer hinzufügen…</option>
+                        {allMembers
+                          .filter(m => (m.isTrainer || m.isAdmin) && !assignedTrainers.some(at => at.id === m.id))
+                          .map(m => (
+                            <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
+                          ))}
+                      </select>
+                      <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-[#52525B] hover:text-[#0A0A0A] transition-all text-[10px] font-black uppercase tracking-widest shadow-sm">
+                        <Plus size={12} /> Co-Trainer
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

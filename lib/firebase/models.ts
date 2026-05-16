@@ -151,7 +151,7 @@ export interface TrainingAnnouncement {
 // Weekly recurring schedule entry embedded in a TrainingGroup
 export interface TrainingScheduleEntry {
   id: string;
-  dayOfWeek: number; // 1=Monday … 7=Sunday (iOS convention)
+  dayOfWeek: number; // 1=Monday … 7=Sunday
   time: string; // "HH:mm"
 }
 
@@ -163,6 +163,7 @@ export interface TrainingGroup {
   schedule: TrainingScheduleEntry[]; // embedded recurring schedule
   colorHex: string; // UI accent color
   trainerId?: string; // Default trainer for this group
+  trainerIds?: string[]; // Multiple default trainers (Pro feature)
   // legacy compat
   clubId?: string;
   createdAt?: Timestamp | Date;
@@ -189,7 +190,9 @@ export interface TrainingSession {
   // Trainer assignment
   trainerId?: string;
   trainerName?: string;
+  trainerIds?: string[]; // Multiple override trainers
   isTrainerAbsent?: boolean;
+  absentTrainerIds?: string[];
 }
 
 export const TRAINING_GROUP_COLORS = [
@@ -318,6 +321,7 @@ export interface PlanFeatures {
   hasCustomMemberTypes: boolean;
   hasCustomSeason: boolean;
   hasTrainingRSVP: boolean;
+  hasMultiTrainer: boolean;
   popular?: boolean;
 }
 
@@ -356,6 +360,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasCustomMemberTypes: false,
     hasCustomSeason: false,
     hasTrainingRSVP: false,
+    hasMultiTrainer: false,
   },
   verein: {
     key: "verein",
@@ -390,6 +395,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasCustomMemberTypes: false,
     hasCustomSeason: true,
     hasTrainingRSVP: false,
+    hasMultiTrainer: false,
   },
   club: {
     key: "club",

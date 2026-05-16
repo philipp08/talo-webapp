@@ -474,6 +474,7 @@ export class FirebaseManager {
             })),
             colorHex: (data.colorHex as string) || "#007AFF",
             trainerId: data.trainerId,
+            trainerIds: data.trainerIds || [],
             clubId: data.clubId,
             createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
           });
@@ -519,11 +520,13 @@ export class FirebaseManager {
             absenceReasons: data.absenceReasons ?? {},
             isExtra: data.isExtra ?? false,
             extraTime: data.extraTime,
-            cancelledTimes: data.cancelledTimes ?? [],
             note: data.note,
+            cancelledTimes: data.cancelledTimes ?? [],
             trainerId: data.trainerId,
             trainerName: data.trainerName,
+            trainerIds: data.trainerIds ?? [],
             isTrainerAbsent: data.isTrainerAbsent ?? false,
+            absentTrainerIds: data.absentTrainerIds ?? [],
           });
         });
         callback(sessions);
@@ -598,12 +601,11 @@ export class FirebaseManager {
     await setDoc(sessionRef, payload);
   }
 
-  static async setSessionTrainer(
+  static async setSessionTrainers(
     clubId: string,
     groupId: string,
     date: Date,
-    trainerId: string,
-    trainerName: string
+    trainerIds: string[]
   ): Promise<void> {
     const dateString = toDateString(date);
     const sessionId = `${groupId}_${dateString}`;
@@ -617,11 +619,40 @@ export class FirebaseManager {
         date: Timestamp.fromDate(date),
         absentMemberIds: [],
         absenceReasons: {},
-        trainerId,
-        trainerName,
+        trainerIds,
       });
     } else {
-      await updateDoc(sessionRef, { trainerId, trainerName });
+      await updateDoc(sessionRef, { trainerIds });
+    }
+  }
+
+  static async toggleIndividualTrainerAbsence(
+    clubId: string,
+    groupId: string,
+    date: Date,
+    trainerId: string
+  ): Promise<void> {
+    const dateString = toDateString(date);
+    const sessionId = `${groupId}_${dateString}`;
+    const sessionRef = doc(db, `clubs/${clubId}/trainingSessions`, sessionId);
+    const sessionSnap = await getDoc(sessionRef);
+
+    if (!sessionSnap.exists()) {
+      await setDoc(sessionRef, {
+        groupId,
+        dateString,
+        date: Timestamp.fromDate(date),
+        absentMemberIds: [],
+        absenceReasons: {},
+        absentTrainerIds: [trainerId],
+      });
+    } else {
+      const data = sessionSnap.data();
+      const current = data.absentTrainerIds || [];
+      const updated = current.includes(trainerId)
+        ? current.filter((id: string) => id !== trainerId)
+        : [...current, trainerId];
+      await updateDoc(sessionRef, { absentTrainerIds: updated });
     }
   }
 
@@ -999,6 +1030,7 @@ export class FirebaseManager {
       schedule: group.schedule ?? [],
       colorHex: group.colorHex ?? "#007AFF",
       trainerId: group.trainerId ?? null,
+      trainerIds: group.trainerIds ?? [],
       clubId,
       createdAt: Timestamp.now(),
     });
