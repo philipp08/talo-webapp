@@ -1,3 +1,4 @@
+// Model definitions for Talo Club
 import { Timestamp } from "firebase/firestore";
 
 export enum SeasonType {
