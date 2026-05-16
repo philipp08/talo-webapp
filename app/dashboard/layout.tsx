@@ -116,14 +116,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   const navItems = [
-    { href: "/dashboard",                label: "Dashboard",      icon: LayoutGrid,    show: true },
-    { href: "/dashboard/eintragen",      label: "Eintragen",      icon: PenLine,       show: true },
-    { href: "/dashboard/training",       label: "Training",       icon: Calendar,      show: true },
-    { href: "/dashboard/genehmigungen",  label: "Genehmigungen",  icon: CheckSquare,   show: isAdmin },
-    { href: "/dashboard/mitglieder",     label: "Mitglieder",     icon: Users,         show: isAdmin || isTrainer },
-    { href: "/dashboard/taetigkeiten",   label: "Tätigkeiten",    icon: ClipboardList, show: isAdmin },
-    { href: "/dashboard/ankuendigungen", label: "Ankündigungen",  icon: Megaphone,     show: true },
-    { href: "/dashboard/einstellungen",  label: "Einstellungen",  icon: Settings,      show: true },
+    { href: "/dashboard",                label: "Dashboard",      shortLabel: "Dashboard",   icon: LayoutGrid,    show: true },
+    { href: "/dashboard/eintragen",      label: "Eintragen",      shortLabel: "Eintragen",   icon: PenLine,       show: true },
+    { href: "/dashboard/training",       label: "Training",       shortLabel: "Training",    icon: Calendar,      show: true },
+    { href: "/dashboard/genehmigungen",  label: "Genehmigungen",  shortLabel: "Anträge",     icon: CheckSquare,   show: isAdmin },
+    { href: "/dashboard/mitglieder",     label: "Mitglieder",     shortLabel: "Mitglieder",  icon: Users,         show: isAdmin || isTrainer },
+    { href: "/dashboard/taetigkeiten",   label: "Tätigkeiten",    shortLabel: "Tätigkeiten", icon: ClipboardList, show: isAdmin },
+    { href: "/dashboard/ankuendigungen", label: "Ankündigungen",  shortLabel: "Infos",       icon: Megaphone,     show: true },
+    { href: "/dashboard/einstellungen",  label: "Einstellungen",  shortLabel: "Optionen",    icon: Settings,      show: true },
   ].filter((item) => item.show);
 
   // Bottom tabs: first 4 items + "Mehr" if there are more than 4
@@ -521,7 +521,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               >
                 <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
                 <span className="text-[9px] font-poppins font-bold uppercase tracking-wider leading-none">
-                  {item.label.length > 8 ? item.label.slice(0, 8) : item.label}
+                  {item.shortLabel ?? item.label}
                 </span>
               </Link>
             );
