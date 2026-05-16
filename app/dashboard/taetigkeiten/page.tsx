@@ -16,10 +16,10 @@ const categoryLabels: Record<string, string> = {
 };
 
 const categoryColors: Record<string, string> = {
-  A: "#34C759",
-  B: "#FF9500",
-  C: "#E87AA0",
-  S: "#7C6FE0",
+  A: "#E87AA0",
+  B: "#0A0A0A",
+  C: "#34C759",
+  S: "#FF9500",
 };
 
 const ALL_CATS = [ActivityCategory.A, ActivityCategory.B, ActivityCategory.C, ActivityCategory.S];
