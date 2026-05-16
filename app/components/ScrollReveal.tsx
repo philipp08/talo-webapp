@@ -61,6 +61,7 @@ export default function ScrollReveal({
         delay,
         ease: EASE_OUT,
       }}
+      style={{ willChange: "transform, opacity" }}
       className={className}
     >
       {children}
@@ -122,6 +123,7 @@ export function StaggerItem({
           transition: { duration: 0.45, ease: [0.23, 1, 0.32, 1] },
         },
       }}
+      style={{ willChange: "transform, opacity" }}
       className={className}
     >
       {children}

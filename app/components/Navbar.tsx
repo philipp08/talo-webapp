@@ -302,7 +302,7 @@ export default function Navbar() {
               {/* CTA pill – fades out in place when menu opens, no layout shift */}
               {!isLoading && (
                 <motion.div
-                  className="flex items-center"
+                  className="flex items-center h-10"
                   animate={{
                     opacity: mobileOpen ? 0 : 1,
                     scale: mobileOpen ? 0.8 : 1,
@@ -341,6 +341,7 @@ export default function Navbar() {
                 whileTap={{ scale: 0.9 }}
               >
                 <motion.div
+                  className="flex items-center justify-center"
                   animate={{ rotate: mobileOpen ? 180 : 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
@@ -348,6 +349,7 @@ export default function Navbar() {
                     {mobileOpen ? (
                       <motion.div
                         key="close"
+                        className="flex items-center justify-center"
                         initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
                         animate={{ opacity: 1, scale: 1, rotate: 0 }}
                         exit={{ opacity: 0, scale: 0.5, rotate: 90 }}
@@ -358,6 +360,7 @@ export default function Navbar() {
                     ) : (
                       <motion.div
                         key="menu"
+                        className="flex items-center justify-center"
                         initial={{ opacity: 0, scale: 0.5, rotate: 90 }}
                         animate={{ opacity: 1, scale: 1, rotate: 0 }}
                         exit={{ opacity: 0, scale: 0.5, rotate: -90 }}
