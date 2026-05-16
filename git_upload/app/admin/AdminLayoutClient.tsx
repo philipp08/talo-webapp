@@ -70,7 +70,7 @@ export default function AdminLayoutClient({ children }: { children: ReactNode })
   return (
     <div className="flex h-dvh w-full text-[#0A0A0A] selection:bg-[#0A0A0A] selection:text-white" style={{ background: "#FAFAFA" }}>
       {/* SIDEBAR */}
-      <aside className="w-[280px] flex-col shrink-0 hidden lg:flex" style={{ background: "#FFFFFF", borderRight: "1px solid rgba(0,0,0,0.05)" }}>
+      <aside className="hidden lg:flex w-[300px] flex-col shrink-0 relative overflow-hidden" style={{ background: "#FFFFFF", borderRight: "1px solid rgba(0,0,0,0.05)" }}>
         <div className="px-8 py-10 flex items-center gap-3.5">
           <Link href="/" className="flex items-center gap-3.5 group">
             <div className="w-9 h-9 flex items-center justify-center transition-all group-hover:scale-110">
