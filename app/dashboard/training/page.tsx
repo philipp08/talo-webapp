@@ -616,12 +616,15 @@ export default function TrainingPage() {
                               className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                             />
                           </div>
-                          <button
-                            onClick={addScheduleEntry}
-                            className="flex items-center gap-1.5 px-3 py-2.5 rounded-2xl bg-[#0A0A0A] text-white text-[10px] font-black uppercase tracking-widest shrink-0"
-                          >
-                            <Plus size={14} /> Add
-                          </button>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[9px] font-black text-transparent uppercase tracking-widest pl-1">A</label>
+                            <button
+                              onClick={addScheduleEntry}
+                              className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#0A0A0A] text-white text-[10px] font-black uppercase tracking-widest shrink-0 transition-all hover:bg-black/80"
+                            >
+                              <Plus size={14} /> Hinzufügen
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </Field>
