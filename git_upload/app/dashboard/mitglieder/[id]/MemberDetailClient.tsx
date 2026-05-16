@@ -8,20 +8,17 @@ import {
   Trash2, AlertTriangle, X, Pencil, Camera,
   ShieldCheck, Calendar,
   RefreshCcw, ChevronRight, MoreHorizontal,
-  MailQuestion, Activity, Settings, Layers, Lock,
-  Check
+  MailQuestion, Activity, Settings, Layers, Lock
 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import {
   Member, Entry, MemberType,
   calculateTargetPoints, EntryStatus, ClubGroup, getPlanFeatures,
-  TrainingGroup, PointFactors
 } from "@/lib/firebase/models";
 import { 
   TAvatar,
-  TButton, TCatBadge,
-  GlassSection, TLine, TBadge
+  TButton, TCatBadge
 } from "@/app/components/ui/NativeUI";
 
 function toDate(d: Entry["date"]): Date {
@@ -48,7 +45,6 @@ export default function MemberDetailPage() {
   const [member,  setMember]  = useState<Member | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [groups, setGroups] = useState<ClubGroup[]>([]);
-  const [trainingGroups, setTrainingGroups] = useState<TrainingGroup[]>([]);
   const [loading, setLoading] = useState(true);
 
   // member edit
@@ -58,7 +54,6 @@ export default function MemberDetailPage() {
     memberType: MemberType.Active as string,
     isAdmin: false, isTrainer: false,
     groupId: "",
-    trainingGroupIds: [] as string[],
   });
   const [saving,    setSaving]    = useState(false);
   const [editSaved, setEditSaved] = useState(false);
@@ -95,7 +90,6 @@ export default function MemberDetailPage() {
           firstName: m.firstName, lastName: m.lastName, email: m.email,
           memberType: m.memberType, isAdmin: m.isAdmin, isTrainer: m.isTrainer,
           groupId: m.groupId ?? "",
-          trainingGroupIds: m.trainingGroupIds ?? [],
         });
       }
       setLoading(false);
@@ -114,13 +108,10 @@ export default function MemberDetailPage() {
 
   useEffect(() => {
     if (!currentClub || !planFeatures.hasGroups) return;
-    const u1 = FirebaseManager.listenToGroups(currentClub.id, setGroups);
-    const u2 = FirebaseManager.listenToTrainingGroups(currentClub.id, setTrainingGroups);
-    return () => { u1(); u2(); };
+    return FirebaseManager.listenToGroups(currentClub.id, setGroups);
   }, [currentClub, planFeatures.hasGroups]);
 
   const visibleGroups = planFeatures.hasGroups ? groups : [];
-  const visibleTrainingGroups = planFeatures.hasGroups ? trainingGroups : [];
 
   const availableMemberTypes = (() => {
     const types: string[] = Object.values(MemberType);
@@ -156,7 +147,6 @@ export default function MemberDetailPage() {
       isAdmin: editForm.isAdmin,
       isTrainer: planFeatures.hasAdvancedRoles ? editForm.isTrainer : false,
       ...(planFeatures.hasGroups && editForm.groupId ? { groupId: editForm.groupId } : {}),
-      trainingGroupIds: editForm.trainingGroupIds,
     };
     await Promise.all([
       FirebaseManager.updateMember(member.id, nextProfile),
@@ -206,15 +196,6 @@ export default function MemberDetailPage() {
     setEntryForm(null);
   };
 
-  const toggleTrainingGroup = (groupId: string) => {
-    setEditForm(prev => ({
-      ...prev,
-      trainingGroupIds: prev.trainingGroupIds.includes(groupId)
-        ? prev.trainingGroupIds.filter(id => id !== groupId)
-        : [...prev.trainingGroupIds, groupId]
-    }));
-  };
-
   if (currentMember && !canViewMember) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -246,7 +227,7 @@ export default function MemberDetailPage() {
 
   return (
     <div className="relative min-h-screen bg-[#FAFAFA]">
-      <div className="max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-12 lg:px-10 flex flex-col gap-7 lg:gap-12 pb-20">
+      <div className="max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-12 lg:px-10 flex flex-col gap-7 lg:gap-12">
         
         {/* TOP BAR / BREADCRUMBS */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 border-b border-black/5 pb-6 lg:pb-8">
@@ -269,270 +250,403 @@ export default function MemberDetailPage() {
                       : "bg-black/[0.04] text-[#0A0A0A] border-black/5 hover:bg-black/[0.08]"
                   }`}
                 >
-                  <Pencil size={14} />
-                  {isEditExpanded ? "Abbrechen" : "Profil bearbeiten"}
+                   <Pencil size={14} /> {isEditExpanded ? "Abbrechen" : "Bearbeiten"}
+                </button>
+              )}
+              {isAdmin && (
+                <button
+                  onClick={() => setMemberToDelete(true)}
+                  className="w-12 h-12 shrink-0 rounded-2xl bg-black/[0.04] border border-black/5 flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all border-white/0 hover:border-black/15"
+                >
+                   <Trash2 size={18} />
                 </button>
               )}
            </div>
         </div>
 
-        {/* EDIT SECTION */}
-        <AnimatePresence>
-          {isEditExpanded && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 md:p-8 bg-black/[0.03] rounded-3xl border border-black/5">
-                  <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <EditField label="Vorname" value={editForm.firstName} onChange={(v: string) => setEditForm({ ...editForm, firstName: v })} />
-                    <EditField label="Nachname" value={editForm.lastName} onChange={(v: string) => setEditForm({ ...editForm, lastName: v })} />
-                    <EditField label="E-Mail (ID)" value={editForm.email} onChange={(v: string) => setEditForm({ ...editForm, email: v })} disabled />
-                    
-                    <div className="flex flex-col gap-2">
-                       <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Mitgliedertyp</label>
-                       <select value={editForm.memberType} onChange={(e) => setEditForm({ ...editForm, memberType: e.target.value })} className="w-full bg-white rounded-2xl border border-black/10 px-4 py-3.5 text-sm font-poppins focus:outline-none focus:border-black/20 transition-all">
-                          {availableMemberTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                       </select>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                       <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Abteilung / Gruppe</label>
-                       <select value={editForm.groupId} onChange={(e) => setEditForm({ ...editForm, groupId: e.target.value })} className="w-full bg-white rounded-2xl border border-black/10 px-4 py-3.5 text-sm font-poppins focus:outline-none focus:border-black/20 transition-all">
-                          <option value="">Keine Auswahl</option>
-                          {visibleGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-                       </select>
-                    </div>
-
-                    <div className="flex items-center gap-6 pt-2">
-                       <Toggle label="Admin-Rechte" active={editForm.isAdmin} onToggle={() => setEditForm({ ...editForm, isAdmin: !editForm.isAdmin })} />
-                       {planFeatures.hasAdvancedRoles && (
-                         <Toggle label="Trainer-Rechte" active={editForm.isTrainer} onToggle={() => setEditForm({ ...editForm, isTrainer: !editForm.isTrainer })} />
-                       )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-4 border-l border-black/5 pl-6">
-                    <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Trainingsgruppen</label>
-                    <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-2">
-                      {visibleTrainingGroups.length === 0 ? (
-                        <p className="text-[10px] text-[#A1A1AA] italic">Keine Trainingsgruppen angelegt.</p>
-                      ) : (
-                        visibleTrainingGroups.map(g => (
-                          <button 
-                            key={g.id}
-                            onClick={() => toggleTrainingGroup(g.id)}
-                            className={`flex items-center justify-between px-3 py-2 rounded-xl border text-left transition-all ${
-                              editForm.trainingGroupIds.includes(g.id)
-                                ? "bg-[#0A0A0A] border-black text-white shadow-lg"
-                                : "bg-white border-black/10 text-[#71717A] hover:border-black/20"
-                            }`}
-                          >
-                            <span className="text-xs font-bold font-poppins">{g.name}</span>
-                            {editForm.trainingGroupIds.includes(g.id) && <Check size={12} />}
-                          </button>
-                        ))
-                      )}
-                    </div>
-                    <p className="text-[9px] text-[#A1A1AA] leading-relaxed">Wähle die Gruppen aus, für die dieses Mitglied Trainingstermine sehen soll.</p>
-
-                    <div className="mt-auto pt-6 flex flex-col gap-3">
-                       <TButton label={saving ? "Speichern..." : editSaved ? "Gespeichert!" : "Änderungen übernehmen"} onClick={saveMember} disabled={saving} />
-                       <button onClick={() => setMemberToDelete(true)} className="flex items-center justify-center gap-2 py-3 text-[10px] font-black uppercase tracking-widest text-[#FF3B30] hover:bg-red-50 rounded-2xl transition-all">
-                          <Trash2 size={12} /> Mitglied entfernen
-                       </button>
-                    </div>
-                  </div>
-               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* STATS CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-           <StatCard label="Jahresziel" value={`${targetPts} Pkt.`} sub={isExempt ? "Befreit (Sonderstatus)" : `Faktor: ${PointFactors[member.memberType] ?? 1.0}x`} />
-           <StatCard label="Genehmigt" value={`${approvedPts} Pkt.`} sub={`${entries.filter(e => e.status === "Genehmigt").length} Tätigkeiten`} highlight="#34C759" />
-           <StatCard label="In Prüfung" value={`${pendingPts} Pkt.`} sub={`${entries.filter(e => e.status === "Ausstehend").length} Anträge`} highlight="#FFCC00" />
-           <StatCard label="Fehlend" value={`${missingPts} Pkt.`} sub={progress >= 1 ? "Ziel erreicht! 🎉" : `${(progress * 100).toFixed(0)}% erledigt`} highlight={missingPts > 0 ? "#FF3B30" : "#34C759"} />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-10">
-           {/* LEFT: PROGRESS & GROUPS */}
-           <div className="lg:col-span-4 flex flex-col gap-7">
-              <GlassSection className="p-6 flex flex-col gap-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-[11px] font-black uppercase tracking-widest text-[#71717A]">Fortschritt</h3>
-                    <TBadge label={member.memberType} />
-                 </div>
+        {/* MAIN SPLIT GRID */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-7 lg:gap-12">
+           
+           {/* LEFT COLUMN: IDENTITY & STATS (4/12) */}
+           <div className="xl:col-span-4 flex flex-col gap-5 lg:gap-8">
+              
+              {/* Profile Card */}
+              <div className="bg-white border border-black/5 rounded-[28px] lg:rounded-[40px] overflow-hidden p-5 sm:p-8 lg:p-10 flex flex-col items-center relative group">
+                 <div className="absolute top-0 right-0 w-32 h-32 bg-black/[0.03] blur-3xl rounded-full" />
                  
-                 <div className="relative flex flex-col items-center py-4">
-                    <svg className="w-40 h-40 transform -rotate-90">
-                       <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-black/[0.04]" />
-                       <motion.circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={440} initial={{ strokeDashoffset: 440 }} animate={{ strokeDashoffset: 440 - (440 * progress) }} transition={{ duration: 1.5, ease: "easeOut" }} className="text-[#0A0A0A]" strokeLinecap="round" />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                       <span className="text-3xl font-poppins font-black text-[#0A0A0A]">{(progress * 100).toFixed(0)}%</span>
+                 <div className="relative mb-6 lg:mb-8">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                       <div className="w-[120px] h-[120px] rounded-full blur-[60px] opacity-20" style={{ background: progressColor }} />
                     </div>
+                    <TAvatar name={`${member.firstName} ${member.lastName}`} id={member.id} size={140} imageUrl={member.profileImageUrl} className="relative z-10 border-[6px] border-black shadow-2xl" />
+                    <button className="absolute bottom-2 right-2 w-10 h-10 rounded-2xl bg-[#0A0A0A] border border-black/15 shadow-2xl flex items-center justify-center text-white z-20 hover:scale-110 transition-transform">
+                       <Camera size={18} strokeWidth={2.5} />
+                    </button>
                  </div>
-                 
-                 <div className="flex flex-col gap-4">
-                    <div className="flex items-center justify-between text-xs font-bold">
-                       <span className="text-[#71717A]">Genehmigt</span>
-                       <span className="text-[#0A0A0A]">{approvedPts} / {targetPts} Pkt.</span>
-                    </div>
-                    <div className="w-full h-2 bg-black/[0.04] rounded-full overflow-hidden">
-                       <motion.div initial={{ width: 0 }} animate={{ width: `${progress * 100}%` }} transition={{ duration: 1 }} className="h-full bg-[#0A0A0A]" />
-                    </div>
-                 </div>
-              </GlassSection>
 
-              <GlassSection className="p-6 flex flex-col gap-5">
-                 <h3 className="text-[11px] font-black uppercase tracking-widest text-[#71717A]">Gruppen-Zugehörigkeit</h3>
-                 <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-black/[0.03] border border-black/5">
-                       <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-white border border-black/5 flex items-center justify-center text-[#71717A]"><Settings size={14} /></div>
-                          <div className="flex flex-col">
-                             <span className="text-[10px] font-black text-[#71717A] uppercase tracking-widest">Abteilung</span>
-                             <span className="text-xs font-bold text-[#0A0A0A]">{editForm.groupId ? groups.find(g => g.id === editForm.groupId)?.name : "Keine"}</span>
-                          </div>
+                 <div className="flex flex-col items-center gap-3 text-center mb-8 lg:mb-10 max-w-full">
+                    <div className="flex max-w-full items-center gap-3">
+                       <h2 className="truncate text-xl sm:text-2xl font-poppins font-black text-[#0A0A0A]">{member.firstName} {member.lastName}</h2>
+                       {member.isAdmin && <ShieldCheck size={20} className="text-[#0A0A0A]/60" />}
+                    </div>
+                    <p className="max-w-full break-all text-[#71717A] font-bold text-sm">{member.email}</p>
+                    <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+                       <span className="px-4 py-1.5 rounded-full bg-black/[0.04] border border-black/10 text-[10px] font-black text-[#A1A1AA] uppercase tracking-widest">{member.memberType}</span>
+                       {member.isTrainer && <span className="px-4 py-1.5 rounded-full bg-black/[0.07] border border-black/15 text-[10px] font-black text-[#0A0A0A]/60 uppercase tracking-widest">Trainer</span>}
+                    </div>
+                 </div>
+
+                 {/* Detailed Progress Stats */}
+                 <div className="w-full space-y-8 lg:space-y-10">
+                    <div className="space-y-4">
+                       <div className="flex justify-between items-end px-1">
+                          <span className="text-[10px] font-black text-[#52525B] uppercase tracking-[0.2em] italic">JAHRESPERFORMANCE</span>
+                          <span className="text-2xl font-mono font-black text-[#0A0A0A]">{Math.min(100, Math.round(progress * 100))}%</span>
+                       </div>
+                       <div className="h-2 w-full rounded-full bg-black/[0.04] p-0.5 border border-black/5">
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${progress * 100}%` }}
+                             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+                             className="h-full rounded-full border border-black/10" style={{ background: progressColor }} />
                        </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                       <span className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1 mb-1">Trainingsgruppen</span>
-                       <div className="flex flex-wrap gap-2">
-                          {editForm.trainingGroupIds.length === 0 ? (
-                            <span className="text-[10px] text-[#A1A1AA] italic pl-1">Keine Gruppen zugewiesen</span>
-                          ) : (
-                            editForm.trainingGroupIds.map(tgid => {
-                              const tg = trainingGroups.find(g => g.id === tgid);
-                              return tg ? (
-                                <div key={tgid} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0A0A0A] text-white">
-                                   <Layers size={10} />
-                                   <span className="text-[10px] font-black uppercase tracking-widest">{tg.name}</span>
-                                </div>
-                              ) : null;
-                            })
-                          )}
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                       <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
+                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">Bestätigt</span>
+                          <span className="text-xl sm:text-2xl font-mono font-black text-[#0A0A0A]">+{approvedPts.toFixed(1)}</span>
+                       </div>
+                       <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
+                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">In Prüfung</span>
+                          <span className="text-xl sm:text-2xl font-mono font-black text-[#A1A1AA]">+{pendingPts.toFixed(1)}</span>
+                       </div>
+                       <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
+                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">Ziel</span>
+                          <span className="text-xl sm:text-2xl font-mono font-black text-[#0A0A0A]">{targetPts.toFixed(1)}</span>
+                       </div>
+                       <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
+                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">Fehlend</span>
+                          <span className="text-xl sm:text-2xl font-mono font-black text-[#71717A]">{isExempt ? "–" : missingPts.toFixed(1)}</span>
                        </div>
                     </div>
                  </div>
-              </GlassSection>
-           </div>
-
-           {/* RIGHT: ENTRIES */}
-           <div className="lg:col-span-8 flex flex-col gap-6">
-              <div className="flex items-center justify-between">
-                 <h3 className="text-xl font-poppins font-black text-[#0A0A0A] tracking-tight uppercase">Letzte Tätigkeiten</h3>
-                 <span className="text-xs font-bold text-[#71717A] bg-black/[0.04] px-3 py-1.5 rounded-full">{entries.length} Einträge</span>
               </div>
 
-              <div className="flex flex-col gap-3">
-                 {entries.length === 0 ? (
-                    <div className="py-20 flex flex-col items-center justify-center text-center bg-black/[0.02] border border-dashed border-black/10 rounded-3xl opacity-40">
-                       <Activity size={32} className="mb-3" />
-                       <p className="text-sm font-poppins">Bisher wurden keine <br />Tätigkeiten erfasst.</p>
-                    </div>
-                 ) : (
-                    entries.map((entry, idx) => (
-                      <motion.div key={entry.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }}>
-                        <GlassSection className="p-4 flex items-center justify-between group">
-                           <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-2xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A] font-poppins font-black text-xs">
-                                 {entry.points}
-                              </div>
-                              <div className="flex flex-col">
-                                 <span className="text-sm font-poppins font-bold text-[#0A0A0A]">{entry.activityName}</span>
-                                 <div className="flex items-center gap-2">
-                                    <span className="text-[10px] text-[#71717A] font-bold uppercase tracking-widest">{toDate(entry.date).toLocaleDateString()}</span>
-                                    <div className="w-1 h-1 rounded-full bg-black/10" />
-                                    <TCatBadge category={entry.activityCategory} size={20} />
+              {/* Quick Actions / Security Section */}
+              <div className="bg-white border border-black/5 rounded-[28px] lg:rounded-[40px] p-5 sm:p-8 lg:p-10 space-y-5 lg:space-y-6">
+                 <h3 className="text-xs font-black text-[#52525B] uppercase tracking-[0.3em] pl-1">Sicherheit & Verwaltung</h3>
+                 <div className="flex flex-col gap-3">
+                    <button className="w-full flex items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-black/[0.03] border border-black/5 hover:bg-black/[0.05] transition-all text-left group">
+                       <div className="flex min-w-0 items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
+                             <MailQuestion size={18} />
+                          </div>
+                          <div className="flex min-w-0 flex-col">
+                             <span className="text-sm font-bold text-[#0A0A0A]">Passwort Reset</span>
+                             <span className="truncate text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">Link per Mail senden</span>
+                          </div>
+                       </div>
+                       <ChevronRight size={16} className="text-gray-800 group-hover:text-[#0A0A0A]" />
+                    </button>
+
+                    <button className="w-full flex items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-black/[0.03] border border-black/5 hover:bg-black/[0.05] transition-all text-left group">
+                       <div className="flex min-w-0 items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
+                             <RefreshCcw size={18} />
+                          </div>
+                          <div className="flex min-w-0 flex-col">
+                             <span className="text-sm font-bold text-[#0A0A0A]">Sync Status</span>
+                             <span className="truncate text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">Letzter Login: Gestern 18:42</span>
+                          </div>
+                       </div>
+                       <ChevronRight size={16} className="text-gray-800 group-hover:text-[#0A0A0A]" />
+                    </button>
+                 </div>
+              </div>
+
+           </div>
+
+           {/* RIGHT COLUMN: ACTIVITY & EDIT (8/12) */}
+           <div className="xl:col-span-8 flex flex-col gap-8 lg:gap-12">
+              
+              <AnimatePresence>
+                 {isEditExpanded && (
+                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                      <div className="bg-white border border-black/10 shadow-[0_0_80px_rgba(0,0,0,0.03)] rounded-[28px] lg:rounded-[40px] p-5 sm:p-8 lg:p-10 space-y-7 lg:space-y-10 mb-6">
+                         <div className="flex items-center gap-3">
+                            <Settings size={20} className="text-[#71717A]" />
+                            <h3 className="text-lg sm:text-xl font-poppins font-black text-[#0A0A0A] uppercase tracking-tight italic">Stammdaten anpassen</h3>
+                         </div>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-7 lg:gap-10">
+                            <div className="space-y-6">
+                               <FormInput label="Vorname" value={editForm.firstName} onChange={(v) => setEditForm({...editForm, firstName: v})} />
+                               <FormInput label="Nachname" value={editForm.lastName} onChange={(v) => setEditForm({...editForm, lastName: v})} />
+                               <FormInput label="E-Mail" value={editForm.email} onChange={(v) => setEditForm({...editForm, email: v})} />
+                            </div>
+                            <div className="space-y-6">
+                               <div className="flex flex-col gap-3">
+                                  <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">Mitgliedstyp</label>
+                                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                                     {availableMemberTypes.map((t) => (
+                                       <button key={t} onClick={() => setEditForm({...editForm, memberType: t})}
+                                         className={`py-3.5 sm:py-4 rounded-2xl font-poppins font-black text-[10px] sm:text-[11px] transition-all border uppercase tracking-widest ${editForm.memberType === t ? "bg-[#0A0A0A] text-white border-black/15" : "bg-black/[0.03] text-[#71717A] border-black/[0.08] hover:border-black/10"}`}>
+                                         {t}
+                                       </button>
+                                     ))}
+                                  </div>
+                               </div>
+                               {planFeatures.hasGroups ? (
+                                 <div className="flex flex-col gap-3">
+                                   <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">Gruppe / Team</label>
+                                   <div className="relative">
+                                     <Layers size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
+                                     <select
+                                       value={editForm.groupId}
+                                       onChange={(e) => setEditForm({ ...editForm, groupId: e.target.value })}
+                                       className="w-full appearance-none rounded-2xl bg-black/[0.03] border border-black/[0.08] py-3.5 pl-11 pr-4 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15"
+                                     >
+                                       <option value="">Keine Gruppe</option>
+                                       {visibleGroups.map((group) => (
+                                         <option key={group.id} value={group.id}>{group.name}</option>
+                                       ))}
+                                     </select>
+                                   </div>
                                  </div>
+                               ) : (
+                                 <div className="flex items-center gap-3 p-4 bg-black/[0.03] border border-black/5 rounded-2xl">
+                                   <Lock size={16} className="text-[#A1A1AA]" />
+                                   <div className="flex flex-col">
+                                     <span className="text-sm font-bold text-[#0A0A0A]">Gruppen & Teams</span>
+                                     <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest">Ab Club verfügbar</span>
+                                   </div>
+                                 </div>
+                               )}
+                               <div className="flex flex-col gap-3 pt-4">
+                                  <div className="flex items-center justify-between gap-4 p-4 bg-black/[0.03] border border-black/5 rounded-2xl">
+                                     <div className="flex min-w-0 flex-col">
+                                        <span className="text-sm font-bold text-[#0A0A0A]">Administrator</span>
+                                        <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest leading-snug">Voller Zugriff auf Verein</span>
+                                     </div>
+                                     <button onClick={() => setEditForm({...editForm, isAdmin: !editForm.isAdmin})} className={`w-12 h-6 rounded-full transition-all relative ${editForm.isAdmin ? "bg-[#52525B]" : "bg-black/[0.07]"}`}>
+                                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${editForm.isAdmin ? "left-7" : "left-1"}`} />
+                                     </button>
+                                  </div>
+                                  <div className={`flex items-center justify-between gap-4 p-4 bg-black/[0.03] border border-black/5 rounded-2xl ${!planFeatures.hasAdvancedRoles ? "opacity-60" : ""}`}>
+                                     <div className="flex min-w-0 flex-col">
+                                        <span className="text-sm font-bold text-[#0A0A0A]">Trainer / Coach</span>
+                                        <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest leading-snug">
+                                          {planFeatures.hasAdvancedRoles ? "Kann Punkte genehmigen" : "Erweiterte Rollen ab Pro"}
+                                        </span>
+                                     </div>
+                                     <button disabled={!planFeatures.hasAdvancedRoles} onClick={() => setEditForm({...editForm, isTrainer: !editForm.isTrainer})} className={`w-12 h-6 rounded-full transition-all relative ${editForm.isTrainer ? "bg-[#52525B]" : "bg-black/[0.07]"} disabled:cursor-not-allowed`}>
+                                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${editForm.isTrainer ? "left-7" : "left-1"}`} />
+                                     </button>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+                         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 sm:gap-4 border-t border-black/5 pt-7 lg:pt-10">
+                            <button onClick={() => setIsEditExpanded(false)} className="px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest text-[#71717A] hover:text-[#0A0A0A] transition-colors">Abbrechen</button>
+                            <TButton label={saving ? "Speichert…" : (editSaved ? "Gespeichert!" : "Änderungen übernehmen")} onClick={saveMember} disabled={saving} className="w-full sm:w-auto h-auto sm:min-w-[240px]" />
+                         </div>
+                      </div>
+                   </motion.div>
+                 )}
+              </AnimatePresence>
+
+              {/* Activity Log Section */}
+              <div className="space-y-5 lg:space-y-8">
+                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-black/5 pb-4">
+                    <div className="flex items-center gap-3">
+                       <Activity size={20} className="text-gray-800" />
+                       <h3 className="text-lg sm:text-xl font-poppins font-black text-[#0A0A0A] uppercase tracking-tight italic">Gesamte Aktivitäten</h3>
+                    </div>
+                    <div className="flex items-center gap-2">
+                       <span className="text-[10px] font-black text-gray-700 uppercase tracking-widest">{entries.length} Einträge verfügbar</span>
+                    </div>
+                 </div>
+
+                 {entries.length === 0 ? (
+                   <div className="bg-white border border-black/5 rounded-[28px] lg:rounded-[40px] p-12 md:p-24 text-center opacity-40">
+                      <div className="w-16 h-16 bg-black/[0.04] rounded-full flex items-center justify-center mx-auto mb-6">
+                         <Calendar size={24} />
+                      </div>
+                      <h3 className="text-lg font-bold text-[#0A0A0A]">Keine Einträge</h3>
+                      <p className="text-sm font-medium">Noch keine Tätigkeiten in diesem Zeitraum.</p>
+                   </div>
+                 ) : (
+                   <>
+                   <div className="hidden md:block bg-white border border-black/5 rounded-[32px] lg:rounded-[40px] overflow-hidden shadow-2xl">
+                      <table className="w-full text-left border-collapse">
+                         <thead>
+                            <tr className="border-b border-black/5 bg-black/[0.02]">
+                               <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Tätigkeit</th>
+                               <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Datum</th>
+                               <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Status</th>
+                               <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-right">Punkte</th>
+                               <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-center w-20"></th>
+                            </tr>
+                         </thead>
+                         <tbody className="divide-y divide-black/[0.04]">
+                            {entries.map((entry) => (
+                               <tr key={entry.id} className="group hover:bg-black/[0.03] transition-colors">
+                                  <td className="px-10 py-6">
+                                     <div className="flex items-center gap-6">
+                                        <TCatBadge category={entry.activityCategory} size={48} />
+                                        <div className="flex flex-col">
+                                           <span className="text-[17px] font-poppins font-bold text-[#0A0A0A] leading-tight">{entry.activityName}</span>
+                                           <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">{entry.activityCategory}</span>
+                                        </div>
+                                     </div>
+                                  </td>
+                                  <td className="px-10 py-6 text-[13px] font-bold text-[#71717A]">
+                                     {toDate(entry.date).toLocaleDateString("de-DE", { day: '2-digit', month: 'long', year: 'numeric' })}
+                                  </td>
+                                  <td className="px-10 py-6">
+                                     <div className="flex items-center gap-2">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${
+                                           entry.status === "Genehmigt" ? "bg-[#52525B]" : entry.status === "Abgelehnt" ? "bg-[#333333]" : "bg-[#52525B]"
+                                        }`} />
+                                        <span className={`text-[11px] font-black uppercase tracking-widest ${
+                                           entry.status === "Genehmigt" ? "text-[#52525B]" : entry.status === "Abgelehnt" ? "text-[#52525B]" : "text-[#52525B]"
+                                        }`}>
+                                           {entry.status}
+                                        </span>
+                                     </div>
+                                  </td>
+                                  <td className="px-10 py-6 text-right">
+                                     <span className="text-xl font-mono font-black text-[#0A0A0A]">+{entry.points.toFixed(1)}</span>
+                                  </td>
+                                  <td className="px-10 py-6 text-center">
+                                     {isAdmin && (
+                                       <button onClick={() => openEntryEdit(entry)} className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-gray-700 hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all">
+                                          <MoreHorizontal size={18} />
+                                       </button>
+                                     )}
+                                  </td>
+                               </tr>
+                            ))}
+                         </tbody>
+                      </table>
+                   </div>
+                   <div className="md:hidden flex flex-col gap-3">
+                      {entries.map((entry) => {
+                        const dateStr = toDate(entry.date).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" });
+                        return (
+                          <div key={entry.id} className="rounded-[24px] bg-white border border-black/5 p-4 flex flex-col gap-4">
+                            <div className="flex items-start gap-3">
+                              <TCatBadge category={entry.activityCategory} size={42} />
+                              <div className="min-w-0 flex-1">
+                                <p className="font-poppins font-bold text-[#0A0A0A] text-[15px] leading-tight break-words">{entry.activityName}</p>
+                                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                  <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest">{entry.activityCategory}</span>
+                                  <span className="text-[11px] font-bold text-[#71717A]">{dateStr}</span>
+                                </div>
                               </div>
-                           </div>
-                           
-                           <div className="flex items-center gap-4">
-                              <StatusBadge status={entry.status} />
                               {isAdmin && (
-                                <button onClick={() => openEntryEdit(entry)} className="p-2 text-[#71717A] hover:text-[#0A0A0A] hover:bg-black/[0.05] rounded-xl transition-all opacity-0 group-hover:opacity-100">
-                                   <MoreHorizontal size={18} />
+                                <button onClick={() => openEntryEdit(entry)} className="w-10 h-10 shrink-0 rounded-xl bg-black/[0.04] flex items-center justify-center text-gray-700 hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all">
+                                  <MoreHorizontal size={18} />
                                 </button>
                               )}
-                           </div>
-                        </GlassSection>
-                      </motion.div>
-                    ))
+                            </div>
+                            <div className="flex items-center justify-between gap-3 rounded-2xl bg-black/[0.025] border border-black/5 px-4 py-3">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className={`w-1.5 h-1.5 rounded-full ${
+                                  entry.status === "Genehmigt" ? "bg-[#52525B]" : entry.status === "Abgelehnt" ? "bg-[#333333]" : "bg-[#52525B]"
+                                }`} />
+                                <span className="truncate text-[10px] font-black uppercase tracking-widest text-[#52525B]">{entry.status}</span>
+                              </div>
+                              <span className="shrink-0 text-lg font-mono font-black text-[#0A0A0A]">+{entry.points.toFixed(1)}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                   </div>
+                   </>
                  )}
               </div>
            </div>
+
         </div>
       </div>
 
-      {/* ENTRY EDIT MODAL */}
+      {/* Entry Edit Modal */}
       <AnimatePresence>
         {entryToEdit && entryForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="w-full max-w-sm">
-                <GlassSection className="p-6 flex flex-col gap-5">
-                   <div className="flex items-center justify-between">
-                      <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg uppercase tracking-tight">Eintrag bearbeiten</h3>
-                      <button onClick={() => setEntryToEdit(null)} className="text-[#71717A] hover:text-[#0A0A0A]"><X size={20} /></button>
-                   </div>
+           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+             <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }} className="w-full max-w-xl max-h-[calc(100dvh-2rem)] overflow-y-auto no-scrollbar">
+                <div className="bg-white border border-black/10 rounded-[30px] sm:rounded-[48px] p-5 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-8 shadow-2xl relative overflow-hidden">
+                   <div className="absolute top-0 right-0 w-64 h-64 bg-black/[0.03] blur-3xl rounded-full" />
                    
-                   <div className="flex flex-col gap-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Tätigkeit</label>
-                        <input value={entryForm.activityName} onChange={(e) => setEntryForm({ ...entryForm, activityName: e.target.value })} className="w-full bg-black/[0.03] border border-black/5 rounded-xl px-4 py-3 text-sm focus:outline-none" />
+                   <div className="flex items-start justify-between gap-4 relative z-10">
+                      <div className="flex min-w-0 items-center gap-3">
+                         <div className="w-12 h-12 shrink-0 rounded-2xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
+                            <Activity size={24} />
+                         </div>
+                         <div className="flex min-w-0 flex-col">
+                            <h3 className="font-poppins font-black text-[#0A0A0A] text-lg sm:text-xl uppercase tracking-tight italic">Eintrag Details</h3>
+                            <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest">Administrative Korrektur</span>
+                         </div>
                       </div>
+                      <button onClick={() => setEntryToEdit(null)} className="w-10 h-10 shrink-0 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-colors"><X size={20} /></button>
+                   </div>
+
+                   <div className="flex flex-col gap-6 relative z-10">
+                      <FormInput label="Bezeichnung der Tätigkeit" value={entryForm.activityName} onChange={(v) => setEntryForm({...entryForm, activityName: v})} />
                       
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="flex flex-col gap-1.5">
-                           <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Punkte</label>
-                           <input type="number" value={entryForm.points} onChange={(e) => setEntryForm({ ...entryForm, points: e.target.value })} className="w-full bg-black/[0.03] border border-black/5 rounded-xl px-4 py-3 text-sm focus:outline-none" />
-                         </div>
-                         <div className="flex flex-col gap-1.5">
-                           <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Status</label>
-                           <select value={entryForm.status} onChange={(e) => setEntryForm({ ...entryForm, status: e.target.value })} className="w-full bg-black/[0.03] border border-black/5 rounded-xl px-4 py-3 text-sm focus:outline-none">
-                              <option value="Ausstehend">Ausstehend</option>
-                              <option value="Genehmigt">Genehmigt</option>
-                              <option value="Abgelehnt">Abgelehnt</option>
-                           </select>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                         <FormInput label="Punkte Wert" value={entryForm.points} onChange={(v) => setEntryForm({...entryForm, points: v})} type="number" />
+                         <FormInput label="Durchgeführt am" value={entryForm.date} onChange={(v) => setEntryForm({...entryForm, date: v})} type="date" />
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                         <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">Status Festlegen</label>
+                         <div className="grid grid-cols-3 gap-1.5 p-2 rounded-2xl bg-black/[0.04] border border-black/5">
+                            {[EntryStatus.Pending, EntryStatus.Approved, EntryStatus.Rejected].map((s) => (
+                              <button key={s} onClick={() => setEntryForm({...entryForm, status: s})}
+                                className={`flex-1 py-3 rounded-xl text-xs font-poppins font-black transition-all uppercase tracking-widest ${
+                                   entryForm.status === s 
+                                      ? "bg-[#0A0A0A] text-white shadow-2xl" 
+                                      : "text-[#71717A] hover:text-[#0A0A0A]"
+                                }`}>
+                                {s === EntryStatus.Pending ? "Prüfung" : s === EntryStatus.Approved ? "OK" : "Abbruch"}
+                              </button>
+                            ))}
                          </div>
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Datum</label>
-                        <input type="date" value={entryForm.date} onChange={(e) => setEntryForm({ ...entryForm, date: e.target.value })} className="w-full bg-black/[0.03] border border-black/5 rounded-xl px-4 py-3 text-sm focus:outline-none" />
-                      </div>
-
-                      {entryForm.status === "Abgelehnt" && (
-                         <div className="flex flex-col gap-1.5">
-                           <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">Ablehnungsgrund</label>
-                           <textarea value={entryForm.rejectionReason} onChange={(e) => setEntryForm({ ...entryForm, rejectionReason: e.target.value })} className="w-full bg-black/[0.03] border border-black/5 rounded-xl px-4 py-3 text-sm focus:outline-none resize-none" rows={2} />
+                      {entryForm.status === EntryStatus.Rejected && (
+                         <div className="mt-2">
+                            <FormInput label="Ablehnungsgrund" value={entryForm.rejectionReason} onChange={(v) => setEntryForm({...entryForm, rejectionReason: v})} />
                          </div>
                       )}
                    </div>
-                   
-                   <TButton label={savingEntry ? "Wird gespeichert..." : "Speichern"} onClick={saveEntry} disabled={savingEntry} />
-                </GlassSection>
-             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
-      {/* DELETE MEMBER MODAL */}
-      <AnimatePresence>
-        {memberToDelete && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="w-full max-w-xs">
-                <GlassSection className="p-8 flex flex-col items-center text-center gap-2">
-                   <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-2 border border-red-500/20"><Trash2 size={32} className="text-[#FF3B30]" /></div>
-                   <h3 className="text-xl font-poppins font-black text-[#0A0A0A]">Mitglied entfernen?</h3>
-                   <p className="text-xs text-[#71717A] leading-relaxed mb-4">Dieses Mitglied wird aus deinem Verein gelöscht. Alle Punkte bleiben in der Historie, aber das Profil wird inaktiv.</p>
-                   <div className="flex flex-col gap-2 w-full">
-                      <TButton label="Unwiderruflich löschen" variant="danger" onClick={removeMember} />
-                      <TButton label="Abbrechen" variant="secondary" onClick={() => setMemberToDelete(false)} />
+                   <div className="pt-6 border-t border-black/5 relative z-10">
+                      <TButton label={savingEntry ? "Aktualisierung…" : "Änderungen speichern"} onClick={saveEntry} disabled={savingEntry} />
                    </div>
-                </GlassSection>
+                </div>
              </motion.div>
+           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Member Modal */}
+      <AnimatePresence>
+        {memberToDelete && isAdmin && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="w-full max-w-sm">
+              <div className="bg-white rounded-[28px] border border-black/8 shadow-xl p-8 flex flex-col items-center text-center gap-1">
+                <div className="w-20 h-20 rounded-[24px] bg-red-500/10 flex items-center justify-center mb-5 border border-red-500/20">
+                  <AlertTriangle size={40} className="text-red-500" />
+                </div>
+                <h3 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic uppercase">Mitglied Löschen</h3>
+                <p className="text-[#71717A] font-bold text-sm mb-6 px-4">Soll <span className="text-[#0A0A0A] underline decoration-red-500/40">{member.firstName} {member.lastName}</span> wirklich permanent aus der Datenbank des Vereins entfernt werden?</p>
+                <div className="flex flex-col gap-3 w-full">
+                  <button onClick={removeMember} className="w-full py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95">Endgültig Löschen</button>
+                  <button onClick={() => setMemberToDelete(false)} className="w-full py-4 bg-black/[0.04] hover:bg-black/[0.08] text-[#0A0A0A] rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all border border-black/5 active:scale-95">Abbrechen</button>
+                </div>
+              </div>
+            </motion.div>
           </div>
         )}
       </AnimatePresence>
@@ -540,48 +654,16 @@ export default function MemberDetailPage() {
   );
 }
 
-function StatCard({ label, value, sub, highlight }: any) {
+function FormInput({ label, value, onChange, type = "text" }: { label: string, value: string, onChange: (v: string) => void, type?: string }) {
   return (
-    <GlassSection className="p-5 flex flex-col gap-1">
-       <span className="text-[10px] font-black text-[#71717A] uppercase tracking-widest">{label}</span>
-       <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-poppins font-black text-[#0A0A0A]">{value}</span>
-          {highlight && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: highlight }} />}
-       </div>
-       <span className="text-[10px] font-bold text-[#A1A1AA] truncate">{sub}</span>
-    </GlassSection>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const colors: any = {
-    "Genehmigt": "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20",
-    "Ausstehend": "bg-[#FFCC00]/10 text-[#FFCC00] border-[#FFCC00]/20",
-    "Abgelehnt": "bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20"
-  };
-  return (
-    <div className={`px-2.5 py-1 rounded-full border text-[9px] font-black uppercase tracking-widest ${colors[status] || "bg-gray-100 text-gray-500"}`}>
-       {status}
+    <div className="flex flex-col gap-2.5">
+      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.2em] pl-1">{label}</label>
+      <input 
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-[24px] bg-black/[0.04] border border-black/5 px-6 py-4.5 font-poppins font-bold text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 focus:bg-black/[0.04] transition-all [color-scheme:light] placeholder:text-[#A1A1AA]"
+      />
     </div>
-  );
-}
-
-function EditField({ label, value, onChange, disabled }: any) {
-  return (
-    <div className="flex flex-col gap-2">
-       <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">{label}</label>
-       <input disabled={disabled} value={value} onChange={(e) => onChange(e.target.value)} className="w-full bg-white rounded-2xl border border-black/10 px-4 py-3.5 text-sm font-poppins focus:outline-none focus:border-black/20 transition-all disabled:opacity-50" />
-    </div>
-  );
-}
-
-function Toggle({ label, active, onToggle }: any) {
-  return (
-    <button onClick={onToggle} className="flex items-center gap-3 group">
-       <div className={`w-10 h-6 rounded-full transition-all relative ${active ? "bg-[#0A0A0A]" : "bg-black/[0.08]"}`}>
-          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${active ? "left-5" : "left-1"}`} />
-       </div>
-       <span className="text-[10px] font-black text-[#71717A] group-hover:text-[#0A0A0A] uppercase tracking-widest">{label}</span>
-    </button>
   );
 }

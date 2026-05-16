@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFeatures, TrainingGroup } from "@/lib/firebase/models";
+import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFeatures } from "@/lib/firebase/models";
 import { AuthService } from "@/lib/firebase/authService";
 import { EmailService } from "@/lib/firebase/emailService";
 import { TAvatar, GlassSection, TLine, TSearchBar } from "@/app/components/ui/NativeUI";
@@ -44,12 +44,10 @@ export default function MembersPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [groups, setGroups] = useState<ClubGroup[]>([]);
-  const [trainingGroups, setTrainingGroups] = useState<TrainingGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [memberTypeFilter, setMemberTypeFilter] = useState<string | "all">("all");
   const [groupFilter, setGroupFilter] = useState<string>("all");
-  const [trainingGroupFilter, setTrainingGroupFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("administration");
   
   // Invite member state
@@ -59,14 +57,12 @@ export default function MembersPage() {
   const [inviteLastName, setInviteLastName] = useState("");
   const [inviteType, setInviteType] = useState<MemberType | string>(MemberType.Active);
   const [inviteGroupId, setInviteGroupId] = useState("");
-  const [inviteTrainingGroupIds, setInviteTrainingGroupIds] = useState<string[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [isSendingMail, setIsSendingMail] = useState(false);
   const [mailSent, setMailSent] = useState(false);
   const [userAlreadyExisted, setUserAlreadyExisted] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
-
   const isAdmin = currentMember?.isAdmin === true;
   const canViewMembers = isAdmin || currentMember?.isTrainer === true;
 
@@ -77,7 +73,6 @@ export default function MembersPage() {
     setInviteLastName("");
     setInviteType(MemberType.Active);
     setInviteGroupId("");
-    setInviteTrainingGroupIds([]);
     setIsCreating(false);
     setIsSendingMail(false);
     setMailSent(false);
@@ -85,7 +80,6 @@ export default function MembersPage() {
     setErrorMessage(null);
     setGeneratedPassword(null);
   };
-
   const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
   const isLimitReached = members.length >= planFeatures.maxMembers;
 
@@ -106,13 +100,13 @@ export default function MembersPage() {
 
   useEffect(() => {
     if (!currentClub || !planFeatures.hasGroups) return;
-    const u1 = FirebaseManager.listenToGroups(currentClub.id, setGroups);
-    const u2 = FirebaseManager.listenToTrainingGroups(currentClub.id, setTrainingGroups);
-    return () => { u1(); u2(); };
+    return FirebaseManager.listenToGroups(currentClub.id, setGroups);
   }, [currentClub, planFeatures.hasGroups]);
 
-  const visibleGroups = useMemo(() => (planFeatures.hasGroups ? groups : []), [groups, planFeatures.hasGroups]);
-  const visibleTrainingGroups = useMemo(() => (planFeatures.hasGroups ? trainingGroups : []), [trainingGroups, planFeatures.hasGroups]);
+  const visibleGroups = useMemo(
+    () => (planFeatures.hasGroups ? groups : []),
+    [groups, planFeatures.hasGroups]
+  );
 
   const availableMemberTypes = useMemo(() => {
     const types: string[] = [...memberTypeOrder];
@@ -130,9 +124,6 @@ export default function MembersPage() {
     if (planFeatures.hasAdvancedFilters && groupFilter !== "all") {
       list = list.filter((m) => (m.groupId || "") === groupFilter);
     }
-    if (planFeatures.hasAdvancedFilters && trainingGroupFilter !== "all") {
-      list = list.filter((m) => m.trainingGroupIds?.includes(trainingGroupFilter));
-    }
     if (searchText.trim()) {
       const q = searchText.toLowerCase();
       list = list.filter((m) =>
@@ -140,7 +131,7 @@ export default function MembersPage() {
       );
     }
     return list;
-  }, [members, searchText, memberTypeFilter, groupFilter, trainingGroupFilter, planFeatures.hasAdvancedFilters]);
+  }, [members, searchText, memberTypeFilter, groupFilter, planFeatures.hasAdvancedFilters]);
 
   const leaderboard = useMemo(() => {
     return members
@@ -159,11 +150,6 @@ export default function MembersPage() {
   const groupNameById = useMemo(
     () => new Map(visibleGroups.map((group) => [group.id, group.name])),
     [visibleGroups]
-  );
-
-  const trainingGroupNameById = useMemo(
-    () => new Map(visibleTrainingGroups.map((group) => [group.id, group.name])),
-    [visibleTrainingGroups]
   );
 
   if (!canViewMembers) {
@@ -185,7 +171,7 @@ export default function MembersPage() {
               <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Team & Engagement</h1>
               <div className="flex items-center gap-2">
                 <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name}</p>
-                <div className="px-2 py-0.5 rounded bg-black/[0.05] border border-black/10 rounded-full">
+                <div className="px-2 py-0.5 roundedbg-black/[0.05] border border-black/10 rounded-full">
                   <p className="text-[#52525B] font-bold text-[10px] uppercase tracking-widest">{members.length} / {planFeatures.maxMembers} Mitglieder</p>
                 </div>
               </div>
@@ -209,12 +195,13 @@ export default function MembersPage() {
             )}
           </div>
 
-          <div className="flex p-1 rounded-2xl bg-black/[0.03] border border-black/5 self-start overflow-x-auto max-w-full">
+          {/* Mode toggle */}
+          <div className="flex p-1 rounded-2xl bg-black/[0.03] border border-black/5 self-start">
             {(["administration", "leaderboard"] as ViewMode[]).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
-                className={`px-5 py-2.5 md:px-8 md:py-3 rounded-xl text-xs font-poppins font-black transition-all uppercase tracking-widest whitespace-nowrap ${
+                className={`px-5 py-2.5 md:px-8 md:py-3 rounded-xl text-xs font-poppins font-black transition-all uppercase tracking-widest ${
                   viewMode === mode ? "bg-[#0A0A0A] text-white shadow-2xl" : "text-[#71717A] hover:text-[#0A0A0A]"
                 }`}
               >
@@ -231,354 +218,760 @@ export default function MembersPage() {
         ) : (
           <AnimatePresence mode="wait">
              {viewMode === "administration" ? (
-               <motion.div key="admin" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
-                  <div className="flex flex-col gap-4">
-                    <div className="w-full max-w-md">
-                      <TSearchBar value={searchText} onChange={setSearchText} placeholder="Mitglied suchen…" />
-                    </div>
-                    {planFeatures.hasAdvancedFilters && (
-                      <div className="flex flex-wrap gap-4 items-center">
-                        <div className="flex flex-wrap gap-2">
-                           <FilterPill label="Alle Typen" selected={memberTypeFilter === "all"} onClick={() => setMemberTypeFilter("all")} />
-                           {availableMemberTypes.map((type) => (
-                             <FilterPill key={type} label={type} selected={memberTypeFilter === type} onClick={() => setMemberTypeFilter(type)} />
+               <motion.div 
+                 key="admin"
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 exit={{ opacity: 0, y: -20 }}
+                 className="space-y-8"
+               >
+                 <div className="flex flex-col gap-3">
+                   <div className="w-full max-w-md">
+                     <TSearchBar value={searchText} onChange={setSearchText} placeholder="Mitglied suchen…" />
+                   </div>
+                   {planFeatures.hasAdvancedFilters && (
+                     <div className="flex flex-wrap gap-2">
+                       <FilterPill
+                         label="Alle Typen"
+                         selected={memberTypeFilter === "all"}
+                         onClick={() => setMemberTypeFilter("all")}
+                       />
+                       {availableMemberTypes.map((type) => (
+                         <FilterPill
+                           key={type}
+                           label={type}
+                           selected={memberTypeFilter === type}
+                           onClick={() => setMemberTypeFilter(type)}
+                         />
+                       ))}
+                       {planFeatures.hasGroups && (
+                         <>
+                           <FilterPill
+                             label="Alle Gruppen"
+                             selected={groupFilter === "all"}
+                             onClick={() => setGroupFilter("all")}
+                           />
+                           {visibleGroups.map((group) => (
+                             <FilterPill
+                               key={group.id}
+                               label={group.name}
+                               selected={groupFilter === group.id}
+                               onClick={() => setGroupFilter(group.id)}
+                             />
                            ))}
-                        </div>
-                        
-                        <div className="h-4 w-px bg-black/10 hidden sm:block" />
-
-                        <div className="flex flex-wrap gap-2">
-                           <FilterPill label="Alle Abteilungen" selected={groupFilter === "all"} onClick={() => setGroupFilter("all")} />
-                           {visibleGroups.map((g) => (
-                             <FilterPill key={g.id} label={g.name} selected={groupFilter === g.id} onClick={() => setGroupFilter(g.id)} />
-                           ))}
-                        </div>
-
-                        <div className="h-4 w-px bg-black/10 hidden sm:block" />
-
-                        <div className="flex flex-wrap gap-2">
-                           <FilterPill label="Alle Trainingsgruppen" selected={trainingGroupFilter === "all"} onClick={() => setTrainingGroupFilter("all")} />
-                           {visibleTrainingGroups.map((g) => (
-                             <FilterPill key={g.id} label={g.name} selected={trainingGroupFilter === g.id} onClick={() => setTrainingGroupFilter(g.id)} icon={Layers} />
-                           ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <ListView 
-                    members={filtered} 
-                    entries={entries} 
-                    currentClub={currentClub} 
-                    groupNameById={groupNameById} 
-                    trainingGroupNameById={trainingGroupNameById}
-                    showGroups={planFeatures.hasGroups} 
-                  />
+                         </>
+                       )}
+                     </div>
+                   )}
+                   {!planFeatures.hasAdvancedFilters && (
+                     <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+                       <Filter size={12} /> Erweiterte Filter ab Club
+                     </div>
+                   )}
+                 </div>
+                 <ListView members={filtered} entries={entries} currentClub={currentClub} groupNameById={groupNameById} showGroups={planFeatures.hasGroups} />
                </motion.div>
              ) : (
-               <motion.div key="leader" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-                  <LeaderboardView items={leaderboard} currentMemberId={currentMember?.id || ""} />
+               <motion.div 
+                 key="lead"
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 exit={{ opacity: 0, y: -20 }}
+               >
+                 <LeaderboardView
+                   data={leaderboard}
+                   groups={visibleGroups}
+                   showGroupLeaderboards={planFeatures.hasGroupLeaderboards}
+                   showAdvancedStats={planFeatures.hasAdvancedStats}
+                 />
                </motion.div>
              )}
           </AnimatePresence>
         )}
+      </div>
 
-        {/* Invite Modal */}
-        <AnimatePresence>
-          {isInviteOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-xl">
-                  <GlassSection className="overflow-hidden">
-                    <div className="p-6 md:p-8 flex flex-col gap-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                           <div className="w-12 h-12 rounded-2xl bg-black/[0.04] border border-black/5 flex items-center justify-center text-[#0A0A0A] shadow-sm">
-                              <UserPlus size={24} />
-                           </div>
-                           <h2 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tighter uppercase">Mitglied hinzufügen</h2>
-                        </div>
-                        <button onClick={closeInviteModal} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/[0.05] transition-all"><X size={20} /></button>
+       {/* Invite Member Modal */}
+      <AnimatePresence>
+        {isInviteOpen && isAdmin && (
+          <div
+            className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 bg-black/40 backdrop-blur-sm overflow-y-auto"
+            onClick={(e) => { if (e.target === e.currentTarget) closeInviteModal(); }}
+          >
+             <motion.div
+               initial={{ opacity: 0, scale: 0.95, y: 20 }}
+               animate={{ opacity: 1, scale: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.95, y: 20 }}
+               className="w-full max-w-lg mb-8"
+             >
+                <GlassSection className="relative overflow-hidden border-black/10 shadow-3xl">
+                   {/* Gradient Glow */}
+                   <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px]" />
+                   
+                   <div className="p-8 flex flex-col gap-8">
+                      {/* Header */}
+                      <div className="flex items-start justify-between">
+                         <div className="flex flex-col gap-2">
+                            <h2 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic">MITGLIED ANLEGEN</h2>
+                            <p className="text-[#71717A] font-bold text-[10px] uppercase tracking-[0.2em]">Konto erstellen und Zugangsdaten senden</p>
+                         </div>
+                         <button
+                           onClick={closeInviteModal}
+                           className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
+                         >
+                            <X size={20} />
+                         </button>
                       </div>
 
                       {generatedPassword ? (
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center text-center py-8 gap-6">
-                          <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center text-[#34C759] mb-2"><Check size={40} /></div>
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex flex-col gap-8 text-center py-4"
+                        >
                           <div className="flex flex-col gap-2">
-                             <h3 className="text-xl font-bold text-[#0A0A0A] uppercase tracking-tight">Erfolgreich erstellt!</h3>
-                             <p className="text-sm text-[#71717A] px-6">Das Mitglied wurde angelegt. Sende jetzt die Zugangsdaten per E-Mail.</p>
+                            <div className="w-16 h-16 bg-black/[0.04] rounded-2xl flex items-center justify-center mx-auto mb-2 border border-black/10">
+                              <Check className="text-[#52525B]" size={32} />
+                            </div>
+                            <h3 className="text-xl font-bold text-[#0A0A0A]">Mitglied erfolgreich angelegt!</h3>
+                            <p className="text-sm text-[#71717A]">
+                              {userAlreadyExisted ? "Der Nutzer wurde dem Verein hinzugefügt." : "Das Konto wurde erstellt. Hier sind die Zugangsdaten:"}
+                            </p>
                           </div>
-                          <div className="flex flex-col gap-3 w-full max-w-xs">
-                             {generatedPassword !== "existing" && (
-                               <div className="p-4 rounded-2xl bg-black/[0.03] border border-dashed border-black/10 font-mono text-sm flex flex-col gap-1">
-                                  <span className="text-[9px] uppercase tracking-widest font-black text-[#71717A]">Initial-Passwort</span>
-                                  <span className="text-lg font-black text-[#0A0A0A]">{generatedPassword}</span>
-                               </div>
-                             )}
-                             <button 
-                               onClick={async () => {
-                                 if (isSendingMail) return;
-                                 setIsSendingMail(true);
-                                 try {
-                                   await EmailService.sendWelcomeMail({
-                                     to: inviteEmail,
-                                     name: inviteFirstName,
-                                     memberName: `${inviteFirstName} ${inviteLastName}`,
-                                     clubName: currentClub?.name || "Dein Verein",
-                                     clubId: currentClub?.id || "",
-                                     password: generatedPassword === "existing" ? "" : (generatedPassword || ""),
-                                     adminName: currentMember?.firstName || "Dein Admin"
-                                   });
-                                   setMailSent(true);
-                                 } catch (e) {
-                                   console.error(e);
-                                 } finally {
-                                   setIsSendingMail(false);
-                                 }
-                               }}
-                               className="w-full h-14 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-black/10 hover:scale-[1.02] active:scale-95 transition-all"
-                             >
-                               {isSendingMail ? "Wird gesendet..." : mailSent ? "E-Mail gesendet!" : "Zugangsdaten senden"}
-                             </button>
-                             <button onClick={closeInviteModal} className="text-[10px] font-black uppercase tracking-widest text-[#71717A] hover:text-[#0A0A0A]">Schließen</button>
+
+                          {userAlreadyExisted ? (
+                            <div className="bg-black/[0.04] rounded-3xl p-6 border border-black/10 flex flex-col gap-3 items-center">
+                              <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest bg-black/[0.05] border border-black/10 px-3 py-1 rounded-full">Bestehender Account</span>
+                              <p className="text-sm text-[#0A0A0A] font-semibold mt-2">Nutzer hatte bereits einen Talo-Account.</p>
+                              <p className="text-xs text-[#52525B] leading-relaxed">
+                                {inviteFirstName} kann sich einfach mit dem <br/>bisherigen Passwort einloggen und sieht nun <br/>deinen Verein im Dashboard.
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="bg-black/[0.04] rounded-3xl p-6 border border-black/10 flex flex-col gap-4">
+                              <div className="flex flex-col items-start gap-1">
+                                <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">E-Mail Adresse</span>
+                                <div className="w-full bg-black/20 rounded-xl p-3 text-sm text-[#0A0A0A] font-mono border border-black/5">{inviteEmail}</div>
+                              </div>
+                              <div className="flex flex-col items-start gap-1">
+                                <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">Passwort</span>
+                                <div className="w-full bg-black/20 rounded-xl p-3 text-xl text-[#0A0A0A] font-mono font-bold border border-black/5 tracking-[0.2em]">{generatedPassword}</div>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex flex-col gap-3">
+                            {!userAlreadyExisted && (
+                              <button 
+                                onClick={async () => {
+                                  if (!currentClub || !currentMember) return;
+                                  setIsSendingMail(true);
+                                  setErrorMessage(null);
+                                  try {
+                                    await EmailService.sendWelcomeMail({
+                                      to: inviteEmail,
+                                      name: `${inviteFirstName} ${inviteLastName}`,
+                                      subject: `Willkommen bei ${currentClub.name} – Deine Zugangsdaten`,
+                                      memberName: inviteFirstName,
+                                      password: generatedPassword!,
+                                      clubName: currentClub.name,
+                                      clubId: currentClub.id,
+                                      adminName: `${currentMember.firstName} ${currentMember.lastName}`
+                                    });
+                                    setMailSent(true);
+                                  } catch (err) {
+                                    setErrorMessage(err instanceof Error ? err.message : "E-Mail konnte nicht gesendet werden.");
+                                  } finally {
+                                    setIsSendingMail(false);
+                                  }
+                                }}
+                                disabled={isSendingMail || mailSent}
+                                className="w-full h-14 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-[#1F1F23] transition-all shadow-2xl active:scale-95 disabled:opacity-50"
+                              >
+                                {isSendingMail ? (
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
+                                ) : mailSent ? (
+                                  <>
+                                    <Check size={18} /> Mail gesendet
+                                  </>
+                                ) : (
+                                  <>
+                                    <Mail size={18} /> Willkommens-Mail senden
+                                  </>
+                                )}
+                              </button>
+                            )}
+                            <button
+                              onClick={closeInviteModal}
+                              className={`w-full h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${userAlreadyExisted ? "bg-[#0A0A0A] text-white hover:bg-[#1F1F23]" : "text-[#71717A] hover:text-[#0A0A0A]"}`}
+                            >
+                              Schließen
+                            </button>
                           </div>
                         </motion.div>
                       ) : (
-                        <div className="flex flex-col gap-6">
+                        <>
+                          {/* Form */}
                           <div className="grid grid-cols-2 gap-4">
-                            <InputField label="Vorname" value={inviteFirstName} onChange={setInviteFirstName} placeholder="z.B. Max" icon={User} />
-                            <InputField label="Nachname" value={inviteLastName} onChange={setInviteLastName} placeholder="Mustermann" />
-                            <div className="col-span-2">
-                              <InputField label="E-Mail Adresse" value={inviteEmail} onChange={setInviteEmail} placeholder="name@beispiel.de" icon={Mail} />
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Vorname</label>
+                                <div className="relative">
+                                  <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
+                                  <input 
+                                    value={inviteFirstName}
+                                    onChange={(e) => setInviteFirstName(e.target.value)}
+                                    placeholder="z.B. Max"
+                                    className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                                  />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Nachname</label>
+                                <input 
+                                  value={inviteLastName}
+                                  onChange={(e) => setInviteLastName(e.target.value)}
+                                  placeholder="Mustermann"
+                                  className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 px-4 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2 col-span-2">
+                                <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">E-Mail Adresse</label>
+                                <div className="relative">
+                                  <Mail size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
+                                  <input 
+                                    type="email"
+                                    value={inviteEmail}
+                                    onChange={(e) => setInviteEmail(e.target.value)}
+                                    placeholder="name@beispiel.de"
+                                    className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                                  />
+                                </div>
                             </div>
                           </div>
 
-                          <div className="flex flex-col gap-3">
-                             <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Mitgliedstyp</label>
-                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                {availableMemberTypes.map(t => (
-                                  <button key={t} onClick={() => setInviteType(t)} className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${inviteType === t ? "bg-[#0A0A0A] text-white border-black" : "bg-black/[0.04] text-[#71717A] border-black/5"}`}>{t}</button>
+                          <TLine />
+
+                          {/* Member Type Selection */}
+                          <div className="flex flex-col gap-4">
+                            <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Mitgliedstyp</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                {availableMemberTypes.map((type) => (
+                                  <button
+                                    key={type}
+                                    onClick={() => setInviteType(type)}
+                                    className={`py-3 px-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                                      inviteType === type 
+                                        ? "bg-[#0A0A0A] text-white border-black/15" 
+                                        : "bg-black/[0.04] text-[#71717A] border-black/5 hover:border-black/10"
+                                    }`}
+                                  >
+                                      {type}
+                                  </button>
                                 ))}
-                             </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="flex flex-col gap-2">
-                               <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Abteilung</label>
-                               <select value={inviteGroupId} onChange={(e) => setInviteGroupId(e.target.value)} className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 px-4 text-sm font-poppins focus:outline-none transition-all">
-                                  <option value="">Keine Abteilung</option>
-                                  {visibleGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-                               </select>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                               <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Trainingsgruppe</label>
-                               <select 
-                                 value={inviteTrainingGroupIds[0] || ""} 
-                                 onChange={(e) => setInviteTrainingGroupIds(e.target.value ? [e.target.value] : [])} 
-                                 className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 px-4 text-sm font-poppins focus:outline-none transition-all"
-                               >
-                                  <option value="">Keine Auswahl</option>
-                                  {visibleTrainingGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-                               </select>
                             </div>
                           </div>
 
-                          {errorMessage && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest text-center">{errorMessage}</p>}
+                          {planFeatures.hasGroups && (
+                            <div className="flex flex-col gap-2">
+                              <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Gruppe / Team</label>
+                              <div className="relative">
+                                <Layers size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
+                                <select
+                                  value={inviteGroupId}
+                                  onChange={(e) => setInviteGroupId(e.target.value)}
+                                  className="w-full appearance-none bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                                >
+                                  <option value="">Keine Gruppe</option>
+                                  {visibleGroups.map((group) => (
+                                    <option key={group.id} value={group.id}>{group.name}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          )}
 
-                          <div className="flex flex-col gap-3 pt-2">
+                          {errorMessage && (
+                            <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
+                              {errorMessage}
+                            </div>
+                          )}
+
+                          {/* Footer Actions */}
+                          <div className="flex flex-col gap-3 pt-4">
                             <button 
                               onClick={async () => {
-                                if (isCreating) return;
-                                if (!inviteFirstName.trim() || !inviteLastName.trim() || !inviteEmail.trim()) {
-                                  setErrorMessage("Bitte alle Pflichtfelder ausfüllen.");
+                                const normalizedEmail = inviteEmail.trim().toLowerCase();
+                                if (!inviteFirstName.trim() || !inviteLastName.trim() || !normalizedEmail) {
+                                  setErrorMessage("Bitte alle Felder ausfüllen.");
                                   return;
                                 }
                                 setIsCreating(true);
                                 setErrorMessage(null);
                                 try {
+                                  if (!currentMember?.isAdmin) {
+                                    throw new Error("Nur Admins können Mitglieder anlegen.");
+                                  }
+
                                   const clubId = currentClub?.id;
-                                  if (!clubId) return;
-                                  const normalized = inviteEmail.trim().toLowerCase();
-                                  const existing = await FirebaseManager.getMemberByEmail(normalized);
+                                  if (!clubId) throw new Error("Kein Verein ausgewählt.");
+
+                                  // Check if member already exists
+                                  const existingMember = await FirebaseManager.getMemberByEmail(normalizedEmail);
                                   
-                                  if (existing) {
-                                    if (existing.clubIds.includes(clubId)) throw new Error("Bereits Mitglied.");
-                                    await FirebaseManager.addMemberToClub(existing, clubId, {
+                                  if (existingMember) {
+                                    if (existingMember.clubIds.includes(clubId) || existingMember.clubId === clubId) {
+                                      throw new Error("Dieser Nutzer ist bereits Mitglied im Verein.");
+                                    }
+                                    
+                                    await FirebaseManager.addMemberToClub(existingMember, clubId, {
                                       memberType: inviteType,
                                       isAdmin: false,
                                       isTrainer: false,
-                                      groupId: inviteGroupId || undefined,
-                                      trainingGroupIds: inviteTrainingGroupIds
+                                      ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
                                     });
+                                    
+                                    setUserAlreadyExisted(true);
                                     setGeneratedPassword("existing");
                                   } else {
-                                    const { uid, password } = await AuthService.createMemberAuth(normalized, inviteFirstName, inviteLastName, clubId);
-                                    await FirebaseManager.setMember(uid, {
-                                      firstName: inviteFirstName,
-                                      lastName: inviteLastName,
-                                      email: normalized,
+                                    const { uid, password } = await AuthService.createMemberAuth(normalizedEmail, inviteFirstName.trim(), inviteLastName.trim(), clubId);
+                                    
+                                    const newMember = {
+                                      firstName: inviteFirstName.trim(),
+                                      lastName: inviteLastName.trim(),
+                                      email: normalizedEmail,
                                       memberType: inviteType,
                                       isAdmin: false,
                                       isTrainer: false,
-                                      clubId,
+                                      clubId: clubId,
                                       clubIds: [clubId],
-                                      groupId: inviteGroupId || undefined,
-                                      trainingGroupIds: inviteTrainingGroupIds,
+                                      ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
                                       clubMemberships: {
                                         [clubId]: {
                                           memberType: inviteType,
                                           isAdmin: false,
                                           isTrainer: false,
-                                          groupId: inviteGroupId || undefined,
-                                          trainingGroupIds: inviteTrainingGroupIds
-                                        }
-                                      }
-                                    });
+                                          ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
+                                        },
+                                      },
+                                    };
+                                    
+                                    await FirebaseManager.setMember(uid, newMember);
+                                    
                                     setGeneratedPassword(password);
                                   }
-                                } catch (e) {
-                                  setErrorMessage(e instanceof Error ? e.message : "Fehler.");
+                                } catch (err) {
+                                  setErrorMessage(err instanceof Error ? err.message : "Fehler beim Anlegen.");
                                 } finally {
                                   setIsCreating(false);
                                 }
                               }}
-                              className="w-full h-14 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-black/5"
+                              disabled={isCreating}
+                              className="w-full h-14 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-[#1F1F23] transition-all shadow-2xl shadow-black/5 active:scale-95 disabled:opacity-50"
                             >
-                              {isCreating ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <>Mitglied anlegen</>}
+                                {isCreating ? (
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
+                                ) : (
+                                  <>
+                                    <UserPlus size={18} /> Mitglied anlegen
+                                  </>
+                                )}
                             </button>
-                            <p className="text-[9px] text-[#A1A1AA] text-center font-bold uppercase tracking-widest italic">Anmeldedaten können nach Erstellung versendet werden.</p>
+                            <p className="text-[9px] text-[#52525B] font-bold uppercase tracking-widest text-center px-8 leading-relaxed italic">
+                                Das Konto wird sofort erstellt und kann genutzt werden.
+                            </p>
                           </div>
-                        </div>
+                        </>
                       )}
-                    </div>
-                  </GlassSection>
-               </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
+                   </div>
+                </GlassSection>
+             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-function InputField({ label, value, onChange, placeholder, icon: Icon }: any) {
+function ListView({
+  members,
+  entries,
+  currentClub,
+  groupNameById,
+  showGroups,
+}: {
+  members: Member[];
+  entries: Entry[];
+  currentClub: any;
+  groupNameById: Map<string, string>;
+  showGroups: boolean;
+}) {
+  const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
+  const allTypes = [...memberTypeOrder];
+  if (planFeatures.hasCustomMemberTypes && currentClub?.customMemberTypes) {
+    currentClub.customMemberTypes.forEach((c: any) => allTypes.push(c.name));
+  }
+
+  const grouped = allTypes
+    .map((type) => ({ type, group: members.filter((m) => m.memberType === type) }))
+    .filter(({ group }) => group.length > 0);
+
+  if (members.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 text-center bg-white border border-black/5 rounded-[32px]">
+        <Search size={40} className="text-gray-800 mb-5" />
+        <h3 className="text-lg font-bold text-[#0A0A0A] mb-2">Keine Treffer</h3>
+        <p className="font-poppins text-[#71717A] text-sm max-w-xs mx-auto">Versuche es mit einem anderen Namen.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">{label}</label>
-      <div className="relative">
-        {Icon && <Icon size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />}
-        <input 
-          value={value} 
-          onChange={(e) => onChange(e.target.value)} 
-          placeholder={placeholder}
-          className={`w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 ${Icon ? "pl-11" : "px-4"} pr-4 text-sm font-poppins focus:outline-none transition-all`}
-        />
-      </div>
+    <div className="space-y-10">
+      {grouped.map(({ type, group }) => (
+        <div key={type} className="flex flex-col gap-5">
+          {/* Section header */}
+          <div className="flex items-center gap-3 px-1">
+            <div className="h-8 w-0.5 rounded-full" style={{
+              background: type === "Aktiv" ? "#34C759" : type === "Vorstand" ? "#E87AA0" : type === "Jugend" ? "#FF9500" : "#71717A"
+            }} />
+            <div className="flex flex-col">
+              <span className="text-[15px] font-poppins font-black text-[#0A0A0A] uppercase tracking-tight leading-none italic">
+                {memberTypeLabel[type] ?? type}
+              </span>
+              <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5 italic">
+                {group.length} Personen
+              </span>
+            </div>
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block bg-white border border-black/5 rounded-[32px] overflow-hidden shadow-xl">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-black/5 bg-black/[0.02]">
+                  <th className="px-7 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest w-[40%]">Mitglied</th>
+                  <th className="px-7 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Fortschritt</th>
+                  <th className="px-7 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-right">Punkte</th>
+                  <th className="px-7 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-center w-16"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/[0.04]">
+                {group.map((member) => {
+                  const mEntries = entries.filter((e) => e.memberId === member.id && e.status === "Genehmigt");
+                  const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
+                  const target = currentClub ? calculateTargetPoints(member, currentClub) : 15;
+                  const progress = target > 0 ? Math.min(1, approved / target) : 1;
+                  const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF453A";
+
+                  return (
+                    <tr key={member.id} className="group hover:bg-black/[0.03] transition-colors cursor-pointer">
+                      <td className="px-7 py-4">
+                        <Link href={`/dashboard/mitglieder/${member.id}`} className="flex items-center gap-4">
+                          <TAvatar name={`${member.firstName} ${member.lastName}`} id={member.id} imageUrl={member.profileImageUrl} size={44} />
+                          <div className="flex flex-col">
+                            <span className="text-[15px] font-poppins font-bold text-[#0A0A0A] group-hover:underline underline-offset-4 decoration-black/20">
+                              {member.firstName} {member.lastName}
+                            </span>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">{member.memberType}</span>
+                              {member.isAdmin && <Shield size={9} className="text-[#52525B]" />}
+                              {showGroups && member.groupId && (
+                                <span className="text-[9px] font-black text-[#A1A1AA] uppercase tracking-widest">
+                                  · {groupNameById.get(member.groupId) ?? "Gruppe"}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </Link>
+                      </td>
+                      <td className="px-7 py-4">
+                        <div className="flex flex-col gap-1.5 max-w-[180px]">
+                          <div className="h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${progress * 100}%` }}
+                              className="h-full"
+                              style={{ background: color }}
+                            />
+                          </div>
+                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-[0.15em]">
+                            {(progress * 100).toFixed(0)}% Erreicht
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-7 py-4 text-right font-mono font-black text-base" style={{ color }}>
+                        {approved.toFixed(1)}{" "}
+                        <span className="text-[10px] font-black text-gray-700">/ {target.toFixed(1)}</span>
+                      </td>
+                      <td className="px-7 py-4 text-center">
+                        <Link
+                          href={`/dashboard/mitglieder/${member.id}`}
+                          className="w-9 h-9 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all ml-auto"
+                        >
+                          <MoreVertical size={15} />
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile card list */}
+          <div className="md:hidden flex flex-col gap-2.5">
+            {group.map((member) => {
+              const mEntries = entries.filter((e) => e.memberId === member.id && e.status === "Genehmigt");
+              const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
+                  const target = currentClub ? calculateTargetPoints(member, currentClub) : 15;
+              const progress = target > 0 ? Math.min(1, approved / target) : 1;
+              const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF453A";
+
+              return (
+                <Link
+                  key={member.id}
+                  href={`/dashboard/mitglieder/${member.id}`}
+                  className="flex items-center gap-3.5 p-4 rounded-[22px] transition-all"
+                  style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}
+                >
+                  <TAvatar name={`${member.firstName} ${member.lastName}`} id={member.id} imageUrl={member.profileImageUrl} size={46} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="font-poppins font-bold text-[15px] text-[#0A0A0A] truncate">
+                        {member.firstName} {member.lastName}
+                      </span>
+                      {member.isAdmin && <Shield size={11} className="text-[#52525B] shrink-0" />}
+                    </div>
+                    {showGroups && member.groupId && (
+                      <p className="text-[10px] font-black text-[#A1A1AA] uppercase tracking-widest">
+                        {groupNameById.get(member.groupId) ?? "Gruppe"}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex-1 h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
+                        <div className="h-full rounded-full transition-all" style={{ width: `${progress * 100}%`, background: color }} />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold shrink-0" style={{ color }}>
+                        {approved.toFixed(1)}
+                        <span className="text-gray-700"> / {target.toFixed(1)}</span>
+                      </span>
+                    </div>
+                  </div>
+                  <ArrowUpRight size={16} className="text-gray-700 shrink-0" />
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
 
-function FilterPill({ label, selected, onClick, icon: Icon }: any) {
+function LeaderboardView({
+  data,
+  groups,
+  showGroupLeaderboards,
+  showAdvancedStats,
+}: {
+  data: LeaderboardItem[];
+  groups: ClubGroup[];
+  showGroupLeaderboards: boolean;
+  showAdvancedStats: boolean;
+}) {
+  const top3 = data.slice(0, 3);
+  const rest = data.slice(3);
+  const totalApproved = data.reduce((sum, item) => sum + item.approved, 0);
+  const completedMembers = data.filter((item) => item.progress >= 1).length;
+
+  return (
+    <div className="flex flex-col gap-12 py-10">
+      {showAdvancedStats ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-4xl mx-auto w-full px-3 md:px-4">
+          <MetricCard label="Gesamtpunkte" value={totalApproved.toFixed(1)} />
+          <MetricCard label="Ziel erreicht" value={String(completedMembers)} />
+          <MetricCard label="Ø Fortschritt" value={`${data.length ? Math.round(data.reduce((sum, item) => sum + item.progress, 0) / data.length * 100) : 0}%`} />
+        </div>
+      ) : (
+        <div className="max-w-4xl mx-auto w-full px-3 md:px-4">
+          <div className="rounded-2xl border border-black/5 bg-black/[0.03] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+            Erweiterte Statistiken ab Club
+          </div>
+        </div>
+      )}
+
+      {/* Expanded Podium */}
+      {top3.length > 0 && (
+        <div className="flex items-end justify-center gap-3 md:gap-6 max-w-4xl mx-auto w-full px-4 md:px-12">
+          {top3[1] && <PodiumBlock item={top3[1]} rank={2} height={140} medal="🥈" color="#E0E0E0" />}
+          {top3[0] && <PodiumBlock item={top3[0]} rank={1} height={200} medal="🥇" color="#FFD700" />}
+          {top3[2] && <PodiumBlock item={top3[2]} rank={3} height={110} medal="🥉" color="#CD7F32" />}
+        </div>
+      )}
+
+      {/* High-End List */}
+      <div className="max-w-4xl mx-auto w-full space-y-3 px-3 md:px-4">
+        <div className="hidden sm:flex items-center justify-between px-6 text-[10px] font-black text-[#52525B] uppercase tracking-widest border-b border-black/5 pb-4 mb-6">
+           <span>PLATZIERUNG</span>
+           <span className="ml-12 mr-auto">MITGLIED</span>
+           <span>GESAMTPUNKTE</span>
+        </div>
+        
+        {rest.length > 0 ? rest.map((item, idx) => (
+          <motion.div
+            key={item.member.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: idx * 0.05 }}
+            className="group flex items-center gap-4 md:gap-8 bg-white border border-black/5 rounded-[24px] md:rounded-[32px] p-4 md:p-6 hover:bg-black/[0.03] transition-all"
+          >
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-black/[0.04] flex items-center justify-center font-mono font-black text-[#0A0A0A]/20 group-hover:text-[#0A0A0A] transition-colors text-sm">
+              #{idx + 4}
+            </div>
+            <TAvatar name={`${item.member.firstName} ${item.member.lastName}`} id={item.member.id} size={44} />
+            <div className="flex flex-col flex-1 min-w-0">
+              <span className="text-[15px] md:text-[17px] font-poppins font-bold text-[#0A0A0A] truncate">
+                {item.member.firstName} {item.member.lastName}
+              </span>
+              <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">{item.member.memberType}</span>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-[18px] md:text-[22px] font-mono font-black" style={{ color: item.progress >= 1 ? "#34C759" : item.progress >= 0.5 ? "#FF9500" : "#FF453A" }}>+{item.approved.toFixed(1)}</span>
+              <span className="text-[8px] font-black text-gray-700 uppercase tracking-widest hidden sm:block">GESAMTPUNKTE</span>
+            </div>
+            <ChevronRight className="text-gray-800 group-hover:text-[#0A0A0A] transition-colors hidden sm:block" size={18} />
+          </motion.div>
+        )) : data.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-40 opacity-20">
+             <Trophy size={64} className="mb-6" />
+             <p className="font-poppins font-black uppercase tracking-[0.2em]">Keine Punkte im System</p>
+          </div>
+        )}
+      </div>
+
+      {showGroupLeaderboards ? (
+        groups.length > 0 && (
+          <div className="max-w-4xl mx-auto w-full px-3 md:px-4 flex flex-col gap-4">
+            <div className="flex items-center gap-2 text-[10px] font-black text-[#52525B] uppercase tracking-widest">
+              <Layers size={13} /> Gruppenranglisten
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {groups.map((group) => {
+                const groupItems = data
+                  .filter((item) => item.member.groupId === group.id)
+                  .slice(0, 5);
+                return (
+                  <div key={group.id} className="rounded-[24px] bg-white border border-black/5 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-poppins font-black text-[#0A0A0A]">{group.name}</h3>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+                        {groupItems.length} Personen
+                      </span>
+                    </div>
+                    {groupItems.length === 0 ? (
+                      <p className="text-xs text-[#71717A]">Noch keine Punkte in dieser Gruppe.</p>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {groupItems.map((item, index) => (
+                          <div key={item.member.id} className="flex items-center gap-3 rounded-xl bg-black/[0.03] px-3 py-2">
+                            <span className="w-6 text-xs font-mono font-black text-[#A1A1AA]">#{index + 1}</span>
+                            <TAvatar name={`${item.member.firstName} ${item.member.lastName}`} id={item.member.id} size={30} />
+                            <span className="min-w-0 flex-1 truncate text-sm font-poppins font-bold text-[#0A0A0A]">
+                              {item.member.firstName} {item.member.lastName}
+                            </span>
+                            <span className="font-mono font-black text-sm text-[#0A0A0A]">{item.approved.toFixed(1)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )
+      ) : (
+        <div className="max-w-4xl mx-auto w-full px-3 md:px-4">
+          <div className="rounded-2xl border border-black/5 bg-black/[0.03] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+            Gruppenranglisten ab Club
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MetricCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-white border border-black/5 px-5 py-4">
+      <p className="text-2xl font-poppins font-black text-[#0A0A0A]">{value}</p>
+      <p className="text-[10px] font-black uppercase tracking-widest text-[#71717A]">{label}</p>
+    </div>
+  );
+}
+
+function FilterPill({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-        selected ? "bg-[#0A0A0A] text-white border-black" : "bg-white text-[#71717A] border-black/5 hover:border-black/10 shadow-sm"
+      className={`shrink-0 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
+        selected
+          ? "bg-[#0A0A0A] text-white border-black/15"
+          : "bg-black/[0.04] text-[#71717A] border-black/10 hover:text-[#0A0A0A]"
       }`}
     >
-      {Icon && <Icon size={12} />}
       {label}
     </button>
   );
 }
 
-function ListView({ 
-  members, 
-  entries, 
-  currentClub, 
-  groupNameById, 
-  trainingGroupNameById, 
-  showGroups 
-}: { 
-  members: Member[], 
-  entries: Entry[], 
-  currentClub: any, 
-  groupNameById: Map<string, string>, 
-  trainingGroupNameById: Map<string, string>, 
-  showGroups: boolean 
-}) {
+function PodiumBlock({ item, rank, height, medal, color }: { item: LeaderboardItem, rank: number, height: number, medal: string, color: string }) {
+  const avatarSize = rank === 1 ? 80 : 60;
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-      {members.map((member: Member, idx: number) => (
-        <motion.div key={member.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.02 }}>
-          <Link href={`/dashboard/mitglieder/${member.id}`}>
-             <GlassSection className="p-5 flex items-center justify-between group hover:border-black/20 transition-all cursor-pointer h-full">
-                <div className="flex items-center gap-4 min-w-0">
-                   <TAvatar name={`${member.firstName} ${member.lastName}`} id={member.id} size={48} />
-                   <div className="flex flex-col min-w-0">
-                      <h4 className="font-poppins font-black text-[#0A0A0A] text-sm truncate uppercase tracking-tight">{member.firstName} {member.lastName}</h4>
-                      <div className="flex items-center gap-2">
-                         <span className="text-[10px] font-bold text-[#71717A] uppercase tracking-widest truncate">{member.memberType}</span>
-                         {showGroups && member.groupId && (
-                           <div className="flex items-center gap-1 text-[10px] font-bold text-[#A1A1AA] uppercase tracking-widest truncate">
-                              <span className="w-1 h-1 rounded-full bg-black/10" />
-                              {groupNameById.get(member.groupId)}
-                           </div>
-                         )}
-                      </div>
-                      <div className="flex flex-wrap gap-1 mt-1.5">
-                         {member.trainingGroupIds?.map((tgid: string) => (
-                           <div key={tgid} className="px-1.5 py-0.5 rounded-full bg-black/[0.04] border border-black/5 text-[8px] font-black text-[#71717A] uppercase tracking-widest">
-                              {trainingGroupNameById.get(tgid)}
-                           </div>
-                         ))}
-                      </div>
-                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                   <div className="flex flex-col items-end">
-                      <span className="text-[10px] font-black text-[#0A0A0A] font-mono">
-                         {entries.filter((e: any) => e.memberId === member.id && e.status === "Genehmigt").reduce((sum: number, e: any) => sum + e.points, 0)} Pkt.
-                      </span>
-                      <ChevronRight size={14} className="text-[#A1A1AA] group-hover:text-[#0A0A0A] group-hover:translate-x-1 transition-all" />
-                   </div>
-                </div>
-             </GlassSection>
-          </Link>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
+    <motion.div
+      initial={{ opacity: 0, y: 60, scale: 0.85 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ type: "spring", damping: 20, stiffness: 100, delay: (3 - rank) * 0.15 }}
+      className="flex-1 flex flex-col items-center gap-3 md:gap-6"
+    >
+      <div className="relative group cursor-pointer">
+        <div className="absolute inset-0 rounded-full blur-[30px] opacity-20" style={{ background: color }} />
+        <TAvatar
+          name={`${item.member.firstName} ${item.member.lastName}`}
+          id={item.member.id}
+          size={avatarSize}
+          imageUrl={item.member.profileImageUrl}
+          className="relative z-10 border-[3px] border-[#0c0c0c] shadow-xl"
+        />
+        <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 md:w-9 md:h-9 rounded-full bg-white border-2 border-black/10 flex items-center justify-center z-20 text-base md:text-lg shadow-xl">
+          {medal}
+        </div>
+      </div>
 
-function LeaderboardView({ items, currentMemberId }: any) {
-  return (
-    <div className="flex flex-col gap-4">
-      {items.map((item: any, idx: number) => (
-        <motion.div key={item.member.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }}>
-           <GlassSection className={`p-5 flex items-center justify-between border-l-4 ${item.member.id === currentMemberId ? "border-l-[#0A0A0A] bg-black/[0.02]" : "border-l-transparent"}`}>
-              <div className="flex items-center gap-5">
-                 <span className="w-8 font-poppins font-black text-xl text-[#A1A1AA]">{idx + 1}.</span>
-                 <TAvatar name={`${item.member.firstName} ${item.member.lastName}`} id={item.member.id} size={44} />
-                 <div className="flex flex-col">
-                    <span className="font-poppins font-black text-[#0A0A0A] text-sm uppercase tracking-tight">{item.member.firstName} {item.member.lastName}</span>
-                    <span className="text-[10px] font-black text-[#71717A] uppercase tracking-widest">{item.member.memberType}</span>
-                 </div>
-              </div>
-              <div className="flex items-center gap-8">
-                 <div className="hidden sm:flex flex-col items-end">
-                    <span className="text-[10px] font-black text-[#71717A] uppercase tracking-widest">Fortschritt</span>
-                    <div className="w-32 h-1.5 bg-black/[0.04] rounded-full overflow-hidden mt-1">
-                       <motion.div initial={{ width: 0 }} animate={{ width: `${item.progress * 100}%` }} className="h-full bg-[#0A0A0A]" />
-                    </div>
-                 </div>
-                 <div className="flex flex-col items-end min-w-[80px]">
-                    <span className="text-xl font-poppins font-black text-[#0A0A0A]">{item.approved}</span>
-                    <span className="text-[10px] font-black text-[#A1A1AA] uppercase tracking-widest">Punkte</span>
-                 </div>
-              </div>
-           </GlassSection>
-        </motion.div>
-      ))}
-    </div>
+      <div className="flex flex-col items-center gap-1 text-center">
+        <span className="font-poppins font-black text-[#0A0A0A] text-sm md:text-base tracking-tight leading-none line-clamp-1 max-w-[80px] md:max-w-full">
+          {item.member.firstName}
+        </span>
+        <div className="flex items-center gap-1">
+          <span className="text-lg md:text-[24px] font-mono font-black" style={{ color }}>{item.approved.toFixed(1)}</span>
+          <span className="text-[7px] font-black text-[#52525B] uppercase tracking-widest mt-1">PKT</span>
+        </div>
+      </div>
+
+      <div
+        className="w-full rounded-[24px] md:rounded-[40px] relative overflow-hidden flex items-center justify-center border border-black/[0.08]"
+        style={{ height, background: `linear-gradient(to bottom, ${color}15, transparent)` }}
+      >
+        <div className="absolute top-0 w-full h-0.5" style={{ background: color }} />
+        <Target size={rank === 1 ? 32 : 22} className="opacity-10" />
+      </div>
+    </motion.div>
   );
 }
