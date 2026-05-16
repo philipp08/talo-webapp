@@ -432,6 +432,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasCustomMemberTypes: true,
     hasCustomSeason: true,
     hasTrainingRSVP: true,
+    hasMultiTrainer: false,
     popular: true,
   },
   pro: {
@@ -470,6 +471,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasCustomMemberTypes: true,
     hasCustomSeason: true,
     hasTrainingRSVP: true,
+    hasMultiTrainer: true,
   },
 };
 
