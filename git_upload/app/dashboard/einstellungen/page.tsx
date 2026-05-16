@@ -14,7 +14,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
-import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures } from "@/lib/firebase/models";
+import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures, CustomMemberType, isLightColor } from "@/lib/firebase/models";
 import {
   GlassSection, TLine, TAvatar, TButton, TBadge,
 } from "@/app/components/ui/NativeUI";
@@ -56,6 +56,10 @@ export default function SettingsPage() {
   const [approvalRequired, setApprovalRequired] = useState(currentClub?.approvalRequired ?? true);
   const [logoUrl, setLogoUrl] = useState(currentClub?.logoUrl ?? "");
   const [brandColor, setBrandColor] = useState(currentClub?.brandColor ?? "#0A0A0A");
+  const [accentColor, setAccentColor] = useState(currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A");
+  const [customMemberTypes, setCustomMemberTypes] = useState<CustomMemberType[]>(currentClub?.customMemberTypes ?? []);
+  const [newTypeName, setNewTypeName] = useState("");
+  const [newTypeFactor, setNewTypeFactor] = useState("100");
   const [clubState, setClubState] = useState<"idle" | "saving" | "saved">("idle");
 
   const thisYear = new Date().getFullYear();
@@ -89,6 +93,8 @@ export default function SettingsPage() {
     setApprovalRequired(currentClub.approvalRequired);
     setLogoUrl(currentClub.logoUrl ?? "");
     setBrandColor(currentClub.brandColor ?? "#0A0A0A");
+    setAccentColor(currentClub.accentColor ?? currentClub.brandColor ?? "#0A0A0A");
+    setCustomMemberTypes(currentClub.customMemberTypes ?? []);
   }, [currentClub]);
 
   useEffect(() => {
@@ -220,7 +226,8 @@ export default function SettingsPage() {
         seasonType,
         approvalRequired,
         ...(planFeatures.hasClubLogo ? { logoUrl: logoUrl.trim() } : {}),
-        ...(planFeatures.hasClubColors ? { brandColor } : {}),
+        ...(planFeatures.hasClubColors ? { brandColor, accentColor } : {}),
+        ...(planFeatures.hasCustomMemberTypes ? { customMemberTypes } : {}),
       };
       await FirebaseManager.updateClub(currentClub.id, updates);
       setCurrentClub({ ...currentClub, ...updates });
@@ -250,6 +257,23 @@ export default function SettingsPage() {
     if (!currentClub || !planFeatures.hasGroups) return;
     if (!window.confirm("Gruppe löschen? Mitglieder werden aus dieser Gruppe entfernt.")) return;
     await FirebaseManager.deleteGroup(currentClub.id, groupId);
+  };
+
+  const addCustomMemberType = () => {
+    if (!newTypeName.trim()) return;
+    const factor = Math.min(Math.max(parseFloat(newTypeFactor) || 100, 0), 200) / 100;
+    const newType: CustomMemberType = {
+      id: crypto.randomUUID(),
+      name: newTypeName.trim(),
+      pointFactor: factor,
+    };
+    setCustomMemberTypes((prev) => [...prev, newType]);
+    setNewTypeName("");
+    setNewTypeFactor("100");
+  };
+
+  const removeCustomMemberType = (id: string) => {
+    setCustomMemberTypes((prev) => prev.filter((t) => t.id !== id));
   };
 
   const runExport = async (key: ExportKey) => {
@@ -412,7 +436,7 @@ export default function SettingsPage() {
                         unlockText="ab Pro"
                       >
                         <Field icon={Palette} label="Akzentfarbe">
-                          <Input value={brandColor} onChange={setBrandColor} type="color" />
+                          <ColorPicker value={accentColor} onChange={setAccentColor} />
                         </Field>
                       </PlanLockedField>
                     </div>
@@ -524,6 +548,73 @@ export default function SettingsPage() {
                           })}
                         </div>
                       )}
+                    </div>
+                  )}
+                </GlassSection>
+              </motion.div>
+            )}
+
+            {/* MITGLIEDERTYPEN (Club+) */}
+            {isAdmin && (
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.115 }}
+                className="flex flex-col gap-3"
+              >
+                <SectionHeader title="MITGLIEDERTYPEN" icon={Users} color="#0A0A0A" />
+                <GlassSection>
+                  {!planFeatures.hasCustomMemberTypes ? (
+                    <PlanUpsell
+                      title="Eigene Mitgliedertypen sind ab dem Club-Plan verfügbar."
+                      text="Erstelle individuelle Mitgliedertypen mit eigenen Punktezielen, z.B. Fördermitglied mit 50 % der Pflichtpunkte."
+                    />
+                  ) : (
+                    <div className="p-5 flex flex-col gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
+                        <Field icon={Users} label="Bezeichnung">
+                          <Input value={newTypeName} onChange={setNewTypeName} placeholder="z.B. Fördermitglied" />
+                        </Field>
+                        <Field label="Punkte-% der Pflicht">
+                          <Input value={newTypeFactor} onChange={setNewTypeFactor} type="number" step="5" suffix="%" />
+                        </Field>
+                        <TButton
+                          label="Anlegen"
+                          icon={Plus}
+                          onClick={addCustomMemberType}
+                          disabled={!newTypeName.trim()}
+                          className="rounded-xl py-2.5"
+                        />
+                      </div>
+
+                      {customMemberTypes.length > 0 && (
+                        <>
+                          <TLine />
+                          <div className="flex flex-col gap-2">
+                            {customMemberTypes.map((t) => (
+                              <div key={t.id} className="flex items-center gap-3 rounded-2xl bg-black/[0.03] border border-black/5 px-4 py-3">
+                                <div className="w-9 h-9 rounded-xl bg-white border border-black/5 flex items-center justify-center shrink-0">
+                                  <Users size={15} className="text-[#0A0A0A]" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="truncate font-poppins font-bold text-sm text-[#0A0A0A]">{t.name}</p>
+                                  <p className="text-[11px] text-[#71717A]">{Math.round(t.pointFactor * 100)} % der Pflichtpunkte</p>
+                                </div>
+                                <button
+                                  onClick={() => removeCustomMemberType(t.id)}
+                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#FF453A] hover:bg-[#FF453A]/10 transition-all"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+
+                      <p className="text-[11px] font-poppins text-[#71717A]">
+                        Eigene Typen erscheinen bei der Mitgliederverwaltung. Pflichtpunkte werden anteilig berechnet. Speichern nicht vergessen.
+                      </p>
                     </div>
                   )}
                 </GlassSection>
@@ -909,6 +1000,41 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
     >
       <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all ${value ? "left-[22px]" : "left-0.5"}`} />
     </button>
+  );
+}
+
+function ColorPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const light = isLightColor(value);
+  return (
+    <div className="flex items-center gap-3">
+      <label className="relative cursor-pointer shrink-0">
+        <div
+          className="w-10 h-10 rounded-xl border-2 border-black/10 shadow-sm"
+          style={{ background: value }}
+        />
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+        />
+      </label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          const v = e.target.value;
+          if (/^#[0-9a-fA-F]{0,6}$/.test(v)) onChange(v);
+        }}
+        className="w-full rounded-xl bg-black/[0.03] border border-black/10 px-3 py-2.5 font-mono text-sm text-[#0A0A0A] focus:outline-none focus:border-[#0A0A0A]/40 uppercase"
+        maxLength={7}
+      />
+      {light && (
+        <span className="shrink-0 text-[10px] font-poppins font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg">
+          Zu hell
+        </span>
+      )}
+    </div>
   );
 }
 

@@ -26,6 +26,13 @@ export enum EntryStatus {
   Rejected = "Abgelehnt",
 }
 
+export interface CustomMemberType {
+  id: string;
+  name: string;
+  /** Fraction of requiredPoints this type must reach, e.g. 0.5 = 50 % */
+  pointFactor: number;
+}
+
 export interface Club {
   id: string;
   name: string;
@@ -36,8 +43,10 @@ export interface Club {
   plan?: string;
   logoUrl?: string;
   brandColor?: string;
+  accentColor?: string;
   licenseStatus?: string;
   licenseExpiresAt?: Timestamp | Date | null;
+  customMemberTypes?: CustomMemberType[];
 }
 
 export interface ClubMembership {
@@ -197,6 +206,7 @@ export interface PlanFeatures {
   hasDataImportSupport: boolean;
   hasPersonalOnboarding: boolean;
   hasCustomFeatures: boolean;
+  hasCustomMemberTypes: boolean;
   popular?: boolean;
 }
 
@@ -231,6 +241,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasDataImportSupport: false,
     hasPersonalOnboarding: false,
     hasCustomFeatures: false,
+    hasCustomMemberTypes: false,
   },
   verein: {
     key: "verein",
@@ -264,6 +275,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasDataImportSupport: false,
     hasPersonalOnboarding: false,
     hasCustomFeatures: false,
+    hasCustomMemberTypes: false,
   },
   club: {
     key: "club",
@@ -297,6 +309,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasDataImportSupport: false,
     hasPersonalOnboarding: false,
     hasCustomFeatures: false,
+    hasCustomMemberTypes: true,
     popular: true,
   },
   pro: {
@@ -331,6 +344,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasDataImportSupport: false,
     hasPersonalOnboarding: false,
     hasCustomFeatures: false,
+    hasCustomMemberTypes: true,
   },
   individual: {
     key: "individual",
@@ -362,6 +376,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasDataImportSupport: true,
     hasPersonalOnboarding: true,
     hasCustomFeatures: true,
+    hasCustomMemberTypes: true,
   },
 };
 
@@ -382,4 +397,15 @@ export const getPlanKey = (plan?: string): PlanKey => {
 
 export const getPlanFeatures = (plan?: string): PlanFeatures => {
   return PLAN_FEATURES[getPlanKey(plan)];
+};
+
+/** Returns true when a hex color is light enough to need dark text on top of it. */
+export const isLightColor = (hex?: string): boolean => {
+  if (!hex) return false;
+  const c = hex.replace("#", "");
+  const full = c.length === 3 ? c.split("").map((x) => x + x).join("") : c;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55;
 };

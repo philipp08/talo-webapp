@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyAdminRequest } from "@/lib/server/firebaseAuth";
-import { buildNewsletterHtml } from "@/lib/newsletter/template";
+import { buildNewsletterHtml, plaintextToHtml } from "@/lib/newsletter/template";
 
 interface Subscriber {
   email: string;
@@ -99,12 +99,15 @@ export async function POST(request: Request) {
   }
 
   const subject = readString(rawBody, "subject", 180);
-  const htmlBody = readString(rawBody, "htmlBody", 100_000);
+  const rawHtmlBody = readString(rawBody, "htmlBody", 100_000);
   const subscribers = readSubscribers(rawBody.subscribers);
 
-  if (!subject || !htmlBody || !subscribers) {
+  if (!subject || !rawHtmlBody || !subscribers) {
     return NextResponse.json({ error: "Missing or invalid fields" }, { status: 400 });
   }
+
+  const plaintextMode = rawBody.plaintextMode === true;
+  const htmlBody = plaintextMode ? plaintextToHtml(rawHtmlBody) : rawHtmlBody;
 
   const origin = request.headers.get("origin");
   const baseUrl = origin?.startsWith("http://localhost") || origin?.startsWith("https://")

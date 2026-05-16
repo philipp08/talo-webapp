@@ -3,6 +3,31 @@
  * Used by the admin preview AND the server send route so what the admin
  * sees in the in-app preview matches exactly what subscribers receive.
  */
+
+function applyInline(text: string): string {
+  return text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
+
+/** Convert the plain-text newsletter body to email-safe HTML. */
+export function plaintextToHtml(text: string): string {
+  if (!text.trim()) return "";
+  const blocks = text.split(/\n[ \t]*\n/);
+  return blocks
+    .map((block) => {
+      const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+      if (lines.length === 0) return "";
+      const isList = lines.every((l) => /^[•\-*]\s/.test(l));
+      if (isList) {
+        const items = lines
+          .map((l) => `<li style="margin-bottom:6px">${applyInline(l.replace(/^[•\-*]\s+/, ""))}</li>`)
+          .join("");
+        return `<ul style="padding-left:20px;margin:0 0 16px">${items}</ul>`;
+      }
+      return `<p style="margin:0 0 16px;line-height:1.7;color:#1f2937">${lines.map(applyInline).join("<br>")}</p>`;
+    })
+    .join("");
+}
+
 export function buildNewsletterHtml(opts: {
   htmlBody: string;
   baseUrl: string;

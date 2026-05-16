@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { db, auth } from "@/lib/firebase/config";
 import {
   collection, query, where, getDocs, Timestamp,
@@ -13,8 +13,26 @@ import {
   Users, Send, RefreshCw, Mail,
   CheckCircle2, XCircle, LogIn,
   Loader2, Eye, EyeOff, Smartphone, Monitor,
+  List, Bold, AlignLeft,
 } from "lucide-react";
-import { buildNewsletterHtml } from "@/lib/newsletter/template";
+import { buildNewsletterHtml, plaintextToHtml } from "@/lib/newsletter/template";
+
+function ToolbarButton({ icon: Icon, label, onClick }: { icon: React.ElementType; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={label}
+      className="flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold transition-colors"
+      style={{ color: "#52525B" }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,0,0,0.06)"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+    >
+      <Icon size={13} strokeWidth={2.5} />
+      <span>{label}</span>
+    </button>
+  );
+}
 
 interface Subscriber {
   id: string;
@@ -31,7 +49,8 @@ export default function AdminNewsletterPage() {
 
   // Compose state
   const [subject, setSubject] = useState("");
-  const [htmlBody, setHtmlBody] = useState("");
+  const [body, setBody] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [preview, setPreview] = useState(false);
   const [previewWidth, setPreviewWidth] = useState<"desktop" | "mobile">("desktop");
   const [sending, setSending] = useState(false);
@@ -77,8 +96,35 @@ export default function AdminNewsletterPage() {
     }
   }, [user]);
 
+  function insertText(text: string) {
+    const el = textareaRef.current;
+    if (!el) return;
+    const { selectionStart: s, selectionEnd: e, value } = el;
+    const next = value.slice(0, s) + text + value.slice(e);
+    const nativeSet = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")!.set!;
+    nativeSet.call(el, next);
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    const pos = s + text.length;
+    el.setSelectionRange(pos, pos);
+    el.focus();
+  }
+
+  function wrapSelection(before: string, after: string) {
+    const el = textareaRef.current;
+    if (!el) return;
+    const { selectionStart: s, selectionEnd: e, value } = el;
+    const selected = value.slice(s, e) || "Text";
+    const wrapped = before + selected + after;
+    const next = value.slice(0, s) + wrapped + value.slice(e);
+    const nativeSet = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")!.set!;
+    nativeSet.call(el, next);
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.setSelectionRange(s + before.length, s + before.length + selected.length);
+    el.focus();
+  }
+
   async function handleSend() {
-    if (!subject.trim() || !htmlBody.trim()) {
+    if (!subject.trim() || !body.trim()) {
       setSendError("Bitte Betreff und Inhalt ausfüllen.");
       return;
     }
@@ -103,7 +149,8 @@ export default function AdminNewsletterPage() {
         },
         body: JSON.stringify({
           subject,
-          htmlBody,
+          htmlBody: body,
+          plaintextMode: true,
           subscribers: subscribers.map(({ email, token }) => ({ email, token })),
         }),
       });
@@ -127,12 +174,15 @@ export default function AdminNewsletterPage() {
   // Build identical-to-prod preview HTML
   const previewHtml = useMemo(() => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const htmlBody = body.trim()
+      ? plaintextToHtml(body)
+      : "<p style='color:#9CA3AF;font-style:italic'>Noch kein Inhalt geschrieben …</p>";
     return buildNewsletterHtml({
-      htmlBody: htmlBody || "<p style='color:#9CA3AF;font-style:italic'>Noch kein Inhalt geschrieben …</p>",
+      htmlBody,
       baseUrl: origin,
       unsubLink: `${origin}/newsletter/abmelden?token=PREVIEW`,
     });
-  }, [htmlBody]);
+  }, [body]);
 
   // ── Loading auth ──
   if (user === "loading") {
@@ -310,7 +360,7 @@ export default function AdminNewsletterPage() {
             {/* Body / Preview */}
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#B4B4BA" }}>
-                {preview ? "Vorschau" : <>Inhalt <span className="normal-case tracking-normal font-normal opacity-60">(HTML)</span></>}
+                {preview ? "Vorschau" : "Inhalt"}
               </label>
               {preview ? (
                 <div
@@ -354,21 +404,28 @@ export default function AdminNewsletterPage() {
                   </div>
                 </div>
               ) : (
-                <textarea
-                  value={htmlBody}
-                  onChange={(e) => setHtmlBody(e.target.value)}
-                  rows={14}
-                  placeholder={`<h2 style="font-size:22px;font-weight:600;margin:0 0 16px">Hey,</h2>\n<p style="color:#555;line-height:1.7;margin:0 0 16px">...</p>`}
-                  className="w-full px-4 py-3 rounded-[10px] text-[#0A0A0A] text-sm font-mono outline-none resize-none transition-all"
-                  style={{ background: "#FAFAFA", border: "1px solid rgba(0,0,0,0.08)" }}
-                  onFocus={(e) => (e.currentTarget.style.border = "1px solid rgba(63,167,167,0.5)")}
-                  onBlur={(e) => (e.currentTarget.style.border = "1px solid rgba(0,0,0,0.08)")}
-                />
+                <div className="rounded-[10px] overflow-hidden" style={{ border: "1px solid rgba(0,0,0,0.08)" }}>
+                  {/* Toolbar */}
+                  <div className="flex items-center gap-1 px-2 py-1.5" style={{ background: "#F5F5F5", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+                    <ToolbarButton icon={AlignLeft} label="Absatz" onClick={() => insertText("\n\n")} />
+                    <ToolbarButton icon={List} label="Stichpunkt" onClick={() => insertText("\n• ")} />
+                    <ToolbarButton icon={Bold} label="Fett" onClick={() => wrapSelection("**", "**")} />
+                  </div>
+                  <textarea
+                    ref={textareaRef}
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    rows={14}
+                    placeholder={"Hey,\n\nSchreib hier deinen Newsletter-Text. Doppelter Zeilenumbruch = neuer Absatz.\n\n• Stichpunkt 1\n• Stichpunkt 2\n\n**Fetter Text** wird fett dargestellt."}
+                    className="w-full px-4 py-3 text-[#0A0A0A] text-sm outline-none resize-none font-poppins"
+                    style={{ background: "#FAFAFA" }}
+                  />
+                </div>
               )}
             </div>
 
             <p className="text-xs leading-relaxed" style={{ color: "#B4B4BA" }}>
-              Logo, Footer und Abmelde-Link werden automatisch ergänzt. Die Vorschau zeigt exakt, was der Empfänger sieht.
+              Doppelter Zeilenumbruch = neuer Absatz · Zeilen mit • = Aufzählung · **Text** = fett. Logo, Footer und Abmelde-Link werden automatisch ergänzt.
             </p>
 
             {/* Error / Success */}

@@ -21,6 +21,7 @@ import ScrollReveal from "@/app/components/ScrollReveal";
 import { motion, AnimatePresence } from "framer-motion";
 import OnboardingFlow from "@/app/components/OnboardingFlow";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
+import { isLightColor } from "@/lib/firebase/models";
 
 const activeClubStorageKey = (uid: string) => `talo.activeClubId.${uid}`;
 
@@ -54,7 +55,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isAdmin   = currentMember?.isAdmin   === true;
   const isTrainer = currentMember?.isTrainer === true;
   const canSwitchClubs = availableClubs.length > 1;
-  const brandColor = currentClub?.brandColor || "#0A0A0A";
+  const accent = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accentLight = isLightColor(accent);
+  const accentTextColor = accentLight ? "#0A0A0A" : accent;
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -121,7 +124,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             canSwitchClubs ? "hover:bg-black/[0.05]" : "cursor-default"
           } ${mobile ? "px-3 py-3" : "px-4 py-3.5"}`}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-black/5 overflow-hidden" style={{ color: brandColor }}>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-black/5 overflow-hidden" style={{ color: accent }}>
             {currentClub.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-cover" />
@@ -166,7 +169,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-black/[0.04] disabled:opacity-60"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/[0.04] text-[#0A0A0A]">
-                      {active ? <Check size={15} style={{ color: brandColor }} /> : switching ? (
+                      {active ? <Check size={15} style={{ color: accent }} /> : switching ? (
                         <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/10 border-t-[#0A0A0A]" />
                       ) : (
                         <Building2 size={15} />
@@ -237,17 +240,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   href={item.href}
                   className="flex items-center gap-3.5 px-4 py-3.5 rounded-[16px] transition-all group relative"
                   style={{
-                    background: isActive ? `${brandColor}12` : "transparent",
-                    color: isActive ? brandColor : "#71717A",
+                    background: isActive ? `${accent}18` : "transparent",
+                    color: isActive ? accentTextColor : "#71717A",
                   }}
-                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = brandColor; }}
+                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = accentTextColor; }}
                   onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = "#71717A"; }}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="nav-pill"
                       className="absolute left-0 w-1 h-5 rounded-r-full"
-                      style={{ background: brandColor }}
+                      style={{ background: accent }}
                     />
                   )}
                   <Icon size={18} strokeWidth={isActive ? 2.5 : 1.8} />
@@ -460,7 +463,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={item.href}
                 href={item.href}
                 className="flex-1 flex flex-col items-center justify-center gap-[3px] transition-all active:opacity-60"
-                style={{ color: active ? "#0A0A0A" : "#71717A" }}
+                style={{ color: active ? accentTextColor : "#71717A" }}
               >
                 <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
                 <span className="text-[9px] font-poppins font-bold uppercase tracking-wider leading-none">
@@ -474,7 +477,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="flex-1 flex flex-col items-center justify-center gap-[3px] transition-all active:opacity-60"
-              style={{ color: isOverflowActive ? "#0A0A0A" : "#71717A" }}
+              style={{ color: isOverflowActive ? accentTextColor : "#71717A" }}
             >
               <MoreHorizontal size={22} strokeWidth={1.8} />
               <span className="text-[9px] font-poppins font-bold uppercase tracking-wider leading-none">Mehr</span>
