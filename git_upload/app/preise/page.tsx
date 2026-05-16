@@ -4,100 +4,15 @@ import Navbar from "@/app/components/Navbar";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "@/app/components/ScrollReveal";
 import Footer from "@/app/components/Footer";
 import { ArrowRight, Check, Info, Sparkles } from "lucide-react";
+import { PLAN_TIERS } from "@/lib/firebase/models";
 
-const tiers = [
-  {
-    name: "Free",
-    price: "0€",
-    period: "/ Jahr",
-    desc: "Für den Einstieg.",
-    features: [
-      "Bis 10 Mitglieder",
-      "Punkte erfassen",
-      "Aktivitäten einreichen",
-      "Genehmigungen",
-      "Basis-Rangliste",
-      "3 Tätigkeitskategorien"
-    ],
-    cta: "Kostenlos starten",
-    href: "/anmelden",
-    popular: false
-  },
-  {
-    name: "Verein",
-    price: "79€",
-    period: "/ Jahr",
-    desc: "Für kleine Vereine.",
-    features: [
-      "Bis 75 Mitglieder",
-      "Unbegrenzte Kategorien",
-      "Punkteverwaltung",
-      "Genehmigungsworkflow",
-      "Mitgliederverwaltung",
-      "Aktivitätsverlauf",
-      "Excel/CSV-Export",
-      "Vereinslogo"
-    ],
-    cta: "Lizenz aktivieren",
-    href: "/anmelden",
-    popular: false
-  },
-  {
-    name: "Club",
-    price: "129€",
-    period: "/ Jahr",
-    desc: "Beliebteste Wahl.",
-    features: [
-      "Bis 150 Mitglieder",
-      "Alles aus Verein",
-      "Gruppen & Teams",
-      "Erweiterte Statistiken",
-      "Gruppenranglisten",
-      "PDF-Export",
-      "Jahresauswertung",
-      "Erweiterte Filter"
-    ],
-    cta: "Club-Lizenz aktivieren",
-    href: "/anmelden",
-    popular: true
-  },
-  {
-    name: "Pro",
-    price: "199€",
-    period: "/ Jahr",
-    desc: "Für große Vereine.",
-    features: [
-      "Bis 300 Mitglieder",
-      "Alles aus Club",
-      "Mehrere Gruppen/Abteilungen",
-      "Erweiterte Rollen",
-      "Detaillierte Auswertungen",
-      "Vereinsfarben",
-      "Priorisierter Support",
-      "Erweiterte Admin-Funktionen"
-    ],
-    cta: "Pro-Lizenz aktivieren",
-    href: "/anmelden",
-    popular: false
-  },
-  {
-    name: "Individuell",
-    price: "Auf Anfrage",
-    desc: "Für Verbände & große Organisationen.",
-    features: [
-      "Individuelle Mitgliederzahl",
-      "Alle Funktionen aus Pro",
-      "Individuelle Rollen/Rechte",
-      "Datenimport-Support",
-      "Persönliches Onboarding",
-      "Persönlicher Ansprechpartner",
-      "Individuelle Sonderfunktionen"
-    ],
-    cta: "Kontaktieren",
-    href: "/kontakt",
-    popular: false
-  }
-];
+const tierCta: Record<string, { cta: string; href: string }> = {
+  free: { cta: "Kostenlos starten", href: "/anmelden" },
+  verein: { cta: "Lizenz aktivieren", href: "/anmelden" },
+  club: { cta: "Club-Lizenz aktivieren", href: "/anmelden" },
+  pro: { cta: "Pro-Lizenz aktivieren", href: "/anmelden" },
+  individual: { cta: "Kontaktieren", href: "/kontakt" },
+};
 
 export default function PricingPage() {
   return (
@@ -123,8 +38,10 @@ export default function PricingPage() {
       <section className="pb-24">
         <div className="max-w-[1500px] mx-auto px-6">
           <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-            {tiers.map((tier, idx) => (
-              <StaggerItem key={idx}>
+            {PLAN_TIERS.map((tier) => {
+              const cta = tierCta[tier.key];
+              return (
+              <StaggerItem key={tier.key}>
                 <div className={`relative h-full rounded-[2.5rem] p-8 border ${
                   tier.popular 
                     ? "bg-[#0c0c0c] text-white border-white/10 shadow-2xl scale-105" 
@@ -158,17 +75,17 @@ export default function PricingPage() {
 
                   {/* Desktop CTA */}
                   <a
-                    href={tier.href}
-                    className={`${tier.href === "/anmelden" ? "hidden sm:block" : "block"} w-full py-4 text-center font-bold rounded-2xl transition-all hover:scale-[1.02] ${
+                    href={cta.href}
+                    className={`${cta.href === "/anmelden" ? "hidden sm:block" : "block"} w-full py-4 text-center font-bold rounded-2xl transition-all hover:scale-[1.02] ${
                       tier.popular
                         ? "bg-white text-black shadow-lg"
                         : "bg-[#0c0c0c] text-white dark:bg-white dark:text-black"
                     }`}
                   >
-                    {tier.cta}
+                    {cta.cta}
                   </a>
                   {/* Mobile CTA */}
-                  {tier.href === "/anmelden" && (
+                  {cta.href === "/anmelden" && (
                     <a
                       href="/anmelden"
                       className={`flex sm:hidden items-center justify-center gap-2 w-full py-4 text-center font-bold rounded-2xl transition-all hover:scale-[1.02] ${
@@ -183,7 +100,8 @@ export default function PricingPage() {
                   )}
                 </div>
               </StaggerItem>
-            ))}
+              );
+            })}
           </StaggerContainer>
         </div>
       </section>

@@ -25,6 +25,7 @@ import {
   SeasonType,
   TrainingAnnouncement,
   ClubMembership,
+  ClubGroup,
   getEffectiveMemberForClub,
   normalizeClubIds,
 } from "./models";
@@ -37,6 +38,8 @@ const buildClub = (id: string, data: DocumentData): Club => ({
   seasonType: data.seasonType as SeasonType,
   approvalRequired: data.approvalRequired,
   plan: data.plan,
+  logoUrl: data.logoUrl,
+  brandColor: data.brandColor,
   licenseStatus: data.licenseStatus,
   licenseExpiresAt: data.licenseExpiresAt,
 });
@@ -58,12 +61,18 @@ const buildMember = (
     clubId: data.clubId || clubIds[0] || "",
     clubIds,
     clubMemberships: data.clubMemberships ?? {},
+    groupId: data.groupId,
     customTargetPoints: data.customTargetPoints,
     profileImageUrl: data.profileImageUrl,
   };
 
   return activeClubId ? getEffectiveMemberForClub(member, activeClubId) : member;
 };
+
+const cleanMembership = (membership: ClubMembership): ClubMembership =>
+  Object.fromEntries(
+    Object.entries(membership).filter(([, value]) => value !== undefined)
+  ) as ClubMembership;
 
 const mergeMemberSnapshots = (
   snapshots: QuerySnapshot<DocumentData>[],
@@ -160,6 +169,85 @@ export class FirebaseManager {
     }
   }
 
+  // === GROUPS ===
+  static listenToGroups(
+    clubId: string,
+    callback: (groups: ClubGroup[]) => void
+  ) {
+    const q = query(collection(db, `clubs/${clubId}/groups`));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const groups: ClubGroup[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          groups.push({
+            id: docSnap.id,
+            name: data.name,
+            description: data.description,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
+          });
+        });
+        groups.sort((a, b) => a.name.localeCompare(b.name));
+        callback(groups);
+      },
+      (error) => {
+        console.error("Error listening to groups:", error);
+      }
+    );
+  }
+
+  static async addGroup(
+    clubId: string,
+    group: Omit<ClubGroup, "id" | "createdAt">
+  ): Promise<void> {
+    await addDoc(collection(db, `clubs/${clubId}/groups`), {
+      name: group.name,
+      ...(group.description ? { description: group.description } : {}),
+      createdAt: Timestamp.now(),
+    });
+  }
+
+  static async updateGroup(
+    clubId: string,
+    groupId: string,
+    updates: Partial<Omit<ClubGroup, "id" | "createdAt">>
+  ): Promise<void> {
+    await updateDoc(doc(db, `clubs/${clubId}/groups`, groupId), updates);
+  }
+
+  static async deleteGroup(clubId: string, groupId: string): Promise<void> {
+    const [clubIdsSnapshot, legacyClubSnapshot] = await Promise.all([
+      getDocs(query(collection(db, "members"), where("clubIds", "array-contains", clubId))),
+      getDocs(query(collection(db, "members"), where("clubId", "==", clubId))),
+    ]);
+
+    const seen = new Set<string>();
+    const cleanupWrites: Promise<void>[] = [];
+    [...clubIdsSnapshot.docs, ...legacyClubSnapshot.docs].forEach((docSnap) => {
+      if (seen.has(docSnap.id)) return;
+      seen.add(docSnap.id);
+
+      const data = docSnap.data();
+      const membership = data.clubMemberships?.[clubId];
+      const updates: Record<string, unknown> = {};
+
+      if (membership?.groupId === groupId) {
+        updates[`clubMemberships.${clubId}.groupId`] = deleteField();
+      }
+      if (data.clubId === clubId && data.groupId === groupId) {
+        updates.groupId = deleteField();
+      }
+
+      if (Object.keys(updates).length > 0) {
+        cleanupWrites.push(updateDoc(docSnap.ref, updates));
+      }
+    });
+
+    await Promise.all(cleanupWrites);
+    await deleteDoc(doc(db, `clubs/${clubId}/groups`, groupId));
+  }
+
   // === ENTRIES ===
   static listenToEntries(
     clubId: string,
@@ -181,6 +269,7 @@ export class FirebaseManager {
             status: data.status,
             activityName: data.activityName,
             activityCategory: data.activityCategory,
+            groupId: data.groupId,
             rejectionReason: data.rejectionReason,
             photoUrl: data.photoUrl,
           });
@@ -365,7 +454,7 @@ export class FirebaseManager {
     const clubIds = normalizeClubIds([...member.clubIds, clubId], member.clubId);
     const updates: Record<string, unknown> = {
       clubIds: arrayUnion(...clubIds),
-      [`clubMemberships.${clubId}`]: membership,
+      [`clubMemberships.${clubId}`]: cleanMembership(membership),
     };
 
     if (!member.clubId) {
@@ -381,7 +470,7 @@ export class FirebaseManager {
     membership: ClubMembership
   ): Promise<void> {
     await updateDoc(doc(db, "members", memberId), {
-      [`clubMemberships.${clubId}`]: membership,
+      [`clubMemberships.${clubId}`]: cleanMembership(membership),
     });
   }
 
@@ -415,6 +504,7 @@ export class FirebaseManager {
       status: string;
       activityName: string;
       activityCategory: string;
+      groupId?: string;
       rejectionReason?: string;
     }
   ): Promise<void> {
@@ -427,6 +517,9 @@ export class FirebaseManager {
       activityName:     data.activityName,
       activityCategory: data.activityCategory,
     };
+    if (data.groupId !== undefined) {
+      payload.groupId = data.groupId;
+    }
     if (data.rejectionReason !== undefined) {
       payload.rejectionReason = data.rejectionReason;
     }
@@ -445,6 +538,7 @@ export class FirebaseManager {
       status: entry.status,
       notes: entry.notes,
       rejectionReason: entry.rejectionReason ?? "",
+      groupId: entry.groupId ?? "",
       date: entry.date instanceof Date ? Timestamp.fromDate(entry.date) : entry.date,
     });
   }

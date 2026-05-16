@@ -34,6 +34,8 @@ export interface Club {
   seasonType: SeasonType | string;
   approvalRequired: boolean;
   plan?: string;
+  logoUrl?: string;
+  brandColor?: string;
   licenseStatus?: string;
   licenseExpiresAt?: Timestamp | Date | null;
 }
@@ -43,6 +45,7 @@ export interface ClubMembership {
   customTargetPoints?: number;
   isAdmin: boolean;
   isTrainer: boolean;
+  groupId?: string;
 }
 
 export interface Member {
@@ -57,7 +60,15 @@ export interface Member {
   clubId: string;
   clubIds: string[];
   clubMemberships?: Record<string, ClubMembership>;
+  groupId?: string;
   profileImageUrl?: string;
+}
+
+export interface ClubGroup {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt?: Timestamp | Date;
 }
 
 export interface Activity {
@@ -77,6 +88,7 @@ export interface Entry {
   status: EntryStatus | string;
   activityName: string;
   activityCategory: ActivityCategory | string;
+  groupId?: string;
   rejectionReason?: string;
   photoUrl?: string;
 }
@@ -141,6 +153,7 @@ export const getEffectiveMemberForClub = (
     customTargetPoints: membership.customTargetPoints,
     isAdmin: membership.isAdmin === true,
     isTrainer: membership.isTrainer === true,
+    groupId: membership.groupId ?? member.groupId,
   };
 };
 
@@ -159,21 +172,214 @@ export const calculateTargetPoints = (
   return Number((base * factor).toFixed(1));
 };
 
-export const getPlanFeatures = (plan?: string) => {
+export type PlanKey = "free" | "verein" | "club" | "pro" | "individual";
+
+export interface PlanFeatures {
+  key: PlanKey;
+  name: string;
+  price: string;
+  period?: string;
+  desc: string;
+  features: string[];
+  maxMembers: number;
+  maxActivities: number;
+  canExportCsv: boolean;
+  canExportPdf: boolean;
+  hasGroups: boolean;
+  hasGroupLeaderboards: boolean;
+  hasAdvancedStats: boolean;
+  hasAdvancedFilters: boolean;
+  hasAdvancedRoles: boolean;
+  hasClubLogo: boolean;
+  hasClubColors: boolean;
+  hasPrioritySupport: boolean;
+  hasAdvancedAdmin: boolean;
+  hasDataImportSupport: boolean;
+  hasPersonalOnboarding: boolean;
+  hasCustomFeatures: boolean;
+  popular?: boolean;
+}
+
+const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
+  free: {
+    key: "free",
+    name: "Free",
+    price: "0€",
+    period: "/ Jahr",
+    desc: "Für den Einstieg.",
+    features: [
+      "Bis 10 Mitglieder",
+      "Punkte erfassen",
+      "Aktivitäten einreichen",
+      "Genehmigungen",
+      "Basis-Rangliste",
+      "3 Tätigkeiten im Katalog",
+    ],
+    maxMembers: 10,
+    maxActivities: 3,
+    canExportCsv: false,
+    canExportPdf: false,
+    hasGroups: false,
+    hasGroupLeaderboards: false,
+    hasAdvancedStats: false,
+    hasAdvancedFilters: false,
+    hasAdvancedRoles: false,
+    hasClubLogo: false,
+    hasClubColors: false,
+    hasPrioritySupport: false,
+    hasAdvancedAdmin: false,
+    hasDataImportSupport: false,
+    hasPersonalOnboarding: false,
+    hasCustomFeatures: false,
+  },
+  verein: {
+    key: "verein",
+    name: "Verein",
+    price: "79€",
+    period: "/ Jahr",
+    desc: "Für kleine Vereine.",
+    features: [
+      "Bis 75 Mitglieder",
+      "Unbegrenzte Tätigkeiten",
+      "Punkteverwaltung",
+      "Genehmigungsworkflow",
+      "Mitgliederverwaltung",
+      "Aktivitätsverlauf",
+      "Excel/CSV-Export",
+      "Vereinslogo",
+    ],
+    maxMembers: 75,
+    maxActivities: 999,
+    canExportCsv: true,
+    canExportPdf: false,
+    hasGroups: false,
+    hasGroupLeaderboards: false,
+    hasAdvancedStats: false,
+    hasAdvancedFilters: false,
+    hasAdvancedRoles: false,
+    hasClubLogo: true,
+    hasClubColors: false,
+    hasPrioritySupport: false,
+    hasAdvancedAdmin: false,
+    hasDataImportSupport: false,
+    hasPersonalOnboarding: false,
+    hasCustomFeatures: false,
+  },
+  club: {
+    key: "club",
+    name: "Club",
+    price: "129€",
+    period: "/ Jahr",
+    desc: "Beliebteste Wahl.",
+    features: [
+      "Bis 150 Mitglieder",
+      "Alles aus Verein",
+      "Gruppen & Teams",
+      "Erweiterte Statistiken",
+      "Gruppenranglisten",
+      "PDF-Export",
+      "Jahresauswertung",
+      "Erweiterte Filter",
+    ],
+    maxMembers: 150,
+    maxActivities: 999,
+    canExportCsv: true,
+    canExportPdf: true,
+    hasGroups: true,
+    hasGroupLeaderboards: true,
+    hasAdvancedStats: true,
+    hasAdvancedFilters: true,
+    hasAdvancedRoles: false,
+    hasClubLogo: true,
+    hasClubColors: false,
+    hasPrioritySupport: false,
+    hasAdvancedAdmin: false,
+    hasDataImportSupport: false,
+    hasPersonalOnboarding: false,
+    hasCustomFeatures: false,
+    popular: true,
+  },
+  pro: {
+    key: "pro",
+    name: "Pro",
+    price: "199€",
+    period: "/ Jahr",
+    desc: "Für große Vereine.",
+    features: [
+      "Bis 300 Mitglieder",
+      "Alles aus Club",
+      "Mehrere Gruppen/Abteilungen",
+      "Erweiterte Rollen",
+      "Detaillierte Auswertungen",
+      "Vereinsfarben",
+      "Priorisierter Support",
+      "Erweiterte Admin-Funktionen",
+    ],
+    maxMembers: 300,
+    maxActivities: 999,
+    canExportCsv: true,
+    canExportPdf: true,
+    hasGroups: true,
+    hasGroupLeaderboards: true,
+    hasAdvancedStats: true,
+    hasAdvancedFilters: true,
+    hasAdvancedRoles: true,
+    hasClubLogo: true,
+    hasClubColors: true,
+    hasPrioritySupport: true,
+    hasAdvancedAdmin: true,
+    hasDataImportSupport: false,
+    hasPersonalOnboarding: false,
+    hasCustomFeatures: false,
+  },
+  individual: {
+    key: "individual",
+    name: "Individuell",
+    price: "Auf Anfrage",
+    desc: "Für Verbände & große Organisationen.",
+    features: [
+      "Individuelle Mitgliederzahl",
+      "Alle Funktionen aus Pro",
+      "Individuelle Rollen/Rechte",
+      "Datenimport-Support",
+      "Persönliches Onboarding",
+      "Persönlicher Ansprechpartner",
+      "Individuelle Sonderfunktionen",
+    ],
+    maxMembers: 99999,
+    maxActivities: 999,
+    canExportCsv: true,
+    canExportPdf: true,
+    hasGroups: true,
+    hasGroupLeaderboards: true,
+    hasAdvancedStats: true,
+    hasAdvancedFilters: true,
+    hasAdvancedRoles: true,
+    hasClubLogo: true,
+    hasClubColors: true,
+    hasPrioritySupport: true,
+    hasAdvancedAdmin: true,
+    hasDataImportSupport: true,
+    hasPersonalOnboarding: true,
+    hasCustomFeatures: true,
+  },
+};
+
+export const PLAN_TIERS = [
+  PLAN_FEATURES.free,
+  PLAN_FEATURES.verein,
+  PLAN_FEATURES.club,
+  PLAN_FEATURES.pro,
+  PLAN_FEATURES.individual,
+] as const;
+
+export const getPlanKey = (plan?: string): PlanKey => {
   const p = (plan || "free").toLowerCase();
-  
-  if (p === "individual") {
-    return { maxMembers: 99999, maxActivities: 999, canExportCsv: true, canExportPdf: true, hasGroups: true };
-  }
-  if (p === "pro") {
-    return { maxMembers: 300, maxActivities: 999, canExportCsv: true, canExportPdf: true, hasGroups: true };
-  }
-  if (p === "club") {
-    return { maxMembers: 150, maxActivities: 999, canExportCsv: true, canExportPdf: true, hasGroups: true };
-  }
-  if (p === "verein") {
-    return { maxMembers: 75, maxActivities: 999, canExportCsv: true, canExportPdf: false, hasGroups: false };
-  }
-  // Default to Free
-  return { maxMembers: 10, maxActivities: 3, canExportCsv: false, canExportPdf: false, hasGroups: false };
+  if (p === "individuell") return "individual";
+  if (p === "verein" || p === "club" || p === "pro" || p === "individual") return p;
+  return "free";
+};
+
+export const getPlanFeatures = (plan?: string): PlanFeatures => {
+  return PLAN_FEATURES[getPlanKey(plan)];
 };

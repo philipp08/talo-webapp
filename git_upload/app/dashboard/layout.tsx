@@ -54,6 +54,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isAdmin   = currentMember?.isAdmin   === true;
   const isTrainer = currentMember?.isTrainer === true;
   const canSwitchClubs = availableClubs.length > 1;
+  const brandColor = currentClub?.brandColor || "#0A0A0A";
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -120,8 +121,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             canSwitchClubs ? "hover:bg-black/[0.05]" : "cursor-default"
           } ${mobile ? "px-3 py-3" : "px-4 py-3.5"}`}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-black/5 text-[#0A0A0A]">
-            <Building2 size={17} />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-black/5 overflow-hidden" style={{ color: brandColor }}>
+            {currentClub.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-cover" />
+            ) : (
+              <Building2 size={17} />
+            )}
           </div>
           <div className="min-w-0 flex-1 text-left">
             <p className="truncate text-[13px] font-poppins font-bold text-[#0A0A0A]">
@@ -160,7 +166,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-black/[0.04] disabled:opacity-60"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/[0.04] text-[#0A0A0A]">
-                      {active ? <Check size={15} /> : switching ? (
+                      {active ? <Check size={15} style={{ color: brandColor }} /> : switching ? (
                         <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/10 border-t-[#0A0A0A]" />
                       ) : (
                         <Building2 size={15} />
@@ -231,17 +237,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   href={item.href}
                   className="flex items-center gap-3.5 px-4 py-3.5 rounded-[16px] transition-all group relative"
                   style={{
-                    background: isActive ? "rgba(0,0,0,0.06)" : "transparent",
-                    color: isActive ? "#0A0A0A" : "#71717A",
+                    background: isActive ? `${brandColor}12` : "transparent",
+                    color: isActive ? brandColor : "#71717A",
                   }}
-                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = "#0A0A0A"; }}
+                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = brandColor; }}
                   onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = "#71717A"; }}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="nav-pill"
                       className="absolute left-0 w-1 h-5 rounded-r-full"
-                      style={{ background: "#0A0A0A" }}
+                      style={{ background: brandColor }}
                     />
                   )}
                   <Icon size={18} strokeWidth={isActive ? 2.5 : 1.8} />

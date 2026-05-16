@@ -6,12 +6,12 @@ import {
   Search, Trophy,
   ChevronRight, Shield, UserPlus,
   ArrowUpRight, Target, MoreVertical,
-  X, Mail, User, Check
+  X, Mail, User, Check, Layers, Filter
 } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Member, MemberType, calculateTargetPoints, Entry, getPlanFeatures } from "@/lib/firebase/models";
+import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFeatures } from "@/lib/firebase/models";
 import { AuthService } from "@/lib/firebase/authService";
 import { EmailService } from "@/lib/firebase/emailService";
 import { TAvatar, GlassSection, TLine, TSearchBar } from "@/app/components/ui/NativeUI";
@@ -43,8 +43,11 @@ export default function MembersPage() {
   const currentMember = useAppStore((state) => state.currentMember);
   const [members, setMembers] = useState<Member[]>([]);
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [groups, setGroups] = useState<ClubGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [memberTypeFilter, setMemberTypeFilter] = useState<MemberType | "all">("all");
+  const [groupFilter, setGroupFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("administration");
   
   // Invite member state
@@ -53,6 +56,7 @@ export default function MembersPage() {
   const [inviteFirstName, setInviteFirstName] = useState("");
   const [inviteLastName, setInviteLastName] = useState("");
   const [inviteType, setInviteType] = useState<MemberType>(MemberType.Active);
+  const [inviteGroupId, setInviteGroupId] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isSendingMail, setIsSendingMail] = useState(false);
   const [mailSent, setMailSent] = useState(false);
@@ -79,13 +83,32 @@ export default function MembersPage() {
     return () => { unsubMembers(); unsubEntries(); };
   }, [currentClub]);
 
+  useEffect(() => {
+    if (!currentClub || !planFeatures.hasGroups) return;
+    return FirebaseManager.listenToGroups(currentClub.id, setGroups);
+  }, [currentClub, planFeatures.hasGroups]);
+
+  const visibleGroups = useMemo(
+    () => (planFeatures.hasGroups ? groups : []),
+    [groups, planFeatures.hasGroups]
+  );
+
   const filtered = useMemo(() => {
-    if (!searchText.trim()) return members;
-    const q = searchText.toLowerCase();
-    return members.filter((m) =>
-      `${m.firstName} ${m.lastName}`.toLowerCase().includes(q)
-    );
-  }, [members, searchText]);
+    let list = members;
+    if (planFeatures.hasAdvancedFilters && memberTypeFilter !== "all") {
+      list = list.filter((m) => m.memberType === memberTypeFilter);
+    }
+    if (planFeatures.hasAdvancedFilters && groupFilter !== "all") {
+      list = list.filter((m) => (m.groupId || "") === groupFilter);
+    }
+    if (searchText.trim()) {
+      const q = searchText.toLowerCase();
+      list = list.filter((m) =>
+        `${m.firstName} ${m.lastName}`.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [members, searchText, memberTypeFilter, groupFilter, planFeatures.hasAdvancedFilters]);
 
   const leaderboard = useMemo(() => {
     return members
@@ -100,6 +123,11 @@ export default function MembersPage() {
       })
       .sort((a, b) => b.approved - a.approved);
   }, [members, entries, currentClub]);
+
+  const groupNameById = useMemo(
+    () => new Map(visibleGroups.map((group) => [group.id, group.name])),
+    [visibleGroups]
+  );
 
   if (!canViewMembers) {
     return (
@@ -174,10 +202,51 @@ export default function MembersPage() {
                  exit={{ opacity: 0, y: -20 }}
                  className="space-y-8"
                >
-                 <div className="w-full max-w-md">
-                   <TSearchBar value={searchText} onChange={setSearchText} placeholder="Mitglied suchen…" />
+                 <div className="flex flex-col gap-3">
+                   <div className="w-full max-w-md">
+                     <TSearchBar value={searchText} onChange={setSearchText} placeholder="Mitglied suchen…" />
+                   </div>
+                   {planFeatures.hasAdvancedFilters && (
+                     <div className="flex flex-wrap gap-2">
+                       <FilterPill
+                         label="Alle Typen"
+                         selected={memberTypeFilter === "all"}
+                         onClick={() => setMemberTypeFilter("all")}
+                       />
+                       {memberTypeOrder.map((type) => (
+                         <FilterPill
+                           key={type}
+                           label={type}
+                           selected={memberTypeFilter === type}
+                           onClick={() => setMemberTypeFilter(type)}
+                         />
+                       ))}
+                       {planFeatures.hasGroups && (
+                         <>
+                           <FilterPill
+                             label="Alle Gruppen"
+                             selected={groupFilter === "all"}
+                             onClick={() => setGroupFilter("all")}
+                           />
+                           {visibleGroups.map((group) => (
+                             <FilterPill
+                               key={group.id}
+                               label={group.name}
+                               selected={groupFilter === group.id}
+                               onClick={() => setGroupFilter(group.id)}
+                             />
+                           ))}
+                         </>
+                       )}
+                     </div>
+                   )}
+                   {!planFeatures.hasAdvancedFilters && (
+                     <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+                       <Filter size={12} /> Erweiterte Filter ab Club
+                     </div>
+                   )}
                  </div>
-                 <ListView members={filtered} entries={entries} requiredPoints={currentClub?.requiredPoints ?? 15} />
+                 <ListView members={filtered} entries={entries} requiredPoints={currentClub?.requiredPoints ?? 15} groupNameById={groupNameById} showGroups={planFeatures.hasGroups} />
                </motion.div>
              ) : (
                <motion.div 
@@ -186,7 +255,12 @@ export default function MembersPage() {
                  animate={{ opacity: 1, y: 0 }}
                  exit={{ opacity: 0, y: -20 }}
                >
-                 <LeaderboardView data={leaderboard} />
+                 <LeaderboardView
+                   data={leaderboard}
+                   groups={visibleGroups}
+                   showGroupLeaderboards={planFeatures.hasGroupLeaderboards}
+                   showAdvancedStats={planFeatures.hasAdvancedStats}
+                 />
                </motion.div>
              )}
           </AnimatePresence>
@@ -220,6 +294,7 @@ export default function MembersPage() {
                              setGeneratedPassword(null);
                              setErrorMessage(null);
                              setUserAlreadyExisted(false);
+                             setInviteGroupId("");
                            }}
                            className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
                          >
@@ -311,6 +386,7 @@ export default function MembersPage() {
                                 setGeneratedPassword(null);
                                 setMailSent(false);
                                 setUserAlreadyExisted(false);
+                                setInviteGroupId("");
                               }}
                               className={`w-full h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${userAlreadyExisted ? "bg-[#0A0A0A] text-white hover:bg-[#1F1F23]" : "text-[#71717A] hover:text-[#0A0A0A]"}`}
                             >
@@ -380,6 +456,25 @@ export default function MembersPage() {
                             </div>
                           </div>
 
+                          {planFeatures.hasGroups && (
+                            <div className="flex flex-col gap-2">
+                              <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Gruppe / Team</label>
+                              <div className="relative">
+                                <Layers size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
+                                <select
+                                  value={inviteGroupId}
+                                  onChange={(e) => setInviteGroupId(e.target.value)}
+                                  className="w-full appearance-none bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                                >
+                                  <option value="">Keine Gruppe</option>
+                                  {visibleGroups.map((group) => (
+                                    <option key={group.id} value={group.id}>{group.name}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          )}
+
                           {errorMessage && (
                             <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
                               {errorMessage}
@@ -417,6 +512,7 @@ export default function MembersPage() {
                                       memberType: inviteType,
                                       isAdmin: false,
                                       isTrainer: false,
+                                      ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
                                     });
                                     
                                     setUserAlreadyExisted(true);
@@ -433,11 +529,13 @@ export default function MembersPage() {
                                       isTrainer: false,
                                       clubId: clubId,
                                       clubIds: [clubId],
+                                      ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
                                       clubMemberships: {
                                         [clubId]: {
                                           memberType: inviteType,
                                           isAdmin: false,
                                           isTrainer: false,
+                                          ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
                                         },
                                       },
                                     };
@@ -479,7 +577,19 @@ export default function MembersPage() {
   );
 }
 
-function ListView({ members, entries, requiredPoints }: { members: Member[]; entries: Entry[]; requiredPoints: number }) {
+function ListView({
+  members,
+  entries,
+  requiredPoints,
+  groupNameById,
+  showGroups,
+}: {
+  members: Member[];
+  entries: Entry[];
+  requiredPoints: number;
+  groupNameById: Map<string, string>;
+  showGroups: boolean;
+}) {
   const grouped = memberTypeOrder
     .map((type) => ({ type, group: members.filter((m) => m.memberType === type) }))
     .filter(({ group }) => group.length > 0);
@@ -544,6 +654,11 @@ function ListView({ members, entries, requiredPoints }: { members: Member[]; ent
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">{member.memberType}</span>
                               {member.isAdmin && <Shield size={9} className="text-[#52525B]" />}
+                              {showGroups && member.groupId && (
+                                <span className="text-[9px] font-black text-[#A1A1AA] uppercase tracking-widest">
+                                  · {groupNameById.get(member.groupId) ?? "Gruppe"}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </Link>
@@ -606,6 +721,11 @@ function ListView({ members, entries, requiredPoints }: { members: Member[]; ent
                       </span>
                       {member.isAdmin && <Shield size={11} className="text-[#52525B] shrink-0" />}
                     </div>
+                    {showGroups && member.groupId && (
+                      <p className="text-[10px] font-black text-[#A1A1AA] uppercase tracking-widest">
+                        {groupNameById.get(member.groupId) ?? "Gruppe"}
+                      </p>
+                    )}
                     <div className="flex items-center gap-2 mt-1">
                       <div className="flex-1 h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
                         <div className="h-full rounded-full transition-all" style={{ width: `${progress * 100}%`, background: color }} />
@@ -627,12 +747,38 @@ function ListView({ members, entries, requiredPoints }: { members: Member[]; ent
   );
 }
 
-function LeaderboardView({ data }: { data: LeaderboardItem[] }) {
+function LeaderboardView({
+  data,
+  groups,
+  showGroupLeaderboards,
+  showAdvancedStats,
+}: {
+  data: LeaderboardItem[];
+  groups: ClubGroup[];
+  showGroupLeaderboards: boolean;
+  showAdvancedStats: boolean;
+}) {
   const top3 = data.slice(0, 3);
   const rest = data.slice(3);
+  const totalApproved = data.reduce((sum, item) => sum + item.approved, 0);
+  const completedMembers = data.filter((item) => item.progress >= 1).length;
 
   return (
-    <div className="flex flex-col gap-20 py-10">
+    <div className="flex flex-col gap-12 py-10">
+      {showAdvancedStats ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-4xl mx-auto w-full px-3 md:px-4">
+          <MetricCard label="Gesamtpunkte" value={totalApproved.toFixed(1)} />
+          <MetricCard label="Ziel erreicht" value={String(completedMembers)} />
+          <MetricCard label="Ø Fortschritt" value={`${data.length ? Math.round(data.reduce((sum, item) => sum + item.progress, 0) / data.length * 100) : 0}%`} />
+        </div>
+      ) : (
+        <div className="max-w-4xl mx-auto w-full px-3 md:px-4">
+          <div className="rounded-2xl border border-black/5 bg-black/[0.03] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+            Erweiterte Statistiken ab Club
+          </div>
+        </div>
+      )}
+
       {/* Expanded Podium */}
       {top3.length > 0 && (
         <div className="flex items-end justify-center gap-3 md:gap-6 max-w-4xl mx-auto w-full px-4 md:px-12">
@@ -681,7 +827,88 @@ function LeaderboardView({ data }: { data: LeaderboardItem[] }) {
           </div>
         )}
       </div>
+
+      {showGroupLeaderboards ? (
+        groups.length > 0 && (
+          <div className="max-w-4xl mx-auto w-full px-3 md:px-4 flex flex-col gap-4">
+            <div className="flex items-center gap-2 text-[10px] font-black text-[#52525B] uppercase tracking-widest">
+              <Layers size={13} /> Gruppenranglisten
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {groups.map((group) => {
+                const groupItems = data
+                  .filter((item) => item.member.groupId === group.id)
+                  .slice(0, 5);
+                return (
+                  <div key={group.id} className="rounded-[24px] bg-white border border-black/5 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-poppins font-black text-[#0A0A0A]">{group.name}</h3>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+                        {groupItems.length} Personen
+                      </span>
+                    </div>
+                    {groupItems.length === 0 ? (
+                      <p className="text-xs text-[#71717A]">Noch keine Punkte in dieser Gruppe.</p>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {groupItems.map((item, index) => (
+                          <div key={item.member.id} className="flex items-center gap-3 rounded-xl bg-black/[0.03] px-3 py-2">
+                            <span className="w-6 text-xs font-mono font-black text-[#A1A1AA]">#{index + 1}</span>
+                            <TAvatar name={`${item.member.firstName} ${item.member.lastName}`} id={item.member.id} size={30} />
+                            <span className="min-w-0 flex-1 truncate text-sm font-poppins font-bold text-[#0A0A0A]">
+                              {item.member.firstName} {item.member.lastName}
+                            </span>
+                            <span className="font-mono font-black text-sm text-[#0A0A0A]">{item.approved.toFixed(1)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )
+      ) : (
+        <div className="max-w-4xl mx-auto w-full px-3 md:px-4">
+          <div className="rounded-2xl border border-black/5 bg-black/[0.03] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+            Gruppenranglisten ab Club
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function MetricCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-white border border-black/5 px-5 py-4">
+      <p className="text-2xl font-poppins font-black text-[#0A0A0A]">{value}</p>
+      <p className="text-[10px] font-black uppercase tracking-widest text-[#71717A]">{label}</p>
+    </div>
+  );
+}
+
+function FilterPill({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`shrink-0 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
+        selected
+          ? "bg-[#0A0A0A] text-white border-black/15"
+          : "bg-black/[0.04] text-[#71717A] border-black/10 hover:text-[#0A0A0A]"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

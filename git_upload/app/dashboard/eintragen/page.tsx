@@ -97,6 +97,7 @@ export default function EintragenPage() {
   }, [members, memberSearch, currentMember]);
 
   const selectedMemberObj = members.find((m) => m.id === selectedMemberId);
+  const targetMemberObj = isAdmin ? (selectedMemberObj ?? currentMember) : currentMember;
 
   async function submit() {
     if (!currentClub || !selectedActivity || !targetMemberId) return;
@@ -112,6 +113,7 @@ export default function EintragenPage() {
         status:           entryStatus,
         activityName:     selectedActivity.name,
         activityCategory: selectedActivity.category,
+        groupId:          targetMemberObj?.groupId,
       });
 
       setShowSuccess(true);

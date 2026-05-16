@@ -8,13 +8,13 @@ import {
   Trash2, AlertTriangle, X, Pencil, Camera,
   ShieldCheck, Calendar,
   RefreshCcw, ChevronRight, MoreHorizontal,
-  MailQuestion, Activity, Settings
+  MailQuestion, Activity, Settings, Layers, Lock
 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import {
   Member, Entry, MemberType,
-  calculateTargetPoints, EntryStatus,
+  calculateTargetPoints, EntryStatus, ClubGroup, getPlanFeatures,
 } from "@/lib/firebase/models";
 import { 
   TAvatar,
@@ -44,6 +44,7 @@ export default function MemberDetailPage() {
 
   const [member,  setMember]  = useState<Member | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [groups, setGroups] = useState<ClubGroup[]>([]);
   const [loading, setLoading] = useState(true);
 
   // member edit
@@ -52,6 +53,7 @@ export default function MemberDetailPage() {
     firstName: "", lastName: "", email: "",
     memberType: MemberType.Active as string,
     isAdmin: false, isTrainer: false,
+    groupId: "",
   });
   const [saving,    setSaving]    = useState(false);
   const [editSaved, setEditSaved] = useState(false);
@@ -71,6 +73,7 @@ export default function MemberDetailPage() {
   const isAdmin = currentMember?.isAdmin === true;
   const isTrainer = currentMember?.isTrainer === true;
   const canViewMember = isAdmin || isTrainer;
+  const planFeatures = getPlanFeatures(currentClub?.plan);
 
   useEffect(() => {
     if (!currentClub || !canViewMember) return;
@@ -86,6 +89,7 @@ export default function MemberDetailPage() {
         setEditForm({
           firstName: m.firstName, lastName: m.lastName, email: m.email,
           memberType: m.memberType, isAdmin: m.isAdmin, isTrainer: m.isTrainer,
+          groupId: m.groupId ?? "",
         });
       }
       setLoading(false);
@@ -101,6 +105,13 @@ export default function MemberDetailPage() {
     });
     return () => unsub();
   }, [currentClub, id, canViewMember]);
+
+  useEffect(() => {
+    if (!currentClub || !planFeatures.hasGroups) return;
+    return FirebaseManager.listenToGroups(currentClub.id, setGroups);
+  }, [currentClub, planFeatures.hasGroups]);
+
+  const visibleGroups = planFeatures.hasGroups ? groups : [];
 
   const targetPts   = member && currentClub ? calculateTargetPoints(member, currentClub.requiredPoints) : 15;
   const approvedPts = entries.filter((e) => e.status === "Genehmigt").reduce((s, e) => s + e.points, 0);
@@ -121,7 +132,8 @@ export default function MemberDetailPage() {
     const nextMembership = {
       memberType: editForm.memberType,
       isAdmin: editForm.isAdmin,
-      isTrainer: editForm.isTrainer,
+      isTrainer: planFeatures.hasAdvancedRoles ? editForm.isTrainer : false,
+      ...(planFeatures.hasGroups && editForm.groupId ? { groupId: editForm.groupId } : {}),
     };
     await Promise.all([
       FirebaseManager.updateMember(member.id, nextProfile),
@@ -369,6 +381,32 @@ export default function MemberDetailPage() {
                                      ))}
                                   </div>
                                </div>
+                               {planFeatures.hasGroups ? (
+                                 <div className="flex flex-col gap-3">
+                                   <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">Gruppe / Team</label>
+                                   <div className="relative">
+                                     <Layers size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
+                                     <select
+                                       value={editForm.groupId}
+                                       onChange={(e) => setEditForm({ ...editForm, groupId: e.target.value })}
+                                       className="w-full appearance-none rounded-2xl bg-black/[0.03] border border-black/[0.08] py-3.5 pl-11 pr-4 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15"
+                                     >
+                                       <option value="">Keine Gruppe</option>
+                                       {visibleGroups.map((group) => (
+                                         <option key={group.id} value={group.id}>{group.name}</option>
+                                       ))}
+                                     </select>
+                                   </div>
+                                 </div>
+                               ) : (
+                                 <div className="flex items-center gap-3 p-4 bg-black/[0.03] border border-black/5 rounded-2xl">
+                                   <Lock size={16} className="text-[#A1A1AA]" />
+                                   <div className="flex flex-col">
+                                     <span className="text-sm font-bold text-[#0A0A0A]">Gruppen & Teams</span>
+                                     <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest">Ab Club verfügbar</span>
+                                   </div>
+                                 </div>
+                               )}
                                <div className="flex flex-col gap-3 pt-4">
                                   <div className="flex items-center justify-between gap-4 p-4 bg-black/[0.03] border border-black/5 rounded-2xl">
                                      <div className="flex min-w-0 flex-col">
@@ -379,12 +417,14 @@ export default function MemberDetailPage() {
                                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${editForm.isAdmin ? "left-7" : "left-1"}`} />
                                      </button>
                                   </div>
-                                  <div className="flex items-center justify-between gap-4 p-4 bg-black/[0.03] border border-black/5 rounded-2xl">
+                                  <div className={`flex items-center justify-between gap-4 p-4 bg-black/[0.03] border border-black/5 rounded-2xl ${!planFeatures.hasAdvancedRoles ? "opacity-60" : ""}`}>
                                      <div className="flex min-w-0 flex-col">
                                         <span className="text-sm font-bold text-[#0A0A0A]">Trainer / Coach</span>
-                                        <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest leading-snug">Kann Punkte genehmigen</span>
+                                        <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest leading-snug">
+                                          {planFeatures.hasAdvancedRoles ? "Kann Punkte genehmigen" : "Erweiterte Rollen ab Pro"}
+                                        </span>
                                      </div>
-                                     <button onClick={() => setEditForm({...editForm, isTrainer: !editForm.isTrainer})} className={`w-12 h-6 rounded-full transition-all relative ${editForm.isTrainer ? "bg-[#52525B]" : "bg-black/[0.07]"}`}>
+                                     <button disabled={!planFeatures.hasAdvancedRoles} onClick={() => setEditForm({...editForm, isTrainer: !editForm.isTrainer})} className={`w-12 h-6 rounded-full transition-all relative ${editForm.isTrainer ? "bg-[#52525B]" : "bg-black/[0.07]"} disabled:cursor-not-allowed`}>
                                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${editForm.isTrainer ? "left-7" : "left-1"}`} />
                                      </button>
                                   </div>

@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import {
   User, Lock, LogOut, Building2, ShieldCheck, Dumbbell,
   Calendar, Euro, Target, FileSpreadsheet, FileText,
-  Users, Settings2, Download, Check, ChevronRight, Key, Sparkles
+  Users, Settings2, Download, Check, ChevronRight, Key, Sparkles,
+  ImageIcon, Palette, Layers, Trash2, Plus
 } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { collection, query, where, getDocs, doc, updateDoc, Timestamp } from "firebase/firestore";
@@ -13,7 +14,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
-import { SeasonType, Entry, Member, getPlanFeatures } from "@/lib/firebase/models";
+import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures } from "@/lib/firebase/models";
 import {
   GlassSection, TLine, TAvatar, TButton, TBadge,
 } from "@/app/components/ui/NativeUI";
@@ -28,42 +29,6 @@ const SEASON_TYPES = [
   SeasonType.Calendar,
   SeasonType.Club,
   SeasonType.School,
-];
-
-const PLAN_TIERS = [
-  {
-    key: "free",
-    name: "Free",
-    price: "0€",
-    period: "/ Jahr",
-    desc: "Für den Einstieg.",
-    features: ["Bis 10 Mitglieder", "Punkte erfassen", "3 Tätigkeitskategorien"],
-  },
-  {
-    key: "verein",
-    name: "Verein",
-    price: "79€",
-    period: "/ Jahr",
-    desc: "Für kleine Vereine.",
-    features: ["Bis 75 Mitglieder", "Unbegrenzte Kategorien", "CSV-Export", "Aktivitätsverlauf"],
-  },
-  {
-    key: "club",
-    name: "Club",
-    price: "129€",
-    period: "/ Jahr",
-    desc: "Beliebteste Wahl.",
-    features: ["Bis 150 Mitglieder", "Gruppen & Teams", "PDF-Export", "Jahresauswertung"],
-    popular: true
-  },
-  {
-    key: "pro",
-    name: "Pro",
-    price: "199€",
-    period: "/ Jahr",
-    desc: "Für große Vereine.",
-    features: ["Bis 300 Mitglieder", "Mehrere Abteilungen", "Vereinsfarben", "Priorisierter Support"],
-  }
 ];
 
 function formatLicenseDate(value: Timestamp | Date): string {
@@ -89,6 +54,8 @@ export default function SettingsPage() {
   const [compensation, setCompensation] = useState(String(currentClub?.compensationPerMissingPoint ?? 0));
   const [seasonType, setSeasonType] = useState<string>(currentClub?.seasonType ?? SeasonType.Calendar);
   const [approvalRequired, setApprovalRequired] = useState(currentClub?.approvalRequired ?? true);
+  const [logoUrl, setLogoUrl] = useState(currentClub?.logoUrl ?? "");
+  const [brandColor, setBrandColor] = useState(currentClub?.brandColor ?? "#0A0A0A");
   const [clubState, setClubState] = useState<"idle" | "saving" | "saved">("idle");
 
   const thisYear = new Date().getFullYear();
@@ -97,6 +64,10 @@ export default function SettingsPage() {
 
   const [allMembers, setAllMembers] = useState<Member[]>([]);
   const [allEntries, setAllEntries] = useState<Entry[]>([]);
+  const [groups, setGroups] = useState<ClubGroup[]>([]);
+  const [groupName, setGroupName] = useState("");
+  const [groupDescription, setGroupDescription] = useState("");
+  const [savingGroup, setSavingGroup] = useState(false);
   const [busyExport, setBusyExport] = useState<ExportKey | null>(null);
 
   // License Activation State
@@ -107,6 +78,7 @@ export default function SettingsPage() {
 
   const isAdmin = currentMember?.isAdmin === true;
   const isTrainer = currentMember?.isTrainer === true;
+  const planFeatures = getPlanFeatures(currentClub?.plan);
 
   useEffect(() => {
     if (!currentClub) return;
@@ -115,6 +87,8 @@ export default function SettingsPage() {
     setCompensation(String(currentClub.compensationPerMissingPoint ?? 0));
     setSeasonType(currentClub.seasonType);
     setApprovalRequired(currentClub.approvalRequired);
+    setLogoUrl(currentClub.logoUrl ?? "");
+    setBrandColor(currentClub.brandColor ?? "#0A0A0A");
   }, [currentClub]);
 
   useEffect(() => {
@@ -126,6 +100,13 @@ export default function SettingsPage() {
       u2();
     };
   }, [currentClub, isAdmin]);
+
+  useEffect(() => {
+    if (!currentClub || !planFeatures.hasGroups) return;
+    return FirebaseManager.listenToGroups(currentClub.id, setGroups);
+  }, [currentClub, planFeatures.hasGroups]);
+
+  const visibleGroups = planFeatures.hasGroups ? groups : [];
 
   const sendPasswordReset = async () => {
     if (!currentMember?.email) return;
@@ -238,6 +219,8 @@ export default function SettingsPage() {
         compensationPerMissingPoint: parseFloat(compensation) || 0,
         seasonType,
         approvalRequired,
+        ...(planFeatures.hasClubLogo ? { logoUrl: logoUrl.trim() } : {}),
+        ...(planFeatures.hasClubColors ? { brandColor } : {}),
       };
       await FirebaseManager.updateClub(currentClub.id, updates);
       setCurrentClub({ ...currentClub, ...updates });
@@ -248,6 +231,27 @@ export default function SettingsPage() {
     }
   };
 
+  const saveGroup = async () => {
+    if (!currentClub || !planFeatures.hasGroups || !groupName.trim()) return;
+    setSavingGroup(true);
+    try {
+      await FirebaseManager.addGroup(currentClub.id, {
+        name: groupName.trim(),
+        description: groupDescription.trim() || undefined,
+      });
+      setGroupName("");
+      setGroupDescription("");
+    } finally {
+      setSavingGroup(false);
+    }
+  };
+
+  const deleteGroup = async (groupId: string) => {
+    if (!currentClub || !planFeatures.hasGroups) return;
+    if (!window.confirm("Gruppe löschen? Mitglieder werden aus dieser Gruppe entfernt.")) return;
+    await FirebaseManager.deleteGroup(currentClub.id, groupId);
+  };
+
   const runExport = async (key: ExportKey) => {
     if (!currentClub) return;
     
@@ -256,11 +260,11 @@ export default function SettingsPage() {
     const isCsv = key.includes("csv");
 
     if (isCsv && !planFeatures.canExportCsv) {
-      alert("CSV-Exporte sind in deinem aktuellen Plan nicht enthalten (nur in Club oder Pro).");
+      alert("CSV-Exporte sind in deinem aktuellen Plan nicht enthalten (ab Verein verfügbar).");
       return;
     }
     if (isPdf && !planFeatures.canExportPdf) {
-      alert("PDF-Exporte sind in deinem aktuellen Plan nicht enthalten (nur in Club oder Pro).");
+      alert("PDF-Exporte sind in deinem aktuellen Plan nicht enthalten (ab Club verfügbar).");
       return;
     }
 
@@ -392,6 +396,27 @@ export default function SettingsPage() {
                       <Select value={seasonType} onChange={setSeasonType} options={SEASON_TYPES.map(s => ({ value: s, label: s }))} />
                     </Field>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <PlanLockedField
+                        locked={!planFeatures.hasClubLogo}
+                        label="Vereinslogo"
+                        unlockText="ab Verein"
+                      >
+                        <Field icon={ImageIcon} label="Logo-URL">
+                          <Input value={logoUrl} onChange={setLogoUrl} placeholder="https://..." />
+                        </Field>
+                      </PlanLockedField>
+                      <PlanLockedField
+                        locked={!planFeatures.hasClubColors}
+                        label="Vereinsfarben"
+                        unlockText="ab Pro"
+                      >
+                        <Field icon={Palette} label="Akzentfarbe">
+                          <Input value={brandColor} onChange={setBrandColor} type="color" />
+                        </Field>
+                      </PlanLockedField>
+                    </div>
+
                     <TLine />
 
                     <div className="flex items-center justify-between">
@@ -423,10 +448,87 @@ export default function SettingsPage() {
                     <InfoRow icon={Euro} label="Ausgleichsbetrag" value={`${(currentClub?.compensationPerMissingPoint ?? 0).toFixed(2)} € / fehlendem Punkt`} color="#0A0A0A" />
                     <TLine className="ml-[68px]" />
                     <InfoRow icon={Calendar} label="Saisontyp" value={currentClub?.seasonType ?? "–"} color="#0A0A0A" />
+                    {currentClub?.logoUrl && (
+                      <>
+                        <TLine className="ml-[68px]" />
+                        <InfoRow icon={ImageIcon} label="Vereinslogo" value="Aktiv" color="#0A0A0A" />
+                      </>
+                    )}
                   </div>
                 </GlassSection>
               )}
             </motion.div>
+
+            {/* GRUPPEN & TEAMS (Club+) */}
+            {isAdmin && (
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.11 }}
+                className="flex flex-col gap-3"
+              >
+                <SectionHeader title="GRUPPEN & TEAMS" icon={Layers} color="#0A0A0A" />
+                <GlassSection>
+                  {!planFeatures.hasGroups ? (
+                    <PlanUpsell
+                      title="Gruppen sind ab dem Club-Plan verfügbar."
+                      text="Erstelle Teams, Abteilungen und Gruppenranglisten, sobald der Verein auf Club oder höher läuft."
+                    />
+                  ) : (
+                    <div className="p-5 flex flex-col gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-end">
+                        <Field icon={Layers} label="Gruppenname">
+                          <Input value={groupName} onChange={setGroupName} placeholder="z.B. Jugend, Damen, Team A" />
+                        </Field>
+                        <Field label="Beschreibung">
+                          <Input value={groupDescription} onChange={setGroupDescription} placeholder="Optional" />
+                        </Field>
+                        <TButton
+                          label="Anlegen"
+                          icon={Plus}
+                          onClick={saveGroup}
+                          disabled={savingGroup || !groupName.trim()}
+                          className="rounded-xl py-2.5"
+                        />
+                      </div>
+
+                      <TLine />
+
+                      {visibleGroups.length === 0 ? (
+                        <p className="text-sm font-poppins text-[#71717A]">
+                          Noch keine Gruppen angelegt.
+                        </p>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {visibleGroups.map((group) => {
+                            const count = allMembers.filter((member) => member.groupId === group.id).length;
+                            return (
+                              <div key={group.id} className="flex items-center gap-3 rounded-2xl bg-black/[0.03] border border-black/5 px-4 py-3">
+                                <div className="w-9 h-9 rounded-xl bg-white border border-black/5 flex items-center justify-center">
+                                  <Layers size={15} className="text-[#0A0A0A]" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="truncate font-poppins font-bold text-sm text-[#0A0A0A]">{group.name}</p>
+                                  <p className="truncate text-[11px] text-[#71717A]">
+                                    {count} Mitglieder{group.description ? ` · ${group.description}` : ""}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() => deleteGroup(group.id)}
+                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#FF453A] hover:bg-[#FF453A]/10 transition-all"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </GlassSection>
+              </motion.div>
+            )}
 
             {/* LIZENZ & PLAN (Admin only) */}
             {isAdmin && (
@@ -445,8 +547,8 @@ export default function SettingsPage() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex flex-col gap-1.5 p-4 rounded-xl bg-black/[0.03] border border-black/5 flex-1">
                           <span className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">Aktueller Plan</span>
-                          <span className="font-poppins font-bold text-lg text-[#0A0A0A] capitalize">
-                            {currentClub?.plan || "Free"}
+                          <span className="font-poppins font-bold text-lg text-[#0A0A0A]">
+                            {planFeatures.name}
                           </span>
                           <span className="text-xs text-[#52525B]">
                             {currentClub?.licenseExpiresAt ? `Ablauf: ${formatLicenseDate(currentClub.licenseExpiresAt)}` : "Kostenlose Version"}
@@ -482,7 +584,7 @@ export default function SettingsPage() {
                 {/* Plan Options */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                   {PLAN_TIERS.map((tier) => {
-                    const isCurrent = (currentClub?.plan || "free").toLowerCase() === tier.key;
+                    const isCurrent = planFeatures.key === tier.key;
                     
                     return (
                       <div key={tier.key} className={`relative flex flex-col p-5 rounded-2xl bg-white border shrink-0 ${tier.popular ? "border-black/20 shadow-md scale-[1.01]" : "border-black/5 shadow-sm"} overflow-hidden`}>
@@ -713,15 +815,63 @@ function Field({ icon: Icon, label, children }: { icon?: React.ElementType; labe
   );
 }
 
+function PlanLockedField({
+  locked,
+  label,
+  unlockText,
+  children,
+}: {
+  locked: boolean;
+  label: string;
+  unlockText: string;
+  children: React.ReactNode;
+}) {
+  if (!locked) return <>{children}</>;
+
+  return (
+    <div className="rounded-2xl border border-black/5 bg-black/[0.03] px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-poppins font-bold text-[#0A0A0A]">{label}</p>
+          <p className="text-[11px] font-poppins text-[#71717A]">Freischalten {unlockText}</p>
+        </div>
+        <Lock size={16} className="text-[#A1A1AA]" />
+      </div>
+    </div>
+  );
+}
+
+function PlanUpsell({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="p-5 flex items-start gap-4">
+      <div className="w-10 h-10 rounded-xl bg-black/[0.05] flex items-center justify-center shrink-0">
+        <Lock size={17} className="text-[#52525B]" />
+      </div>
+      <div>
+        <p className="font-poppins font-bold text-[#0A0A0A] text-sm">{title}</p>
+        <p className="text-xs text-[#71717A] mt-1 leading-relaxed">{text}</p>
+      </div>
+    </div>
+  );
+}
+
 function Input({
-  value, onChange, type = "text", step, suffix,
-}: { value: string; onChange: (v: string) => void; type?: string; step?: string; suffix?: string }) {
+  value, onChange, type = "text", step, suffix, placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  step?: string;
+  suffix?: string;
+  placeholder?: string;
+}) {
   return (
     <div className="relative">
       <input
         type={type}
         step={step}
         value={value}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-xl bg-black/[0.03] border border-black/10 px-4 py-2.5 font-poppins text-sm text-[#0A0A0A] focus:outline-none focus:border-[#0A0A0A]/40 focus:bg-white transition-all"
         style={suffix ? { paddingRight: "2rem" } : undefined}
