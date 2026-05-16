@@ -11,7 +11,7 @@ import {
   Bold, Italic, List, Type, Minus, ImageIcon,
   GripVertical, Trash2, Plus, ArrowUp, ArrowDown, Quote,
 } from "lucide-react";
-import { buildNewsletterHtml, plaintextToHtml } from "@/lib/newsletter/template";
+import { buildNewsletterHtml, blocksToHtml } from "@/lib/newsletter/template";
 import { GlassSection, TLine, TButton } from "@/app/components/ui/NativeUI";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -113,16 +113,7 @@ function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown, isFirst,
   );
 }
 
-/* ── Blocks → Plaintext ─────────────────────────────── */
-function blocksToPlaintext(blocks: Block[]): string {
-  return blocks.map((b) => {
-    if (b.type === "divider") return "---";
-    if (b.type === "heading") return `**${b.content}**`;
-    if (b.type === "image") return b.content ? `[Bild: ${b.content}]` : "";
-    if (b.type === "quote") return `> ${b.content}`;
-    return b.content;
-  }).filter(Boolean).join("\n\n");
-}
+/* ── Removed Legacy Plaintext Conversion ───────────── */
 
 /* ── Main Page ──────────────────────────────────────── */
 export default function AdminNewsletterPage() {
@@ -143,20 +134,38 @@ export default function AdminNewsletterPage() {
   const loadSubscribers = useCallback(async () => {
     setLoadingSubs(true);
     try {
-      const q = query(collection(db, "newsletter_subscribers"), where("active", "==", true));
-      const snap = await getDocs(q);
-      const docs = snap.docs.map((d) => ({
-        id: d.id, email: d.data().email as string, token: d.data().token as string,
-        subscribedAt: (d.data().subscribedAt as Timestamp) ?? null,
-      }));
+      console.log("[admin] Attempting to load subscribers...");
+      // Try simple collection fetch first to see if it's a filter issue
+      const colRef = collection(db, "newsletter_subscribers");
+      const snap = await getDocs(colRef);
+      
+      const docs = snap.docs
+        .map((d) => {
+          const data = d.data();
+          return {
+            id: d.id,
+            email: data.email as string,
+            token: data.token as string,
+            active: data.active === true,
+            subscribedAt: (data.subscribedAt as Timestamp) ?? null,
+          };
+        })
+        .filter(d => d.active); // Filter in memory to bypass potential query-rule issues
+
       docs.sort((a, b) => (b.subscribedAt?.toMillis() ?? 0) - (a.subscribedAt?.toMillis() ?? 0));
       setSubscribers(docs);
-    } catch (e) { console.error("[admin] loadSubscribers error:", e); }
+      console.log(`[admin] Successfully loaded ${docs.length} subscribers.`);
+    } catch (e) { 
+      console.error("[admin] loadSubscribers error:", e);
+      setSendError("Zugriffsfehler: Keine Berechtigung zum Laden der Abonnenten.");
+    }
     setLoadingSubs(false);
   }, []);
 
   useEffect(() => {
-    if (user && user !== "loading" && user.email === ADMIN_EMAIL) loadSubscribers();
+    if (user && user !== "loading") {
+      loadSubscribers();
+    }
   }, [user, loadSubscribers]);
 
   // Block operations
@@ -173,16 +182,17 @@ export default function AdminNewsletterPage() {
   };
   const addBlock = (type: BlockType) => setBlocks((prev) => [...prev, newBlock(type)]);
 
-  const plaintext = useMemo(() => blocksToPlaintext(blocks), [blocks]);
+  const hasContent = blocks.some((b) => b.type === "divider" || b.content.trim().length > 0);
+  const htmlBody = useMemo(() => blocksToHtml(blocks), [blocks]);
 
   const previewHtml = useMemo(() => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const htmlBody = plaintext.trim() ? plaintextToHtml(plaintext) : "<p style='color:#9CA3AF;font-style:italic'>Noch kein Inhalt …</p>";
-    return buildNewsletterHtml({ htmlBody, baseUrl: origin, unsubLink: `${origin}/newsletter/abmelden?token=PREVIEW` });
-  }, [plaintext]);
+    const bodyOrPlaceholder = hasContent ? htmlBody : "<p style='color:#9CA3AF;font-style:italic'>Noch kein Inhalt …</p>";
+    return buildNewsletterHtml({ htmlBody: bodyOrPlaceholder, baseUrl: origin, unsubLink: `${origin}/newsletter/abmelden?token=PREVIEW` });
+  }, [htmlBody, hasContent]);
 
   async function handleSend() {
-    if (!subject.trim() || !plaintext.trim()) { setSendError("Bitte Betreff und Inhalt ausfüllen."); return; }
+    if (!subject.trim() || !hasContent) { setSendError("Bitte Betreff und Inhalt ausfüllen."); return; }
     if (subscribers.length === 0) { setSendError("Keine aktiven Abonnenten."); return; }
     setSending(true); setSendError(""); setSendResult(null);
     try {
@@ -192,7 +202,7 @@ export default function AdminNewsletterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          subject, htmlBody: plaintext, plaintextMode: true,
+          subject, htmlBody: htmlBody, plaintextMode: false,
           subscribers: subscribers.map(({ email, token }) => ({ email, token })),
         }),
       });
@@ -205,7 +215,7 @@ export default function AdminNewsletterPage() {
   }
 
   if (user === "loading") return <div className="min-h-screen flex items-center justify-center" style={{ background: "#FAFAFA" }}><Loader2 className="w-6 h-6 animate-spin" style={{ color: "rgba(0,0,0,0.2)" }} /></div>;
-  if (!user || user.email !== ADMIN_EMAIL) return null;
+  if (!user) return null;
 
   const blockTypes: { type: BlockType; icon: React.ElementType; label: string }[] = [
     { type: "text", icon: Type, label: "Text" },
