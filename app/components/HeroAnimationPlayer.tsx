@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export function HeroAnimationPlayer() {
   return (
-    <div className="relative w-full aspect-[960/540] overflow-hidden rounded-2xl bg-[#080808]">
+    <div className="relative w-full aspect-[16/10] overflow-hidden rounded-2xl border-[10px] border-black bg-black shadow-2xl">
       <Image
         src="/dashboard-mockup.png"
         alt="TALO Dashboard Console Mockup"

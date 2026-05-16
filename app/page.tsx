@@ -219,7 +219,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
         {/* Dashboard animation */}
         <ScrollReveal direction="up" delay={0.4}>
           <div className="max-w-4xl mx-auto px-6 mt-20 relative">
-            <div className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-white/[0.08] shadow-[0_32px_80px_rgba(0,0,0,0.12)] dark:shadow-[0_32px_80px_rgba(0,0,0,0.5)]">
+            <div className="relative">
               <HeroAnimationPlayer />
             </div>
             {/* Reflection glow */}
