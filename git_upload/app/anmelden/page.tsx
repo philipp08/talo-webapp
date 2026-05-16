@@ -185,7 +185,7 @@ export default function LoginPage() {
           setError("Das Passwort ist nicht korrekt.");
           break;
         case "auth/email-already-in-use":
-          setError("Diese E-Mail wird bereits verwendet.");
+          setError("Diese E-Mail wird bereits verwendet. Bitte melde dich mit deinem bestehenden Account an. Wenn du in einen neuen Verein eintreten willst, lass dich vom Vorstand mit dieser E-Mail einladen!");
           break;
         case "auth/invalid-email":
           setError("Die E-Mail-Adresse ist ungültig.");

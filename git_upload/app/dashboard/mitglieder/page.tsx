@@ -387,22 +387,43 @@ export default function MembersPage() {
                                   const clubId = currentClub?.id;
                                   if (!clubId) throw new Error("Kein Verein ausgewählt.");
 
-                                  const { uid, password } = await AuthService.createMemberAuth(inviteEmail, inviteFirstName, inviteLastName, clubId);
+                                  // Check if member already exists
+                                  const existingMember = await FirebaseManager.getMemberByEmail(inviteEmail);
                                   
-                                  const newMember = {
-                                    firstName: inviteFirstName,
-                                    lastName: inviteLastName,
-                                    email: inviteEmail,
-                                    memberType: inviteType,
-                                    isAdmin: false,
-                                    isTrainer: false,
-                                    clubId: clubId,
-                                    clubIds: [clubId]
-                                  };
-                                  
-                                  await FirebaseManager.setMember(uid, newMember);
-                                  
-                                  setGeneratedPassword(password);
+                                  if (existingMember) {
+                                    const clubIds = existingMember.clubIds || [];
+                                    if (clubIds.includes(clubId) || existingMember.clubId === clubId) {
+                                      throw new Error("Dieser Nutzer ist bereits Mitglied im Verein.");
+                                    }
+                                    
+                                    // Make sure we carry over existing clubIds
+                                    clubIds.push(clubId);
+                                    
+                                    await FirebaseManager.updateMember(existingMember.id, {
+                                      clubIds: clubIds,
+                                      // falls clubId leer ist, setzen wir sie direkt (falls er in keinem war)
+                                      ...(existingMember.clubId ? {} : { clubId })
+                                    });
+                                    
+                                    setGeneratedPassword("Nutzer hatte bereits einen Talo-Account. Er/Sie kann sich einfach mit dem bisherigen Passwort einloggen und sieht nun deinen Verein.");
+                                  } else {
+                                    const { uid, password } = await AuthService.createMemberAuth(inviteEmail, inviteFirstName, inviteLastName, clubId);
+                                    
+                                    const newMember = {
+                                      firstName: inviteFirstName,
+                                      lastName: inviteLastName,
+                                      email: inviteEmail,
+                                      memberType: inviteType,
+                                      isAdmin: false,
+                                      isTrainer: false,
+                                      clubId: clubId,
+                                      clubIds: [clubId]
+                                    };
+                                    
+                                    await FirebaseManager.setMember(uid, newMember);
+                                    
+                                    setGeneratedPassword(password);
+                                  }
                                 } catch (err) {
                                   setErrorMessage(err instanceof Error ? err.message : "Fehler beim Anlegen.");
                                 } finally {

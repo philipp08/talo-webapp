@@ -48,6 +48,26 @@ export class FirebaseManager {
   }
 
   // === MEMBERS ===
+  static async getMemberByEmail(email: string): Promise<Member | null> {
+    const q = query(collection(db, "members"), where("email", "==", email));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    const docData = snapshot.docs[0];
+    const data = docData.data();
+    return {
+      id: docData.id,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      memberType: data.memberType,
+      isAdmin: data.isAdmin ?? false,
+      isTrainer: data.isTrainer ?? false,
+      clubId: data.clubId,
+      clubIds: data.clubIds || [data.clubId],
+      customTargetPoints: data.customTargetPoints,
+    };
+  }
+
   static async getMember(uid: string): Promise<Member | null> {
     try {
       const docRef = doc(db, "members", uid); // Die Collection heißt "members" in iOS
