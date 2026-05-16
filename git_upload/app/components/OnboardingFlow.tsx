@@ -30,6 +30,7 @@ export default function OnboardingFlow() {
 
     try {
       // 1. Create the club
+      console.log("STEP 1: Creating Club...");
       const newClubId = await FirebaseManager.createClub({
         name: clubName.trim(),
         requiredPoints: 50,
@@ -38,8 +39,23 @@ export default function OnboardingFlow() {
         approvalRequired: true,
         plan: "free",
       });
+      console.log("Club created with ID:", newClubId);
 
-      // 2. Add standard activities (optional out of box setup, you can keep it empty or add some)
+      // 2. Update the member to be admin and assign to club
+      console.log("STEP 2: Updating user to Admin...");
+      const clubIds = currentMember.clubIds || [];
+      if (!clubIds.includes(newClubId)) clubIds.push(newClubId);
+
+      await FirebaseManager.updateMember(currentMember.id, {
+        clubId: newClubId,
+        clubIds: clubIds,
+        isAdmin: true,   // First user is the admin
+        memberType: "Vorstand", // Optionally set as Vorstand
+      });
+      console.log("User updated successfully");
+
+      // 3. Add standard activities AFTER user is assigned (so Firebase rules pass!)
+      console.log("STEP 3: Creating default activities...");
       await FirebaseManager.addActivity(newClubId, {
         name: "Training",
         points: 1,
@@ -52,28 +68,19 @@ export default function OnboardingFlow() {
         category: "Event",
         isDefault: true
       });
-
-      // 3. Update the member to be admin and assign to club
-      const clubIds = currentMember.clubIds || [];
-      if (!clubIds.includes(newClubId)) clubIds.push(newClubId);
-
-      await FirebaseManager.updateMember(currentMember.id, {
-        clubId: newClubId,
-        clubIds: clubIds,
-        isAdmin: true,   // First user is the admin
-        memberType: "Vorstand", // Optionally set as Vorstand
-      });
+      console.log("Activities created successfully");
 
       // 4. Update local state
+      console.log("STEP 4: Fetching updated states...");
       const updatedMember = await FirebaseManager.getMember(currentMember.id);
       const updatedClub = await FirebaseManager.getClub(newClubId);
       
       setCurrentMember(updatedMember);
       setCurrentClub(updatedClub);
 
-    } catch (err) {
-      console.error(err);
-      setError("Es gab ein Problem beim Erstellen des Vereins.");
+    } catch (err: any) {
+      console.error("Firebase Details:", err.code, err.message, err);
+      setError("Es gab ein Problem beim Erstellen des Vereins: " + (err.message || String(err)));
     } finally {
       setLoading(false);
     }
