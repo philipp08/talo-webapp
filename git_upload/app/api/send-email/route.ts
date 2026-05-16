@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdminRequest } from "@/lib/server/firebaseAuth";
 
-const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL ?? "philipp@pauli-one.com";
+const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL ?? "newsletter@talo-club.de";
 const FROM_NAME = "Talo";
 const SUPPORT_EMAIL = "support@talo-app.de";
 const CONTACT_RECIPIENT = process.env.CONTACT_RECIPIENT_EMAIL ?? "philipp@pauli-one.de";

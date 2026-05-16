@@ -7,7 +7,7 @@ interface Subscriber {
   token: string;
 }
 
-const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL ?? "philipp@pauli-one.com";
+const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL ?? "newsletter@talo-club.de";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://talo.app";
 const MAX_SUBSCRIBERS_PER_SEND = 1000;
 
