@@ -142,17 +142,35 @@ export default function MemberDetailPage() {
       lastName: editForm.lastName.trim(),
       email: editForm.email.trim().toLowerCase(),
     };
+    
+    // Merge existing membership to avoid wiping customTargetPoints, etc.
+    const existingMembership = member.clubMemberships?.[currentClub.id] || {};
     const nextMembership = {
+      ...existingMembership,
       memberType: editForm.memberType,
       isAdmin: editForm.isAdmin,
       isTrainer: planFeatures.hasAdvancedRoles ? editForm.isTrainer : false,
       ...(planFeatures.hasGroups && editForm.groupId ? { groupId: editForm.groupId } : {}),
     };
+    
+    // Also store memberType at the root for legacy compatibility
     await Promise.all([
-      FirebaseManager.updateMember(member.id, nextProfile),
+      FirebaseManager.updateMember(member.id, {
+        ...nextProfile,
+        memberType: editForm.memberType,
+      }),
       FirebaseManager.updateMemberMembership(member.id, currentClub.id, nextMembership),
     ]);
-    setMember({ ...member, ...nextProfile, ...nextMembership });
+
+    setMember({ 
+      ...member, 
+      ...nextProfile, 
+      memberType: editForm.memberType,
+      clubMemberships: {
+        ...(member.clubMemberships || {}),
+        [currentClub.id]: nextMembership,
+      }
+    });
     setEditSaved(true);
     setTimeout(() => { setEditSaved(false); setIsEditExpanded(false); }, 1500);
     setSaving(false);
