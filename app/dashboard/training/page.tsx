@@ -1227,18 +1227,21 @@ function GroupsView({
 }) {
   const isMemberOnly = !isAdminOrTrainer && currentMember;
 
+  // Roots are groups whose parent doesn't exist in the list
   const rootGroups = trainingGroups.filter((g) => {
     const parent = g.parentGroupId ? trainingGroups.find(p => p.id === g.parentGroupId) : null;
-    if (parent) return false; // Has a valid parent, so it's a subgroup
+    if (parent) return false;
     
-    if (!isMemberOnly) return true; // Admins see all roots/orphans
+    if (!isMemberOnly) return true;
     
-    // Members only see roots they are in (directly or via child)
-    const children = trainingGroups.filter(c => c.parentGroupId === g.id);
-    return g.memberIds.includes(currentMember.id) || children.some(c => c.memberIds.includes(currentMember.id));
+    // Member access: see if they are in this group OR any descendant
+    const hasAccess = (group: TrainingGroup): boolean => {
+      if (group.memberIds.includes(currentMember.id)) return true;
+      const children = trainingGroups.filter(c => c.parentGroupId === group.id);
+      return children.some(c => hasAccess(c));
+    };
+    return hasAccess(g);
   });
-
-  const subGroups = isMemberOnly ? [] : trainingGroups.filter((g) => !!g.parentGroupId);
 
   if (trainingGroups.length === 0) {
     return (
@@ -1252,44 +1255,89 @@ function GroupsView({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
       <AnimatePresence mode="popLayout">
         {rootGroups.map((group, idx) => (
-          <motion.div
+          <RecursiveGroup
             key={group.id}
-            layout
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ delay: idx * 0.05 }}
-            className="flex flex-col gap-3"
-          >
-            <GroupCard
-              group={group}
-              allMembers={allMembers}
-              isAdminOrTrainer={isAdminOrTrainer}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-            {/* Subgroups */}
-            {subGroups
-              .filter((sg) => sg.parentGroupId === group.id)
-              .map((sg) => (
-                <div key={sg.id} className="pl-4">
-                  <GroupCard
-                    group={sg}
-                    allMembers={allMembers}
-                    isAdminOrTrainer={isAdminOrTrainer}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    isSubgroup
-                  />
-                </div>
-              ))}
-          </motion.div>
+            group={group}
+            allGroups={trainingGroups}
+            allMembers={allMembers}
+            isAdminOrTrainer={isAdminOrTrainer}
+            currentMember={currentMember}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            idx={idx}
+            level={0}
+          />
         ))}
       </AnimatePresence>
     </div>
+  );
+}
+
+function RecursiveGroup({
+  group, allGroups, allMembers, isAdminOrTrainer, currentMember, onEdit, onDelete, idx, level
+}: {
+  group: TrainingGroup;
+  allGroups: TrainingGroup[];
+  allMembers: Member[];
+  isAdminOrTrainer: boolean;
+  currentMember: Member | null;
+  onEdit: (g: TrainingGroup) => void;
+  onDelete: (g: TrainingGroup) => void;
+  idx: number;
+  level: number;
+}) {
+  const isMemberOnly = !isAdminOrTrainer && currentMember;
+  const children = allGroups.filter(g => g.parentGroupId === group.id);
+  
+  // If member-only, filter children to only those they have access to
+  const visibleChildren = children.filter(c => {
+    if (!isMemberOnly) return true;
+    const hasAccess = (g: TrainingGroup): boolean => {
+      if (g.memberIds.includes(currentMember.id)) return true;
+      return allGroups.filter(child => child.parentGroupId === g.id).some(child => hasAccess(child));
+    };
+    return hasAccess(c);
+  });
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ delay: idx * 0.05 }}
+      className="flex flex-col gap-3"
+    >
+      <GroupCard
+        group={group}
+        allMembers={allMembers}
+        isAdminOrTrainer={isAdminOrTrainer}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        isSubgroup={level > 0}
+      />
+      {visibleChildren.length > 0 && (
+        <div className="pl-4 flex flex-col gap-3">
+          {visibleChildren.map((child, cIdx) => (
+            <RecursiveGroup
+              key={child.id}
+              group={child}
+              allGroups={allGroups}
+              allMembers={allMembers}
+              isAdminOrTrainer={isAdminOrTrainer}
+              currentMember={currentMember}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              idx={cIdx}
+              level={level + 1}
+            />
+          ))}
+        </div>
+      )}
+    </motion.div>
   );
 }
 
