@@ -83,12 +83,14 @@ function renderWelcomeHtml(memberName: string, email: string, password: string, 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="supported-color-schemes" content="light dark" />
   <title>Deine Zugangsdaten f\u00fcr ${escapeHtml(clubName)}</title>
 </head>
 
-<body style="margin:0; padding:0; background:#f3f4f6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+<body style="margin:0; padding:0; background:transparent; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
 
-<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px; background:#f3f4f6;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px; background:transparent;">
 <tr>
 <td align="center">
 
@@ -105,6 +107,7 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
   <tr>
     <td
       style="
+      background-color:#0f172a;
       background:
       radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 30%),
       linear-gradient(135deg, #0f172a 0%, #111827 40%, #1e293b 100%);
