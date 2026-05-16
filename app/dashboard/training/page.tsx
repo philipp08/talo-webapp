@@ -859,7 +859,8 @@ function WeekView({
   weekDays, selectedDayIdx, onSelectDay, slotsForDay,
   trainingGroups, trainingSessions, allMembers, currentMember, isAdminOrTrainer,
   onMarkAbsent, onMarkPresent, onToggleCancellation, onDeleteExtra,
-  onSetTrainer, onToggleTrainerAbsence,
+  onSetTrainer, onSetTrainers, onToggleTrainerAbsence, onToggleIndividualTrainerAbsence,
+  planFeatures,
 }: {
   weekDays: Date[];
   selectedDayIdx: number;
