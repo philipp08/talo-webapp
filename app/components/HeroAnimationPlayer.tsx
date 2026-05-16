@@ -1,48 +1,18 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { Player, PlayerRef } from "@remotion/player";
-import { TALODashboard } from "./HeroAnimation";
+import Image from "next/image";
 
 export function HeroAnimationPlayer() {
-  const ref = useRef<PlayerRef>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [hasIntersected, setHasIntersected] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setHasIntersected(true);
-          ref.current?.play();
-        } else {
-          ref.current?.pause();
-        }
-      },
-      { threshold: 0.05 }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div ref={containerRef} style={{ width: "100%", aspectRatio: "960/540" }}>
-      {hasIntersected && (
-        <Player
-          ref={ref}
-          component={TALODashboard}
-          durationInFrames={200}
-          fps={30}
-          compositionWidth={960}
-          compositionHeight={540}
-          style={{ width: "100%", display: "block", borderRadius: 16 }}
-          loop
-        />
-      )}
+    <div className="relative w-full aspect-[960/540] overflow-hidden rounded-2xl bg-[#080808]">
+      <Image
+        src="/dashboard-mockup.png"
+        alt="TALO Dashboard Console Mockup"
+        fill
+        priority
+        sizes="(max-w-7xl) 100vw, 1200px"
+        className="object-cover transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.015]"
+      />
     </div>
   );
 }
