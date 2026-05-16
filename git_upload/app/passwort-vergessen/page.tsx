@@ -2,18 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/lib/firebase/config";
 import Link from "next/link";
 import Image from "next/image";
-
-function getFirebaseErrorCode(error: unknown) {
-  if (typeof error === "object" && error !== null && "code" in error) {
-    const code = (error as { code?: unknown }).code;
-    return typeof code === "string" ? code : undefined;
-  }
-  return undefined;
-}
 
 export default function PasswortVergessenPage() {
   const [email, setEmail] = useState("");
@@ -32,33 +22,38 @@ export default function PasswortVergessenPage() {
       return;
     }
 
-    if (!auth) {
-      setError("Firebase nicht initialisiert. Bitte versuche es später erneut.");
-      return;
-    }
-
     setLoading(true);
     try {
-      await sendPasswordResetEmail(auth, trimmed);
-      setSent(true);
-    } catch (err) {
-      const code = getFirebaseErrorCode(err);
-      switch (code) {
-        case "auth/invalid-email":
+      const res = await fetch("/api/auth/password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed }),
+      });
+
+      if (res.ok) {
+        setSent(true);
+        return;
+      }
+
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      switch (data.error) {
+        case "invalid_email":
           setError("Die E-Mail-Adresse ist ungültig.");
           break;
-        case "auth/user-not-found":
-          setError("Kein Account mit dieser E-Mail gefunden.");
+        case "email_not_found":
+          setError("Es existiert kein Login-Account mit dieser E-Mail-Adresse. Bitte wende dich an einen Vereins-Admin.");
           break;
-        case "auth/too-many-requests":
+        case "user_disabled":
+          setError("Dieser Account wurde deaktiviert. Bitte wende dich an einen Vereins-Admin.");
+          break;
+        case "too_many_requests":
           setError("Zu viele Versuche. Bitte warte einen Moment und versuche es erneut.");
           break;
-        case "auth/network-request-failed":
-          setError("Netzwerkfehler. Bitte prüfe deine Internetverbindung.");
-          break;
         default:
-          setError("Fehler beim Senden. Bitte versuche es erneut.");
+          setError("Fehler beim Senden. Bitte versuche es später erneut.");
       }
+    } catch {
+      setError("Netzwerkfehler. Bitte prüfe deine Internetverbindung.");
     } finally {
       setLoading(false);
     }
@@ -104,10 +99,10 @@ export default function PasswortVergessenPage() {
             className="rounded-2xl border border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10 p-5 text-center"
           >
             <p className="font-poppins text-sm text-emerald-700 dark:text-emerald-300">
-              ✓ Wir haben dir einen Link zum Zurücksetzen deines Passworts an <strong>{email.trim()}</strong> geschickt.
+              ✓ Falls ein Account zu <strong>{email.trim()}</strong> existiert, haben wir dir einen Link zum Zurücksetzen deines Passworts geschickt.
             </p>
-            <p className="mt-2 text-xs text-emerald-700/80 dark:text-emerald-300/80 font-poppins">
-              Schaue auch im Spam-Ordner nach, falls die E-Mail nicht ankommt.
+            <p className="mt-3 text-xs text-emerald-700/80 dark:text-emerald-300/80 font-poppins leading-relaxed">
+              Schaue auch im Spam- oder Werbung-Ordner nach. Wenn nach ein paar Minuten keine E-Mail ankommt, hast du eventuell keinen Login-Account — bitte wende dich dann an deinen Vereins-Admin.
             </p>
             <Link
               href="/anmelden"

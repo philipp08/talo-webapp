@@ -12,7 +12,7 @@ import { collection, query, where, getDocs, doc, updateDoc, Timestamp } from "fi
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
-import { signOut, sendPasswordResetEmail } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { SeasonType, Entry, Member, getPlanFeatures } from "@/lib/firebase/models";
 import {
   GlassSection, TLine, TAvatar, TButton, TBadge,
@@ -126,8 +126,16 @@ export default function SettingsPage() {
     if (!currentMember?.email) return;
     setResetState("loading");
     try {
-      await sendPasswordResetEmail(auth, currentMember.email);
-      setResetState("sent");
+      const res = await fetch("/api/auth/password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: currentMember.email }),
+      });
+      if (res.ok) {
+        setResetState("sent");
+      } else {
+        setResetState("idle");
+      }
     } catch {
       setResetState("idle");
     }
