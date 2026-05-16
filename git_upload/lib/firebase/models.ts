@@ -167,14 +167,24 @@ export interface TrainingGroup {
   createdAt?: Timestamp | Date;
 }
 
-// One session document per group per day — only records absences
+// A session document. Three kinds:
+//   1. Regular-day record  — id "{groupId}_{yyyy-MM-dd}", absences + optional cancelledTimes[]
+//   2. Extra (Zusatztermin)  — id "{groupId}_{yyyy-MM-dd}_extra_{HHMM}", isExtra=true
+//   3. Cancellation-only    — kind 1 with cancelledTimes set, no absences yet
 export interface TrainingSession {
-  id: string; // "{groupId}_{yyyy-MM-dd}"
+  id: string;
   groupId: string;
   dateString: string; // "yyyy-MM-dd" for Firestore range queries
   date: Date;
   absentMemberIds: string[];
   absenceReasons: Record<string, string>; // memberId → reason string
+  // Extra session (one-off training not part of the recurring schedule)
+  isExtra?: boolean;
+  extraTime?: string; // "HH:mm" — only set when isExtra is true
+  // For regular days: which scheduled times are cancelled (Termine ausfallen)
+  cancelledTimes?: string[];
+  // Optional trainer note attached to this session
+  note?: string;
 }
 
 export const TRAINING_GROUP_COLORS = [

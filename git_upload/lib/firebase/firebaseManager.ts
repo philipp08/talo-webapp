@@ -516,6 +516,10 @@ export class FirebaseManager {
             date: data.date instanceof Timestamp ? data.date.toDate() : new Date(),
             absentMemberIds: data.absentMemberIds ?? [],
             absenceReasons: data.absenceReasons ?? {},
+            isExtra: data.isExtra ?? false,
+            extraTime: data.extraTime,
+            cancelledTimes: data.cancelledTimes ?? [],
+            note: data.note,
           });
         });
         callback(sessions);
@@ -562,6 +566,68 @@ export class FirebaseManager {
         absentMemberIds: arrayRemove(memberId),
         [`absenceReasons.${memberId}`]: deleteField(),
       });
+    }
+  }
+
+  // Add an extra training session (Zusatztermin) outside the recurring schedule
+  static async addExtraSession(
+    clubId: string,
+    groupId: string,
+    date: Date,
+    time: string,
+    note?: string
+  ): Promise<void> {
+    const dateString = toDateString(date);
+    const timeKey = time.replace(":", "");
+    const sessionId = `${groupId}_${dateString}_extra_${timeKey}`;
+    const sessionRef = doc(db, `clubs/${clubId}/trainingSessions`, sessionId);
+    const payload: Record<string, unknown> = {
+      groupId,
+      dateString,
+      date: Timestamp.fromDate(date),
+      absentMemberIds: [],
+      absenceReasons: {},
+      isExtra: true,
+      extraTime: time,
+    };
+    if (note && note.trim()) payload.note = note.trim();
+    await setDoc(sessionRef, payload);
+  }
+
+  // Delete any session document (used for removing extras)
+  static async deleteSession(clubId: string, sessionId: string): Promise<void> {
+    await deleteDoc(doc(db, `clubs/${clubId}/trainingSessions`, sessionId));
+  }
+
+  // Toggle a regular schedule time as cancelled for a specific date
+  static async toggleCancellation(
+    clubId: string,
+    groupId: string,
+    date: Date,
+    time: string
+  ): Promise<void> {
+    const dateString = toDateString(date);
+    const sessionId = `${groupId}_${dateString}`;
+    const sessionRef = doc(db, `clubs/${clubId}/trainingSessions`, sessionId);
+    const sessionSnap = await getDoc(sessionRef);
+
+    if (!sessionSnap.exists()) {
+      await setDoc(sessionRef, {
+        groupId,
+        dateString,
+        date: Timestamp.fromDate(date),
+        absentMemberIds: [],
+        absenceReasons: {},
+        cancelledTimes: [time],
+      });
+      return;
+    }
+
+    const current = (sessionSnap.data().cancelledTimes ?? []) as string[];
+    if (current.includes(time)) {
+      await updateDoc(sessionRef, { cancelledTimes: arrayRemove(time) });
+    } else {
+      await updateDoc(sessionRef, { cancelledTimes: arrayUnion(time) });
     }
   }
 

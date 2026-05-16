@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Trash2, X, Users, ChevronDown, ChevronUp,
-  Check, AlertCircle, Pencil, Circle,
+  Check, AlertCircle, Pencil, Circle, CalendarPlus, Ban, RotateCcw, Sparkles,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
@@ -42,14 +42,20 @@ const getEffectiveSchedule = (
   return parent ? getEffectiveSchedule(parent, all) : [];
 };
 
-const getSession = (
+// Returns the day's regular absence-record session (id = "{groupId}_{yyyy-MM-dd}", no isExtra)
+const getDaySession = (
   sessions: TrainingSession[],
   groupId: string,
   dateStr: string
 ): TrainingSession | undefined =>
-  sessions.find((s) => s.groupId === groupId && s.dateString === dateStr);
+  sessions.find((s) => s.groupId === groupId && s.dateString === dateStr && !s.isExtra);
 
 // ── types ─────────────────────────────────────────────────────────────────────
+
+// A slot rendered for a specific day: either a regular schedule entry or an extra session
+type DaySlot =
+  | { kind: "regular"; group: TrainingGroup; time: string; cancelled: boolean }
+  | { kind: "extra"; group: TrainingGroup; time: string; sessionId: string; note?: string };
 
 interface GroupForm {
   name: string;
@@ -65,6 +71,20 @@ const emptyForm = (): GroupForm => ({
   parentGroupId: "",
   schedule: [],
   memberIds: [],
+});
+
+interface ExtraForm {
+  groupId: string;
+  date: string; // yyyy-MM-dd
+  time: string; // HH:mm
+  note: string;
+}
+
+const emptyExtra = (): ExtraForm => ({
+  groupId: "",
+  date: toDateString(new Date()),
+  time: "18:00",
+  note: "",
 });
 
 // ── main page ─────────────────────────────────────────────────────────────────
@@ -102,6 +122,11 @@ export default function TrainingPage() {
   // delete
   const [deleteTarget, setDeleteTarget] = useState<TrainingGroup | null>(null);
 
+  // extra session modal
+  const [showExtraForm, setShowExtraForm] = useState(false);
+  const [extraForm, setExtraForm]         = useState<ExtraForm>(emptyExtra());
+  const [savingExtra, setSavingExtra]     = useState(false);
+
   // ── subscriptions ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (!currentClub || !hasAccess) { setLoading(false); return; }
@@ -123,29 +148,58 @@ export default function TrainingPage() {
     []
   );
 
-  // ── groups for selected day ────────────────────────────────────────────────
-  const groupsForDay = useMemo(() => {
-    const date   = weekDays[selectedDayIdx];
-    const iosDay = jsToIos(date.getDay());
-    const results: { group: TrainingGroup; time: string }[] = [];
+  // ── slots for selected day (regular + extras, with cancellation state) ────
+  const slotsForDay = useMemo<DaySlot[]>(() => {
+    const date    = weekDays[selectedDayIdx];
+    const iosDay  = jsToIos(date.getDay());
+    const dateStr = toDateString(date);
+    const slots: DaySlot[] = [];
+
+    const visibleForMember = (g: TrainingGroup) => {
+      if (isAdminOrTrainer || !currentMember) return true;
+      if (g.memberIds.includes(currentMember.id)) return true;
+      if (g.parentGroupId) {
+        const parent = trainingGroups.find((p) => p.id === g.parentGroupId);
+        if (parent?.memberIds.includes(currentMember.id)) return true;
+      }
+      return false;
+    };
 
     for (const group of trainingGroups) {
-      // members only see their own groups; trainers see all
-      if (!isAdminOrTrainer && currentMember) {
-        const inGroup = group.memberIds.includes(currentMember.id);
-        const parentInGroup = group.parentGroupId
-          ? trainingGroups.find((g) => g.id === group.parentGroupId)?.memberIds.includes(currentMember.id) ?? false
-          : false;
-        if (!inGroup && !parentInGroup) continue;
+      if (!visibleForMember(group)) continue;
+
+      // Regular schedule entries (with inheritance from parent)
+      const schedule = getEffectiveSchedule(group, trainingGroups);
+      const daySession = getDaySession(trainingSessions, group.id, dateStr);
+      const cancelledTimes = daySession?.cancelledTimes ?? [];
+
+      for (const entry of schedule) {
+        if (entry.dayOfWeek === iosDay) {
+          slots.push({
+            kind: "regular",
+            group,
+            time: entry.time,
+            cancelled: cancelledTimes.includes(entry.time),
+          });
+        }
       }
 
-      const schedule = getEffectiveSchedule(group, trainingGroups);
-      for (const entry of schedule) {
-        if (entry.dayOfWeek === iosDay) results.push({ group, time: entry.time });
+      // Extra sessions on this exact date for this group
+      const extras = trainingSessions.filter(
+        (s) => s.groupId === group.id && s.dateString === dateStr && s.isExtra
+      );
+      for (const extra of extras) {
+        slots.push({
+          kind: "extra",
+          group,
+          time: extra.extraTime ?? "00:00",
+          sessionId: extra.id,
+          note: extra.note,
+        });
       }
     }
-    return results.sort((a, b) => a.time.localeCompare(b.time));
-  }, [trainingGroups, selectedDayIdx, weekDays, currentMember, isAdminOrTrainer]);
+    return slots.sort((a, b) => a.time.localeCompare(b.time));
+  }, [trainingGroups, trainingSessions, selectedDayIdx, weekDays, currentMember, isAdminOrTrainer]);
 
   // ── absence handlers ───────────────────────────────────────────────────────
   const openAbsenceModal = (groupId: string, date: Date) => {
@@ -175,6 +229,38 @@ export default function TrainingPage() {
   const markPresent = async (groupId: string, date: Date) => {
     if (!currentClub || !currentMember) return;
     await FirebaseManager.setAbsence(currentClub.id, groupId, date, currentMember.id, false);
+  };
+
+  // ── trainer: cancel / restore / extra session ─────────────────────────────
+  const toggleCancellation = async (groupId: string, date: Date, time: string) => {
+    if (!currentClub) return;
+    await FirebaseManager.toggleCancellation(currentClub.id, groupId, date, time);
+  };
+
+  const deleteExtraSession = async (sessionId: string) => {
+    if (!currentClub) return;
+    await FirebaseManager.deleteSession(currentClub.id, sessionId);
+  };
+
+  const openExtraForm = () => {
+    setExtraForm(emptyExtra());
+    setShowExtraForm(true);
+  };
+
+  const saveExtra = async () => {
+    if (!currentClub || !extraForm.groupId || !extraForm.date || !extraForm.time) return;
+    setSavingExtra(true);
+    try {
+      const [y, m, d] = extraForm.date.split("-").map(Number);
+      const date = new Date(y, m - 1, d);
+      date.setHours(0, 0, 0, 0);
+      await FirebaseManager.addExtraSession(
+        currentClub.id, extraForm.groupId, date, extraForm.time, extraForm.note
+      );
+      setShowExtraForm(false);
+    } finally {
+      setSavingExtra(false);
+    }
   };
 
   // ── group form handlers ────────────────────────────────────────────────────
@@ -278,14 +364,24 @@ export default function TrainingPage() {
               <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Gruppen & Anwesenheit</p>
             </div>
             {isAdminOrTrainer && (
-              <button
-                onClick={openAddGroup}
-                className="shrink-0 flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-black/5"
-              >
-                <Plus size={16} />
-                <span className="hidden sm:inline">Neue Gruppe</span>
-                <span className="sm:hidden">Neu</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={openExtraForm}
+                  className="flex items-center gap-2 bg-white border border-black/10 text-[#0A0A0A] hover:bg-black/[0.04] px-3 sm:px-4 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
+                  title="Zusatztermin anlegen"
+                >
+                  <CalendarPlus size={16} />
+                  <span className="hidden sm:inline">Zusatztermin</span>
+                </button>
+                <button
+                  onClick={openAddGroup}
+                  className="flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-black/5"
+                >
+                  <Plus size={16} />
+                  <span className="hidden sm:inline">Neue Gruppe</span>
+                  <span className="sm:hidden">Neu</span>
+                </button>
+              </div>
             )}
           </div>
         </motion.div>
@@ -317,13 +413,15 @@ export default function TrainingPage() {
             weekDays={weekDays}
             selectedDayIdx={selectedDayIdx}
             onSelectDay={setSelectedDayIdx}
-            groupsForDay={groupsForDay}
+            slotsForDay={slotsForDay}
             trainingSessions={trainingSessions}
             allMembers={allMembers}
             currentMember={currentMember}
             isAdminOrTrainer={!!isAdminOrTrainer}
             onMarkAbsent={openAbsenceModal}
             onMarkPresent={markPresent}
+            onToggleCancellation={toggleCancellation}
+            onDeleteExtra={deleteExtraSession}
           />
         ) : (
           <GroupsView
@@ -531,6 +629,67 @@ export default function TrainingPage() {
         )}
       </AnimatePresence>
 
+      {/* Extra Session (Zusatztermin) Modal */}
+      <AnimatePresence>
+        {showExtraForm && (
+          <Backdrop onClick={() => setShowExtraForm(false)}>
+            <Modal onClick={(e) => e.stopPropagation()}>
+              <ModalHeader title="Zusatztermin anlegen" onClose={() => setShowExtraForm(false)} />
+              <div className="p-5 flex flex-col gap-4">
+                <Field label="Trainingsgruppe">
+                  <select
+                    autoFocus
+                    value={extraForm.groupId}
+                    onChange={(e) => setExtraForm((f) => ({ ...f, groupId: e.target.value }))}
+                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                  >
+                    <option value="">Gruppe auswählen…</option>
+                    {trainingGroups.map((g) => (
+                      <option key={g.id} value={g.id}>{g.name}</option>
+                    ))}
+                  </select>
+                </Field>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Datum">
+                    <input
+                      type="date"
+                      value={extraForm.date}
+                      onChange={(e) => setExtraForm((f) => ({ ...f, date: e.target.value }))}
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                    />
+                  </Field>
+                  <Field label="Uhrzeit">
+                    <input
+                      type="time"
+                      value={extraForm.time}
+                      onChange={(e) => setExtraForm((f) => ({ ...f, time: e.target.value }))}
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-3 py-2.5 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                    />
+                  </Field>
+                </div>
+
+                <Field label="Notiz (optional)">
+                  <textarea
+                    rows={2}
+                    value={extraForm.note}
+                    onChange={(e) => setExtraForm((f) => ({ ...f, note: e.target.value }))}
+                    placeholder="z. B. Turniervorbereitung, Auswärtsspiel…"
+                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all resize-none"
+                  />
+                </Field>
+
+                <TButton
+                  label={savingExtra ? "Wird gespeichert…" : "Zusatztermin anlegen"}
+                  onClick={saveExtra}
+                  disabled={savingExtra || !extraForm.groupId || !extraForm.date || !extraForm.time}
+                />
+              </div>
+            </Modal>
+          </Backdrop>
+        )}
+      </AnimatePresence>
+
       {/* Delete Confirm */}
       <AnimatePresence>
         {deleteTarget && (
@@ -564,20 +723,22 @@ export default function TrainingPage() {
 // ── Week View ─────────────────────────────────────────────────────────────────
 
 function WeekView({
-  weekDays, selectedDayIdx, onSelectDay, groupsForDay,
+  weekDays, selectedDayIdx, onSelectDay, slotsForDay,
   trainingSessions, allMembers, currentMember, isAdminOrTrainer,
-  onMarkAbsent, onMarkPresent,
+  onMarkAbsent, onMarkPresent, onToggleCancellation, onDeleteExtra,
 }: {
   weekDays: Date[];
   selectedDayIdx: number;
   onSelectDay: (i: number) => void;
-  groupsForDay: { group: TrainingGroup; time: string }[];
+  slotsForDay: DaySlot[];
   trainingSessions: TrainingSession[];
   allMembers: Member[];
   currentMember: Member | null;
   isAdminOrTrainer: boolean;
   onMarkAbsent: (groupId: string, date: Date) => void;
   onMarkPresent: (groupId: string, date: Date) => void;
+  onToggleCancellation: (groupId: string, date: Date, time: string) => void;
+  onDeleteExtra: (sessionId: string) => void;
 }) {
   const selectedDate = weekDays[selectedDayIdx];
   const dateStr = toDateString(selectedDate);
@@ -587,11 +748,6 @@ function WeekView({
       {/* Day selector */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
         {weekDays.map((day, i) => {
-          const iosDay = jsToIos(day.getDay());
-          const hasTraining = (() => {
-            // check if any group trains on this day
-            return false; // simplified – indicator not critical for MVP
-          })();
           const isToday = i === 0;
           const isSelected = i === selectedDayIdx;
           return (
@@ -618,32 +774,37 @@ function WeekView({
         <h2 className="text-sm font-black uppercase tracking-widest text-[#0A0A0A]">
           {selectedDayIdx === 0 ? "Heutiges Training" : `${WEEKDAY_FULL[selectedDate.getDay()]}, ${selectedDate.getDate()}. ${selectedDate.toLocaleDateString("de-DE", { month: "long" })}`}
         </h2>
-        {groupsForDay.length > 0 && (
+        {slotsForDay.length > 0 && (
           <span className="text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
-            · {groupsForDay.length} {groupsForDay.length === 1 ? "Gruppe" : "Gruppen"}
+            · {slotsForDay.length} {slotsForDay.length === 1 ? "Termin" : "Termine"}
           </span>
         )}
       </div>
 
-      {groupsForDay.length === 0 ? (
+      {slotsForDay.length === 0 ? (
         <EmptyDay isToday={selectedDayIdx === 0} />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
           <AnimatePresence mode="popLayout">
-            {groupsForDay.map(({ group, time }, idx) => (
+            {slotsForDay.map((slot, idx) => (
               <AttendanceCard
-                key={`${group.id}_${dateStr}`}
-                group={group}
-                time={time}
+                key={
+                  slot.kind === "regular"
+                    ? `reg_${slot.group.id}_${dateStr}_${slot.time}`
+                    : `ext_${slot.sessionId}`
+                }
+                slot={slot}
                 date={selectedDate}
                 dateStr={dateStr}
-                session={getSession(trainingSessions, group.id, dateStr)}
+                session={getDaySession(trainingSessions, slot.group.id, dateStr)}
                 allMembers={allMembers}
                 currentMember={currentMember}
                 isAdminOrTrainer={isAdminOrTrainer}
                 idx={idx}
                 onMarkAbsent={onMarkAbsent}
                 onMarkPresent={onMarkPresent}
+                onToggleCancellation={onToggleCancellation}
+                onDeleteExtra={onDeleteExtra}
               />
             ))}
           </AnimatePresence>
@@ -656,11 +817,11 @@ function WeekView({
 // ── Attendance Card ────────────────────────────────────────────────────────────
 
 function AttendanceCard({
-  group, time, date, dateStr, session, allMembers, currentMember,
+  slot, date, dateStr, session, allMembers, currentMember,
   isAdminOrTrainer, idx, onMarkAbsent, onMarkPresent,
+  onToggleCancellation, onDeleteExtra,
 }: {
-  group: TrainingGroup;
-  time: string;
+  slot: DaySlot;
   date: Date;
   dateStr: string;
   session: TrainingSession | undefined;
@@ -670,16 +831,22 @@ function AttendanceCard({
   idx: number;
   onMarkAbsent: (groupId: string, date: Date) => void;
   onMarkPresent: (groupId: string, date: Date) => void;
+  onToggleCancellation: (groupId: string, date: Date, time: string) => void;
+  onDeleteExtra: (sessionId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const group = slot.group;
+  const time = slot.time;
+  const isExtra = slot.kind === "extra";
+  const isCancelled = slot.kind === "regular" && slot.cancelled;
 
   const groupMembers = useMemo(
     () => allMembers.filter((m) => group.memberIds.includes(m.id)),
     [allMembers, group.memberIds]
   );
-  const absentIds   = session?.absentMemberIds ?? [];
-  const presentCount = groupMembers.length - absentIds.filter((id) => group.memberIds.includes(id)).length;
+  const absentIds    = session?.absentMemberIds ?? [];
   const total        = groupMembers.length;
+  const presentCount = total - absentIds.filter((id) => group.memberIds.includes(id)).length;
   const ratio        = total > 0 ? presentCount / total : 1;
 
   const myAbsent = currentMember ? absentIds.includes(currentMember.id) : false;
@@ -687,6 +854,9 @@ function AttendanceCard({
   const iAmInGroup = currentMember ? group.memberIds.includes(currentMember.id) : false;
 
   const barColor = ratio >= 0.7 ? "#34C759" : ratio >= 0.4 ? "#FF9500" : "#FF3B30";
+
+  // Slightly dim cancelled cards
+  const dimmedClass = isCancelled ? "opacity-60" : "";
 
   return (
     <motion.div
@@ -696,23 +866,38 @@ function AttendanceCard({
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ delay: idx * 0.05 }}
     >
-      <GlassSection className="overflow-hidden flex flex-col">
-        {/* Color stripe */}
-        <div className="h-1 w-full" style={{ backgroundColor: group.colorHex }} />
+      <GlassSection className={`overflow-hidden flex flex-col ${dimmedClass}`}>
+        {/* Color stripe (or grey when cancelled) */}
+        <div className="h-1 w-full" style={{ backgroundColor: isCancelled ? "#A1A1AA" : group.colorHex }} />
 
         <div className="p-5 flex flex-col gap-4">
           {/* Header */}
           <div className="flex items-start justify-between gap-3">
-            <div className="flex flex-col gap-0.5">
-              <div className="flex items-center gap-2">
-                <Circle size={8} fill={group.colorHex} stroke="none" />
-                <h3 className="font-poppins font-black text-[#0A0A0A] text-base leading-tight uppercase tracking-tight">
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Circle size={8} fill={isCancelled ? "#A1A1AA" : group.colorHex} stroke="none" />
+                <h3 className={`font-poppins font-black text-[#0A0A0A] text-base leading-tight uppercase tracking-tight ${isCancelled ? "line-through" : ""}`}>
                   {group.name}
                 </h3>
+                {isExtra && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#5856D6]/10 text-[#5856D6] text-[9px] font-black uppercase tracking-widest">
+                    <Sparkles size={9} /> Zusatz
+                  </span>
+                )}
+                {isCancelled && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 text-[9px] font-black uppercase tracking-widest">
+                    <Ban size={9} /> Fällt aus
+                  </span>
+                )}
               </div>
-              <span className="text-[11px] font-mono font-bold text-[#71717A] pl-4">{time} Uhr</span>
+              <span className={`text-[11px] font-mono font-bold text-[#71717A] pl-4 ${isCancelled ? "line-through" : ""}`}>
+                {time} Uhr
+              </span>
+              {isExtra && slot.note && (
+                <span className="text-[11px] text-[#52525B] italic pl-4 mt-0.5">{slot.note}</span>
+              )}
             </div>
-            {total > 0 && (
+            {total > 0 && !isCancelled && (
               <span className="text-xs font-poppins font-bold text-[#0A0A0A] shrink-0">
                 {presentCount}/{total}
               </span>
@@ -720,7 +905,7 @@ function AttendanceCard({
           </div>
 
           {/* Progress bar */}
-          {total > 0 && (
+          {total > 0 && !isCancelled && (
             <div className="h-1.5 rounded-full bg-black/[0.06] overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
@@ -732,8 +917,8 @@ function AttendanceCard({
             </div>
           )}
 
-          {/* My status (for group members) */}
-          {iAmInGroup && currentMember && (
+          {/* Member status (only for non-cancelled trainings) */}
+          {iAmInGroup && currentMember && !isCancelled && (
             <>
               <TLine />
               {myAbsent ? (
@@ -765,20 +950,49 @@ function AttendanceCard({
             </>
           )}
 
-          {/* Trainer: expand for full list */}
-          {isAdminOrTrainer && total > 0 && (
+          {/* Trainer: full attendance + cancel/delete controls */}
+          {isAdminOrTrainer && (
             <>
               <TLine />
-              <button
-                onClick={() => setExpanded((v) => !v)}
-                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#71717A] hover:text-[#0A0A0A] transition-all"
-              >
-                {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                {expanded ? "Ausblenden" : "Anwesenheitsliste"}
-              </button>
+              {total > 0 && !isCancelled && (
+                <button
+                  onClick={() => setExpanded((v) => !v)}
+                  className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#71717A] hover:text-[#0A0A0A] transition-all"
+                >
+                  {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  {expanded ? "Ausblenden" : "Anwesenheitsliste"}
+                </button>
+              )}
+
+              {/* Cancel / restore / delete buttons */}
+              <div className="flex flex-wrap gap-2">
+                {slot.kind === "regular" ? (
+                  <button
+                    onClick={() => onToggleCancellation(group.id, date, time)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest ${
+                      isCancelled
+                        ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20 hover:bg-[#34C759]/15"
+                        : "bg-black/[0.04] text-[#52525B] border-black/5 hover:text-red-500 hover:bg-red-50"
+                    }`}
+                  >
+                    {isCancelled ? (
+                      <><RotateCcw size={12} /> Reaktivieren</>
+                    ) : (
+                      <><Ban size={12} /> Termin absagen</>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => onDeleteExtra(slot.sessionId)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-black/[0.04] text-[#52525B] hover:text-red-500 hover:bg-red-50 border border-black/5 transition-all text-[10px] font-black uppercase tracking-widest"
+                  >
+                    <Trash2 size={12} /> Zusatz löschen
+                  </button>
+                )}
+              </div>
 
               <AnimatePresence>
-                {expanded && (
+                {expanded && !isCancelled && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
