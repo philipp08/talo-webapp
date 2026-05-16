@@ -599,8 +599,8 @@ export default function TrainingPage() {
                             </button>
                           </div>
                         ))}
-                        <div className="flex gap-2 items-end">
-                          <div className="flex flex-col gap-1 flex-1">
+                        <div className="grid grid-cols-[1fr,1fr,auto] gap-2 items-end">
+                          <div className="flex flex-col gap-1">
                             <label className="text-[9px] font-black text-[#71717A] uppercase tracking-widest pl-1">Tag</label>
                             <select
                               value={newEntryDay}
@@ -614,7 +614,7 @@ export default function TrainingPage() {
                               ))}
                             </select>
                           </div>
-                          <div className="flex flex-col gap-1 flex-1">
+                          <div className="flex flex-col gap-1">
                             <label className="text-[9px] font-black text-[#71717A] uppercase tracking-widest pl-1">Zeit</label>
                             <input
                               type="time"
@@ -1228,8 +1228,11 @@ function GroupsView({
   const isMemberOnly = !isAdminOrTrainer && currentMember;
 
   const rootGroups = trainingGroups.filter((g) => {
-    if (g.parentGroupId) return false;
-    if (!isMemberOnly) return true;
+    const parent = g.parentGroupId ? trainingGroups.find(p => p.id === g.parentGroupId) : null;
+    if (parent) return false; // Has a valid parent, so it's a subgroup
+    
+    if (!isMemberOnly) return true; // Admins see all roots/orphans
+    
     // Members only see roots they are in (directly or via child)
     const children = trainingGroups.filter(c => c.parentGroupId === g.id);
     return g.memberIds.includes(currentMember.id) || children.some(c => c.memberIds.includes(currentMember.id));
