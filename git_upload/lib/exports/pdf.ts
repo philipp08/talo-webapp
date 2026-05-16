@@ -145,7 +145,7 @@ export function generateAnnualReportPdf(
     `Jahresbericht · ${formatDateDE(from)} – ${formatDateDE(to)}`
   );
 
-  const activeMembers = members.filter((m) => !isExemptMember(m));
+  const activeMembers = members.filter((m) => !isExemptMember(m, club.memberTypeFactors));
   const onTrack = activeMembers.filter(
     (m) => missingPointsForMember(m, club, inRange) === 0
   ).length;
@@ -185,9 +185,10 @@ export function generateAnnualReportPdf(
         m,
         club,
         club.compensationPerMissingPoint,
-        inRange
+        inRange,
+        club.memberTypeFactors
       );
-      const exempt = isExemptMember(m);
+      const exempt = isExemptMember(m, club.memberTypeFactors);
       const status = exempt ? "Befreit" : missing === 0 ? "Erfüllt" : "Rückstand";
       return [
         getMemberFullName(m),
@@ -228,9 +229,10 @@ export function generateAnnualReportPdf(
         row,
         club,
         club.compensationPerMissingPoint,
-        inRange
+        inRange,
+        club.memberTypeFactors
       );
-      const exempt = isExemptMember(row);
+      const exempt = isExemptMember(row, club.memberTypeFactors);
 
       if (data.column.index === 4 && missing > 0) data.cell.styles.textColor = C_RED;
       if (data.column.index === 5 && comp > 0) data.cell.styles.textColor = C_RED;
@@ -333,9 +335,10 @@ export function generateMemberListPdf(
       m,
       club,
       club.compensationPerMissingPoint,
-      inRange
+      inRange,
+      club.memberTypeFactors
     );
-    const exempt = isExemptMember(m);
+    const exempt = isExemptMember(m, club.memberTypeFactors);
     const stripe: [number, number, number] = exempt
       ? C_TEXT_MUTED
       : missing === 0

@@ -102,7 +102,8 @@ export const csvForMembers = (
         member,
         club,
         club.compensationPerMissingPoint,
-        inRange
+        inRange,
+        club.memberTypeFactors
       );
       const status = memberStatusLabel(member, club, inRange);
 
