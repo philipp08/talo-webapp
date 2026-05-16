@@ -73,7 +73,7 @@ export default function DashboardPage() {
 
   if (!currentMember || !currentClub) return null;
 
-  const targetPts  = calculateTargetPoints(currentMember, currentClub.requiredPoints);
+  const targetPts  = calculateTargetPoints(currentMember, currentClub);
   const approved   = entries.filter((e) => e.status === "Genehmigt").reduce((s, e) => s + e.points, 0);
   const pending    = entries.filter((e) => e.status === "Ausstehend").reduce((s, e) => s + e.points, 0);
   const progress   = targetPts > 0 ? Math.min((approved / targetPts) * 100, 100) : 100;

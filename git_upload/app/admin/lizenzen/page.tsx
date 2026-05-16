@@ -31,7 +31,6 @@ const PLAN_OPTIONS = [
   { value: "verein", label: "Verein", limit: 75 },
   { value: "club", label: "Club", limit: 150 },
   { value: "pro", label: "Pro", limit: 300 },
-  { value: "individual", label: "Individuell", limit: 99999 },
 ];
 
 function generateKey() {

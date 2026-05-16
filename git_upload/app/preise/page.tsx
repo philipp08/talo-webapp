@@ -11,7 +11,6 @@ const tierCta: Record<string, { cta: string; href: string }> = {
   verein: { cta: "Lizenz aktivieren", href: "/anmelden" },
   club: { cta: "Club-Lizenz aktivieren", href: "/anmelden" },
   pro: { cta: "Pro-Lizenz aktivieren", href: "/anmelden" },
-  individual: { cta: "Kontaktieren", href: "/kontakt" },
 };
 
 export default function PricingPage() {
@@ -37,7 +36,7 @@ export default function PricingPage() {
 
       <section className="pb-24">
         <div className="max-w-[1500px] mx-auto px-6">
-          <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {PLAN_TIERS.map((tier) => {
               const cta = tierCta[tier.key];
               return (

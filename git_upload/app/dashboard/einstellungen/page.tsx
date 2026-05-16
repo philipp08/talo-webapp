@@ -490,7 +490,7 @@ export default function SettingsPage() {
                     <InfoRow icon={Euro} label="Ausgleichsbetrag" value={`${(currentClub?.compensationPerMissingPoint ?? 0).toFixed(2)} € / fehlendem Punkt`} color="#0A0A0A" />
                     <TLine className="ml-[68px]" />
                     <InfoRow icon={Calendar} label="Saisontyp" value={currentClub?.seasonType ?? "–"} color="#0A0A0A" />
-                    {currentClub?.logoUrl && (
+                    {currentClub?.logoUrl && planFeatures.hasClubLogo && (
                       <>
                         <TLine className="ml-[68px]" />
                         <InfoRow icon={ImageIcon} label="Vereinslogo" value="Aktiv" color="#0A0A0A" />

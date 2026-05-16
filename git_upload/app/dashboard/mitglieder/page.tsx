@@ -55,7 +55,7 @@ export default function MembersPage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteFirstName, setInviteFirstName] = useState("");
   const [inviteLastName, setInviteLastName] = useState("");
-  const [inviteType, setInviteType] = useState<MemberType>(MemberType.Active);
+  const [inviteType, setInviteType] = useState<MemberType | string>(MemberType.Active);
   const [inviteGroupId, setInviteGroupId] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isSendingMail, setIsSendingMail] = useState(false);
@@ -108,6 +108,14 @@ export default function MembersPage() {
     [groups, planFeatures.hasGroups]
   );
 
+  const availableMemberTypes = useMemo(() => {
+    const types: string[] = [...memberTypeOrder];
+    if (planFeatures.hasCustomMemberTypes && currentClub?.customMemberTypes) {
+      currentClub.customMemberTypes.forEach(c => types.push(c.name));
+    }
+    return types;
+  }, [planFeatures.hasCustomMemberTypes, currentClub?.customMemberTypes]);
+
   const filtered = useMemo(() => {
     let list = members;
     if (planFeatures.hasAdvancedFilters && memberTypeFilter !== "all") {
@@ -132,7 +140,7 @@ export default function MembersPage() {
         const approved = entries
           .filter((e) => e.memberId === m.id && e.status === "Genehmigt")
           .reduce((sum, e) => sum + e.points, 0);
-        const target = currentClub ? calculateTargetPoints(m, currentClub.requiredPoints) : 15;
+        const target = currentClub ? calculateTargetPoints(m, currentClub) : 15;
         const progress = target > 0 ? Math.min(1, approved / target) : 1;
         return { member: m, approved, target, progress };
       })
@@ -228,7 +236,7 @@ export default function MembersPage() {
                          selected={memberTypeFilter === "all"}
                          onClick={() => setMemberTypeFilter("all")}
                        />
-                       {memberTypeOrder.map((type) => (
+                       {availableMemberTypes.map((type) => (
                          <FilterPill
                            key={type}
                            label={type}
@@ -261,7 +269,7 @@ export default function MembersPage() {
                      </div>
                    )}
                  </div>
-                 <ListView members={filtered} entries={entries} requiredPoints={currentClub?.requiredPoints ?? 15} groupNameById={groupNameById} showGroups={planFeatures.hasGroups} />
+                 <ListView members={filtered} entries={entries} currentClub={currentClub} groupNameById={groupNameById} showGroups={planFeatures.hasGroups} />
                </motion.div>
              ) : (
                <motion.div 
@@ -446,7 +454,7 @@ export default function MembersPage() {
                           <div className="flex flex-col gap-4">
                             <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Mitgliedstyp</label>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                {memberTypeOrder.map((type) => (
+                                {availableMemberTypes.map((type) => (
                                   <button
                                     key={type}
                                     onClick={() => setInviteType(type)}
@@ -586,17 +594,23 @@ export default function MembersPage() {
 function ListView({
   members,
   entries,
-  requiredPoints,
+  currentClub,
   groupNameById,
   showGroups,
 }: {
   members: Member[];
   entries: Entry[];
-  requiredPoints: number;
+  currentClub: any;
   groupNameById: Map<string, string>;
   showGroups: boolean;
 }) {
-  const grouped = memberTypeOrder
+  const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
+  const allTypes = [...memberTypeOrder];
+  if (planFeatures.hasCustomMemberTypes && currentClub?.customMemberTypes) {
+    currentClub.customMemberTypes.forEach((c: any) => allTypes.push(c.name));
+  }
+
+  const grouped = allTypes
     .map((type) => ({ type, group: members.filter((m) => m.memberType === type) }))
     .filter(({ group }) => group.length > 0);
 
@@ -644,7 +658,7 @@ function ListView({
                 {group.map((member) => {
                   const mEntries = entries.filter((e) => e.memberId === member.id && e.status === "Genehmigt");
                   const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
-                  const target = calculateTargetPoints(member, requiredPoints);
+                  const target = currentClub ? calculateTargetPoints(member, currentClub) : 15;
                   const progress = target > 0 ? Math.min(1, approved / target) : 1;
                   const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF453A";
 
@@ -708,7 +722,7 @@ function ListView({
             {group.map((member) => {
               const mEntries = entries.filter((e) => e.memberId === member.id && e.status === "Genehmigt");
               const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
-              const target = calculateTargetPoints(member, requiredPoints);
+                  const target = currentClub ? calculateTargetPoints(member, currentClub) : 15;
               const progress = target > 0 ? Math.min(1, approved / target) : 1;
               const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF453A";
 

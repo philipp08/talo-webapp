@@ -21,7 +21,7 @@ import ScrollReveal from "@/app/components/ScrollReveal";
 import { motion, AnimatePresence } from "framer-motion";
 import OnboardingFlow from "@/app/components/OnboardingFlow";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { isLightColor } from "@/lib/firebase/models";
+import { isLightColor, getPlanFeatures } from "@/lib/firebase/models";
 
 const activeClubStorageKey = (uid: string) => `talo.activeClubId.${uid}`;
 
@@ -55,9 +55,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isAdmin   = currentMember?.isAdmin   === true;
   const isTrainer = currentMember?.isTrainer === true;
   const canSwitchClubs = availableClubs.length > 1;
-  const accent = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  
+  const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("free");
+  const accentRaw = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
   const accentLight = isLightColor(accent);
   const accentTextColor = accentLight ? "#0A0A0A" : accent;
+  const logoUrl = planFeatures.hasClubLogo ? currentClub?.logoUrl : null;
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -125,9 +129,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           } ${mobile ? "px-3 py-3" : "px-4 py-3.5"}`}
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-black/5 overflow-hidden" style={{ color: accent }}>
-            {currentClub.logoUrl ? (
+            {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-cover" />
+              <img src={logoUrl} alt={currentClub.name} className="h-full w-full object-cover" />
             ) : (
               <Building2 size={17} />
             )}

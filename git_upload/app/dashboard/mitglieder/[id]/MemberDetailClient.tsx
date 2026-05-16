@@ -113,7 +113,20 @@ export default function MemberDetailPage() {
 
   const visibleGroups = planFeatures.hasGroups ? groups : [];
 
-  const targetPts   = member && currentClub ? calculateTargetPoints(member, currentClub.requiredPoints) : 15;
+  const availableMemberTypes = (() => {
+    const types: string[] = Object.values(MemberType);
+    if (planFeatures.hasCustomMemberTypes && currentClub?.customMemberTypes) {
+      currentClub.customMemberTypes.forEach(c => {
+        if (!types.includes(c.name)) types.push(c.name);
+      });
+    }
+    if (member && !types.includes(member.memberType)) {
+      types.push(member.memberType);
+    }
+    return types;
+  })();
+
+  const targetPts   = member && currentClub ? calculateTargetPoints(member, currentClub) : 15;
   const approvedPts = entries.filter((e) => e.status === "Genehmigt").reduce((s, e) => s + e.points, 0);
   const pendingPts  = entries.filter((e) => e.status === "Ausstehend").reduce((s, e) => s + e.points, 0);
   const missingPts  = Math.max(0, targetPts - approvedPts);
@@ -373,7 +386,7 @@ export default function MemberDetailPage() {
                                <div className="flex flex-col gap-3">
                                   <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">Mitgliedstyp</label>
                                   <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-                                     {Object.values(MemberType).map((t) => (
+                                     {availableMemberTypes.map((t) => (
                                        <button key={t} onClick={() => setEditForm({...editForm, memberType: t})}
                                          className={`py-3.5 sm:py-4 rounded-2xl font-poppins font-black text-[10px] sm:text-[11px] transition-all border uppercase tracking-widest ${editForm.memberType === t ? "bg-[#0A0A0A] text-white border-black/15" : "bg-black/[0.03] text-[#71717A] border-black/[0.08] hover:border-black/10"}`}>
                                          {t}

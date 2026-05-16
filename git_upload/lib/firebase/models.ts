@@ -169,26 +169,31 @@ export const getEffectiveMemberForClub = (
 
 export const calculateTargetPoints = (
   member: Member,
-  clubDefaultPoints: number,
-  memberTypeFactors?: Record<string, number>
+  club?: Club | null
 ): number => {
-  const base = member.customTargetPoints ?? clubDefaultPoints;
-  // Per-club factor override (covers both built-in and custom types)
-  const overrideFactor = memberTypeFactors?.[member.memberType];
-  if (overrideFactor !== undefined) {
-    return Number((base * overrideFactor).toFixed(1));
+  const base = member.customTargetPoints ?? (club?.requiredPoints ?? 15);
+  if (!club) {
+    if (member.memberType === MemberType.Board || member.memberType === MemberType.Youth) return 0;
+    return Number((base * (PointFactors[member.memberType] ?? 1.0)).toFixed(1));
   }
-  if (
-    member.memberType === MemberType.Board ||
-    member.memberType === MemberType.Youth
-  ) {
+
+  const planFeatures = getPlanFeatures(club.plan);
+  
+  if (planFeatures.hasCustomMemberTypes) {
+    const overrideFactor = club.memberTypeFactors?.[member.memberType];
+    if (overrideFactor !== undefined) {
+      return Number((base * overrideFactor).toFixed(1));
+    }
+  }
+
+  if (member.memberType === MemberType.Board || member.memberType === MemberType.Youth) {
     return 0;
   }
   const factor = PointFactors[member.memberType] ?? 1.0;
   return Number((base * factor).toFixed(1));
 };
 
-export type PlanKey = "free" | "verein" | "club" | "pro" | "individual";
+export type PlanKey = "free" | "verein" | "club" | "pro";
 
 export interface PlanFeatures {
   key: PlanKey;
@@ -353,38 +358,6 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasCustomFeatures: false,
     hasCustomMemberTypes: true,
   },
-  individual: {
-    key: "individual",
-    name: "Individuell",
-    price: "Auf Anfrage",
-    desc: "Für Verbände & große Organisationen.",
-    features: [
-      "Individuelle Mitgliederzahl",
-      "Alle Funktionen aus Pro",
-      "Individuelle Rollen/Rechte",
-      "Datenimport-Support",
-      "Persönliches Onboarding",
-      "Persönlicher Ansprechpartner",
-      "Individuelle Sonderfunktionen",
-    ],
-    maxMembers: 99999,
-    maxActivities: 999,
-    canExportCsv: true,
-    canExportPdf: true,
-    hasGroups: true,
-    hasGroupLeaderboards: true,
-    hasAdvancedStats: true,
-    hasAdvancedFilters: true,
-    hasAdvancedRoles: true,
-    hasClubLogo: true,
-    hasClubColors: true,
-    hasPrioritySupport: true,
-    hasAdvancedAdmin: true,
-    hasDataImportSupport: true,
-    hasPersonalOnboarding: true,
-    hasCustomFeatures: true,
-    hasCustomMemberTypes: true,
-  },
 };
 
 export const PLAN_TIERS = [
@@ -392,13 +365,11 @@ export const PLAN_TIERS = [
   PLAN_FEATURES.verein,
   PLAN_FEATURES.club,
   PLAN_FEATURES.pro,
-  PLAN_FEATURES.individual,
 ] as const;
 
 export const getPlanKey = (plan?: string): PlanKey => {
   const p = (plan || "free").toLowerCase();
-  if (p === "individuell") return "individual";
-  if (p === "verein" || p === "club" || p === "pro" || p === "individual") return p;
+  if (p === "verein" || p === "club" || p === "pro") return p;
   return "free";
 };
 
