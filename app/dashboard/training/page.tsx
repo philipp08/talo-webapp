@@ -1001,13 +1001,13 @@ function AttendanceCard({
 
   const assignedTrainers = useMemo(() => {
     // 1. Primary trainer
-    const primaryId = session?.trainerId || group.trainerId;
+    const primaryId = session?.trainerId !== undefined ? session.trainerId : group.trainerId;
     const trainers = [];
-    if (primaryId) trainers.push({ id: primaryId, isPrimary: true });
+    if (primaryId && primaryId !== "none" && primaryId !== "") trainers.push({ id: primaryId, isPrimary: true });
     
     // 2. Additional trainers (if Pro)
     if (planFeatures.hasMultiTrainer) {
-      const extraIds = session?.trainerIds || group.trainerIds || [];
+      const extraIds = session?.trainerIds !== undefined ? session.trainerIds : (group.trainerIds || []);
       extraIds.forEach(id => {
         if (id && id !== primaryId) trainers.push({ id, isPrimary: false });
       });
@@ -1141,6 +1141,23 @@ function AttendanceCard({
                     </div>
                     
                     <div className="flex items-center gap-2">
+                      {isAdmin && (
+                        <button
+                          onClick={() => {
+                            if (tInfo.isPrimary) {
+                              onSetTrainer(group.id, date, "");
+                            } else {
+                              const current = session?.trainerIds !== undefined ? session.trainerIds : (group.trainerIds || []);
+                              const updated = current.filter(id => id !== tInfo.id);
+                              onSetTrainers(group.id, date, updated);
+                            }
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 text-red-500 hover:bg-red-100 transition-all text-[10px] font-black uppercase tracking-widest shadow-sm"
+                          title="Trainer aus dieser Einheit entfernen"
+                        >
+                          <Trash2 size={12} /> Löschen
+                        </button>
+                      )}
                       {(isAdmin || currentMember?.id === tInfo.id) && (
                         <button
                           onClick={() => tInfo.isPrimary 
