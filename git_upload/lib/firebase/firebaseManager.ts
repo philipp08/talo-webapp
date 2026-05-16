@@ -25,6 +25,7 @@ import {
   Activity,
   SeasonType,
   Training,
+  TrainingSchedule,
   TrainingAnnouncement,
   ClubMembership,
   ClubGroup,
@@ -405,6 +406,40 @@ export class FirebaseManager {
     );
   }
 
+  // === TRAINING SCHEDULES ===
+  static listenToTrainingSchedules(
+    clubId: string,
+    callback: (schedules: TrainingSchedule[]) => void
+  ) {
+    const q = query(collection(db, `clubs/${clubId}/trainingSchedules`));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const result: TrainingSchedule[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          result.push({
+            id: docSnap.id,
+            clubId: data.clubId,
+            groupId: data.groupId,
+            title: data.title,
+            description: data.description,
+            weekday: data.weekday,
+            time: data.time,
+            location: data.location,
+            isActive: data.isActive ?? true,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
+          });
+        });
+        result.sort((a, b) => a.weekday - b.weekday || a.time.localeCompare(b.time));
+        callback(result);
+      },
+      (error) => {
+        console.error("Error listening to training schedules:", error);
+      }
+    );
+  }
+
   // === MEMBERS (realtime) ===
   static listenToMembers(
     clubId: string,
@@ -675,5 +710,33 @@ export class FirebaseManager {
         attendeeIds: arrayRemove(memberId)
       });
     }
+  }
+
+  // === TRAINING SCHEDULES (write) ===
+  static async addTrainingSchedule(
+    clubId: string,
+    schedule: Omit<TrainingSchedule, "id" | "createdAt" | "clubId">
+  ): Promise<void> {
+    await addDoc(collection(db, `clubs/${clubId}/trainingSchedules`), {
+      ...schedule,
+      clubId,
+      createdAt: Timestamp.now(),
+      isActive: true,
+    });
+  }
+
+  static async updateTrainingSchedule(
+    clubId: string,
+    scheduleId: string,
+    updates: Partial<Omit<TrainingSchedule, "id" | "clubId">>
+  ): Promise<void> {
+    await updateDoc(doc(db, `clubs/${clubId}/trainingSchedules`, scheduleId), updates);
+  }
+
+  static async deleteTrainingSchedule(
+    clubId: string,
+    scheduleId: string
+  ): Promise<void> {
+    await deleteDoc(doc(db, `clubs/${clubId}/trainingSchedules`, scheduleId));
   }
 }

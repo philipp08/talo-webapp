@@ -110,7 +110,8 @@ export interface Entry {
 export interface Training {
   id: string;
   clubId: string;
-  groupId?: string;
+  groupId?: string; // Optional: Link to a specific ClubGroup
+  scheduleId?: string; // Optional: Link to the TrainingSchedule it was generated from
   title: string;
   description?: string;
   date: Timestamp | Date;
@@ -119,6 +120,19 @@ export interface Training {
   absenteeIds: string[]; // IDs of members who declined
   createdAt: Timestamp | Date;
   authorId: string;
+}
+
+export interface TrainingSchedule {
+  id: string;
+  clubId: string;
+  groupId?: string; 
+  title: string;
+  description?: string;
+  weekday: number; // 0-6 (So-Sa)
+  time: string; // "HH:mm"
+  location?: string;
+  createdAt: Timestamp | Date;
+  isActive: boolean;
 }
 
 export interface TrainingAnnouncement {
