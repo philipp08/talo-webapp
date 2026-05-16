@@ -601,6 +601,33 @@ export class FirebaseManager {
     await setDoc(sessionRef, payload);
   }
 
+  static async setSessionTrainer(
+    clubId: string,
+    groupId: string,
+    date: Date,
+    trainerId: string,
+    trainerName: string
+  ): Promise<void> {
+    const dateString = toDateString(date);
+    const sessionId = `${groupId}_${dateString}`;
+    const sessionRef = doc(db, `clubs/${clubId}/trainingSessions`, sessionId);
+    const sessionSnap = await getDoc(sessionRef);
+
+    if (!sessionSnap.exists()) {
+      await setDoc(sessionRef, {
+        groupId,
+        dateString,
+        date: Timestamp.fromDate(date),
+        absentMemberIds: [],
+        absenceReasons: {},
+        trainerId,
+        trainerName,
+      });
+    } else {
+      await updateDoc(sessionRef, { trainerId, trainerName });
+    }
+  }
+
   static async setSessionTrainers(
     clubId: string,
     groupId: string,

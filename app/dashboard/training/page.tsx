@@ -370,16 +370,26 @@ export default function TrainingPage() {
     setDeleteTarget(null);
   };
 
-  const setSessionTrainer = async (groupId: string, date: Date, trainerId: string) => {
+  const onSetTrainer = async (groupId: string, date: Date, trainerId: string) => {
     if (!currentClub) return;
     const trainer = allMembers.find(m => m.id === trainerId);
-    if (!trainer) return;
-    await FirebaseManager.setSessionTrainer(currentClub.id, groupId, date, trainerId, getMemberFullName(trainer));
+    const name = trainer ? getMemberFullName(trainer) : "Unbekannt";
+    await FirebaseManager.setSessionTrainer(currentClub.id, groupId, date, trainerId, name);
   };
 
-  const toggleTrainerAbsence = async (groupId: string, date: Date) => {
+  const onSetTrainers = async (groupId: string, date: Date, trainerIds: string[]) => {
+    if (!currentClub) return;
+    await FirebaseManager.setSessionTrainers(currentClub.id, groupId, date, trainerIds);
+  };
+
+  const onToggleTrainerAbsence = async (groupId: string, date: Date) => {
     if (!currentClub) return;
     await FirebaseManager.toggleTrainerAbsence(currentClub.id, groupId, date);
+  };
+
+  const onToggleIndividualTrainerAbsence = async (groupId: string, date: Date, trainerId: string) => {
+    if (!currentClub) return;
+    await FirebaseManager.toggleIndividualTrainerAbsence(currentClub.id, groupId, date, trainerId);
   };
 
   // ── upsell ─────────────────────────────────────────────────────────────────
@@ -468,8 +478,11 @@ export default function TrainingPage() {
             onMarkPresent={markPresent}
             onToggleCancellation={toggleCancellation}
             onDeleteExtra={deleteExtraSession}
-            onSetTrainer={setSessionTrainer}
-            onToggleTrainerAbsence={toggleTrainerAbsence}
+            onSetTrainer={onSetTrainer}
+            onSetTrainers={onSetTrainers}
+            onToggleTrainerAbsence={onToggleTrainerAbsence}
+            onToggleIndividualTrainerAbsence={onToggleIndividualTrainerAbsence}
+            planFeatures={planFeatures}
           />
         ) : (
           <GroupsView
@@ -862,7 +875,10 @@ function WeekView({
   onToggleCancellation: (groupId: string, date: Date, time: string) => void;
   onDeleteExtra: (sessionId: string) => void;
   onSetTrainer: (groupId: string, date: Date, trainerId: string) => void;
+  onSetTrainers: (groupId: string, date: Date, trainerIds: string[]) => void;
   onToggleTrainerAbsence: (groupId: string, date: Date) => void;
+  onToggleIndividualTrainerAbsence: (groupId: string, date: Date, trainerId: string) => void;
+  planFeatures: PlanFeatures;
 }) {
   const selectedDate = weekDays[selectedDayIdx];
   const dateStr = toDateString(selectedDate);
