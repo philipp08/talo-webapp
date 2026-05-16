@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/lib/firebase/config";
 import { doc, setDoc } from "firebase/firestore";
 import { ADMIN_EMAIL } from "@/lib/firebase/constants";
@@ -112,41 +112,12 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [resetSent, setResetSent] = useState(false);
-  const [resetLoading, setResetLoading] = useState(false);
 
   // Form State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-
-  const handleReset = async () => {
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) { 
-      setError("Bitte zuerst E-Mail eingeben."); 
-      return; 
-    }
-    setResetLoading(true);
-    setError("");
-    try {
-      await sendPasswordResetEmail(auth, trimmedEmail);
-      setResetSent(true);
-    } catch (err) {
-      console.error("Reset Error:", err);
-      const code = getFirebaseErrorCode(err);
-      if (code === "auth/user-not-found") {
-        setError("Kein Account mit dieser E-Mail gefunden.");
-      } else if (code === "auth/invalid-email") {
-        setError("Die E-Mail-Adresse ist ungültig.");
-      } else if (code === "auth/too-many-requests") {
-        setError("Zu viele Versuche. Bitte warte einen Moment.");
-      } else {
-        setError("Fehler beim Senden. Bitte versuche es erneut.");
-      }
-    }
-    setResetLoading(false);
-  };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -198,7 +169,7 @@ export default function LoginPage() {
           setError("Das Passwort ist nicht korrekt.");
           break;
         case "auth/email-already-in-use":
-          setError("Diese E-Mail wird bereits verwendet. Bitte melde dich mit deinem bestehenden Account an. Wenn du in einen neuen Verein eintreten willst, lass dich vom Vorstand mit dieser E-Mail einladen!");
+          setError("Diese E-Mail wird bereits verwendet.");
           break;
         case "auth/invalid-email":
           setError("Die E-Mail-Adresse ist ungültig.");
@@ -292,34 +263,17 @@ export default function LoginPage() {
               </>
             )}
 
-            <FloatingInput 
-              label="E-Mail" 
-              value={email} 
-              onChange={(val) => {
-                setEmail(val);
-                if (resetSent) setResetSent(false);
-                if (error) setError("");
-              }} 
-              type="email" 
-            />
+            <FloatingInput label="E-Mail" value={email} onChange={setEmail} type="email" />
             <FloatingInput label="Passwort" value={password} onChange={setPassword} type="password" />
 
             {mode === "login" && (
               <div className="flex justify-end -mt-1">
-                {resetSent ? (
-                  <span className="text-xs text-emerald-500 font-poppins">
-                    ✓ Reset-Link wurde gesendet!
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    disabled={resetLoading}
-                    className="text-xs text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors font-poppins disabled:opacity-50"
-                  >
-                    {resetLoading ? "Wird gesendet …" : "Passwort vergessen?"}
-                  </button>
-                )}
+                <Link
+                  href="/passwort-vergessen"
+                  className="text-xs text-gray-500 hover:text-gray-900 dark:text-white/60 dark:hover:text-white transition-colors font-poppins font-medium underline-offset-2 hover:underline"
+                >
+                  Passwort vergessen?
+                </Link>
               </div>
             )}
 
