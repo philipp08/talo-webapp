@@ -138,10 +138,17 @@ export default function TrainingPage() {
   // ── subscriptions ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (!currentClub || !hasAccess) { setLoading(false); return; }
-    const u1 = FirebaseManager.listenToTrainingGroups(currentClub.id, setTrainingGroups);
+    
+    // Reset loading when club changes
+    setLoading(true);
+
+    const u1 = FirebaseManager.listenToTrainingGroups(currentClub.id, (groups) => {
+      setTrainingGroups(groups);
+      setLoading(false);
+    });
     const u2 = FirebaseManager.listenToTrainingSessions(currentClub.id, setTrainingSessions);
     const u3 = FirebaseManager.listenToMembers(currentClub.id, setAllMembers);
-    setLoading(false);
+    
     return () => { u1(); u2(); u3(); };
   }, [currentClub, hasAccess]);
 
@@ -617,10 +624,10 @@ export default function TrainingPage() {
                             />
                           </div>
                           <div className="flex flex-col gap-1">
-                            <label className="text-[9px] font-black text-transparent uppercase tracking-widest pl-1">A</label>
+                            <label className="text-[9px] font-black text-transparent uppercase tracking-widest pl-1 select-none">A</label>
                             <button
                               onClick={addScheduleEntry}
-                              className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#0A0A0A] text-white text-[10px] font-black uppercase tracking-widest shrink-0 transition-all hover:bg-black/80"
+                              className="flex items-center justify-center gap-1.5 px-4 h-[46px] rounded-2xl bg-[#0A0A0A] text-white text-[10px] font-black uppercase tracking-widest shrink-0 transition-all hover:bg-black/80"
                             >
                               <Plus size={14} /> Hinzufügen
                             </button>
@@ -1224,12 +1231,11 @@ function GroupsView({
   const isMemberOnly = !isAdminOrTrainer && currentMember;
 
   const rootGroups = trainingGroups.filter((g) => {
-    if (!g.parentGroupId) {
-      if (!isMemberOnly) return true;
-      // Member only sees root groups they are part of (direct or via descendant)
-      return g.memberIds.includes(currentMember.id) || trainingGroups.some(child => child.parentGroupId === g.id && child.memberIds.includes(currentMember.id));
-    }
-    return false;
+    if (g.parentGroupId) return false;
+    if (!isMemberOnly) return true;
+    // Members only see roots they are in (directly or via child)
+    const children = trainingGroups.filter(c => c.parentGroupId === g.id);
+    return g.memberIds.includes(currentMember.id) || children.some(c => c.memberIds.includes(currentMember.id));
   });
 
   const subGroups = isMemberOnly ? [] : trainingGroups.filter((g) => !!g.parentGroupId);
