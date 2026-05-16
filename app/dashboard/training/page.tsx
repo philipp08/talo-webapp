@@ -69,6 +69,7 @@ interface GroupForm {
   parentGroupId: string;
   schedule: TrainingScheduleEntry[];
   memberIds: string[];
+  trainerId: string;
 }
 
 const emptyForm = (): GroupForm => ({
@@ -77,6 +78,7 @@ const emptyForm = (): GroupForm => ({
   parentGroupId: "",
   schedule: [],
   memberIds: [],
+  trainerId: "",
 });
 
 interface ExtraForm {
@@ -300,6 +302,7 @@ export default function TrainingPage() {
       parentGroupId: group.parentGroupId ?? "",
       schedule: [...group.schedule],
       memberIds: [...group.memberIds],
+      trainerId: group.trainerId ?? "",
     });
     setNewEntryDay(1);
     setNewEntryTime("18:00");
@@ -338,6 +341,7 @@ export default function TrainingPage() {
         parentGroupId: form.parentGroupId || undefined,
         schedule: form.schedule,
         memberIds: form.memberIds,
+        trainerId: form.trainerId || undefined,
       };
       if (editingGroup) {
         await FirebaseManager.updateTrainingGroup(currentClub.id, editingGroup.id, payload);
@@ -354,6 +358,18 @@ export default function TrainingPage() {
     if (!currentClub || !deleteTarget) return;
     await FirebaseManager.deleteTrainingGroup(currentClub.id, deleteTarget.id);
     setDeleteTarget(null);
+  };
+
+  const setSessionTrainer = async (groupId: string, date: Date, trainerId: string) => {
+    if (!currentClub) return;
+    const trainer = allMembers.find(m => m.id === trainerId);
+    if (!trainer) return;
+    await FirebaseManager.setSessionTrainer(currentClub.id, groupId, date, trainerId, getMemberFullName(trainer));
+  };
+
+  const toggleTrainerAbsence = async (groupId: string, date: Date) => {
+    if (!currentClub) return;
+    await FirebaseManager.toggleTrainerAbsence(currentClub.id, groupId, date);
   };
 
   // ── upsell ─────────────────────────────────────────────────────────────────
@@ -441,6 +457,8 @@ export default function TrainingPage() {
             onMarkPresent={markPresent}
             onToggleCancellation={toggleCancellation}
             onDeleteExtra={deleteExtraSession}
+            onSetTrainer={setSessionTrainer}
+            onToggleTrainerAbsence={toggleTrainerAbsence}
           />
         ) : (
           <GroupsView
@@ -635,6 +653,24 @@ export default function TrainingPage() {
                       ))}
                   </div>
                 </Field>
+
+                {/* Trainer */}
+                {isAdminOrTrainer && (
+                  <Field label="Standard-Trainer">
+                    <select
+                      value={form.trainerId}
+                      onChange={(e) => setForm((f) => ({ ...f, trainerId: e.target.value }))}
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                    >
+                      <option value="">Kein Trainer zugewiesen</option>
+                      {allMembers
+                        .filter((m) => m.isTrainer || m.isAdmin)
+                        .map((m) => (
+                          <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
+                        ))}
+                    </select>
+                  </Field>
+                )}
               </div>
 
               <div className="p-5 border-t border-black/5">
@@ -759,6 +795,8 @@ function WeekView({
   onMarkPresent: (groupId: string, date: Date) => void;
   onToggleCancellation: (groupId: string, date: Date, time: string) => void;
   onDeleteExtra: (sessionId: string) => void;
+  onSetTrainer: (groupId: string, date: Date, trainerId: string) => void;
+  onToggleTrainerAbsence: (groupId: string, date: Date) => void;
 }) {
   const selectedDate = weekDays[selectedDayIdx];
   const dateStr = toDateString(selectedDate);
@@ -827,6 +865,8 @@ function WeekView({
                 onMarkPresent={onMarkPresent}
                 onToggleCancellation={onToggleCancellation}
                 onDeleteExtra={onDeleteExtra}
+                onSetTrainer={onSetTrainer}
+                onToggleTrainerAbsence={onToggleTrainerAbsence}
               />
             ))}
           </AnimatePresence>
@@ -857,6 +897,8 @@ function AttendanceCard({
   onMarkPresent: (groupId: string, date: Date) => void;
   onToggleCancellation: (groupId: string, date: Date, time: string) => void;
   onDeleteExtra: (sessionId: string) => void;
+  onSetTrainer: (groupId: string, date: Date, trainerId: string) => void;
+  onToggleTrainerAbsence: (groupId: string, date: Date) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const group = slot.group;
@@ -865,6 +907,18 @@ function AttendanceCard({
   const isCancelled = slot.kind === "regular" && slot.cancelled;
 
   const rootGroup = useMemo(() => getRootGroup(group, trainingGroups), [group, trainingGroups]);
+
+  // Trainer logic
+  const effectiveTrainerName = useMemo(() => {
+    if (session?.trainerName) return session.trainerName;
+    if (group.trainerId) {
+      const trainer = allMembers.find(m => m.id === group.trainerId);
+      return trainer ? getMemberFullName(trainer) : "Unbekannt";
+    }
+    return "Kein Trainer";
+  }, [session, group.trainerId, allMembers]);
+
+  const isTrainerAbsent = session?.isTrainerAbsent ?? false;
 
   const groupMembers = useMemo(
     () => allMembers.filter((m) => group.memberIds.includes(m.id)),
@@ -949,6 +1003,45 @@ function AttendanceCard({
             )}
           </div>
 
+          {/* Trainer Info */}
+          {!isCancelled && (
+            <div className="flex items-center justify-between gap-3 bg-black/[0.02] border border-black/5 rounded-[18px] p-3 -mt-1">
+              <div className="flex items-center gap-3">
+                <TAvatar name={effectiveTrainerName} size={28} />
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A]">Trainer</span>
+                  <span className={`text-[12px] font-poppins font-bold ${isTrainerAbsent ? "text-red-500 line-through" : "text-[#0A0A0A]"}`}>
+                    {effectiveTrainerName}
+                  </span>
+                </div>
+              </div>
+              {isTrainerAbsent && (
+                <span className="text-[9px] font-black uppercase tracking-widest text-red-500 bg-red-500/10 px-2 py-1 rounded-full animate-pulse">
+                  Fällt aus
+                </span>
+              )}
+              {isAdminOrTrainer && (
+                <div className="flex items-center gap-1">
+                   <select
+                    className="opacity-0 absolute w-8 h-8 cursor-pointer"
+                    onChange={(e) => onSetTrainer(group.id, date, e.target.value)}
+                    value=""
+                  >
+                    <option value="" disabled>Trainer wählen…</option>
+                    {allMembers
+                      .filter(m => m.isTrainer || m.isAdmin)
+                      .map(m => (
+                        <option key={m.id} value={m.id}>{getMemberFullName(m)}</option>
+                      ))}
+                  </select>
+                  <button className="w-8 h-8 rounded-xl bg-white border border-black/5 flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all">
+                    <Pencil size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Progress bar */}
           {total > 0 && !isCancelled && (
             <div className="h-1.5 rounded-full bg-black/[0.06] overflow-hidden">
@@ -1032,6 +1125,23 @@ function AttendanceCard({
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-black/[0.04] text-[#52525B] hover:text-red-500 hover:bg-red-50 border border-black/5 transition-all text-[10px] font-black uppercase tracking-widest"
                   >
                     <Trash2 size={12} /> Zusatz löschen
+                  </button>
+                )}
+                
+                {isAdminOrTrainer && !isCancelled && (
+                  <button
+                    onClick={() => onToggleTrainerAbsence(group.id, date)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest ${
+                      isTrainerAbsent
+                        ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20 hover:bg-[#34C759]/15"
+                        : "bg-black/[0.04] text-[#52525B] border-black/5 hover:text-red-500 hover:bg-red-50"
+                    }`}
+                  >
+                    {isTrainerAbsent ? (
+                      <><Check size={12} /> Trainer anwesend</>
+                    ) : (
+                      <><AlertCircle size={12} /> Trainer fällt aus</>
+                    )}
                   </button>
                 )}
               </div>
@@ -1189,6 +1299,14 @@ function GroupCard({
             <span className="text-[10px] text-[#71717A] font-bold uppercase tracking-widest pl-4">
               {members.length} Mitglieder
             </span>
+            {group.trainerId && (
+              <div className="flex items-center gap-1.5 mt-1 pl-4">
+                <Users size={10} className="text-[#A1A1AA]" />
+                <span className="text-[10px] text-[#52525B] font-bold">
+                  {allMembers.find(m => m.id === group.trainerId) ? getMemberFullName(allMembers.find(m => m.id === group.trainerId)!) : "Unbekannt"}
+                </span>
+              </div>
+            )}
           </div>
           {isAdminOrTrainer && (
             <div className="flex items-center gap-1">

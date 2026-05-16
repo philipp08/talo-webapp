@@ -162,6 +162,7 @@ export interface TrainingGroup {
   memberIds: string[]; // member IDs belonging to this group
   schedule: TrainingScheduleEntry[]; // embedded recurring schedule
   colorHex: string; // UI accent color
+  trainerId?: string; // Default trainer for this group
   // legacy compat
   clubId?: string;
   createdAt?: Timestamp | Date;
@@ -185,6 +186,10 @@ export interface TrainingSession {
   cancelledTimes?: string[];
   // Optional trainer note attached to this session
   note?: string;
+  // Trainer assignment
+  trainerId?: string;
+  trainerName?: string;
+  isTrainerAbsent?: boolean;
 }
 
 export const TRAINING_GROUP_COLORS = [
