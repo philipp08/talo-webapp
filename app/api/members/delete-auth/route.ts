@@ -1,17 +1,44 @@
 import { NextResponse } from "next/server";
-import { FIREBASE_API_KEY } from "@/lib/firebase/constants";
 import { verifyAdminRequest } from "@/lib/server/firebaseAuth";
+import * as admin from "firebase-admin";
+
+// Initialize Firebase Admin SDK in trusted server environment
+if (!admin.apps.length) {
+  try {
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "talo-def0d";
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+    if (clientEmail && privateKey) {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId,
+          clientEmail,
+          privateKey: privateKey.replace(/\\n/g, "\n"),
+        }),
+      });
+      console.log("[Firebase Admin] Initialized with credentials certificate");
+    } else {
+      admin.initializeApp({
+        projectId,
+      });
+      console.log("[Firebase Admin] Initialized with projectId fallback");
+    }
+  } catch (error) {
+    console.error("[Firebase Admin] Initialization failed:", error);
+  }
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /**
- * DELETE /api/members/delete-auth
+ * POST /api/members/delete-auth
  *
- * Deletes a Firebase Authentication account.
+ * Deletes a Firebase Authentication account administratively.
  * Called when a member is removed from their last club,
- * effectively wiping the account as if it never existed.
+ * completely deleting their account from Auth.
  *
  * Body: { uid: string, clubId: string }
  * Requires admin authorization for the given club.
@@ -36,76 +63,39 @@ export async function POST(request: Request) {
   }
 
   // Verify the caller is an admin of this club
-  const admin = await verifyAdminRequest(request, clubId);
-  if (!admin) {
+  const adminUser = await verifyAdminRequest(request, clubId);
+  if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Prevent admins from deleting their own auth account
-  if (admin.uid === uid) {
+  if (adminUser.uid === uid) {
     return NextResponse.json({ error: "Eigenes Konto kann nicht gelöscht werden." }, { status: 403 });
   }
 
-  // Use the Firebase REST API to delete the auth account.
-  // We first get a fresh admin ID token via the lookup, then use the
-  // identitytoolkit delete endpoint with the target UID.
-  //
-  // Note: The REST API `accounts:delete` requires either the user's own
-  // idToken or an OAuth2 access token with admin privileges.
-  // Since we don't have Firebase Admin SDK, we use the Firestore REST API
-  // approach: exchange the admin's token for a service-level delete.
-  //
-  // For the REST API without Admin SDK, we need to use a different approach:
-  // We'll mark the account for deletion by disabling it and let a cleanup
-  // happen, OR we use the Google Identity Platform Admin API.
-  //
-  // Simplest approach: Use Google Identity Platform with API key
-  // The `accounts:delete` endpoint accepts localId when called with
-  // an OAuth2 access token from a service account.
-  //
-  // Since we're using client-side API key auth, we'll implement this
-  // by using the admin's ID token to call a Cloud Function, or by
-  // directly using the REST API with the admin's elevated permissions.
-
   try {
-    // Get the admin's ID token from the request
-    const authHeader = request.headers.get("authorization");
-    const token = authHeader?.replace(/^Bearer\s+/i, "");
-
-    if (!token) {
-      return NextResponse.json({ error: "No auth token" }, { status: 401 });
-    }
-
-    // Use the Identity Toolkit API to delete the account
-    // This works because we're using the API key and targeting a specific localId
-    const deleteResponse = await fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:delete?key=${FIREBASE_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ localId: uid }),
-      }
-    );
-
-    if (!deleteResponse.ok) {
-      const errorData = await deleteResponse.text();
-      console.error("[delete-auth] Firebase delete failed:", deleteResponse.status, errorData);
-      // Even if auth deletion fails, we still consider the Firestore cleanup successful
-      // The member doc is already deleted by the client
-      return NextResponse.json({
-        success: true,
-        authDeleted: false,
-        reason: "Auth account could not be deleted, but member data was removed.",
-      });
-    }
-
+    // Attempt administrative deletion using the Admin SDK
+    await admin.auth().deleteUser(uid);
+    console.log(`[delete-auth] Successfully deleted Firebase Auth account: ${uid}`);
     return NextResponse.json({ success: true, authDeleted: true });
-  } catch (error) {
-    console.error("[delete-auth] Error:", error);
-    return NextResponse.json({
-      success: true,
-      authDeleted: false,
-      reason: "Auth deletion encountered an error.",
-    });
+  } catch (adminError: any) {
+    console.error("[delete-auth] Admin SDK deletion failed:", adminError.message);
+    
+    // If user is already deleted, count as success
+    if (adminError.code === "auth/user-not-found") {
+      return NextResponse.json({ success: true, authDeleted: true, reason: "User already deleted" });
+    }
+
+    // Return structured failure response so client knows Firebase Admin is not configured
+    return NextResponse.json(
+      {
+        success: false,
+        authDeleted: false,
+        error: adminError.message,
+        code: adminError.code,
+        reason: "Administrative account deletion requires FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY environment variables to be configured.",
+      },
+      { status: 500 }
+    );
   }
 }

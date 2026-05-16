@@ -487,6 +487,7 @@ export default function TrainingPage() {
             onSetTrainers={onSetTrainers}
             onToggleTrainerAbsence={onToggleTrainerAbsence}
             onToggleIndividualTrainerAbsence={onToggleIndividualTrainerAbsence}
+            onToggleMemberExcluded={onToggleMemberExcluded}
             planFeatures={planFeatures}
           />
         ) : (
@@ -865,7 +866,7 @@ function WeekView({
   trainingGroups, trainingSessions, allMembers, currentMember, isAdminOrTrainer,
   onMarkAbsent, onMarkPresent, onToggleCancellation, onDeleteExtra,
   onSetTrainer, onSetTrainers, onToggleTrainerAbsence, onToggleIndividualTrainerAbsence,
-  planFeatures,
+  onToggleMemberExcluded, planFeatures,
 }: {
   weekDays: Date[];
   selectedDayIdx: number;
@@ -884,6 +885,7 @@ function WeekView({
   onSetTrainers: (groupId: string, date: Date, trainerIds: string[]) => void;
   onToggleTrainerAbsence: (groupId: string, date: Date) => void;
   onToggleIndividualTrainerAbsence: (groupId: string, date: Date, trainerId: string) => void;
+  onToggleMemberExcluded: (groupId: string, date: Date, memberId: string, excluded: boolean) => void;
   planFeatures: PlanFeatures;
 }) {
   const selectedDate = weekDays[selectedDayIdx];
@@ -974,7 +976,7 @@ function AttendanceCard({
   slot, date, dateStr, session, trainingGroups, trainingSessions, allMembers, currentMember,
   isAdminOrTrainer, idx, onMarkAbsent, onMarkPresent,
   onToggleCancellation, onDeleteExtra, onSetTrainer, onSetTrainers, onToggleTrainerAbsence,
-  onToggleIndividualTrainerAbsence, planFeatures,
+  onToggleIndividualTrainerAbsence, onToggleMemberExcluded, planFeatures,
 }: {
   slot: DaySlot;
   date: Date;
@@ -1008,15 +1010,19 @@ function AttendanceCard({
 
   const assignedTrainers = useMemo(() => {
     // 1. Primary trainer
-    const primaryId = session?.trainerId || group.trainerId;
+    const primaryId = (session && session.trainerId !== undefined) ? session.trainerId : group.trainerId;
     const trainers = [];
-    if (primaryId) trainers.push({ id: primaryId, isPrimary: true });
+    if (primaryId && primaryId !== "none" && primaryId !== "") {
+      trainers.push({ id: primaryId, isPrimary: true });
+    }
     
     // 2. Additional trainers (if Pro)
     if (planFeatures.hasMultiTrainer) {
-      const extraIds = session?.trainerIds || group.trainerIds || [];
+      const extraIds = (session && session.trainerIds !== undefined) ? session.trainerIds : (group.trainerIds || []);
       extraIds.forEach(id => {
-        if (id && id !== primaryId) trainers.push({ id, isPrimary: false });
+        if (id && id !== "none" && id !== "" && id !== primaryId) {
+          trainers.push({ id, isPrimary: false });
+        }
       });
     }
     return trainers;
@@ -1024,19 +1030,19 @@ function AttendanceCard({
 
   // Trainer logic
   const effectiveTrainerName = useMemo(() => {
-    if (session?.trainerName) return session.trainerName;
-    if (group.trainerId) {
-      const trainer = allMembers.find(m => m.id === group.trainerId);
+    const primaryId = (session && session.trainerId !== undefined) ? session.trainerId : group.trainerId;
+    if (primaryId && primaryId !== "none" && primaryId !== "") {
+      const trainer = allMembers.find(m => m.id === primaryId);
       return trainer ? getMemberFullName(trainer) : "Unbekannt";
     }
-    return "Kein Trainer";
+    return "Kein Trainer zugewiesen";
   }, [session, group.trainerId, allMembers]);
 
   const isTrainerAbsent = session?.isTrainerAbsent ?? false;
 
   const effectiveTrainerId = useMemo(() => {
-    if (session?.trainerId) return session.trainerId;
-    return group.trainerId || "unknown";
+    const primaryId = (session && session.trainerId !== undefined) ? session.trainerId : group.trainerId;
+    return (primaryId && primaryId !== "none") ? primaryId : "unknown";
   }, [session, group.trainerId]);
 
   const excludedIds = useMemo(() => session?.excludedMemberIds ?? [], [session]);
@@ -1174,10 +1180,38 @@ function AttendanceCard({
                           )}
                         </button>
                       )}
+
+                      {isAdmin && (
+                        <button
+                          onClick={async () => {
+                            if (tInfo.isPrimary) {
+                              await onSetTrainer(group.id, date, "none");
+                            } else {
+                              const currentIds = (session && session.trainerIds !== undefined) 
+                                ? session.trainerIds 
+                                : (group.trainerIds || []);
+                              const updated = currentIds.filter(id => id !== tInfo.id);
+                              await onSetTrainers(group.id, date, updated);
+                            }
+                          }}
+                          className="w-8 h-8 rounded-xl bg-black/[0.04] border border-black/5 hover:bg-red-50 hover:text-red-500 hover:border-red-200 flex items-center justify-center text-[#71717A] transition-all"
+                          title="Trainer vollständig entfernen"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
               })}
+
+              {assignedTrainers.length === 0 && (
+                <div className="flex items-center gap-3 bg-black/[0.02] border border-dashed border-black/10 rounded-[18px] p-3 text-center justify-center">
+                  <span className="text-[12px] font-poppins font-bold text-[#71717A]">
+                    Kein Trainer zugewiesen
+                  </span>
+                </div>
+              )}
 
               {isAdmin && (
                 <div className="flex items-center gap-2 mt-1">

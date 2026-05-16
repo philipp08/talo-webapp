@@ -901,22 +901,25 @@ export class FirebaseManager {
       (id) => id !== clubId
     );
 
-    const updates: Record<string, unknown> = {
-      clubIds: remainingClubIds,
-      [`clubMemberships.${clubId}`]: deleteField(),
-    };
+    const isFullyDeleted = remainingClubIds.length === 0;
 
-    if (!remainingClubIds.includes(member.clubId)) {
-      updates.clubId = remainingClubIds[0] ?? "";
+    if (isFullyDeleted) {
+      // If no clubs remain, delete the member document completely from Firestore!
+      await deleteDoc(doc(db, "members", member.id));
+    } else {
+      const updates: Record<string, unknown> = {
+        clubIds: remainingClubIds,
+        [`clubMemberships.${clubId}`]: deleteField(),
+      };
+
+      if (!remainingClubIds.includes(member.clubId)) {
+        updates.clubId = remainingClubIds[0] ?? "";
+      }
+
+      await updateDoc(doc(db, "members", member.id), updates);
     }
 
-    await updateDoc(doc(db, "members", member.id), updates);
-
-    // Note: We deliberately DO NOT delete the members document when 0 clubs remain.
-    // If we delete it, their Firebase Auth account still exists (we can't delete it without Admin SDK),
-    // and if they are added again, it throws an unrecoverable 'EMAIL_EXISTS' error because
-    // we lost their UID mapping. Leaving the document effectively "orphans" them safely.
-    return { fullyDeleted: remainingClubIds.length === 0 };
+    return { fullyDeleted: isFullyDeleted };
   }
 
   // === ENTRIES (write) ===

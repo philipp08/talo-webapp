@@ -187,7 +187,7 @@ export default function MemberDetailPage() {
         const auth = getAuth();
         const token = await auth.currentUser?.getIdToken();
         if (token) {
-          await fetch("/api/members/delete-auth", {
+          const res = await fetch("/api/members/delete-auth", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -195,6 +195,12 @@ export default function MemberDetailPage() {
             },
             body: JSON.stringify({ uid: member.id, clubId: currentClub.id }),
           });
+          
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            console.error("Auth deletion failed:", data.error || data);
+            alert(`Mitglied wurde aus der Datenbank gelöscht, aber das Firebase Auth-Konto konnte nicht entfernt werden.\n\nGrund: ${data.error || data.reason || "Serverfehler"}.\n\nBitte vergewissere dich, dass die Firebase Admin-Umgebungsvariablen (FIREBASE_CLIENT_EMAIL & FIREBASE_PRIVATE_KEY) auf dem Server (Vercel) konfiguriert sind, damit Auth-Konten administrativ entfernt werden können.`);
+          }
         }
       } catch (err) {
         console.error("Auth-Konto konnte nicht gelöscht werden:", err);
