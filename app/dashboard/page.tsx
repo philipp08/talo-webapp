@@ -22,24 +22,24 @@ const StatCard = ({
 }) => (
   <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.5 }}>
     <div
-      className="p-6 rounded-[28px] flex flex-col gap-5 relative overflow-hidden group cursor-default h-full transition-all hover:border-black/10"
+      className="p-4 sm:p-6 rounded-[20px] sm:rounded-[28px] flex flex-col gap-3 sm:gap-5 relative overflow-hidden group cursor-default h-full transition-all hover:border-black/10"
       style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}
     >
       {/* Glow blob */}
-      <div className="absolute top-0 right-0 w-28 h-28 rounded-full -mr-14 -mt-14 transition-colors"
-           style={{ background: `${color}10`, filter: "blur(40px)" }} />
+      <div className="absolute top-0 right-0 w-20 h-20 sm:w-28 sm:h-28 rounded-full -mr-10 -mt-10 sm:-mr-14 sm:-mt-14 transition-colors"
+           style={{ background: `${color}10`, filter: "blur(30px)" }} />
 
       <div className="flex items-center justify-between relative z-10">
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center"
              style={{ background: `${color}12`, color }}>
-          <Icon size={22} strokeWidth={2.2} />
+          <Icon className="w-4.5 h-4.5 sm:w-[22px] sm:h-[22px]" strokeWidth={2.2} />
         </div>
       </div>
 
       <div className="flex flex-col gap-0.5 relative z-10">
-        <p className="text-[34px] font-poppins font-bold text-[#0A0A0A] leading-none tracking-tight">{value}</p>
-        <p className="text-[10px] font-poppins font-black tracking-[0.2em] uppercase mt-1" style={{ color: "#71717A" }}>{label}</p>
-        {subtext && <p className="text-[10px] font-bold mt-1.5" style={{ color: "#B4B4BA" }}>{subtext}</p>}
+        <p className="text-[22px] sm:text-[34px] font-poppins font-bold text-[#0A0A0A] leading-none tracking-tight">{value}</p>
+        <p className="text-[9px] sm:text-[10px] font-poppins font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase mt-1 leading-none truncate" style={{ color: "#71717A" }}>{label}</p>
+        {subtext && <p className="text-[9px] sm:text-[10px] font-bold mt-1 text-ellipsis overflow-hidden whitespace-nowrap" style={{ color: "#B4B4BA" }}>{subtext}</p>}
       </div>
     </div>
   </motion.div>
@@ -105,7 +105,7 @@ export default function DashboardPage() {
         ) : (
           <>
             {/* ── Stats ───────────────────────────────────────────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
               <StatCard label="Bestätigte Punkte" value={approved.toFixed(1)} icon={CheckCircle} color="#34C759" delay={0.05} subtext="Erfolgreich verbucht" />
               <StatCard label="Warteschlange"     value={pending.toFixed(1)}  icon={Clock}        color="#FF9500" delay={0.10} subtext="In Prüfung" />
               <StatCard label="Soll-Erfüllung"    value={`${progress.toFixed(0)}%`} icon={Zap}   color="#0A0A0A" delay={0.15} subtext={`${remaining.toFixed(1)} Pkt. verbleibend`} />
