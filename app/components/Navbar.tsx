@@ -302,6 +302,7 @@ export default function Navbar() {
               {/* CTA pill – fades out in place when menu opens, no layout shift */}
               {!isLoading && (
                 <motion.div
+                  className="flex items-center"
                   animate={{
                     opacity: mobileOpen ? 0 : 1,
                     scale: mobileOpen ? 0.8 : 1,
@@ -315,7 +316,7 @@ export default function Navbar() {
                   {user ? (
                     <Link
                       href="/dashboard"
-                      className="text-[13px] font-medium px-4 py-[8px] rounded-[24px] bg-[#000000] dark:bg-white text-white dark:text-black border-none whitespace-nowrap overflow-hidden inline-block"
+                      className="text-[13px] font-medium px-4 h-10 flex items-center justify-center rounded-full bg-[#000000] dark:bg-white text-white dark:text-black border-none whitespace-nowrap overflow-hidden"
                       tabIndex={mobileOpen ? -1 : 0}
                     >
                       Dashboard
@@ -323,7 +324,7 @@ export default function Navbar() {
                   ) : (
                     <Link
                       href="/anmelden"
-                      className="text-[13px] font-medium px-4 py-[8px] rounded-[24px] bg-[#000000] dark:bg-white text-white dark:text-black border-none whitespace-nowrap overflow-hidden inline-block"
+                      className="text-[13px] font-medium px-4 h-10 flex items-center justify-center rounded-full bg-[#000000] dark:bg-white text-white dark:text-black border-none whitespace-nowrap overflow-hidden"
                       tabIndex={mobileOpen ? -1 : 0}
                     >
                       Anmelden

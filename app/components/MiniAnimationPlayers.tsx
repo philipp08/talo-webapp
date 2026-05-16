@@ -21,19 +21,40 @@ function AutoPlayer({
   style?: React.CSSProperties;
 }) {
   const ref = useRef<PlayerRef>(null);
-  useEffect(() => { ref.current?.play(); }, []);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          ref.current?.play();
+        } else {
+          ref.current?.pause();
+        }
+      },
+      { threshold: 0.05 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <Player
-      ref={ref}
-      component={component}
-      compositionWidth={width}
-      compositionHeight={height}
-      fps={fps}
-      durationInFrames={duration}
-      style={{ width: "100%", display: "block", ...style }}
-      loop
-    />
+    <div ref={containerRef} style={{ width: "100%" }}>
+      <Player
+        ref={ref}
+        component={component}
+        compositionWidth={width}
+        compositionHeight={height}
+        fps={fps}
+        durationInFrames={duration}
+        style={{ width: "100%", display: "block", ...style }}
+        loop
+      />
+    </div>
   );
 }
 
