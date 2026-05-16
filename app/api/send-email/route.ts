@@ -109,12 +109,8 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
       bgcolor="#0f172a"
       style="
       background-color:#0f172a;
-      background:
-      radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 30%),
-      linear-gradient(135deg, #0f172a 0%, #111827 40%, #1e293b 100%);
       padding:70px 40px 60px;
       text-align:center;
-      position:relative;
       "
     >
 
@@ -124,9 +120,8 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
         display:inline-block;
         padding:8px 18px;
         border-radius:999px;
-        background:rgba(255,255,255,0.10);
-        border:1px solid rgba(255,255,255,0.12);
-        backdrop-filter:blur(10px);
+        background:#1e293b;
+        border:1px solid #334155;
         color:#ffffff !important;
         font-size:13px;
         font-weight:600;
@@ -134,7 +129,7 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
         margin-bottom:24px;
         "
       >
-        Willkommen bei Talo
+        <span style="color:#ffffff !important;">Willkommen bei Talo</span>
       </div>
 
       <h1
@@ -147,8 +142,7 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
         letter-spacing:-1.6px;
         "
       >
-        Dein Zugang<br />
-        ist bereit.
+        <span style="color:#ffffff !important;">Dein Zugang<br />ist bereit.</span>
       </h1>
 
       <p
@@ -161,7 +155,7 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
         opacity:0.8;
         "
       >
-        Du wurdest erfolgreich zu ${escapeHtml(clubName)} hinzugefügt und kannst dich jetzt bei Talo anmelden.
+        <span style="color:#ffffff !important; opacity:0.8;">Du wurdest erfolgreich zu ${escapeHtml(clubName)} hinzugefügt und kannst dich jetzt bei Talo anmelden.</span>
       </p>
 
     </td>
@@ -280,7 +274,7 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
       <div style="text-align:center; margin-bottom:34px;">
 
         <a
-          href="https://talo-club.de/login"
+          href="https://talo-club.de/anmelden"
           style="
           display:inline-block;
           background:#111827;
@@ -312,14 +306,14 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
         Oder direkt hier öffnen:<br />
 
         <a
-          href="https://talo-club.de/login"
+          href="https://talo-club.de/anmelden"
           style="
           color:#111827;
           font-weight:600;
           text-decoration:none;
           "
         >
-          talo-club.de/login
+          talo-club.de/anmelden
         </a>
       </p>
 
