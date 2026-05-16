@@ -83,7 +83,7 @@ function renderWelcomeHtml(memberName: string, email: string, password: string, 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Willkommen bei Talo</title>
+  <title>Deine Zugangsdaten f\u00fcr ${escapeHtml(clubName)}</title>
 </head>
 
 <body style="margin:0; padding:0; background:#f3f4f6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
@@ -114,6 +114,24 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
       "
     >
 
+
+      <div
+        style="
+        display:inline-block;
+        padding:8px 18px;
+        border-radius:999px;
+        background:rgba(255,255,255,0.10);
+        border:1px solid rgba(255,255,255,0.12);
+        backdrop-filter:blur(10px);
+        color:#dbeafe;
+        font-size:13px;
+        font-weight:600;
+        letter-spacing:0.4px;
+        margin-bottom:24px;
+        "
+      >
+        Willkommen bei Talo
+      </div>
 
       <h1
         style="
