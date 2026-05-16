@@ -16,7 +16,7 @@ import { signOut } from "firebase/auth";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { ADMIN_EMAIL } from "@/lib/firebase/constants";
 import AuthGuard from "@/app/components/AuthGuard";
-import { TAvatar } from "@/app/components/ui/NativeUI";
+import { TAvatar, AmbientBackground, BrandingBar } from "@/app/components/ui/NativeUI";
 import ScrollReveal from "@/app/components/ScrollReveal";
 import { motion, AnimatePresence } from "framer-motion";
 import OnboardingFlow from "@/app/components/OnboardingFlow";
@@ -82,6 +82,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const accentLight = isLightColor(accent);
   const accentTextColor = accentLight ? "#0A0A0A" : accent;
   const logoUrl = planFeatures.hasClubLogo ? currentClub?.logoUrl : null;
+  const brandColor = planFeatures.hasClubColors ? (currentClub?.brandColor ?? accent) : accent;
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -226,7 +227,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <AuthGuard>
       <div
         className="flex h-dvh w-full text-[#0A0A0A] selection:bg-[#0A0A0A] selection:text-white"
-        style={{ background: "#FAFAFA" }}
+        style={{ 
+          background: "#FAFAFA",
+          // @ts-ignore
+          "--accent-color": accent,
+          "--accent-text": accentTextColor,
+          "--brand-color": brandColor,
+        }}
       >
 
         {/* ── DESKTOP SIDEBAR ─────────────────────────────────────────── */}
@@ -237,12 +244,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Brand */}
           <div className="px-8 py-10 flex items-center gap-3.5">
             <Link href="/" className="flex items-center gap-3.5 group">
-              <div className="w-9 h-9 flex items-center justify-center transition-all group-hover:scale-110">
-                <Image src="/talo-logo.png" alt="TALO" width={32} height={32} className="w-8 h-8 invert dark:invert-0" />
+              <div className="w-10 h-10 flex items-center justify-center transition-all group-hover:scale-110 rounded-xl bg-white shadow-sm border border-black/5 overflow-hidden">
+                {logoUrl ? (
+                  <img src={logoUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: `${brandColor}15`, color: brandColor }}>
+                     <Image src="/talo-logo.png" alt="TALO" width={22} height={22} className="w-5 h-5 opacity-40" style={{ filter: "grayscale(100%) brightness(0)" }} />
+                  </div>
+                )}
               </div>
               <div className="flex flex-col">
                 <span className="font-logo text-[17px] font-black tracking-[0.25em] text-[#0A0A0A] uppercase leading-none">TALO</span>
-                <span className="text-[9px] font-black tracking-[0.3em] uppercase mt-0.5" style={{ color: "#B4B4BA" }}>Console</span>
+                <span className="text-[9px] font-black tracking-[0.3em] uppercase mt-0.5" style={{ color: "#B4B4BA" }}>{currentClub?.name ?? "Console"}</span>
               </div>
             </Link>
           </div>
@@ -354,7 +367,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Header */}
                 <div className="px-5 pt-14 pb-5 flex items-center justify-between border-b border-black/5">
                   <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3">
-                    <Image src="/talo-logo.png" alt="TALO" width={28} height={28} className="w-7 h-7 invert dark:invert-0" />
+                    <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-white shadow-sm border border-black/5 overflow-hidden">
+                       {logoUrl ? (
+                        <img src={logoUrl} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center" style={{ background: `${brandColor}15`, color: brandColor }}>
+                           <Building2 size={16} />
+                        </div>
+                      )}
+                    </div>
                     <span className="font-logo text-[16px] font-black tracking-[0.25em] text-[#0A0A0A] uppercase">TALO</span>
                   </Link>
                   <button
@@ -461,6 +482,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* ── MAIN CONTENT ────────────────────────────────────────────── */}
         <main className="flex-1 relative overflow-hidden flex flex-col" style={{ background: "#FAFAFA" }}>
+          <BrandingBar />
+          <AmbientBackground />
           
           <AnimatePresence>
             {isOverLimit && (
