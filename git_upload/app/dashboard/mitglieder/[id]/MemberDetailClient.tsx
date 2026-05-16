@@ -74,10 +74,9 @@ export default function MemberDetailPage() {
 
   useEffect(() => {
     if (!currentClub || !canViewMember) return;
-    FirebaseManager.getMember(id).then((m) => {
+    FirebaseManager.getMember(id, currentClub.id).then((m) => {
       if (m) {
-        const memberClubIds = m.clubIds?.length ? m.clubIds : [m.clubId];
-        if (!memberClubIds.includes(currentClub.id)) {
+        if (!m.clubIds.includes(currentClub.id)) {
           setMember(null);
           setLoading(false);
           return;
@@ -112,10 +111,23 @@ export default function MemberDetailPage() {
   const isExempt    = member?.memberType === MemberType.Youth || member?.memberType === MemberType.Board;
 
   const saveMember = async () => {
-    if (!isAdmin || !member) return;
+    if (!isAdmin || !currentClub || !member) return;
     setSaving(true);
-    await FirebaseManager.updateMember(member.id, editForm);
-    setMember({ ...member, ...editForm });
+    const nextProfile = {
+      firstName: editForm.firstName.trim(),
+      lastName: editForm.lastName.trim(),
+      email: editForm.email.trim().toLowerCase(),
+    };
+    const nextMembership = {
+      memberType: editForm.memberType,
+      isAdmin: editForm.isAdmin,
+      isTrainer: editForm.isTrainer,
+    };
+    await Promise.all([
+      FirebaseManager.updateMember(member.id, nextProfile),
+      FirebaseManager.updateMemberMembership(member.id, currentClub.id, nextMembership),
+    ]);
+    setMember({ ...member, ...nextProfile, ...nextMembership });
     setEditSaved(true);
     setTimeout(() => { setEditSaved(false); setIsEditExpanded(false); }, 1500);
     setSaving(false);
@@ -123,8 +135,7 @@ export default function MemberDetailPage() {
 
   const removeMember = async () => {
     if (!isAdmin || !currentClub || !member) return;
-    const newIds = (member.clubIds ?? [member.clubId]).filter((c) => c !== currentClub.id);
-    await FirebaseManager.updateMember(member.id, { clubIds: newIds });
+    await FirebaseManager.removeMemberFromClub(member, currentClub.id);
     router.push("/dashboard/mitglieder");
   };
 

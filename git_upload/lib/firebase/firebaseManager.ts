@@ -12,8 +12,75 @@ import {
   deleteDoc,
   setDoc,
   Timestamp,
+  arrayUnion,
+  deleteField,
+  QuerySnapshot,
+  DocumentData,
 } from "firebase/firestore";
-import { Club, Member, Entry, Activity, SeasonType, TrainingAnnouncement } from "./models";
+import {
+  Club,
+  Member,
+  Entry,
+  Activity,
+  SeasonType,
+  TrainingAnnouncement,
+  ClubMembership,
+  getEffectiveMemberForClub,
+  normalizeClubIds,
+} from "./models";
+
+const buildClub = (id: string, data: DocumentData): Club => ({
+  id,
+  name: data.name,
+  requiredPoints: data.requiredPoints,
+  compensationPerMissingPoint: data.compensationPerMissingPoint,
+  seasonType: data.seasonType as SeasonType,
+  approvalRequired: data.approvalRequired,
+  plan: data.plan,
+  licenseStatus: data.licenseStatus,
+  licenseExpiresAt: data.licenseExpiresAt,
+});
+
+const buildMember = (
+  id: string,
+  data: DocumentData,
+  activeClubId?: string
+): Member => {
+  const clubIds = normalizeClubIds(data.clubIds, data.clubId);
+  const member: Member = {
+    id,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    memberType: data.memberType,
+    isAdmin: data.isAdmin ?? false,
+    isTrainer: data.isTrainer ?? false,
+    clubId: data.clubId || clubIds[0] || "",
+    clubIds,
+    clubMemberships: data.clubMemberships ?? {},
+    customTargetPoints: data.customTargetPoints,
+    profileImageUrl: data.profileImageUrl,
+  };
+
+  return activeClubId ? getEffectiveMemberForClub(member, activeClubId) : member;
+};
+
+const mergeMemberSnapshots = (
+  snapshots: QuerySnapshot<DocumentData>[],
+  activeClubId: string
+): Member[] => {
+  const byId = new Map<string, Member>();
+
+  snapshots.forEach((snapshot) => {
+    snapshot.forEach((docSnap) => {
+      byId.set(docSnap.id, buildMember(docSnap.id, docSnap.data(), activeClubId));
+    });
+  });
+
+  return Array.from(byId.values()).sort((a, b) =>
+    `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)
+  );
+};
 
 export class FirebaseManager {
   // === CLUBS ===
@@ -27,18 +94,7 @@ export class FirebaseManager {
       const docRef = doc(db, "clubs", clubId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const data = docSnap.data();
-        return {
-          id: docSnap.id,
-          name: data.name,
-          requiredPoints: data.requiredPoints,
-          compensationPerMissingPoint: data.compensationPerMissingPoint,
-          seasonType: data.seasonType as SeasonType,
-          approvalRequired: data.approvalRequired,
-          plan: data.plan,
-          licenseStatus: data.licenseStatus,
-          licenseExpiresAt: data.licenseExpiresAt,
-        };
+        return buildClub(docSnap.id, docSnap.data());
       }
       return null;
     } catch (error) {
@@ -47,46 +103,34 @@ export class FirebaseManager {
     }
   }
 
-  // === MEMBERS ===
-  static async getMemberByEmail(email: string): Promise<Member | null> {
-    const q = query(collection(db, "members"), where("email", "==", email));
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) return null;
-    const docData = snapshot.docs[0];
-    const data = docData.data();
-    return {
-      id: docData.id,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      memberType: data.memberType,
-      isAdmin: data.isAdmin ?? false,
-      isTrainer: data.isTrainer ?? false,
-      clubId: data.clubId,
-      clubIds: data.clubIds || [data.clubId],
-      customTargetPoints: data.customTargetPoints,
-    };
+  static async getClubs(clubIds: string[]): Promise<Club[]> {
+    const uniqueClubIds = normalizeClubIds(clubIds);
+    const clubs = await Promise.all(uniqueClubIds.map((clubId) => this.getClub(clubId)));
+    return clubs.filter((club): club is Club => club !== null);
   }
 
-  static async getMember(uid: string): Promise<Member | null> {
+  // === MEMBERS ===
+  static async getMemberByEmail(email: string): Promise<Member | null> {
+    const trimmedEmail = email.trim();
+    const normalizedEmail = trimmedEmail.toLowerCase();
+    const emailsToCheck = Array.from(new Set([trimmedEmail, normalizedEmail]));
+
+    const snapshots = await Promise.all(
+      emailsToCheck.map((emailToCheck) =>
+        getDocs(query(collection(db, "members"), where("email", "==", emailToCheck)))
+      )
+    );
+    const docData = snapshots.flatMap((snapshot) => snapshot.docs)[0];
+    if (!docData) return null;
+    return buildMember(docData.id, docData.data());
+  }
+
+  static async getMember(uid: string, activeClubId?: string): Promise<Member | null> {
     try {
       const docRef = doc(db, "members", uid); // Die Collection heißt "members" in iOS
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const data = docSnap.data();
-        return {
-          id: docSnap.id,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: data.email,
-          memberType: data.memberType,
-          isAdmin: data.isAdmin ?? false,
-          isTrainer: data.isTrainer ?? false,
-          clubId: data.clubId,
-          clubIds: data.clubIds || [data.clubId],
-          customTargetPoints: data.customTargetPoints,
-          profileImageUrl: data.profileImageUrl,
-        };
+        return buildMember(docSnap.id, docSnap.data(), activeClubId);
       }
       return null;
     } catch (error) {
@@ -97,29 +141,19 @@ export class FirebaseManager {
 
   static async getMembersForClub(clubId: string): Promise<Member[]> {
     try {
-      const q = query(
+      const clubIdsQuery = query(
         collection(db, "members"),
         where("clubIds", "array-contains", clubId)
       );
-      const querySnapshot = await getDocs(q);
-      const members: Member[] = [];
-      querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        members.push({
-          id: docSnap.id,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: data.email,
-          memberType: data.memberType,
-          isAdmin: data.isAdmin ?? false,
-          isTrainer: data.isTrainer ?? false,
-          clubId: data.clubId,
-          clubIds: data.clubIds || [data.clubId],
-          customTargetPoints: data.customTargetPoints,
-          profileImageUrl: data.profileImageUrl,
-        });
-      });
-      return members;
+      const legacyClubIdQuery = query(
+        collection(db, "members"),
+        where("clubId", "==", clubId)
+      );
+      const snapshots = await Promise.all([
+        getDocs(clubIdsQuery),
+        getDocs(legacyClubIdQuery),
+      ]);
+      return mergeMemberSnapshots(snapshots, clubId);
     } catch (error) {
       console.error("Error fetching club members:", error);
       return [];
@@ -248,33 +282,33 @@ export class FirebaseManager {
     clubId: string,
     callback: (members: Member[]) => void
   ) {
-    const q = query(
+    const clubIdsQuery = query(
       collection(db, "members"),
       where("clubIds", "array-contains", clubId)
     );
-    return onSnapshot(q, (snapshot) => {
-      const members: Member[] = [];
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        members.push({
-          id: docSnap.id,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: data.email,
-          memberType: data.memberType,
-          isAdmin: data.isAdmin ?? false,
-          isTrainer: data.isTrainer ?? false,
-          clubId: data.clubId,
-          clubIds: data.clubIds || [data.clubId],
-          customTargetPoints: data.customTargetPoints,
-          profileImageUrl: data.profileImageUrl,
-        });
-      });
-      members.sort((a, b) =>
-        `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)
-      );
-      callback(members);
+    const legacyClubIdQuery = query(
+      collection(db, "members"),
+      where("clubId", "==", clubId)
+    );
+    const snapshots: Array<QuerySnapshot<DocumentData> | null> = [null, null];
+    const emit = () => {
+      if (!snapshots[0] || !snapshots[1]) return;
+      callback(mergeMemberSnapshots([snapshots[0], snapshots[1]], clubId));
+    };
+
+    const unsubscribeClubIds = onSnapshot(clubIdsQuery, (snapshot) => {
+      snapshots[0] = snapshot;
+      emit();
     });
+    const unsubscribeLegacyClubId = onSnapshot(legacyClubIdQuery, (snapshot) => {
+      snapshots[1] = snapshot;
+      emit();
+    });
+
+    return () => {
+      unsubscribeClubIds();
+      unsubscribeLegacyClubId();
+    };
   }
 
   // === ACTIVITIES (write) ===
@@ -321,6 +355,50 @@ export class FirebaseManager {
     updates: Partial<Omit<Member, "id">>
   ): Promise<void> {
     await setDoc(doc(db, "members", memberId), updates, { merge: true });
+  }
+
+  static async addMemberToClub(
+    member: Member,
+    clubId: string,
+    membership: ClubMembership
+  ): Promise<void> {
+    const clubIds = normalizeClubIds([...member.clubIds, clubId], member.clubId);
+    const updates: Record<string, unknown> = {
+      clubIds: arrayUnion(...clubIds),
+      [`clubMemberships.${clubId}`]: membership,
+    };
+
+    if (!member.clubId) {
+      updates.clubId = clubId;
+    }
+
+    await updateDoc(doc(db, "members", member.id), updates);
+  }
+
+  static async updateMemberMembership(
+    memberId: string,
+    clubId: string,
+    membership: ClubMembership
+  ): Promise<void> {
+    await updateDoc(doc(db, "members", memberId), {
+      [`clubMemberships.${clubId}`]: membership,
+    });
+  }
+
+  static async removeMemberFromClub(member: Member, clubId: string): Promise<void> {
+    const remainingClubIds = normalizeClubIds(member.clubIds, member.clubId).filter(
+      (id) => id !== clubId
+    );
+    const updates: Record<string, unknown> = {
+      clubIds: remainingClubIds,
+      [`clubMemberships.${clubId}`]: deleteField(),
+    };
+
+    if (!remainingClubIds.includes(member.clubId)) {
+      updates.clubId = remainingClubIds[0] ?? "";
+    }
+
+    await updateDoc(doc(db, "members", member.id), updates);
   }
 
   // === ENTRIES (write) ===

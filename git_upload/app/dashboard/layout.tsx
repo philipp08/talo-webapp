@@ -8,7 +8,8 @@ import {
   LayoutGrid, Users, ClipboardList,
   Settings, Megaphone, LogOut,
   ShieldCheck, PenLine, CheckSquare,
-  Menu, X, MoreHorizontal,
+  Menu, X, MoreHorizontal, Building2,
+  ChevronDown, Check,
 } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
@@ -19,18 +20,28 @@ import { TAvatar } from "@/app/components/ui/NativeUI";
 import ScrollReveal from "@/app/components/ScrollReveal";
 import { motion, AnimatePresence } from "framer-motion";
 import OnboardingFlow from "@/app/components/OnboardingFlow";
+import { FirebaseManager } from "@/lib/firebase/firebaseManager";
+
+const activeClubStorageKey = (uid: string) => `talo.activeClubId.${uid}`;
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const currentMember = useAppStore((state) => state.currentMember);
+  const setCurrentMember = useAppStore((state) => state.setCurrentMember);
+  const currentClub = useAppStore((state) => state.currentClub);
+  const availableClubs = useAppStore((state) => state.availableClubs);
+  const setCurrentClub = useAppStore((state) => state.setCurrentClub);
   const user = useAppStore((state) => state.user);
   const isLoadingAuthedState = useAppStore((state) => state.isLoadingAuthedState);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [clubMenuOpen, setClubMenuOpen] = useState(false);
+  const [switchingClubId, setSwitchingClubId] = useState<string | null>(null);
 
   // Close menu on route change
   useEffect(() => {
     queueMicrotask(() => setMobileMenuOpen(false));
+    queueMicrotask(() => setClubMenuOpen(false));
   }, [pathname]);
 
   // Redirect admin to their dedicated console
@@ -42,10 +53,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const isAdmin   = currentMember?.isAdmin   === true;
   const isTrainer = currentMember?.isTrainer === true;
+  const canSwitchClubs = availableClubs.length > 1;
 
   const handleLogout = async () => {
     await signOut(auth);
     router.push("/anmelden");
+  };
+
+  const handleClubSwitch = async (clubId: string) => {
+    if (!currentMember || !clubId || clubId === currentClub?.id) {
+      setClubMenuOpen(false);
+      return;
+    }
+
+    setSwitchingClubId(clubId);
+    try {
+      const [member, club] = await Promise.all([
+        FirebaseManager.getMember(currentMember.id, clubId),
+        FirebaseManager.getClub(clubId),
+      ]);
+
+      if (!member || !club) {
+        return;
+      }
+
+      window.localStorage.setItem(activeClubStorageKey(currentMember.id), clubId);
+      setCurrentMember(member);
+      setCurrentClub(club);
+      setClubMenuOpen(false);
+      router.push("/dashboard");
+    } finally {
+      setSwitchingClubId(null);
+    }
   };
 
   const navItems = [
@@ -69,8 +108,79 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isOverflowActive =
     hasMore && navItems.slice(MAX_TABS).some((i) => isTabActive(i.href));
 
-  // If no clubId is assigned, show onboarding to create a club
-  if (currentMember && !currentMember.clubId) {
+  const renderClubSwitcher = (mobile = false) => {
+    if (!currentClub) return null;
+
+    return (
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => canSwitchClubs && setClubMenuOpen((open) => !open)}
+          className={`w-full flex items-center gap-3 rounded-2xl border border-black/5 bg-black/[0.03] transition-all ${
+            canSwitchClubs ? "hover:bg-black/[0.05]" : "cursor-default"
+          } ${mobile ? "px-3 py-3" : "px-4 py-3.5"}`}
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-black/5 text-[#0A0A0A]">
+            <Building2 size={17} />
+          </div>
+          <div className="min-w-0 flex-1 text-left">
+            <p className="truncate text-[13px] font-poppins font-bold text-[#0A0A0A]">
+              {currentClub.name}
+            </p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-[#A1A1AA]">
+              Verein
+            </p>
+          </div>
+          {canSwitchClubs && (
+            <ChevronDown
+              size={16}
+              className={`shrink-0 text-[#71717A] transition-transform ${clubMenuOpen ? "rotate-180" : ""}`}
+            />
+          )}
+        </button>
+
+        <AnimatePresence>
+          {canSwitchClubs && clubMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -6, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.98 }}
+              className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-2xl"
+            >
+              {availableClubs.map((club) => {
+                const active = club.id === currentClub.id;
+                const switching = switchingClubId === club.id;
+
+                return (
+                  <button
+                    key={club.id}
+                    type="button"
+                    onClick={() => handleClubSwitch(club.id)}
+                    disabled={switchingClubId !== null}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-black/[0.04] disabled:opacity-60"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/[0.04] text-[#0A0A0A]">
+                      {active ? <Check size={15} /> : switching ? (
+                        <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/10 border-t-[#0A0A0A]" />
+                      ) : (
+                        <Building2 size={15} />
+                      )}
+                    </div>
+                    <span className="min-w-0 flex-1 truncate text-sm font-poppins font-semibold text-[#0A0A0A]">
+                      {club.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
+  // If no club membership is assigned, show onboarding to create a club
+  if (currentMember && currentMember.clubIds.length === 0) {
     return (
       <AuthGuard>
         <OnboardingFlow />
@@ -101,6 +211,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <span className="text-[9px] font-black tracking-[0.3em] uppercase mt-0.5" style={{ color: "#B4B4BA" }}>Console</span>
               </div>
             </Link>
+          </div>
+
+          <div className="px-5 pb-5">
+            {renderClubSwitcher()}
           </div>
 
           {/* Nav */}
@@ -216,6 +330,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   >
                     <X size={18} />
                   </button>
+                </div>
+
+                <div className="p-4 border-b border-black/5">
+                  {renderClubSwitcher(true)}
                 </div>
 
                 {/* Nav */}

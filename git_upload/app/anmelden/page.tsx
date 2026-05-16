@@ -131,23 +131,24 @@ export default function LoginPage() {
     }
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
       if (mode === "login") {
-        await signInWithEmailAndPassword(auth, email, password);
-        router.push(email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? "/admin/newsletter" : "/dashboard");
+        await signInWithEmailAndPassword(auth, normalizedEmail, password);
+        router.push(normalizedEmail === ADMIN_EMAIL.toLowerCase() ? "/admin/newsletter" : "/dashboard");
       } else {
         if (!firstName || !lastName) {
           setError("Bitte fülle alle Namensfelder aus.");
           setLoading(false);
           return;
         }
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
         const user = userCredential.user;
 
         // Firebase Firestore Init für neue User
         await setDoc(doc(db, "members", user.uid), {
-          firstName,
-          lastName,
-          email,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: normalizedEmail,
           memberType: "Aktiv", // Default Setup analog iOS
           isAdmin: false,
           isTrainer: false,

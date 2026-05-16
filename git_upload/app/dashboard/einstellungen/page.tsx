@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   User, Lock, LogOut, Building2, ShieldCheck, Dumbbell,
   Calendar, Euro, Target, FileSpreadsheet, FileText,
-  Users, Settings2, Download, Check, ChevronRight, Key, Loader2, Sparkles
+  Users, Settings2, Download, Check, ChevronRight, Key, Sparkles
 } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { collection, query, where, getDocs, doc, updateDoc, Timestamp } from "firebase/firestore";
@@ -65,6 +65,11 @@ const PLAN_TIERS = [
     features: ["Bis 300 Mitglieder", "Mehrere Abteilungen", "Vereinsfarben", "Priorisierter Support"],
   }
 ];
+
+function formatLicenseDate(value: Timestamp | Date): string {
+  const date = value instanceof Date ? value : value.toDate();
+  return date.toLocaleDateString("de-DE");
+}
 
 type ExportKey =
   | "entries-csv"
@@ -217,7 +222,7 @@ export default function SettingsPage() {
         setLicMsg("");
       }, 4000);
 
-    } catch (e) {
+    } catch {
       setLicState("error");
       setLicMsg("Netzwerkfehler.");
     }
@@ -444,7 +449,7 @@ export default function SettingsPage() {
                             {currentClub?.plan || "Free"}
                           </span>
                           <span className="text-xs text-[#52525B]">
-                            {currentClub?.licenseExpiresAt ? `Ablauf: ${(currentClub.licenseExpiresAt as any).toDate?.().toLocaleDateString("de-DE") || new Date(currentClub.licenseExpiresAt as any).toLocaleDateString("de-DE")}` : "Kostenlose Version"}
+                            {currentClub?.licenseExpiresAt ? `Ablauf: ${formatLicenseDate(currentClub.licenseExpiresAt)}` : "Kostenlose Version"}
                           </span>
                         </div>
                         

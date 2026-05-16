@@ -390,7 +390,8 @@ export default function MembersPage() {
                           <div className="flex flex-col gap-3 pt-4">
                             <button 
                               onClick={async () => {
-                                if (!inviteFirstName || !inviteLastName || !inviteEmail) {
+                                const normalizedEmail = inviteEmail.trim().toLowerCase();
+                                if (!inviteFirstName.trim() || !inviteLastName.trim() || !normalizedEmail) {
                                   setErrorMessage("Bitte alle Felder ausfüllen.");
                                   return;
                                 }
@@ -405,37 +406,40 @@ export default function MembersPage() {
                                   if (!clubId) throw new Error("Kein Verein ausgewählt.");
 
                                   // Check if member already exists
-                                  const existingMember = await FirebaseManager.getMemberByEmail(inviteEmail);
+                                  const existingMember = await FirebaseManager.getMemberByEmail(normalizedEmail);
                                   
                                   if (existingMember) {
-                                    const clubIds = existingMember.clubIds || [];
-                                    if (clubIds.includes(clubId) || existingMember.clubId === clubId) {
+                                    if (existingMember.clubIds.includes(clubId) || existingMember.clubId === clubId) {
                                       throw new Error("Dieser Nutzer ist bereits Mitglied im Verein.");
                                     }
                                     
-                                    // Make sure we carry over existing clubIds
-                                    clubIds.push(clubId);
-                                    
-                                    await FirebaseManager.updateMember(existingMember.id, {
-                                      clubIds: clubIds,
-                                      // falls clubId leer ist, setzen wir sie direkt (falls er in keinem war)
-                                      ...(existingMember.clubId ? {} : { clubId })
+                                    await FirebaseManager.addMemberToClub(existingMember, clubId, {
+                                      memberType: inviteType,
+                                      isAdmin: false,
+                                      isTrainer: false,
                                     });
                                     
                                     setUserAlreadyExisted(true);
                                     setGeneratedPassword("existing");
                                   } else {
-                                    const { uid, password } = await AuthService.createMemberAuth(inviteEmail, inviteFirstName, inviteLastName, clubId);
+                                    const { uid, password } = await AuthService.createMemberAuth(normalizedEmail, inviteFirstName.trim(), inviteLastName.trim(), clubId);
                                     
                                     const newMember = {
-                                      firstName: inviteFirstName,
-                                      lastName: inviteLastName,
-                                      email: inviteEmail,
+                                      firstName: inviteFirstName.trim(),
+                                      lastName: inviteLastName.trim(),
+                                      email: normalizedEmail,
                                       memberType: inviteType,
                                       isAdmin: false,
                                       isTrainer: false,
                                       clubId: clubId,
-                                      clubIds: [clubId]
+                                      clubIds: [clubId],
+                                      clubMemberships: {
+                                        [clubId]: {
+                                          memberType: inviteType,
+                                          isAdmin: false,
+                                          isTrainer: false,
+                                        },
+                                      },
                                     };
                                     
                                     await FirebaseManager.setMember(uid, newMember);

@@ -11,7 +11,9 @@ interface AppState {
 
   // Club state
   currentClub: Club | null;
+  availableClubs: Club[];
   setCurrentClub: (club: Club | null) => void;
+  setAvailableClubs: (clubs: Club[]) => void;
 
   // Loading states
   isLoadingAuthedState: boolean;
@@ -25,7 +27,9 @@ export const useAppStore = create<AppState>((set) => ({
   setCurrentMember: (member) => set({ currentMember: member }),
 
   currentClub: null,
+  availableClubs: [],
   setCurrentClub: (club) => set({ currentClub: club }),
+  setAvailableClubs: (clubs) => set({ availableClubs: clubs }),
 
   isLoadingAuthedState: true,
   setIsLoadingAuthedState: (isLoading) =>

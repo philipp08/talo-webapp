@@ -38,6 +38,13 @@ export interface Club {
   licenseExpiresAt?: Timestamp | Date | null;
 }
 
+export interface ClubMembership {
+  memberType: MemberType | string;
+  customTargetPoints?: number;
+  isAdmin: boolean;
+  isTrainer: boolean;
+}
+
 export interface Member {
   id: string; // Firebase Auth UID
   firstName: string;
@@ -49,6 +56,7 @@ export interface Member {
   isTrainer: boolean;
   clubId: string;
   clubIds: string[];
+  clubMemberships?: Record<string, ClubMembership>;
   profileImageUrl?: string;
 }
 
@@ -94,6 +102,47 @@ export const PointFactors: Record<string, number> = {
 
 export const getMemberFullName = (member: Member) =>
   `${member.firstName} ${member.lastName}`;
+
+export const normalizeClubIds = (
+  clubIds?: Array<string | null | undefined> | null,
+  legacyClubId?: string | null
+): string[] => {
+  const result = new Set<string>();
+
+  const add = (clubId?: string | null) => {
+    const trimmed = clubId?.trim();
+    if (trimmed) result.add(trimmed);
+  };
+
+  clubIds?.forEach(add);
+  add(legacyClubId);
+
+  return Array.from(result);
+};
+
+export const getMemberClubIds = (
+  member: Pick<Member, "clubId" | "clubIds">
+): string[] => normalizeClubIds(member.clubIds, member.clubId);
+
+export const getEffectiveMemberForClub = (
+  member: Member,
+  clubId: string
+): Member => {
+  const membership = member.clubMemberships?.[clubId];
+
+  if (!membership) {
+    return { ...member, clubId };
+  }
+
+  return {
+    ...member,
+    clubId,
+    memberType: membership.memberType,
+    customTargetPoints: membership.customTargetPoints,
+    isAdmin: membership.isAdmin === true,
+    isTrainer: membership.isTrainer === true,
+  };
+};
 
 export const calculateTargetPoints = (
   member: Member,

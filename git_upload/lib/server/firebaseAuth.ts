@@ -18,6 +18,9 @@ type FirestoreValue = {
   arrayValue?: {
     values?: FirestoreValue[];
   };
+  mapValue?: {
+    fields?: Record<string, FirestoreValue>;
+  };
 };
 
 type FirestoreDocument = {
@@ -45,14 +48,16 @@ async function verifyClubAdmin(token: string, uid: string, clubId: string): Prom
   const data = (await response.json()) as FirestoreDocument;
   const fields = data.fields;
 
-  if (!fields?.isAdmin?.booleanValue) {
-    return false;
+  const clubIds = readStringArray(fields?.clubIds);
+  const legacyClubId = fields?.clubId?.stringValue;
+  const membership = fields?.clubMemberships?.mapValue?.fields?.[clubId]?.mapValue?.fields;
+  const belongsToClub = clubIds.includes(clubId) || legacyClubId === clubId || Boolean(membership);
+
+  if (membership) {
+    return belongsToClub && membership.isAdmin?.booleanValue === true;
   }
 
-  const clubIds = readStringArray(fields.clubIds);
-  const legacyClubId = fields.clubId?.stringValue;
-
-  return clubIds.includes(clubId) || legacyClubId === clubId;
+  return belongsToClub && fields?.isAdmin?.booleanValue === true;
 }
 
 export async function verifyAdminRequest(request: Request, clubId?: string): Promise<VerifiedAdmin | null> {

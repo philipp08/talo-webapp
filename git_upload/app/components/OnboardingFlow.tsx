@@ -2,18 +2,32 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Check, ChevronRight, Loader2, LogOut } from "lucide-react";
+import { Building2, LogOut } from "lucide-react";
 import { GlassSection, TButton, TLine } from "./ui/NativeUI";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import { normalizeClubIds } from "@/lib/firebase/models";
+
+const activeClubStorageKey = (uid: string) => `talo.activeClubId.${uid}`;
+
+function getErrorDetails(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  const code =
+    typeof error === "object" && error !== null && "code" in error
+      ? String((error as { code?: unknown }).code)
+      : undefined;
+
+  return { code, message };
+}
 
 export default function OnboardingFlow() {
   const currentMember = useAppStore((state) => state.currentMember);
   const setCurrentMember = useAppStore((state) => state.setCurrentMember);
   const setCurrentClub = useAppStore((state) => state.setCurrentClub);
+  const setAvailableClubs = useAppStore((state) => state.setAvailableClubs);
   const router = useRouter();
 
   const [clubName, setClubName] = useState("");
@@ -43,7 +57,7 @@ export default function OnboardingFlow() {
 
       // 2. Update the member to be admin and assign to club
       console.log("STEP 2: Updating user to Admin...");
-      const clubIds = currentMember.clubIds || [];
+      const clubIds = normalizeClubIds(currentMember.clubIds, currentMember.clubId);
       if (!clubIds.includes(newClubId)) clubIds.push(newClubId);
 
       await FirebaseManager.updateMember(currentMember.id, {
@@ -51,6 +65,14 @@ export default function OnboardingFlow() {
         clubIds: clubIds,
         isAdmin: true,   // First user is the admin
         memberType: "Vorstand", // Optionally set as Vorstand
+        clubMemberships: {
+          ...(currentMember.clubMemberships ?? {}),
+          [newClubId]: {
+            memberType: "Vorstand",
+            isAdmin: true,
+            isTrainer: false,
+          },
+        },
       });
       console.log("User updated successfully");
 
@@ -72,15 +94,18 @@ export default function OnboardingFlow() {
 
       // 4. Update local state
       console.log("STEP 4: Fetching updated states...");
-      const updatedMember = await FirebaseManager.getMember(currentMember.id);
+      const updatedMember = await FirebaseManager.getMember(currentMember.id, newClubId);
       const updatedClub = await FirebaseManager.getClub(newClubId);
       
+      window.localStorage.setItem(activeClubStorageKey(currentMember.id), newClubId);
       setCurrentMember(updatedMember);
       setCurrentClub(updatedClub);
+      setAvailableClubs(updatedClub ? [updatedClub] : []);
 
-    } catch (err: any) {
-      console.error("Firebase Details:", err.code, err.message, err);
-      setError("Es gab ein Problem beim Erstellen des Vereins: " + (err.message || String(err)));
+    } catch (err: unknown) {
+      const details = getErrorDetails(err);
+      console.error("Firebase Details:", details.code, details.message, err);
+      setError("Es gab ein Problem beim Erstellen des Vereins: " + details.message);
     } finally {
       setLoading(false);
     }

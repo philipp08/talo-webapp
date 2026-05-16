@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase/config";
 import {
-  collection, getDocs, Timestamp, addDoc,
+  collection, getDocs, Timestamp, addDoc
 } from "firebase/firestore";
 import { PlusCircle, Copy, Loader2 } from "lucide-react";
 
@@ -33,7 +33,11 @@ export default function LizenzenAdminPage() {
   }
 
   useEffect(() => {
-    loadLicenses();
+    const timer = window.setTimeout(() => {
+      void loadLicenses();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   function generateKey() {

@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  const email = readString(rawBody, "email", 180);
+  const email = readString(rawBody, "email", 180)?.toLowerCase();
   const firstName = readString(rawBody, "firstName", 120);
   const lastName = readString(rawBody, "lastName", 120);
   const clubId = readString(rawBody, "clubId", 180);
