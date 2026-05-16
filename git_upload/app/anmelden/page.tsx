@@ -122,15 +122,28 @@ export default function LoginPage() {
   const [lastName, setLastName] = useState("");
 
   const handleReset = async () => {
-    if (!email) { setError("Bitte zuerst E-Mail eingeben."); return; }
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) { 
+      setError("Bitte zuerst E-Mail eingeben."); 
+      return; 
+    }
     setResetLoading(true);
     setError("");
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, trimmedEmail);
       setResetSent(true);
     } catch (err) {
-      if (getFirebaseErrorCode(err) === "auth/user-not-found") setError("Kein Account mit dieser E-Mail gefunden.");
-      else setError("Fehler beim Senden. Bitte versuche es erneut.");
+      console.error("Reset Error:", err);
+      const code = getFirebaseErrorCode(err);
+      if (code === "auth/user-not-found") {
+        setError("Kein Account mit dieser E-Mail gefunden.");
+      } else if (code === "auth/invalid-email") {
+        setError("Die E-Mail-Adresse ist ungültig.");
+      } else if (code === "auth/too-many-requests") {
+        setError("Zu viele Versuche. Bitte warte einen Moment.");
+      } else {
+        setError("Fehler beim Senden. Bitte versuche es erneut.");
+      }
     }
     setResetLoading(false);
   };
@@ -279,7 +292,16 @@ export default function LoginPage() {
               </>
             )}
 
-            <FloatingInput label="E-Mail" value={email} onChange={setEmail} type="email" />
+            <FloatingInput 
+              label="E-Mail" 
+              value={email} 
+              onChange={(val) => {
+                setEmail(val);
+                if (resetSent) setResetSent(false);
+                if (error) setError("");
+              }} 
+              type="email" 
+            />
             <FloatingInput label="Passwort" value={password} onChange={setPassword} type="password" />
 
             {mode === "login" && (

@@ -56,6 +56,7 @@ export default function MembersPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [isSendingMail, setIsSendingMail] = useState(false);
   const [mailSent, setMailSent] = useState(false);
+  const [userAlreadyExisted, setUserAlreadyExisted] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
   const isAdmin = currentMember?.isAdmin === true;
@@ -218,6 +219,7 @@ export default function MembersPage() {
                              setIsInviteOpen(false);
                              setGeneratedPassword(null);
                              setErrorMessage(null);
+                             setUserAlreadyExisted(false);
                            }}
                            className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
                          >
@@ -236,66 +238,81 @@ export default function MembersPage() {
                               <Check className="text-[#52525B]" size={32} />
                             </div>
                             <h3 className="text-xl font-bold text-[#0A0A0A]">Mitglied erfolgreich angelegt!</h3>
-                            <p className="text-sm text-[#71717A]">Das Konto wurde erstellt. Hier sind die Zugangsdaten:</p>
+                            <p className="text-sm text-[#71717A]">
+                              {userAlreadyExisted ? "Der Nutzer wurde dem Verein hinzugefügt." : "Das Konto wurde erstellt. Hier sind die Zugangsdaten:"}
+                            </p>
                           </div>
 
-                          <div className="bg-black/[0.04] rounded-3xl p-6 border border-black/10 flex flex-col gap-4">
-                            <div className="flex flex-col items-start gap-1">
-                              <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">E-Mail Adresse</span>
-                              <div className="w-full bg-black/20 rounded-xl p-3 text-sm text-[#0A0A0A] font-mono border border-black/5">{inviteEmail}</div>
+                          {userAlreadyExisted ? (
+                            <div className="bg-black/[0.04] rounded-3xl p-6 border border-black/10 flex flex-col gap-3 items-center">
+                              <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest bg-black/[0.05] border border-black/10 px-3 py-1 rounded-full">Bestehender Account</span>
+                              <p className="text-sm text-[#0A0A0A] font-semibold mt-2">Nutzer hatte bereits einen Talo-Account.</p>
+                              <p className="text-xs text-[#52525B] leading-relaxed">
+                                {inviteFirstName} kann sich einfach mit dem <br/>bisherigen Passwort einloggen und sieht nun <br/>deinen Verein im Dashboard.
+                              </p>
                             </div>
-                            <div className="flex flex-col items-start gap-1">
-                              <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">Passwort</span>
-                              <div className="w-full bg-black/20 rounded-xl p-3 text-xl text-[#0A0A0A] font-mono font-bold border border-black/5 tracking-[0.2em]">{generatedPassword}</div>
+                          ) : (
+                            <div className="bg-black/[0.04] rounded-3xl p-6 border border-black/10 flex flex-col gap-4">
+                              <div className="flex flex-col items-start gap-1">
+                                <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">E-Mail Adresse</span>
+                                <div className="w-full bg-black/20 rounded-xl p-3 text-sm text-[#0A0A0A] font-mono border border-black/5">{inviteEmail}</div>
+                              </div>
+                              <div className="flex flex-col items-start gap-1">
+                                <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">Passwort</span>
+                                <div className="w-full bg-black/20 rounded-xl p-3 text-xl text-[#0A0A0A] font-mono font-bold border border-black/5 tracking-[0.2em]">{generatedPassword}</div>
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           <div className="flex flex-col gap-3">
-                            <button 
-                              onClick={async () => {
-                                if (!currentClub || !currentMember) return;
-                                setIsSendingMail(true);
-                                setErrorMessage(null);
-                                try {
-                                  await EmailService.sendWelcomeMail({
-                                    to: inviteEmail,
-                                    name: `${inviteFirstName} ${inviteLastName}`,
-                                    subject: `Willkommen bei ${currentClub.name} – Deine Zugangsdaten`,
-                                    memberName: inviteFirstName,
-                                    password: generatedPassword!,
-                                    clubName: currentClub.name,
-                                    clubId: currentClub.id,
-                                    adminName: `${currentMember.firstName} ${currentMember.lastName}`
-                                  });
-                                  setMailSent(true);
-                                } catch (err) {
-                                  setErrorMessage(err instanceof Error ? err.message : "E-Mail konnte nicht gesendet werden.");
-                                } finally {
-                                  setIsSendingMail(false);
-                                }
-                              }}
-                              disabled={isSendingMail || mailSent}
-                              className="w-full h-14 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-[#1F1F23] transition-all shadow-2xl active:scale-95 disabled:opacity-50"
-                            >
-                              {isSendingMail ? (
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
-                              ) : mailSent ? (
-                                <>
-                                  <Check size={18} /> Mail gesendet
-                                </>
-                              ) : (
-                                <>
-                                  <Mail size={18} /> Willkommens-Mail senden
-                                </>
-                              )}
-                            </button>
+                            {!userAlreadyExisted && (
+                              <button 
+                                onClick={async () => {
+                                  if (!currentClub || !currentMember) return;
+                                  setIsSendingMail(true);
+                                  setErrorMessage(null);
+                                  try {
+                                    await EmailService.sendWelcomeMail({
+                                      to: inviteEmail,
+                                      name: `${inviteFirstName} ${inviteLastName}`,
+                                      subject: `Willkommen bei ${currentClub.name} – Deine Zugangsdaten`,
+                                      memberName: inviteFirstName,
+                                      password: generatedPassword!,
+                                      clubName: currentClub.name,
+                                      clubId: currentClub.id,
+                                      adminName: `${currentMember.firstName} ${currentMember.lastName}`
+                                    });
+                                    setMailSent(true);
+                                  } catch (err) {
+                                    setErrorMessage(err instanceof Error ? err.message : "E-Mail konnte nicht gesendet werden.");
+                                  } finally {
+                                    setIsSendingMail(false);
+                                  }
+                                }}
+                                disabled={isSendingMail || mailSent}
+                                className="w-full h-14 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-[#1F1F23] transition-all shadow-2xl active:scale-95 disabled:opacity-50"
+                              >
+                                {isSendingMail ? (
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
+                                ) : mailSent ? (
+                                  <>
+                                    <Check size={18} /> Mail gesendet
+                                  </>
+                                ) : (
+                                  <>
+                                    <Mail size={18} /> Willkommens-Mail senden
+                                  </>
+                                )}
+                              </button>
+                            )}
                             <button 
                               onClick={() => {
                                 setIsInviteOpen(false);
                                 setGeneratedPassword(null);
                                 setMailSent(false);
+                                setUserAlreadyExisted(false);
                               }}
-                              className="w-full h-12 rounded-xl text-[#71717A] font-black text-[10px] uppercase tracking-[0.2em] hover:text-[#0A0A0A] transition-all"
+                              className={`w-full h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${userAlreadyExisted ? "bg-[#0A0A0A] text-white hover:bg-[#1F1F23]" : "text-[#71717A] hover:text-[#0A0A0A]"}`}
                             >
                               Schließen
                             </button>
@@ -405,7 +422,8 @@ export default function MembersPage() {
                                       ...(existingMember.clubId ? {} : { clubId })
                                     });
                                     
-                                    setGeneratedPassword("Nutzer hatte bereits einen Talo-Account. Er/Sie kann sich einfach mit dem bisherigen Passwort einloggen und sieht nun deinen Verein.");
+                                    setUserAlreadyExisted(true);
+                                    setGeneratedPassword("existing");
                                   } else {
                                     const { uid, password } = await AuthService.createMemberAuth(inviteEmail, inviteFirstName, inviteLastName, clubId);
                                     
