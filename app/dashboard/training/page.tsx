@@ -106,6 +106,9 @@ export default function TrainingPage() {
   const hasAccess     = planFeatures.hasTrainingRSVP;
   const isAdminOrTrainer = currentMember?.isAdmin || currentMember?.isTrainer;
 
+  const accentRaw = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+
   const [tab, setTab]                         = useState<"woche" | "gruppen">("woche");
   const [selectedDayIdx, setSelectedDayIdx]   = useState(0);
   const [trainingGroups, setTrainingGroups]   = useState<TrainingGroup[]>([]);
@@ -419,9 +422,16 @@ export default function TrainingPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-start justify-between gap-4 border-b border-black/5 pb-6 lg:pb-8">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Training</h1>
-              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Gruppen & Anwesenheit</p>
+            <div className="flex items-center gap-4">
+              {currentClub?.logoUrl && (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2" style={{ borderColor: `${accent}30` }}>
+                  <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-contain" />
+                </div>
+              )}
+              <div className="flex flex-col">
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Training</h1>
+                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Gruppen & Anwesenheit</p>
+              </div>
             </div>
             {isAdminOrTrainer && (
               <div className="flex items-center gap-2 shrink-0">
@@ -435,7 +445,8 @@ export default function TrainingPage() {
                 </button>
                 <button
                   onClick={openAddGroup}
-                  className="flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-black/5"
+                  style={{ backgroundColor: accent }}
+                  className="flex items-center gap-2 text-white hover:opacity-95 px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-black/5"
                 >
                   <Plus size={16} />
                   <span className="hidden sm:inline">Neue Gruppe</span>
@@ -489,6 +500,7 @@ export default function TrainingPage() {
             onToggleIndividualTrainerAbsence={onToggleIndividualTrainerAbsence}
             onToggleMemberExcluded={onToggleMemberExcluded}
             planFeatures={planFeatures}
+            accent={accent}
           />
         ) : (
           <GroupsView
@@ -859,6 +871,134 @@ export default function TrainingPage() {
   );
 }
 
+// ── Recursive Weekly Group ───────────────────────────────────────────────────
+
+function RecursiveWeeklyGroup({
+  group,
+  allGroups,
+  slotsForDay,
+  date,
+  dateStr,
+  trainingSessions,
+  allMembers,
+  currentMember,
+  isAdminOrTrainer,
+  onMarkAbsent,
+  onMarkPresent,
+  onToggleCancellation,
+  onDeleteExtra,
+  onSetTrainer,
+  onSetTrainers,
+  onToggleTrainerAbsence,
+  onToggleIndividualTrainerAbsence,
+  onToggleMemberExcluded,
+  planFeatures,
+  level = 0,
+}: {
+  group: TrainingGroup;
+  allGroups: TrainingGroup[];
+  slotsForDay: DaySlot[];
+  date: Date;
+  dateStr: string;
+  trainingSessions: TrainingSession[];
+  allMembers: Member[];
+  currentMember: Member | null;
+  isAdminOrTrainer: boolean;
+  onMarkAbsent: (groupId: string, date: Date) => void;
+  onMarkPresent: (groupId: string, date: Date) => void;
+  onToggleCancellation: (groupId: string, date: Date, time: string) => void;
+  onDeleteExtra: (sessionId: string) => void;
+  onSetTrainer: (groupId: string, date: Date, trainerId: string) => void;
+  onSetTrainers: (groupId: string, date: Date, trainerIds: string[]) => void;
+  onToggleTrainerAbsence: (groupId: string, date: Date) => void;
+  onToggleIndividualTrainerAbsence: (groupId: string, date: Date, trainerId: string) => void;
+  onToggleMemberExcluded: (groupId: string, date: Date, memberId: string, excluded: boolean) => void;
+  planFeatures: PlanFeatures;
+  level?: number;
+}) {
+  const mySlots = slotsForDay.filter((s) => s.group.id === group.id);
+  const children = allGroups.filter((g) => g.parentGroupId === group.id);
+
+  // Check if this group or any descendant has slots on this day
+  const hasSlotsRecursive = (g: TrainingGroup): boolean => {
+    if (slotsForDay.some((s) => s.group.id === g.id)) return true;
+    return allGroups.filter((c) => c.parentGroupId === g.id).some((c) => hasSlotsRecursive(c));
+  };
+
+  if (!hasSlotsRecursive(group)) return null;
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* 1. Parent slots */}
+      {mySlots.map((slot, idx) => {
+        const session = slot.kind === "regular"
+          ? getDaySession(trainingSessions, group.id, dateStr)
+          : trainingSessions.find((s) => s.id === slot.sessionId);
+        return (
+          <AttendanceCard
+            key={
+              slot.kind === "regular"
+                ? `reg_${slot.group.id}_${dateStr}_${slot.time}`
+                : `ext_${slot.sessionId}`
+            }
+            slot={slot}
+            date={date}
+            dateStr={dateStr}
+            session={session}
+            trainingGroups={allGroups}
+            trainingSessions={trainingSessions}
+            allMembers={allMembers}
+            currentMember={currentMember}
+            isAdminOrTrainer={isAdminOrTrainer}
+            idx={idx}
+            onMarkAbsent={onMarkAbsent}
+            onMarkPresent={onMarkPresent}
+            onToggleCancellation={onToggleCancellation}
+            onDeleteExtra={onDeleteExtra}
+            onSetTrainer={onSetTrainer}
+            onSetTrainers={onSetTrainers}
+            onToggleTrainerAbsence={onToggleTrainerAbsence}
+            onToggleIndividualTrainerAbsence={onToggleIndividualTrainerAbsence}
+            onToggleMemberExcluded={onToggleMemberExcluded}
+            planFeatures={planFeatures}
+          />
+        );
+      })}
+
+      {/* 2. Subgroups */}
+      {children.length > 0 && (
+        <div className="pl-4 flex flex-col gap-4 border-l border-black/5 ml-2">
+          {children.map((child) => (
+            <RecursiveWeeklyGroup
+              key={child.id}
+              group={child}
+              allGroups={allGroups}
+              slotsForDay={slotsForDay}
+              date={date}
+              dateStr={dateStr}
+              trainingSessions={trainingSessions}
+              allMembers={allMembers}
+              currentMember={currentMember}
+              isAdminOrTrainer={isAdminOrTrainer}
+              onMarkAbsent={onMarkAbsent}
+              onMarkPresent={onMarkPresent}
+              onToggleCancellation={onToggleCancellation}
+              onDeleteExtra={onDeleteExtra}
+              onSetTrainer={onSetTrainer}
+              onSetTrainers={onSetTrainers}
+              onToggleTrainerAbsence={onToggleTrainerAbsence}
+              onToggleIndividualTrainerAbsence={onToggleIndividualTrainerAbsence}
+              onToggleMemberExcluded={onToggleMemberExcluded}
+              planFeatures={planFeatures}
+              level={level + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Week View ─────────────────────────────────────────────────────────────────
 
 function WeekView({
@@ -866,7 +1006,7 @@ function WeekView({
   trainingGroups, trainingSessions, allMembers, currentMember, isAdminOrTrainer,
   onMarkAbsent, onMarkPresent, onToggleCancellation, onDeleteExtra,
   onSetTrainer, onSetTrainers, onToggleTrainerAbsence, onToggleIndividualTrainerAbsence,
-  onToggleMemberExcluded, planFeatures,
+  onToggleMemberExcluded, planFeatures, accent,
 }: {
   weekDays: Date[];
   selectedDayIdx: number;
@@ -887,9 +1027,17 @@ function WeekView({
   onToggleIndividualTrainerAbsence: (groupId: string, date: Date, trainerId: string) => void;
   onToggleMemberExcluded: (groupId: string, date: Date, memberId: string, excluded: boolean) => void;
   planFeatures: PlanFeatures;
+  accent: string;
 }) {
   const selectedDate = weekDays[selectedDayIdx];
   const dateStr = toDateString(selectedDate);
+
+  const rootGroups = useMemo(() => {
+    return trainingGroups.filter((g) => {
+      const parent = g.parentGroupId ? trainingGroups.find((p) => p.id === g.parentGroupId) : null;
+      return !parent;
+    });
+  }, [trainingGroups]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -902,9 +1050,10 @@ function WeekView({
             <button
               key={i}
               onClick={() => onSelectDay(i)}
+              style={isSelected ? { backgroundColor: accent, borderColor: accent } : undefined}
               className={`flex flex-col items-center gap-1 px-3 py-2.5 rounded-2xl transition-all shrink-0 min-w-[56px] border ${
                 isSelected
-                  ? "bg-[#0A0A0A] text-white border-[#0A0A0A]"
+                  ? "text-white"
                   : "bg-black/[0.03] text-[#52525B] border-black/5 hover:border-black/10"
               }`}
             >
@@ -932,38 +1081,31 @@ function WeekView({
       {slotsForDay.length === 0 ? (
         <EmptyDay isToday={selectedDayIdx === 0} />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
-          <AnimatePresence mode="popLayout">
-            {slotsForDay.map((slot, idx) => (
-              <AttendanceCard
-                key={
-                  slot.kind === "regular"
-                    ? `reg_${slot.group.id}_${dateStr}_${slot.time}`
-                    : `ext_${slot.sessionId}`
-                }
-                slot={slot}
-                date={selectedDate}
-                dateStr={dateStr}
-                session={getDaySession(trainingSessions, slot.group.id, dateStr)}
-                trainingGroups={trainingGroups}
-                trainingSessions={trainingSessions}
-                allMembers={allMembers}
-                currentMember={currentMember}
-                isAdminOrTrainer={isAdminOrTrainer}
-                idx={idx}
-                onMarkAbsent={onMarkAbsent}
-                onMarkPresent={onMarkPresent}
-                onToggleCancellation={onToggleCancellation}
-                onDeleteExtra={onDeleteExtra}
-                onSetTrainer={onSetTrainer}
-                onSetTrainers={onSetTrainers}
-                onToggleTrainerAbsence={onToggleTrainerAbsence}
-                onToggleIndividualTrainerAbsence={onToggleIndividualTrainerAbsence}
-                onToggleMemberExcluded={onToggleMemberExcluded}
-                planFeatures={planFeatures}
-              />
-            ))}
-          </AnimatePresence>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
+          {rootGroups.map((group) => (
+            <RecursiveWeeklyGroup
+              key={group.id}
+              group={group}
+              allGroups={trainingGroups}
+              slotsForDay={slotsForDay}
+              date={selectedDate}
+              dateStr={dateStr}
+              trainingSessions={trainingSessions}
+              allMembers={allMembers}
+              currentMember={currentMember}
+              isAdminOrTrainer={isAdminOrTrainer}
+              onMarkAbsent={onMarkAbsent}
+              onMarkPresent={onMarkPresent}
+              onToggleCancellation={onToggleCancellation}
+              onDeleteExtra={onDeleteExtra}
+              onSetTrainer={onSetTrainer}
+              onSetTrainers={onSetTrainers}
+              onToggleTrainerAbsence={onToggleTrainerAbsence}
+              onToggleIndividualTrainerAbsence={onToggleIndividualTrainerAbsence}
+              onToggleMemberExcluded={onToggleMemberExcluded}
+              planFeatures={planFeatures}
+            />
+          ))}
         </div>
       )}
     </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Entry, TrainingAnnouncement, calculateTargetPoints } from "@/lib/firebase/models";
+import { Entry, TrainingAnnouncement, calculateTargetPoints, getPlanFeatures } from "@/lib/firebase/models";
 import { motion } from "framer-motion";
 import {
   type LucideIcon,
@@ -50,6 +50,10 @@ export default function DashboardPage() {
   const currentMember = useAppStore((s) => s.currentMember);
   const currentClub   = useAppStore((s) => s.currentClub);
 
+  const planFeatures  = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("free");
+  const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+
   const [entries,       setEntries]       = useState<Entry[]>([]);
   const [announcements, setAnnouncements] = useState<TrainingAnnouncement[]>([]);
   const [loading,       setLoading]       = useState(true);
@@ -92,9 +96,16 @@ export default function DashboardPage() {
 
         {/* Page Header */}
         <div className="flex items-center justify-between border-b border-black/5 pb-6 lg:pb-8">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Dashboard</h1>
-            <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Dein Überblick</p>
+          <div className="flex items-center gap-4">
+            {currentClub.logoUrl && (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2" style={{ borderColor: `${accent}30` }}>
+                <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-contain" />
+              </div>
+            )}
+            <div className="flex flex-col">
+              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Dashboard</h1>
+              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Dein Überblick</p>
+            </div>
           </div>
         </div>
 
@@ -108,7 +119,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
               <StatCard label="Bestätigte Punkte" value={approved.toFixed(1)} icon={CheckCircle} color="#34C759" delay={0.05} subtext="Erfolgreich verbucht" />
               <StatCard label="Warteschlange"     value={pending.toFixed(1)}  icon={Clock}        color="#FF9500" delay={0.10} subtext="In Prüfung" />
-              <StatCard label="Soll-Erfüllung"    value={`${progress.toFixed(0)}%`} icon={Zap}   color="#0A0A0A" delay={0.15} subtext={`${remaining.toFixed(1)} Pkt. verbleibend`} />
+              <StatCard label="Soll-Erfüllung"    value={`${progress.toFixed(0)}%`} icon={Zap}   color={accent} delay={0.15} subtext={`${remaining.toFixed(1)} Pkt. verbleibend`} />
               <StatCard label="Jahresziel"        value={targetPts.toFixed(1)} icon={BarChart3}  color="#E87AA0" delay={0.20} subtext={`Ziel ${new Date().getFullYear()}`} />
             </div>
 
@@ -122,7 +133,7 @@ export default function DashboardPage() {
               <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.06)" }}>
                 <motion.div
                   className="h-full rounded-full"
-                  style={{ background: progress >= 100 ? "#34C759" : "rgba(0,0,0,0.6)" }}
+                  style={{ background: progress >= 100 ? "#34C759" : accent }}
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
@@ -165,7 +176,8 @@ export default function DashboardPage() {
                     <p className="text-[13px] mb-6" style={{ color: "#71717A" }}>Erfasse deine erste Tätigkeit.</p>
                     <Link
                       href="/dashboard/eintragen"
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full font-poppins font-semibold text-[13px] text-white bg-[#0A0A0A] hover:bg-[#0A0A0A]/90 transition-all"
+                      style={{ backgroundColor: accent }}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full font-poppins font-semibold text-[13px] text-white hover:opacity-95 transition-all"
                     >
                       <PenLine size={14} /> Jetzt eintragen
                     </Link>
@@ -226,9 +238,10 @@ export default function DashboardPage() {
                   <div className="flex flex-col gap-3">
                     <Link
                       href="/dashboard/eintragen"
-                      className="group flex items-center gap-4 p-5 rounded-[26px] bg-[#0A0A0A] text-white hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-black/5"
+                      style={{ backgroundColor: accent }}
+                      className="group flex items-center gap-4 p-5 rounded-[26px] text-white hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-black/5"
                     >
-                      <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-[#0A0A0A] transition-transform group-hover:-rotate-6 shrink-0">
+                      <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center transition-transform group-hover:-rotate-6 shrink-0" style={{ color: accent }}>
                         <PenLine size={20} strokeWidth={2.5} />
                       </div>
                       <div className="flex flex-col">
