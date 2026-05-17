@@ -114,15 +114,24 @@ export default function ShiftsPage() {
       const memberName = `${currentMember.firstName} ${currentMember.lastName}`;
       const newSlots = shift.claimedSlots ? [...shift.claimedSlots] : [];
       if (shift.claimedById && newSlots.length === 0) {
-        newSlots.push({ memberId: shift.claimedById, memberName: shift.claimedByName || "" });
+        newSlots.push({ memberId: shift.claimedById, memberName: shift.claimedByName || "Mitglied" });
       }
       newSlots.push({ memberId: currentMember.id, memberName: memberName });
 
+      // Sanitize all slots to be 100% compliant, ensuring NO undefined values are sent
+      const cleanSlots = newSlots
+        .filter(s => s && s.memberId)
+        .map(s => ({
+          memberId: s.memberId,
+          memberName: s.memberName || "Mitglied",
+          claimedAt: s.claimedAt || new Date().toISOString()
+        }));
+
       // 1. Claim in Shifts collection
       await FirebaseManager.updateShift(currentClub.id, shift.id, {
-        claimedSlots: newSlots,
-        claimedById: newSlots[0].memberId,
-        claimedByName: newSlots[0].memberName,
+        claimedSlots: cleanSlots,
+        claimedById: cleanSlots.length > 0 ? cleanSlots[0].memberId : null,
+        claimedByName: cleanSlots.length > 0 ? cleanSlots[0].memberName : null,
       });
 
       const entryId = crypto.randomUUID();
@@ -138,6 +147,7 @@ export default function ShiftsPage() {
       });
     } catch (e) {
       console.error("Error claiming shift:", e);
+      alert("Fehler beim Buchen: " + (e instanceof Error ? e.message : String(e)));
     }
   };
 
@@ -146,15 +156,21 @@ export default function ShiftsPage() {
     try {
       let newSlots = shift.claimedSlots ? [...shift.claimedSlots] : [];
       if (shift.claimedById && newSlots.length === 0) {
-        newSlots.push({ memberId: shift.claimedById, memberName: shift.claimedByName || "" });
+        newSlots.push({ memberId: shift.claimedById, memberName: shift.claimedByName || "Mitglied" });
       }
-      newSlots = newSlots.filter(s => s.memberId !== currentMember.id);
+      newSlots = newSlots.filter(s => s && s.memberId && s.memberId !== currentMember.id);
+
+      const cleanSlots = newSlots.map(s => ({
+        memberId: s.memberId,
+        memberName: s.memberName || "Mitglied",
+        claimedAt: s.claimedAt || new Date().toISOString()
+      }));
 
       // 1. Release in Shifts collection
       await FirebaseManager.updateShift(currentClub.id, shift.id, {
-        claimedSlots: newSlots,
-        claimedById: newSlots.length > 0 ? newSlots[0].memberId : null,
-        claimedByName: newSlots.length > 0 ? newSlots[0].memberName : null,
+        claimedSlots: cleanSlots,
+        claimedById: cleanSlots.length > 0 ? cleanSlots[0].memberId : null,
+        claimedByName: cleanSlots.length > 0 ? cleanSlots[0].memberName : null,
       });
 
       // 2. Storno points entry: Find and delete the logged entry
@@ -167,6 +183,7 @@ export default function ShiftsPage() {
       }
     } catch (e) {
       console.error("Error releasing shift:", e);
+      alert("Fehler beim Freigeben: " + (e instanceof Error ? e.message : String(e)));
     }
   };
 
