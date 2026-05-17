@@ -51,17 +51,20 @@ const cleanupPastShifts = async (clubId: string, loadedShifts: Shift[]): Promise
     return new Date(year, month - 1, day, 23, 59, 59, 999);
   };
 
-  // Group shifts by event name
+  // Group shifts by event name + date (to prevent cross-date grouping of generic event names)
   const eventGroups: { [eventName: string]: Shift[] } = {};
   const individualShifts: Shift[] = [];
 
   loadedShifts.forEach(s => {
     const ev = (s.event || "").trim();
+    const dt = (s.date || "").trim();
     if (ev) {
-      if (!eventGroups[ev]) {
-        eventGroups[ev] = [];
+      // Group by event name and date so that generic shifts on different days are treated as separate events!
+      const key = dt ? `${ev}_${dt}` : ev;
+      if (!eventGroups[key]) {
+        eventGroups[key] = [];
       }
-      eventGroups[ev].push(s);
+      eventGroups[key].push(s);
     } else {
       individualShifts.push(s);
     }
@@ -69,22 +72,31 @@ const cleanupPastShifts = async (clubId: string, loadedShifts: Shift[]): Promise
 
   const shiftIdsToDelete = new Set<string>();
 
-  // 1. Process event groups: all shifts in the event must be kept until the latest shift of the event is 1 hour in the past
-  Object.entries(eventGroups).forEach(([evName, evShifts]) => {
-    let maxEndTime = new Date(0);
-    evShifts.forEach(s => {
-      const endTime = getShiftEnd(s);
-      if (endTime.getTime() > maxEndTime.getTime()) {
-        maxEndTime = endTime;
+  // 1. Process event groups
+  Object.entries(eventGroups).forEach(([key, evShifts]) => {
+    if (evShifts.length === 1) {
+      // Single shift in that event group, treat it as an individual shift
+      const endTime = getShiftEnd(evShifts[0]);
+      if (now.getTime() - endTime.getTime() >= oneHour) {
+        shiftIdsToDelete.add(evShifts[0].id);
       }
-    });
+    } else {
+      // Multiple shifts in the same event: all must be kept until the LATEST shift of the event is 1 hour in the past
+      let maxEndTime = new Date(0);
+      evShifts.forEach(s => {
+        const endTime = getShiftEnd(s);
+        if (endTime.getTime() > maxEndTime.getTime()) {
+          maxEndTime = endTime;
+        }
+      });
 
-    if (now.getTime() - maxEndTime.getTime() >= oneHour) {
-      evShifts.forEach(s => shiftIdsToDelete.add(s.id));
+      if (now.getTime() - maxEndTime.getTime() >= oneHour) {
+        evShifts.forEach(s => shiftIdsToDelete.add(s.id));
+      }
     }
   });
 
-  // 2. Process individual shifts: delete if the individual shift is 1 hour in the past
+  // 2. Process individual shifts
   individualShifts.forEach(s => {
     const endTime = getShiftEnd(s);
     if (now.getTime() - endTime.getTime() >= oneHour) {
