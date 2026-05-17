@@ -271,7 +271,7 @@ export default function ShiftsPage() {
       statusStr = `👉 Noch frei! (${freeSlots} von ${required} Plätzen frei)`;
     }
     const emoji = SPORT_TYPE_EMOJIS[currentClub?.sportType || "general"] || "🏆";
-    const text = `${emoji} *TALO HELFERSCHICHT* ${emoji}\n\nFür das Event *${s.event}* wird ein Helfer gesucht:\n\n📌 *Schicht*: ${s.title}\n📅 *Datum*: ${s.date}\n🕒 *Uhrzeit*: ${s.time}\n🏆 *Punkte*: +${s.points.toFixed(1)} Pkt.\n\n${statusStr}\n\n👉 Jetzt direkt im Talo Dashboard buchen: ${window.location.origin}/dashboard/schichten\n\nDanke für deinen einsatz! 🙌`;
+    const text = `${emoji} *TALO HELFERSCHICHT* ${emoji}\n\nFür das Event *${s.event}* wird ein Helfer gesucht:\n\n📌 *Schicht*: ${s.title}\n📅 *Datum*: ${s.date}\n🕒 *Uhrzeit*: ${s.time}\n🏆 *Punkte*: +${s.points.toFixed(1)} Pkt.\n\n${statusStr}\n\n👉 Jetzt direkt im Talo Dashboard buchen: ${window.location.origin}/dashboard/schichten\n\nDanke für deinen Einsatz! 🙌`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
 
