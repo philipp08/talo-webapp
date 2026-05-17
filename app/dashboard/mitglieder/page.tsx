@@ -81,7 +81,7 @@ export default function MembersPage() {
 
   // CSV Import state
   const [isImportOpen, setIsImportOpen] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<"clubdesk" | "spielerplus">("clubdesk");
+  const [selectedProvider, setSelectedProvider] = useState<"clubdesk" | "spielerplus" | "campai">("clubdesk");
   const [importStep, setImportStep] = useState<"upload" | "map" | "preview" | "progress" | "complete">("upload");
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [csvRows, setCsvRows] = useState<string[][]>([]);
@@ -1037,12 +1037,12 @@ export default function MembersPage() {
                       <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
                           <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Import-Quelle auswählen</label>
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-3 gap-3">
                             {/* ClubDesk */}
                             <button
                               type="button"
                               onClick={() => setSelectedProvider("clubdesk")}
-                              className={`p-5 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
+                              className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
                                 selectedProvider === "clubdesk"
                                   ? "border-[#0A0A0A] bg-black/[0.02] shadow-sm"
                                   : "border-black/5 bg-transparent hover:border-black/10 hover:bg-black/[0.005]"
@@ -1065,7 +1065,7 @@ export default function MembersPage() {
                             <button
                               type="button"
                               onClick={() => setSelectedProvider("spielerplus")}
-                              className={`p-5 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
+                              className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
                                 selectedProvider === "spielerplus"
                                   ? "border-[#0A0A0A] bg-black/[0.02] shadow-sm"
                                   : "border-black/5 bg-transparent hover:border-black/10 hover:bg-black/[0.005]"
@@ -1081,6 +1081,29 @@ export default function MembersPage() {
                               <div className="flex flex-col items-center">
                                 <h4 className="text-[11px] font-black text-[#0A0A0A] uppercase tracking-wider">SpielerPlus</h4>
                                 <p className="text-[9px] text-[#71717A] font-medium mt-0.5">Automatisches Mapping</p>
+                              </div>
+                            </button>
+
+                            {/* Campai */}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedProvider("campai")}
+                              className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
+                                selectedProvider === "campai"
+                                  ? "border-[#0A0A0A] bg-black/[0.02] shadow-sm"
+                                  : "border-black/5 bg-transparent hover:border-black/10 hover:bg-black/[0.005]"
+                              }`}
+                            >
+                              <div className="h-10 flex items-center justify-center overflow-hidden rounded-xl bg-white px-3 py-1.5 border border-black/5 shadow-sm">
+                                <img
+                                  src="https://imageserver.stadionwelt.de/Image/7/1/2f415b94389287d1279b8a0e1d61871eaeeb51b82cc77a046a2d8058adf488/Campai_Large_X2.jpg"
+                                  alt="Campai Logo"
+                                  className="h-full object-contain"
+                                />
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <h4 className="text-[11px] font-black text-[#0A0A0A] uppercase tracking-wider">campai</h4>
+                                <p className="text-[9px] text-[#71717A] font-medium mt-0.5">Individueller Export</p>
                               </div>
                             </button>
                           </div>
@@ -1128,6 +1151,37 @@ export default function MembersPage() {
                                 <li>Lade die Datei herunter und wähle sie unten aus.</li>
                               </ol>
                               <p className="italic text-[10px] text-[#71717A]">Talo erkennt SpielerPlus Spalten und mappt diese automatisch.</p>
+                            </div>
+
+                            <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
+                              <input
+                                type="file"
+                                accept=".csv"
+                                onChange={handleFileChange}
+                                className="absolute inset-0 opacity-0 cursor-pointer"
+                              />
+                              <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
+                                <Plus size={20} />
+                              </div>
+                              <div className="text-center">
+                                <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
+                                <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {selectedProvider === "campai" && (
+                          <div className="flex flex-col gap-6">
+                            <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
+                              <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für campai-Export:</p>
+                              <ol className="list-decimal list-inside space-y-2 font-medium">
+                                <li>Logge dich bei <strong>campai</strong> ein und gehe im linken Menü auf <strong>„Mitglieder“</strong>.</li>
+                                <li>Filtere die Liste nach Bedarf über den Button <strong>„Filter“</strong> (z. B. Status: Aktiv).</li>
+                                <li>Klicke auf das <strong>Zahnrad-Symbol</strong> (Spaltenkonfiguration) und wähle die gewünschten Spalten (Vorname, Nachname, E-Mail) per Haken aus.</li>
+                                <li>Klicke oben rechts auf den Aktionen-/Export-Button und lade die <strong>CSV</strong>-Datei herunter.</li>
+                              </ol>
+                              <p className="italic text-[10px] text-[#71717A]">Talo erkennt die selbst konfigurierten campai-Spalten automatisch.</p>
                             </div>
 
                             <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
