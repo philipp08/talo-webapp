@@ -187,6 +187,22 @@ export default function ShiftsPage() {
     }
   };
 
+  const adjustSlots = async (shift: Shift, delta: number) => {
+    if (!currentClub) return;
+    const currentRequired = shift.slotsRequired || 1;
+    const newRequired = Math.max(1, currentRequired + delta);
+    if (newRequired === currentRequired) return;
+    
+    try {
+      await FirebaseManager.updateShift(currentClub.id, shift.id, {
+        slotsRequired: newRequired
+      });
+    } catch (e) {
+      console.error("Error adjusting slots count:", e);
+      alert("Fehler beim Anpassen der Slots: " + (e instanceof Error ? e.message : String(e)));
+    }
+  };
+
   // Mock list for Lower Tier Upsell preview
   const mockShifts: Shift[] = [
     {
@@ -556,9 +572,36 @@ export default function ShiftsPage() {
 
                                     {/* Occupancy and Claimers */}
                                     <div className="flex flex-col min-w-0">
-                                      <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A] mb-1">
-                                        👥 Belegung: <span className={isFull ? "text-green-600 font-bold" : "text-[#0A0A0A]"}>{claimedCount} / {required} Personen</span>
-                                      </span>
+                                      <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-[#71717A] mb-1">
+                                        <span>👥 Belegung:</span>
+                                        {isAdmin ? (
+                                          <div className="flex items-center gap-1 bg-black/[0.03] px-1 py-0.5 rounded-lg border border-black/5 normal-case tracking-normal">
+                                            <button
+                                              type="button"
+                                              onClick={(e) => { e.stopPropagation(); adjustSlots(s, -1); }}
+                                              className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
+                                              title="Helfer-Slots verringern"
+                                            >
+                                              -
+                                            </button>
+                                            <span className="font-mono text-[9px] font-black text-[#0A0A0A] px-1">
+                                              {claimedCount} / {required}
+                                            </span>
+                                            <button
+                                              type="button"
+                                              onClick={(e) => { e.stopPropagation(); adjustSlots(s, 1); }}
+                                              className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
+                                              title="Helfer-Slots erhöhen"
+                                            >
+                                              +
+                                            </button>
+                                          </div>
+                                        ) : (
+                                          <span className={isFull ? "text-green-600 font-bold" : "text-[#0A0A0A]"}>
+                                            {claimedCount} / {required} Personen
+                                          </span>
+                                        )}
+                                      </div>
                                       {claimersList.length > 0 ? (
                                         <div className="flex flex-wrap gap-1">
                                           {claimersList.map((name, idx) => (
@@ -696,9 +739,33 @@ export default function ShiftsPage() {
                                   <div className="flex flex-col gap-1 mt-2 border-t border-black/[0.03] pt-2">
                                     <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#71717A] pb-1.5">
                                       <span>Platzbelegung</span>
-                                      <span className={isFull ? "text-green-600 font-bold" : "text-[#0A0A0A]"}>
-                                        {claimedCount} / {required} Personen
-                                      </span>
+                                      {isAdmin ? (
+                                        <div className="flex items-center gap-1 bg-black/[0.03] px-1.5 py-0.5 rounded-lg border border-black/5">
+                                          <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); adjustSlots(s, -1); }}
+                                            className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
+                                            title="Helfer-Slots verringern"
+                                          >
+                                            -
+                                          </button>
+                                          <span className="font-mono text-[9px] font-black text-[#0A0A0A] px-1">
+                                            {claimedCount} / {required}
+                                          </span>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); adjustSlots(s, 1); }}
+                                            className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
+                                            title="Helfer-Slots erhöhen"
+                                          >
+                                            +
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <span className={isFull ? "text-green-600 font-bold" : "text-[#0A0A0A]"}>
+                                          {claimedCount} / {required} Personen
+                                        </span>
+                                      )}
                                     </div>
                                     
                                     {claimersList.length > 0 && (
