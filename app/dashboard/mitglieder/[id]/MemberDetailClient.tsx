@@ -14,11 +14,11 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import {
   Member, Entry, MemberType,
-  calculateTargetPoints, EntryStatus, ClubGroup, getPlanFeatures,
+  calculateTargetPoints, EntryStatus, ClubGroup, getPlanFeatures, isLightColor,
 } from "@/lib/firebase/models";
 import { 
   TAvatar,
-  TButton, TCatBadge
+  TButton, TCatBadge, TStatusBadge
 } from "@/app/components/ui/NativeUI";
 
 function toDate(d: Entry["date"]): Date {
@@ -74,6 +74,9 @@ export default function MemberDetailPage() {
   const isTrainer = currentMember?.isTrainer === true;
   const canViewMember = isAdmin || isTrainer;
   const planFeatures = getPlanFeatures(currentClub?.plan);
+  const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+  const accentLight   = isLightColor(accent);
 
   useEffect(() => {
     if (!currentClub || !canViewMember) return;
@@ -277,22 +280,30 @@ export default function MemberDetailPage() {
         
         {/* TOP BAR / BREADCRUMBS */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 border-b border-black/5 pb-6 lg:pb-8">
-           <div className="flex min-w-0 flex-col gap-1">
-              <div className="flex items-center gap-2 mb-2">
-                 <Link href="/dashboard/mitglieder" className="text-[10px] font-black text-[#71717A] hover:text-[#0A0A0A] transition-colors uppercase tracking-widest">Team</Link>
-                 <ChevronRight size={10} className="text-gray-700" />
-                 <span className="min-w-0 truncate text-[10px] font-black text-[#0A0A0A] hover:text-[#0A0A0A] transition-colors uppercase tracking-widest">Profil: {member.firstName}</span>
+           <div className="flex items-center gap-4 min-w-0">
+              {currentClub?.logoUrl && (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2" style={{ borderColor: `${accent}30` }}>
+                  <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-contain" />
+                </div>
+              )}
+              <div className="flex min-w-0 flex-col gap-1">
+                 <div className="flex items-center gap-2 mb-1">
+                    <Link href="/dashboard/mitglieder" className="text-[10px] font-black text-[#71717A] hover:text-[#0A0A0A] transition-colors uppercase tracking-widest">Team</Link>
+                    <ChevronRight size={10} className="text-gray-700" />
+                    <span className="min-w-0 truncate text-[10px] font-black text-[#0A0A0A] hover:text-[#0A0A0A] transition-colors uppercase tracking-widest">Profil: {member.firstName}</span>
+                 </div>
+                 <h1 className="truncate text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{member.firstName} {member.lastName}</h1>
               </div>
-              <h1 className="truncate text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{member.firstName} {member.lastName}</h1>
            </div>
            
            <div className="flex items-center gap-3 sm:gap-4">
               {isAdmin && (
                 <button 
                   onClick={() => setIsEditExpanded(!isEditExpanded)} 
+                  style={isEditExpanded ? { backgroundColor: accent, borderColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" } : undefined}
                   className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-5 sm:px-6 py-3.5 rounded-2xl transition-all font-black text-[11px] uppercase tracking-widest border ${
                     isEditExpanded 
-                      ? "bg-[#0A0A0A] text-white border-black/15" 
+                      ? "shadow-xl shadow-black/5" 
                       : "bg-black/[0.04] text-[#0A0A0A] border-black/5 hover:bg-black/[0.08]"
                   }`}
                 >
@@ -492,7 +503,7 @@ export default function MemberDetailPage() {
                          </div>
                          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 sm:gap-4 border-t border-black/5 pt-7 lg:pt-10">
                             <button onClick={() => setIsEditExpanded(false)} className="px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest text-[#71717A] hover:text-[#0A0A0A] transition-colors">Abbrechen</button>
-                            <TButton label={saving ? "Speichert…" : (editSaved ? "Gespeichert!" : "Änderungen übernehmen")} onClick={saveMember} disabled={saving} className="w-full sm:w-auto h-auto sm:min-w-[240px]" />
+                            <TButton label={saving ? "Speichert…" : (editSaved ? "Gespeichert!" : "Änderungen übernehmen")} onClick={saveMember} disabled={saving} style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }} className="w-full sm:w-auto h-auto sm:min-w-[240px]" />
                          </div>
                       </div>
                    </motion.div>
@@ -548,16 +559,7 @@ export default function MemberDetailPage() {
                                      {toDate(entry.date).toLocaleDateString("de-DE", { day: '2-digit', month: 'long', year: 'numeric' })}
                                   </td>
                                   <td className="px-10 py-6">
-                                     <div className="flex items-center gap-2">
-                                        <div className={`w-1.5 h-1.5 rounded-full ${
-                                           entry.status === "Genehmigt" ? "bg-[#52525B]" : entry.status === "Abgelehnt" ? "bg-[#333333]" : "bg-[#52525B]"
-                                        }`} />
-                                        <span className={`text-[11px] font-black uppercase tracking-widest ${
-                                           entry.status === "Genehmigt" ? "text-[#52525B]" : entry.status === "Abgelehnt" ? "text-[#52525B]" : "text-[#52525B]"
-                                        }`}>
-                                           {entry.status}
-                                        </span>
-                                     </div>
+                                     <TStatusBadge status={entry.status} />
                                   </td>
                                   <td className="px-10 py-6 text-right">
                                      <span className="text-xl font-mono font-black text-[#0A0A0A]">+{entry.points.toFixed(1)}</span>
@@ -595,12 +597,7 @@ export default function MemberDetailPage() {
                               )}
                             </div>
                             <div className="flex items-center justify-between gap-3 rounded-2xl bg-black/[0.025] border border-black/5 px-4 py-3">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <div className={`w-1.5 h-1.5 rounded-full ${
-                                  entry.status === "Genehmigt" ? "bg-[#52525B]" : entry.status === "Abgelehnt" ? "bg-[#333333]" : "bg-[#52525B]"
-                                }`} />
-                                <span className="truncate text-[10px] font-black uppercase tracking-widest text-[#52525B]">{entry.status}</span>
-                              </div>
+                              <TStatusBadge status={entry.status} />
                               <span className="shrink-0 text-lg font-mono font-black text-[#0A0A0A]">+{entry.points.toFixed(1)}</span>
                             </div>
                           </div>
@@ -618,9 +615,9 @@ export default function MemberDetailPage() {
       {/* Entry Edit Modal */}
       <AnimatePresence>
         {entryToEdit && entryForm && (
-           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-             <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }} className="w-full max-w-xl max-h-[calc(100dvh-2rem)] overflow-y-auto no-scrollbar">
-                <div className="bg-white border border-black/10 rounded-[30px] sm:rounded-[48px] p-5 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-8 shadow-2xl relative overflow-hidden">
+           <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+             <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }} className="w-full max-w-xl my-auto">
+                <div className="bg-white border border-black/10 rounded-[30px] sm:rounded-[48px] p-5 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-8 shadow-2xl relative">
                    <div className="absolute top-0 right-0 w-64 h-64 bg-black/[0.03] blur-3xl rounded-full" />
                    
                    <div className="flex items-start justify-between gap-4 relative z-10">
@@ -668,7 +665,7 @@ export default function MemberDetailPage() {
                    </div>
 
                    <div className="pt-6 border-t border-black/5 relative z-10">
-                      <TButton label={savingEntry ? "Aktualisierung…" : "Änderungen speichern"} onClick={saveEntry} disabled={savingEntry} />
+                      <TButton label={savingEntry ? "Aktualisierung…" : "Änderungen speichern"} onClick={saveEntry} disabled={savingEntry} style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }} />
                    </div>
                 </div>
              </motion.div>

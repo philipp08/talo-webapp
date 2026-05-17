@@ -136,6 +136,7 @@ export const TButton = ({
   disabled = false,
   className = "",
   type = "button",
+  style,
 }: {
   label: string;
   icon?: LucideIcon;
@@ -144,6 +145,7 @@ export const TButton = ({
   disabled?: boolean;
   className?: string;
   type?: "button" | "submit";
+  style?: React.CSSProperties;
 }) => {
   const themes: Record<string, string> = {
     primary:   "bg-[#0A0A0A] text-white hover:bg-[#0A0A0A]/90",
@@ -157,6 +159,7 @@ export const TButton = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
+      style={style}
       className={`flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-poppins font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed ${themes[variant]} ${className}`}
     >
       {Icon && <Icon size={16} />}
