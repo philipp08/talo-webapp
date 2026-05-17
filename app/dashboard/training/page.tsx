@@ -1028,6 +1028,12 @@ function AttendanceCard({
     return trainers;
   }, [session, group, planFeatures]);
 
+  const isAssignedTrainer = useMemo(() => {
+    return assignedTrainers.some(t => t.id === currentMember?.id);
+  }, [assignedTrainers, currentMember]);
+
+  const canManageSession = isAdmin || isAssignedTrainer;
+
   // Trainer logic
   const effectiveTrainerName = useMemo(() => {
     const primaryId = (session && session.trainerId !== undefined) ? session.trainerId : group.trainerId;
@@ -1275,7 +1281,7 @@ function AttendanceCard({
           )}
 
           {/* Member status (only for non-cancelled trainings) */}
-          {iAmInGroup && currentMember && !isCancelled && (
+          {iAmInGroup && currentMember && !currentMember.isTrainer && !currentMember.isAdmin && !isCancelled && (
             <>
               <TLine />
               {myAbsent ? (
@@ -1308,7 +1314,7 @@ function AttendanceCard({
           )}
 
           {/* Trainer: full attendance + cancel/delete controls */}
-          {isAdminOrTrainer && (
+          {canManageSession && (
             <>
               <TLine />
               {total > 0 && !isCancelled && (
@@ -1344,23 +1350,6 @@ function AttendanceCard({
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-black/[0.04] text-[#52525B] hover:text-red-500 hover:bg-red-50 border border-black/5 transition-all text-[10px] font-black uppercase tracking-widest"
                   >
                     <Trash2 size={12} /> Zusatz löschen
-                  </button>
-                )}
-                
-                {isAdminOrTrainer && !isCancelled && (
-                  <button
-                    onClick={() => onToggleTrainerAbsence(group.id, date)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest ${
-                      isTrainerAbsent
-                        ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20 hover:bg-[#34C759]/15"
-                        : "bg-black/[0.04] text-[#52525B] border-black/5 hover:text-red-500 hover:bg-red-50"
-                    }`}
-                  >
-                    {isTrainerAbsent ? (
-                      <><Check size={12} /> Trainer anwesend</>
-                    ) : (
-                      <><AlertCircle size={12} /> Trainer fällt aus</>
-                    )}
                   </button>
                 )}
               </div>
