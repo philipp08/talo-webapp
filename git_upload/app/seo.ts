@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const siteName = "Talo";
-export const siteUrl = "https://talo-club.de";
+export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://talo.app";
 export const defaultDescription =
   "Talo hilft Vereinen, Engagement, Punkte, Genehmigungen und Mitgliederverwaltung fair und transparent zu organisieren.";
 
@@ -55,7 +55,7 @@ export function createPageMetadata({
       type: "website",
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
     },
