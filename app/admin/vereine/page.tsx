@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { db } from "@/lib/firebase/config";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { motion } from "framer-motion";
-import { Building2, RefreshCw, Users, ChevronRight, Search, EyeOff, Eye } from "lucide-react";
+import { Building2, RefreshCw, Users, ChevronRight, Search, EyeOff, Eye, Trash2 } from "lucide-react";
 import { GlassSection } from "@/app/components/ui/NativeUI";
 import { getPlanFeatures, getPlanKey } from "@/lib/firebase/models";
 import Link from "next/link";
@@ -76,6 +76,17 @@ export default function VereineAdminPage() {
   }
 
   useEffect(() => { loadClubs(); }, []);
+
+  const deleteClub = async (id: string, name: string) => {
+    if (!confirm(`Möchtest du den Verein "${name}" wirklich endgültig löschen? Alle zugehörigen Daten gehen verloren.`)) return;
+    try {
+      await deleteDoc(doc(db, "clubs", id));
+      setClubs((prev) => prev.filter((c) => c.id !== id));
+    } catch (e) {
+      console.error("Error deleting club:", e);
+      alert("Fehler beim Löschen: " + (e instanceof Error ? e.message : String(e)));
+    }
+  };
 
   const filtered = useMemo(() => {
     return clubs.filter((c) => {
@@ -186,7 +197,7 @@ export default function VereineAdminPage() {
         ) : (
           <div className="flex flex-col gap-2">
             {filtered.map((club, i) => (
-              <ClubListRow key={club.id} club={club} index={i} />
+              <ClubListRow key={club.id} club={club} index={i} onDelete={deleteClub} />
             ))}
           </div>
         )}
@@ -195,7 +206,7 @@ export default function VereineAdminPage() {
   );
 }
 
-function ClubListRow({ club, index }: { club: ClubRow; index: number }) {
+function ClubListRow({ club, index, onDelete }: { club: ClubRow; index: number; onDelete: (id: string, name: string) => void }) {
   const planFeatures = getPlanFeatures(club.plan);
   const colors = PLAN_COLOR[club.plan] ?? PLAN_COLOR.starter;
   const maxMembers = planFeatures.maxMembers;
@@ -267,6 +278,19 @@ function ClubListRow({ club, index }: { club: ClubRow; index: number }) {
                 )}
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete(club.id, club.name);
+              }}
+              className="p-2.5 rounded-xl border border-red-500/10 text-red-500 hover:bg-red-500/5 hover:border-red-500/20 transition-all shrink-0 relative z-20"
+              title="Verein löschen"
+            >
+              <Trash2 size={13} />
+            </button>
 
             <ChevronRight size={16} className="text-[#A1A1AA] group-hover:text-[#0A0A0A] transition-colors shrink-0" />
           </div>

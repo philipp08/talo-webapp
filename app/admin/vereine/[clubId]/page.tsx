@@ -96,20 +96,37 @@ export default function ClubDetailPage() {
       }
       const cd = clubDoc.data();
 
-      const [membersSnap, activitiesSnap, groupsSnap, shiftsSnap, trainingsSnap, entriesSnap] =
+      const safeGetDocs = async (ref: any) => {
+        try {
+          return await getDocs(ref);
+        } catch (e) {
+          console.error("Firestore getDocs failed gracefully for reference:", ref, e);
+          return { docs: [], size: 0 } as any;
+        }
+      };
+
+      const [membersSnap, activitiesSnap, groupsSnap, shiftsSnap, trainingsSnap] =
         await Promise.all([
-          getDocs(collection(db, "members")),
-          getDocs(collection(db, `clubs/${clubId}/activities`)),
-          getDocs(collection(db, `clubs/${clubId}/groups`)),
-          getDocs(collection(db, `clubs/${clubId}/shifts`)),
-          getDocs(collection(db, `clubs/${clubId}/trainings`)),
-          getDocs(query(collection(db, `clubs/${clubId}/entries`), orderBy("date", "desc"), limit(15))).catch(() =>
-            getDocs(collection(db, `clubs/${clubId}/entries`))
-          ),
+          safeGetDocs(collection(db, "members")),
+          safeGetDocs(collection(db, `clubs/${clubId}/activities`)),
+          safeGetDocs(collection(db, `clubs/${clubId}/groups`)),
+          safeGetDocs(collection(db, `clubs/${clubId}/shifts`)),
+          safeGetDocs(collection(db, `clubs/${clubId}/trainings`)),
         ]);
 
+      let entriesSnap;
+      try {
+        entriesSnap = await getDocs(query(collection(db, `clubs/${clubId}/entries`), orderBy("date", "desc"), limit(15)));
+      } catch (e) {
+        try {
+          entriesSnap = await safeGetDocs(collection(db, `clubs/${clubId}/entries`));
+        } catch {
+          entriesSnap = { docs: [], size: 0 } as any;
+        }
+      }
+
       const clubMembers: MemberSummary[] = [];
-      membersSnap.docs.forEach((m) => {
+      membersSnap.docs.forEach((m: any) => {
         const data = m.data();
         const clubIds: string[] = data.clubIds ?? (data.clubId ? [data.clubId] : []);
         if (!clubIds.includes(clubId)) return;
@@ -133,7 +150,7 @@ export default function ClubDetailPage() {
       const memberNameById = new Map<string, string>();
       clubMembers.forEach((m) => memberNameById.set(m.id, `${m.firstName} ${m.lastName}`.trim()));
 
-      const recentEntries: EntrySummary[] = entriesSnap.docs.slice(0, 15).map((e) => {
+      const recentEntries: EntrySummary[] = entriesSnap.docs.slice(0, 15).map((e: any) => {
         const d = e.data();
         return {
           id: e.id,
