@@ -1066,8 +1066,12 @@ export default function MembersPage() {
                                 <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/[0.04] text-[8px] font-black uppercase tracking-wider text-[#52525B]">
                                   In Kürze
                                 </div>
-                                <div className="h-10 px-4 flex items-center justify-center text-[10px] font-black uppercase tracking-widest text-[#71717A] bg-white rounded-xl border border-black/5 shadow-sm">
-                                  SpielerPlus
+                                <div className="h-10 flex items-center justify-center overflow-hidden rounded-xl bg-white px-3 py-1.5 border border-black/5 shadow-sm">
+                                  <img
+                                    src="https://cdn.prod.website-files.com/5f50ccfbebad96116fd08dee/682c7de3f38d7e1e55109dc1_SPIELERPLUS_LOGO.png"
+                                    alt="SpielerPlus Logo"
+                                    className="h-full object-contain"
+                                  />
                                 </div>
                                 <div className="flex flex-col items-center">
                                   <h4 className="text-[11px] font-black text-[#52525B] uppercase tracking-wider">SpielerPlus</h4>
