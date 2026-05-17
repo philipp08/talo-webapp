@@ -7,7 +7,7 @@ import {
   Search, Trophy,
   ChevronRight, Shield, UserPlus, ChevronDown,
   Target, MoreVertical,
-  X, Mail, User, Check, Layers, Filter, Swords, Trash, Plus, Calendar, Clock
+  X, Mail, User, Check, Layers, Filter, Swords, Trash, Plus, Calendar, Clock, Upload
 } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
@@ -570,7 +570,7 @@ export default function MembersPage() {
                   onClick={() => setIsImportOpen(true)}
                   className="shrink-0 hidden md:flex items-center gap-2 px-5 py-3 rounded-2xl border border-black/10 bg-white hover:bg-black/[0.02] text-[#0A0A0A] transition-all font-black text-[11px] uppercase tracking-widest shadow-sm"
                 >
-                  <Layers size={16} />
+                  <Upload size={16} />
                   <span>Importieren</span>
                 </button>
                 <button
