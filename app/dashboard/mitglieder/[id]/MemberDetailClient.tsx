@@ -549,10 +549,7 @@ export default function MemberDetailPage() {
                                   <td className="px-10 py-6">
                                      <div className="flex items-center gap-6">
                                         <TCatBadge category={entry.activityCategory} size={48} />
-                                        <div className="flex flex-col">
-                                           <span className="text-[17px] font-poppins font-bold text-[#0A0A0A] leading-tight">{entry.activityName}</span>
-                                           <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">{entry.activityCategory}</span>
-                                        </div>
+                                        <span className="text-[17px] font-poppins font-bold text-[#0A0A0A] leading-tight">{entry.activityName}</span>
                                      </div>
                                   </td>
                                   <td className="px-10 py-6 text-[13px] font-bold text-[#71717A]">
@@ -585,8 +582,7 @@ export default function MemberDetailPage() {
                               <TCatBadge category={entry.activityCategory} size={42} />
                               <div className="min-w-0 flex-1">
                                 <p className="font-poppins font-bold text-[#0A0A0A] text-[15px] leading-tight break-words">{entry.activityName}</p>
-                                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-                                  <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest">{entry.activityCategory}</span>
+                                <div className="mt-1.5">
                                   <span className="text-[11px] font-bold text-[#71717A]">{dateStr}</span>
                                 </div>
                               </div>
