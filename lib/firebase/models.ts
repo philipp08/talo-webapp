@@ -112,6 +112,12 @@ export interface Activity {
   isDefault: boolean;
 }
 
+export interface ClaimedSlot {
+  memberId: string;
+  memberName: string;
+  claimedAt?: string;
+}
+
 export interface Shift {
   id: string;
   title: string;
@@ -121,6 +127,8 @@ export interface Shift {
   points: number;
   claimedById: string | null;
   claimedByName: string | null;
+  slotsRequired?: number;
+  claimedSlots?: ClaimedSlot[];
 }
 
 export interface Entry {

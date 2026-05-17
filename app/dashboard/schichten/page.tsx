@@ -16,6 +16,7 @@ type ShiftFormData = {
   date: string;
   time: string;
   points: string;
+  slotsRequired: string;
 };
 
 const defaultForm = (): ShiftFormData => ({
@@ -24,6 +25,7 @@ const defaultForm = (): ShiftFormData => ({
   date: new Date().toISOString().split("T")[0],
   time: "12:00 - 14:00",
   points: "2.0",
+  slotsRequired: "1",
 });
 
 export default function ShiftsPage() {
@@ -36,6 +38,7 @@ export default function ShiftsPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<ShiftFormData>(defaultForm());
   const [saving, setSaving] = useState(false);
+  const [viewMode, setViewMode] = useState<"cards" | "timeline">("cards");
 
   const isAdmin = currentMember?.isAdmin === true;
   const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
@@ -59,11 +62,13 @@ export default function ShiftsPage() {
     setSaving(true);
     try {
       await FirebaseManager.addShift(currentClub.id, {
-        title: form.title,
-        event: form.event,
+        title: form.title.trim(),
+        event: form.event.trim(),
         date: form.date,
-        time: form.time,
+        time: form.time.trim(),
         points: parseFloat(form.points) || 2.0,
+        slotsRequired: parseInt(form.slotsRequired) || 1,
+        claimedSlots: [],
         claimedById: null,
         claimedByName: null,
       });
@@ -87,12 +92,37 @@ export default function ShiftsPage() {
 
   const claimShift = async (shift: Shift) => {
     if (!currentClub || !currentMember) return;
+    
+    // Check if already claimed by this member
+    const alreadyClaimed = shift.claimedSlots?.some(slot => slot.memberId === currentMember.id) 
+      || shift.claimedById === currentMember.id;
+      
+    if (alreadyClaimed) {
+      alert("Du hast diese Schicht bereits gebucht!");
+      return;
+    }
+
+    const required = shift.slotsRequired || 1;
+    const currentClaimedCount = shift.claimedSlots?.length || (shift.claimedById ? 1 : 0);
+    
+    if (currentClaimedCount >= required) {
+      alert("Diese Schicht ist bereits voll belegt!");
+      return;
+    }
+
     try {
       const memberName = `${currentMember.firstName} ${currentMember.lastName}`;
+      const newSlots = shift.claimedSlots ? [...shift.claimedSlots] : [];
+      if (shift.claimedById && newSlots.length === 0) {
+        newSlots.push({ memberId: shift.claimedById, memberName: shift.claimedByName || "" });
+      }
+      newSlots.push({ memberId: currentMember.id, memberName: memberName });
+
       // 1. Claim in Shifts collection
       await FirebaseManager.updateShift(currentClub.id, shift.id, {
-        claimedById: currentMember.id,
-        claimedByName: memberName,
+        claimedSlots: newSlots,
+        claimedById: newSlots[0].memberId,
+        claimedByName: newSlots[0].memberName,
       });
 
       const entryId = crypto.randomUUID();
@@ -114,10 +144,17 @@ export default function ShiftsPage() {
   const releaseShift = async (shift: Shift) => {
     if (!currentClub || !currentMember || !confirm("Möchtest du diese Schicht wieder freigeben? Deine Punktegutschrift wird dabei storniert.")) return;
     try {
+      let newSlots = shift.claimedSlots ? [...shift.claimedSlots] : [];
+      if (shift.claimedById && newSlots.length === 0) {
+        newSlots.push({ memberId: shift.claimedById, memberName: shift.claimedByName || "" });
+      }
+      newSlots = newSlots.filter(s => s.memberId !== currentMember.id);
+
       // 1. Release in Shifts collection
       await FirebaseManager.updateShift(currentClub.id, shift.id, {
-        claimedById: null,
-        claimedByName: null,
+        claimedSlots: newSlots,
+        claimedById: newSlots.length > 0 ? newSlots[0].memberId : null,
+        claimedByName: newSlots.length > 0 ? newSlots[0].memberName : null,
       });
 
       // 2. Storno points entry: Find and delete the logged entry
@@ -225,6 +262,93 @@ export default function ShiftsPage() {
     }));
   }, []);
 
+  const parseTime = (timeStr: string) => {
+    const parts = timeStr.split("-");
+    const start = parts[0]?.trim() || "08:00";
+    const end = parts[1]?.trim() || "18:00";
+    
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
+    
+    const startDecimal = (sh || 8) + (sm || 0) / 60;
+    const endDecimal = (eh || 18) + (em || 0) / 60;
+    
+    return { startDecimal, endDecimal, start, end };
+  };
+
+  const timelineData = useMemo(() => {
+    const dateGroups: { [dateStr: string]: Shift[] } = {};
+    shifts.forEach((s) => {
+      if (!dateGroups[s.date]) dateGroups[s.date] = [];
+      dateGroups[s.date].push(s);
+    });
+
+    return Object.entries(dateGroups)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([dateStr, dateShifts]) => {
+        let dayMin = 8;
+        let dayMax = 20;
+        dateShifts.forEach((s) => {
+          const { startDecimal, endDecimal } = parseTime(s.time);
+          dayMin = Math.min(dayMin, Math.floor(startDecimal));
+          dayMax = Math.max(dayMax, Math.ceil(endDecimal));
+        });
+        
+        dayMin = Math.max(0, dayMin - 1);
+        dayMax = Math.min(24, dayMax + 1);
+        const dayDuration = dayMax - dayMin;
+
+        const hoursArray: number[] = [];
+        for (let h = dayMin; h <= dayMax; h++) {
+          hoursArray.push(h);
+        }
+
+        const sorted = [...dateShifts].sort((a, b) => {
+          return parseTime(a.time).startDecimal - parseTime(b.time).startDecimal;
+        });
+
+        const lanes: Shift[][] = [];
+        sorted.forEach((s) => {
+          const { startDecimal } = parseTime(s.time);
+          let placed = false;
+          for (let i = 0; i < lanes.length; i++) {
+            const lane = lanes[i];
+            const lastShift = lane[lane.length - 1];
+            const { endDecimal: lastEnd } = parseTime(lastShift.time);
+            if (lastEnd <= startDecimal) {
+              lane.push(s);
+              placed = true;
+              break;
+            }
+          }
+          if (!placed) {
+            lanes.push([s]);
+          }
+        });
+
+        let formattedDate = dateStr;
+        try {
+          const dObj = new Date(dateStr);
+          formattedDate = dObj.toLocaleDateString("de-DE", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          });
+        } catch(e) {}
+
+        return {
+          dateStr,
+          formattedDate,
+          dayMin,
+          dayMax,
+          dayDuration,
+          hoursArray,
+          lanes
+        };
+      });
+  }, [shifts]);
+
   return (
     <div className="relative min-h-screen bg-[#FAFAFA]">
       <div className="max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10 flex flex-col gap-7 lg:gap-8 pb-16">
@@ -262,6 +386,31 @@ export default function ShiftsPage() {
             )}
           </div>
         </div>
+
+        {hasAccess && shifts.length > 0 && (
+          <div className="flex items-center justify-between gap-4 max-w-6xl mx-auto w-full px-1 mt-2">
+            <div className="flex items-center gap-1.5 bg-black/[0.04] p-1 rounded-2xl border border-black/5">
+              <button
+                type="button"
+                onClick={() => setViewMode("cards")}
+                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  viewMode === "cards" ? "bg-white text-[#0A0A0A] shadow-sm border border-[#0A0A0A]/5" : "text-[#71717A] hover:text-[#0A0A0A]"
+                }`}
+              >
+                Karten-Ansicht
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("timeline")}
+                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  viewMode === "timeline" ? "bg-white text-[#0A0A0A] shadow-sm border border-[#0A0A0A]/5" : "text-[#71717A] hover:text-[#0A0A0A]"
+                }`}
+              >
+                Zeitplan / Timeline
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Real Content or Blurred Upsell Mockup */}
         {!hasAccess ? (
@@ -336,7 +485,7 @@ export default function ShiftsPage() {
             </div>
           </div>
         ) : (
-          /* Pro-Plan Enabled shifts grid */
+          /* Pro-Plan Enabled shifts grid & Timeline view */
           <div className="flex flex-col gap-6 w-full max-w-6xl mx-auto">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-32 gap-3">
@@ -355,7 +504,118 @@ export default function ShiftsPage() {
                       Sobald Admins Arbeitseinsätze oder Helferdienste anlegen, erscheinen sie hier zur Buchung.
                     </p>
                   </div>
+                ) : viewMode === "timeline" ? (
+                  /* Dynamic Overlap-Safe Horizontal Timeline View */
+                  <div className="flex flex-col gap-8 w-full">
+                    {timelineData.map((day) => (
+                      <div key={day.dateStr} className="flex flex-col gap-6 bg-white border border-black/5 rounded-[28px] p-6 shadow-sm">
+                        {/* Day Header */}
+                        <div className="flex items-center justify-between border-b border-black/5 pb-3">
+                          <span className="font-poppins font-black text-sm text-[#0A0A0A] uppercase tracking-wider">
+                            {day.formattedDate}
+                          </span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A]">
+                            {day.lanes.reduce((sum, l) => sum + l.length, 0)} Schichten
+                          </span>
+                        </div>
+
+                        {/* Horizontal Timeline Track Area */}
+                        <div className="relative pt-6 pb-2 min-h-[140px] flex flex-col gap-4 overflow-x-auto no-scrollbar">
+                          {/* Vertical hour grid lines */}
+                          <div className="absolute inset-0 flex justify-between pointer-events-none px-4">
+                            {day.hoursArray.map((hour) => (
+                              <div key={hour} className="h-full border-l border-black/[0.03] relative flex-1 flex justify-start">
+                                <span className="absolute -top-5 left-0 -translate-x-1/2 text-[8px] font-black text-[#A1A1AA] tracking-tighter">
+                                  {String(hour).padStart(2, "0")}:00
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Lanes Container */}
+                          <div className="flex flex-col gap-3 relative z-10 min-w-[650px] px-4">
+                            {day.lanes.map((lane, laneIdx) => (
+                              <div key={laneIdx} className="relative h-[68px] w-full border border-black/[0.02] bg-black/[0.01] rounded-2xl">
+                                {lane.map((s) => {
+                                  const { startDecimal, endDecimal, start, end } = parseTime(s.time);
+                                  const left = ((startDecimal - day.dayMin) / day.dayDuration) * 100;
+                                  const width = ((endDecimal - startDecimal) / day.dayDuration) * 100;
+                                  
+                                  const required = s.slotsRequired || 1;
+                                  const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
+                                  const hasClaimedThis = s.claimedSlots?.some(slot => slot.memberId === currentMember?.id) || s.claimedById === currentMember?.id;
+                                  const isFull = claimedCount >= required;
+
+                                  return (
+                                    <div
+                                      key={s.id}
+                                      style={{
+                                        left: `${left}%`,
+                                        width: `${width}%`,
+                                      }}
+                                      className="absolute top-1/2 -translate-y-1/2 h-[52px] px-1"
+                                    >
+                                      <div
+                                        className={`h-full rounded-xl border p-2 flex flex-col justify-between hover:scale-[1.02] hover:shadow-md transition-all ${
+                                          hasClaimedThis
+                                            ? "bg-green-500/10 border-green-500/20 text-green-700 shadow-sm"
+                                            : isFull
+                                              ? "bg-black/[0.04] border-black/5 text-[#71717A] opacity-70"
+                                              : "bg-white border-black/10 text-[#0A0A0A]"
+                                        }`}
+                                      >
+                                        {/* Title & Points Row */}
+                                        <div className="flex items-center justify-between gap-1">
+                                          <span className="text-[10px] font-poppins font-black truncate max-w-[70%]" title={s.title}>
+                                            {s.title}
+                                          </span>
+                                          <span className="text-[8px] font-mono font-black shrink-0">
+                                            +{s.points.toFixed(1)} P
+                                          </span>
+                                        </div>
+
+                                        {/* Time and Action */}
+                                        <div className="flex items-center justify-between gap-2 border-t border-black/5 pt-1 mt-0.5">
+                                          <span className="text-[8px] font-bold opacity-80">
+                                            {start} - {end}
+                                          </span>
+
+                                          {/* Claims Actions */}
+                                          {hasClaimedThis ? (
+                                            <button
+                                              type="button"
+                                              onClick={(e) => { e.stopPropagation(); releaseShift(s); }}
+                                              className="text-[7px] font-black text-red-600 bg-red-500/10 px-1 py-0.5 rounded border border-red-500/20 uppercase tracking-widest transition-all"
+                                            >
+                                              Storno
+                                            </button>
+                                          ) : isFull ? (
+                                            <span className="text-[7px] font-black bg-black/5 text-[#71717A] px-1 py-0.5 rounded border border-black/5 uppercase tracking-widest">
+                                              Voll
+                                            </span>
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              onClick={(e) => { e.stopPropagation(); claimShift(s); }}
+                                              className="text-[7px] font-black text-white bg-[#0A0A0A] hover:bg-[#1F1F23] px-1 py-0.5 rounded uppercase tracking-widest transition-all"
+                                            >
+                                              Buchen ({claimedCount}/{required})
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
+                  /* Cards List view grouped by Event */
                   <div className="flex flex-col gap-12">
                     {groupedShifts.map((group) => (
                       <div key={group.eventName} className="flex flex-col gap-5">
@@ -382,8 +642,17 @@ export default function ShiftsPage() {
                         {/* Shifts Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                           {group.list.map((s) => {
-                            const isMine = s.claimedById === currentMember?.id;
-                            const isOther = s.claimedById && !isMine;
+                            const required = s.slotsRequired || 1;
+                            const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
+                            const hasClaimedThis = s.claimedSlots?.some(slot => slot.memberId === currentMember?.id) || s.claimedById === currentMember?.id;
+                            const isFull = claimedCount >= required;
+
+                            let claimersList: string[] = [];
+                            if (s.claimedSlots) {
+                              claimersList = s.claimedSlots.map(c => c.memberName);
+                            } else if (s.claimedById) {
+                              claimersList = [s.claimedByName || ""];
+                            }
 
                             return (
                               <GlassSection key={s.id} className="p-5 flex flex-col justify-between min-h-[220px] border border-black/5 rounded-[24px] hover:shadow-md transition-all">
@@ -411,13 +680,33 @@ export default function ShiftsPage() {
                                       </div>
                                     </div>
                                   </div>
+
+                                  {/* Slots and Claimers display */}
+                                  <div className="flex flex-col gap-1 mt-2 border-t border-black/[0.03] pt-2">
+                                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#71717A] pb-1.5">
+                                      <span>Platzbelegung</span>
+                                      <span className={isFull ? "text-green-600 font-bold" : "text-[#0A0A0A]"}>
+                                        {claimedCount} / {required} Personen
+                                      </span>
+                                    </div>
+                                    
+                                    {claimersList.length > 0 && (
+                                      <div className="flex flex-wrap gap-1 mt-1">
+                                        {claimersList.map((name, idx) => (
+                                          <span key={idx} className="text-[9px] font-bold bg-black/[0.03] text-[#52525B] border border-black/5 px-2 py-0.5 rounded-md truncate max-w-full">
+                                            👤 {name}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
 
                                 <div className="pt-3 border-t border-black/5 flex flex-col gap-2 mt-4">
-                                  {isMine ? (
+                                  {hasClaimedThis ? (
                                     <div className="flex flex-col gap-2">
                                       <div className="flex items-center gap-2 text-xs text-[#34C759] font-poppins font-bold bg-[#34C759]/10 border border-[#34C759]/20 px-3 py-2 rounded-xl justify-center">
-                                        <Check size={14} /> Von dir gebucht!
+                                        <Check size={14} /> Du hast gebucht!
                                       </div>
                                       <TButton
                                         label="Schicht freigeben"
@@ -426,13 +715,13 @@ export default function ShiftsPage() {
                                         className="w-full rounded-xl py-2"
                                       />
                                     </div>
-                                  ) : isOther ? (
-                                    <div className="flex items-center gap-2 text-xs text-[#71717A] bg-black/[0.04] px-3 py-2 rounded-xl w-full justify-center">
-                                      <Users size={12} /> Gebucht: {s.claimedByName}
+                                  ) : isFull ? (
+                                    <div className="flex items-center gap-2 text-xs text-[#71717A] bg-black/[0.04] border border-black/5 px-3 py-2 rounded-xl w-full justify-center font-bold">
+                                      <Users size={12} /> Schicht voll belegt
                                     </div>
                                   ) : (
                                     <TButton
-                                      label="Schicht buchen"
+                                      label={`Schicht buchen (${claimedCount}/${required})`}
                                       onClick={() => claimShift(s)}
                                       className="w-full rounded-xl py-2"
                                     />
@@ -552,14 +841,28 @@ export default function ShiftsPage() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Uhrzeit</label>
-                      <input
-                        value={form.time}
-                        onChange={(e) => setForm({ ...form, time: e.target.value })}
-                        placeholder="z.B. 12:00 - 14:00"
-                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
-                      />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Uhrzeit</label>
+                        <input
+                          value={form.time}
+                          onChange={(e) => setForm({ ...form, time: e.target.value })}
+                          placeholder="z.B. 12:00 - 14:00"
+                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Helfer-Slots</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="20"
+                          value={form.slotsRequired}
+                          onChange={(e) => setForm({ ...form, slotsRequired: e.target.value })}
+                          placeholder="z.B. 5"
+                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
 

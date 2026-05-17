@@ -219,8 +219,12 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
         {/* Dashboard animation */}
         <ScrollReveal direction="up" delay={0.4}>
           <div className="max-w-4xl mx-auto px-6 mt-20 relative">
-            <div className="relative">
-              <HeroAnimationPlayer />
+            <div className="relative rounded-2xl md:rounded-3xl border border-gray-200/80 dark:border-white/[0.08] overflow-hidden shadow-2xl bg-white dark:bg-[#111]">
+              <img
+                src="https://i.ibb.co/FLDXZ7b3/Bildschirmfoto-2026-05-17-um-17-15-16.png"
+                alt="TALO Vereinsmanagement Dashboard"
+                className="w-full h-auto object-contain block"
+              />
             </div>
             {/* Reflection glow */}
             <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-indigo-500/10 dark:bg-indigo-500/20 blur-2xl pointer-events-none" />
