@@ -59,43 +59,46 @@ export default function AktivitaetAdminPage() {
 
       const feed: FeedItem[] = [];
 
+      const getSafeDate = (val: any) => {
+        if (!val) return new Date(2026, 0, 1);
+        if (typeof val.toDate === "function") return val.toDate();
+        const parsed = new Date(val);
+        return isNaN(parsed.getTime()) ? new Date(2026, 0, 1) : parsed;
+      };
+
       // Recent clubs
       clubsSnap.docs.forEach((c) => {
         const d = c.data();
-        const ts = d.createdAt?.toDate?.();
-        if (ts) {
-          feed.push({
-            kind: "club",
-            id: c.id,
-            ts,
-            name: d.name ?? "—",
-            plan: (d.plan ?? "starter").toLowerCase(),
-          });
-        }
+        const ts = getSafeDate(d.createdAt);
+        feed.push({
+          kind: "club",
+          id: c.id,
+          ts,
+          name: d.name ?? "—",
+          plan: (d.plan ?? "starter").toLowerCase(),
+        });
       });
 
       // Recent members
       membersSnap.docs.forEach((m) => {
         const d = m.data();
-        const ts = d.createdAt?.toDate?.();
-        if (ts) {
-          const cids: string[] = d.clubIds ?? (d.clubId ? [d.clubId] : []);
-          feed.push({
-            kind: "member",
-            id: m.id,
-            ts,
-            name: `${d.firstName ?? ""} ${d.lastName ?? ""}`.trim() || "—",
-            email: d.email ?? "—",
-            clubNames: cids.map((cid) => clubNameById.get(cid) ?? cid).filter(Boolean),
-          });
-        }
+        const ts = getSafeDate(d.createdAt);
+        const cids: string[] = d.clubIds ?? (d.clubId ? [d.clubId] : []);
+        feed.push({
+          kind: "member",
+          id: m.id,
+          ts,
+          name: `${d.firstName ?? ""} ${d.lastName ?? ""}`.trim() || "—",
+          email: d.email ?? "—",
+          clubNames: cids.map((cid) => clubNameById.get(cid) ?? cid).filter(Boolean),
+        });
       });
 
       // Recent licenses redeemed
       licensesSnap.docs.forEach((l) => {
         const d = l.data();
-        const ts = d.usedAt?.toDate?.();
-        if (ts && d.status === "used") {
+        if (d.status === "used") {
+          const ts = getSafeDate(d.usedAt);
           feed.push({
             kind: "license",
             id: l.id,
@@ -112,11 +115,9 @@ export default function AktivitaetAdminPage() {
         const entriesSnap = await getDocs(
           query(collectionGroup(db, "entries"), orderBy("date", "desc"), limit(50))
         );
-        entriesSnap.docs.forEach((e) => {
+        entriesSnap.docs.forEach((e: any) => {
           const d = e.data();
-          const ts = d.date?.toDate?.();
-          if (!ts) return;
-          // Extract clubId from path: clubs/{clubId}/entries/{entryId}
+          const ts = getSafeDate(d.date);
           const pathParts = e.ref.path.split("/");
           const clubId = pathParts[1];
           feed.push({
@@ -131,8 +132,8 @@ export default function AktivitaetAdminPage() {
             status: d.status ?? "—",
           });
         });
-      } catch {
-        // collectionGroup may not have index — skip silently
+      } catch (err) {
+        console.error("Failed to query entries in activity feed:", err);
       }
 
       feed.sort((a, b) => b.ts.getTime() - a.ts.getTime());

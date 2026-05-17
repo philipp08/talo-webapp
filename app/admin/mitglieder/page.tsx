@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { db } from "@/lib/firebase/config";
-import { collection, getDocs } from "firebase/firestore";
+import { db, auth } from "@/lib/firebase/config";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { motion } from "framer-motion";
 import {
   Users, RefreshCw, Search, Crown, Shield, Mail,
-  Building2, Filter, ChevronRight,
+  Building2, Filter, ChevronRight, Trash2,
 } from "lucide-react";
 import { GlassSection } from "@/app/components/ui/NativeUI";
 import Link from "next/link";
@@ -39,13 +39,99 @@ export default function MitgliederAdminPage() {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [clubFilter, setClubFilter] = useState<string>("all");
 
+  async function runOrphanedCleanup(cSnap: any, mSnap: any) {
+    try {
+      const memberCountByClub = new Map<string, number>();
+      const memberClubMap = new Map<string, string[]>();
+      
+      mSnap.docs.forEach((m: any) => {
+        const data = m.data();
+        const clubIds: string[] = data.clubIds ?? (data.clubId ? [data.clubId] : []);
+        memberClubMap.set(m.id, clubIds);
+        clubIds.forEach((cid) => {
+          memberCountByClub.set(cid, (memberCountByClub.get(cid) ?? 0) + 1);
+        });
+      });
+
+      const emptyClubIds: string[] = [];
+      cSnap.docs.forEach((c: any) => {
+        const memberCount = memberCountByClub.get(c.id) ?? 0;
+        if (memberCount === 0) {
+          emptyClubIds.push(c.id);
+        }
+      });
+
+      const orphanedMemberIds: string[] = [];
+      // Use a shorter safety duration or immediate deletion for orphans if they are found in list
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      mSnap.docs.forEach((m: any) => {
+        const data = m.data();
+        const clubIds = memberClubMap.get(m.id) ?? [];
+        const createdAt = data.createdAt?.toDate?.() ?? new Date();
+        if (clubIds.length === 0 && createdAt < fiveMinutesAgo) {
+          orphanedMemberIds.push(m.id);
+        }
+      });
+
+      if (emptyClubIds.length > 0) {
+        console.log(`Auto-deleting ${emptyClubIds.length} empty clubs:`, emptyClubIds);
+        await Promise.all(emptyClubIds.map(id => deleteDoc(doc(db, "clubs", id))));
+      }
+
+      if (orphanedMemberIds.length > 0) {
+        console.log(`Auto-deleting ${orphanedMemberIds.length} orphaned members:`, orphanedMemberIds);
+        await Promise.all(orphanedMemberIds.map(id => deleteDoc(doc(db, "members", id))));
+      }
+      
+      return {
+        deletedClubs: emptyClubIds.length,
+        deletedMembers: orphanedMemberIds.length
+      };
+    } catch (e) {
+      console.error("Fehler bei der automatischen Bereinigung verwaister Daten:", e);
+      return { deletedClubs: 0, deletedMembers: 0 };
+    }
+  }
+
+  const deleteMember = async (id: string, name: string) => {
+    if (!confirm(`Möchtest du das Mitglied "${name}" und sein Login-Konto wirklich komplett und endgültig aus der App löschen?`)) return;
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) {
+        alert("Fehler: Nicht autorisiert.");
+        return;
+      }
+      const res = await fetch("/api/admin/delete-member", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ memberId: id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Fehler beim Löschen des Mitglieds.");
+      }
+      setMembers((prev) => prev.filter((m) => m.id !== id));
+      alert("Mitglied und Login-Konto erfolgreich gelöscht!");
+    } catch (e) {
+      console.error(e);
+      alert("Fehler beim Löschen: " + (e as Error).message);
+    }
+  };
+
   async function loadAll() {
     setLoading(true);
     try {
-      const [membersSnap, clubsSnap] = await Promise.all([
-        getDocs(collection(db, "members")),
-        getDocs(collection(db, "clubs")),
-      ]);
+      let membersSnap = await getDocs(collection(db, "members"));
+      let clubsSnap = await getDocs(collection(db, "clubs"));
+
+      const cleanup = await runOrphanedCleanup(clubsSnap, membersSnap);
+      if (cleanup.deletedClubs > 0 || cleanup.deletedMembers > 0) {
+        membersSnap = await getDocs(collection(db, "members"));
+        clubsSnap = await getDocs(collection(db, "clubs"));
+      }
 
       const clubMap = new Map<string, ClubLookup>();
       clubsSnap.docs.forEach((c) => clubMap.set(c.id, { id: c.id, name: c.data().name ?? "—" }));
@@ -202,7 +288,7 @@ export default function MitgliederAdminPage() {
               {filtered.length} Treffer
             </p>
             {filtered.map((m, i) => (
-              <MemberCard key={m.id} member={m} clubs={clubs} index={i} />
+              <MemberCard key={m.id} member={m} clubs={clubs} index={i} onDelete={deleteMember} />
             ))}
           </div>
         )}
@@ -211,7 +297,7 @@ export default function MitgliederAdminPage() {
   );
 }
 
-function MemberCard({ member, clubs, index }: { member: MemberRow; clubs: Map<string, ClubLookup>; index: number }) {
+function MemberCard({ member, clubs, index, onDelete }: { member: MemberRow; clubs: Map<string, ClubLookup>; index: number; onDelete: (id: string, name: string) => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -265,6 +351,19 @@ function MemberCard({ member, clubs, index }: { member: MemberRow; clubs: Map<st
           </div>
 
           <span className="hidden sm:block font-mono text-[10px] text-[#A1A1AA] shrink-0">{member.id.slice(0, 10)}…</span>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete(member.id, `${member.firstName} ${member.lastName}`);
+            }}
+            className="p-2.5 rounded-xl border border-red-500/10 text-red-500 hover:bg-red-500/5 hover:border-red-500/20 transition-all shrink-0 relative z-20"
+            title="Mitglied komplett löschen"
+          >
+            <Trash2 size={13} />
+          </button>
         </div>
       </GlassSection>
     </motion.div>

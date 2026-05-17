@@ -84,6 +84,16 @@ export default function ClubDetailPage() {
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Club config editing
+  const [editingConfig, setEditingConfig] = useState(false);
+  const [configName, setConfigName] = useState("");
+  const [configSportType, setConfigSportType] = useState("");
+  const [configRequiredPoints, setConfigRequiredPoints] = useState(0);
+  const [configCompensation, setConfigCompensation] = useState(0);
+  const [configSeasonType, setConfigSeasonType] = useState("calendar");
+  const [configIsTrial, setConfigIsTrial] = useState(false);
+  const [savingConfig, setSavingConfig] = useState(false);
+
   async function loadAll() {
     if (!clubId) return;
     setLoading(true);
@@ -95,6 +105,12 @@ export default function ClubDetailPage() {
         return;
       }
       const cd = clubDoc.data();
+      setConfigName(cd.name ?? "");
+      setConfigSportType(cd.sportType ?? "");
+      setConfigRequiredPoints(cd.requiredPoints ?? 0);
+      setConfigCompensation(cd.compensationPerMissingPoint ?? 0);
+      setConfigSeasonType(cd.seasonType ?? "calendar");
+      setConfigIsTrial(cd.isTrial ?? false);
 
       const safeGetDocs = async (ref: any) => {
         try {
@@ -235,6 +251,26 @@ export default function ClubDetailPage() {
       licenseStatus: "active",
     });
     await loadAll();
+  };
+
+  const saveConfig = async () => {
+    if (!club) return;
+    setSavingConfig(true);
+    try {
+      await updateDoc(doc(db, "clubs", club.id), {
+        name: configName,
+        sportType: configSportType,
+        requiredPoints: Number(configRequiredPoints),
+        compensationPerMissingPoint: Number(configCompensation),
+        seasonType: configSeasonType,
+        isTrial: configIsTrial,
+      });
+      setEditingConfig(false);
+      await loadAll();
+    } catch (e) {
+      alert("Fehler beim Speichern: " + (e as Error).message);
+    }
+    setSavingConfig(false);
   };
 
   const handleDeleteClub = async () => {
@@ -423,30 +459,117 @@ export default function ClubDetailPage() {
             {/* Vereins-Konfiguration */}
             <GlassSection>
               <div className="p-5 flex flex-col gap-3">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#71717A]">Konfiguration</p>
-                <TLine />
-                <div className="text-[12px] text-[#52525B] space-y-1.5">
-                  <div className="flex justify-between">
-                    <span className="text-[#71717A]">Pflichtpunkte:</span>
-                    <span className="font-bold text-[#0A0A0A]">{club.requiredPoints ?? "—"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#71717A]">Ausgleichsbetrag:</span>
-                    <span className="font-bold text-[#0A0A0A]">{club.compensationPerMissingPoint ?? "—"}€</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#71717A]">Saisontyp:</span>
-                    <span className="font-bold text-[#0A0A0A]">{club.seasonType ?? "—"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#71717A]">Sportart:</span>
-                    <span className="font-bold text-[#0A0A0A]">{club.sportType ?? "—"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#71717A]">Gruppen:</span>
-                    <span className="font-bold text-[#0A0A0A]">{groupCount}</span>
-                  </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#71717A]">Konfiguration</p>
+                  {!editingConfig && (
+                    <button onClick={() => setEditingConfig(true)} className="text-[11px] font-bold text-[#007AFF] hover:underline">
+                      Bearbeiten
+                    </button>
+                  )}
                 </div>
+                <TLine />
+
+                {!editingConfig ? (
+                  <div className="text-[12px] text-[#52525B] space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="text-[#71717A]">Vereinsname:</span>
+                      <span className="font-bold text-[#0A0A0A]">{club.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#71717A]">Pflichtpunkte:</span>
+                      <span className="font-bold text-[#0A0A0A]">{club.requiredPoints ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#71717A]">Ausgleichsbetrag:</span>
+                      <span className="font-bold text-[#0A0A0A]">{club.compensationPerMissingPoint ?? "—"}€</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#71717A]">Saisontyp:</span>
+                      <span className="font-bold text-[#0A0A0A]">{club.seasonType === "calendar" ? "Kalenderjahr" : "Halbjahr/Saison"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#71717A]">Sportart:</span>
+                      <span className="font-bold text-[#0A0A0A]">{club.sportType ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#71717A]">Trial-Status:</span>
+                      <span className="font-bold text-[#0A0A0A]">{club.isTrial ? "Ja (Testphase)" : "Nein"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#71717A]">Abteilungen/Gruppen:</span>
+                      <span className="font-bold text-[#0A0A0A]">{groupCount}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Vereinsname</label>
+                      <input
+                        type="text"
+                        value={configName}
+                        onChange={(e) => setConfigName(e.target.value)}
+                        className="px-3 py-2 rounded-xl bg-black/[0.03] border border-black/[0.06] text-[12px] font-poppins text-[#0A0A0A] focus:outline-none"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Sportart</label>
+                      <input
+                        type="text"
+                        value={configSportType}
+                        onChange={(e) => setConfigSportType(e.target.value)}
+                        placeholder="z.B. Fußball, Tennis, etc."
+                        className="px-3 py-2 rounded-xl bg-black/[0.03] border border-black/[0.06] text-[12px] font-poppins text-[#0A0A0A] focus:outline-none"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Pflichtpunkte</label>
+                        <input
+                          type="number"
+                          value={configRequiredPoints}
+                          onChange={(e) => setConfigRequiredPoints(Number(e.target.value))}
+                          className="px-3 py-2 rounded-xl bg-black/[0.03] border border-black/[0.06] text-[12px] font-poppins text-[#0A0A0A] focus:outline-none"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Ausgleich (€/Pkt)</label>
+                        <input
+                          type="number"
+                          value={configCompensation}
+                          onChange={(e) => setConfigCompensation(Number(e.target.value))}
+                          className="px-3 py-2 rounded-xl bg-black/[0.03] border border-black/[0.06] text-[12px] font-poppins text-[#0A0A0A] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Saisontyp</label>
+                      <select
+                        value={configSeasonType}
+                        onChange={(e) => setConfigSeasonType(e.target.value)}
+                        className="px-3 py-2 rounded-xl bg-black/[0.03] border border-black/[0.06] text-[12px] font-poppins text-[#0A0A0A] focus:outline-none"
+                      >
+                        <option value="calendar">Kalenderjahr</option>
+                        <option value="halfyear">Halbjahr</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2 py-1">
+                      <input
+                        type="checkbox"
+                        id="isTrial"
+                        checked={configIsTrial}
+                        onChange={(e) => setConfigIsTrial(e.target.checked)}
+                        className="w-4 h-4 accent-black"
+                      />
+                      <label htmlFor="isTrial" className="text-[12px] font-bold text-[#0A0A0A] select-none cursor-pointer">
+                        Trial-Phase (Testmodus) aktiv
+                      </label>
+                    </div>
+                    <div className="flex gap-2 mt-1">
+                      <TButton label={savingConfig ? "..." : "Speichern"} onClick={saveConfig} disabled={savingConfig} />
+                      <TButton label="Abbrechen" variant="ghost" onClick={() => setEditingConfig(false)} />
+                    </div>
+                  </div>
+                )}
               </div>
             </GlassSection>
 
