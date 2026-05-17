@@ -10,7 +10,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import {
   TrainingGroup, TrainingSession, TrainingScheduleEntry,
-  Member, getPlanFeatures, getMemberFullName,
+  Member, getPlanFeatures, getMemberFullName, isLightColor,
   TRAINING_GROUP_COLORS, ABSENCE_REASONS, PlanFeatures,
 } from "@/lib/firebase/models";
 import {
@@ -108,6 +108,7 @@ export default function TrainingPage() {
 
   const accentRaw = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
   const accent = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+  const accentLight = isLightColor(accent);
 
   const [tab, setTab]                         = useState<"woche" | "gruppen">("woche");
   const [selectedDayIdx, setSelectedDayIdx]   = useState(0);
@@ -445,8 +446,8 @@ export default function TrainingPage() {
                 </button>
                 <button
                   onClick={openAddGroup}
-                  style={{ backgroundColor: accent }}
-                  className="flex items-center gap-2 text-white hover:opacity-95 px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-black/5"
+                  style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
+                  className="flex items-center gap-2 hover:opacity-95 px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-black/5"
                 >
                   <Plus size={16} />
                   <span className="hidden sm:inline">Neue Gruppe</span>
@@ -1046,18 +1047,22 @@ function WeekView({
         {weekDays.map((day, i) => {
           const isToday = i === 0;
           const isSelected = i === selectedDayIdx;
+          const accentLight = isLightColor(accent);
           return (
             <button
               key={i}
               onClick={() => onSelectDay(i)}
-              style={isSelected ? { backgroundColor: accent, borderColor: accent } : undefined}
+              style={isSelected ? { backgroundColor: accent, borderColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" } : undefined}
               className={`flex flex-col items-center gap-1 px-3 py-2.5 rounded-2xl transition-all shrink-0 min-w-[56px] border ${
                 isSelected
-                  ? "text-white"
+                  ? ""
                   : "bg-black/[0.03] text-[#52525B] border-black/5 hover:border-black/10"
               }`}
             >
-              <span className={`text-[9px] font-black uppercase tracking-widest ${isSelected ? "text-white/60" : "text-[#A1A1AA]"}`}>
+              <span 
+                style={isSelected ? { color: accentLight ? "rgba(10,10,10,0.6)" : "rgba(255,255,255,0.6)" } : undefined}
+                className={`text-[9px] font-black uppercase tracking-widest ${isSelected ? "" : "text-[#A1A1AA]"}`}
+              >
                 {isToday ? "Heute" : WEEKDAY_LABELS[day.getDay()]}
               </span>
               <span className="text-sm font-black">{day.getDate()}</span>

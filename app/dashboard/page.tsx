@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Entry, TrainingAnnouncement, calculateTargetPoints, getPlanFeatures } from "@/lib/firebase/models";
+import { Entry, TrainingAnnouncement, calculateTargetPoints, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
 import { motion } from "framer-motion";
 import {
   type LucideIcon,
@@ -53,6 +53,7 @@ export default function DashboardPage() {
   const planFeatures  = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("free");
   const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
   const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+  const accentLight   = isLightColor(accent);
 
   const [entries,       setEntries]       = useState<Entry[]>([]);
   const [announcements, setAnnouncements] = useState<TrainingAnnouncement[]>([]);
@@ -176,8 +177,8 @@ export default function DashboardPage() {
                     <p className="text-[13px] mb-6" style={{ color: "#71717A" }}>Erfasse deine erste Tätigkeit.</p>
                     <Link
                       href="/dashboard/eintragen"
-                      style={{ backgroundColor: accent }}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full font-poppins font-semibold text-[13px] text-white hover:opacity-95 transition-all"
+                      style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full font-poppins font-semibold text-[13px] hover:opacity-95 transition-all"
                     >
                       <PenLine size={14} /> Jetzt eintragen
                     </Link>
@@ -238,15 +239,15 @@ export default function DashboardPage() {
                   <div className="flex flex-col gap-3">
                     <Link
                       href="/dashboard/eintragen"
-                      style={{ backgroundColor: accent }}
-                      className="group flex items-center gap-4 p-5 rounded-[26px] text-white hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-black/5"
+                      style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
+                      className="group flex items-center gap-4 p-5 rounded-[26px] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-black/5"
                     >
                       <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center transition-transform group-hover:-rotate-6 shrink-0" style={{ color: accent }}>
                         <PenLine size={20} strokeWidth={2.5} />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[15px] font-poppins font-black leading-tight uppercase tracking-tight">Eintragen</span>
-                        <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">Tätigkeit erfassen</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ opacity: accentLight ? 0.6 : 0.4 }}>Tätigkeit erfassen</span>
                       </div>
                     </Link>
 
