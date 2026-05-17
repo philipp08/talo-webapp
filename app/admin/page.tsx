@@ -47,6 +47,8 @@ const fmtRelative = (d: Date | null): string => {
   return d.toLocaleDateString("de-DE");
 };
 
+let collectionGroupSupported = true;
+
 export default function AdminOverviewPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -190,13 +192,34 @@ export default function AdminOverviewPage() {
         .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
         .slice(0, 8);
 
-      // Total entries — sample first 10 clubs to estimate (collectionGroup may not be enabled)
+      // Total entries count fallback
       let totalEntries = 0;
-      try {
-        const entriesGroup = await getDocs(collectionGroup(db, "entries"));
-        totalEntries = entriesGroup.size;
-      } catch {
-        totalEntries = 0;
+      let usedFallback = false;
+
+      if (collectionGroupSupported) {
+        try {
+          const entriesGroup = await getDocs(collectionGroup(db, "entries"));
+          totalEntries = entriesGroup.size;
+        } catch {
+          collectionGroupSupported = false;
+          usedFallback = true;
+        }
+      } else {
+        usedFallback = true;
+      }
+
+      if (usedFallback) {
+        try {
+          const clubEntriesPromises = clubsSnap.docs.map(async (clubDoc) => {
+            const entriesSnap = await getDocs(collection(db, "clubs", clubDoc.id, "entries"));
+            return entriesSnap.size;
+          });
+          const resolvedSizes = await Promise.all(clubEntriesPromises);
+          totalEntries = resolvedSizes.reduce((acc, val) => acc + val, 0);
+        } catch (fallbackErr) {
+          console.error("Fallback club-by-club count fetch failed:", fallbackErr);
+          totalEntries = 0;
+        }
       }
 
       setStats({

@@ -142,7 +142,7 @@ export default function ImpressumPage() {
           </h1>
           <p className="text-gray-500 dark:text-[#8A8A8A] text-lg max-w-xl leading-relaxed">
             Informationspflichten gemäß § 5 TMG und § 55 RStV für das Angebot
-            unter talo.app.
+            unter talo-club.de.
           </p>
         </div>
       </section>

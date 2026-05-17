@@ -245,7 +245,7 @@ function ClubListRow({ club, index, onDelete }: { club: ClubRow; index: number; 
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-poppins font-bold text-[15px] text-[#0A0A0A] truncate group-hover:underline">{club.name}</span>
                 {club.isTrial && (
-                  <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#0A0A0A] text-white">Trial</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#0A0A0A] text-white">Testphase</span>
                 )}
                 {club.memberCount === 0 && (
                   <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-red-500/10 text-red-500">Leer</span>

@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import { absoluteUrl } from "./seo";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -13,12 +12,12 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#080808",
     icons: [
       {
-        src: absoluteUrl("/talo-logo.png"),
+        src: "/talo-logo.png",
         sizes: "1024x1024",
         type: "image/png",
       },
       {
-        src: absoluteUrl("/favicon.ico"),
+        src: "/favicon.ico",
         sizes: "16x16 32x32 48x48 64x64 128x128 256x256",
         type: "image/x-icon",
       },

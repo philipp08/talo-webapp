@@ -3,9 +3,9 @@ import { verifyAdminRequest } from "@/lib/server/firebaseAuth";
 
 const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL ?? "newsletter@talo-club.de";
 const FROM_NAME = "Talo";
-const SUPPORT_EMAIL = "support@talo-app.de";
+const SUPPORT_EMAIL = "support@talo-club.de";
 const CONTACT_RECIPIENT = process.env.CONTACT_RECIPIENT_EMAIL ?? "philipp@pauli-one.de";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://talo.app";
+const SITE_URL = "https://talo-club.de";
 
 type SendGridPayload = {
   personalizations: Array<{

@@ -248,7 +248,7 @@ const sections = [
     items: [
       {
         q: "Was kostet Talo?",
-        a: "Aktuelle Preisinformationen findest du auf unserer Preisseite unter talo.app/preise. Talo ist speziell für ehrenamtliche Strukturen und Vereine konzipiert.",
+        a: "Aktuelle Preisinformationen findest du auf unserer Preisseite unter talo-club.de/preise. Talo ist speziell für ehrenamtliche Strukturen und Vereine konzipiert.",
       },
       {
         q: "Gibt es eine kostenlose Testphase?",

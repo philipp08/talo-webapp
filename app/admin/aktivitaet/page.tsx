@@ -31,6 +31,8 @@ const fmtRelative = (d: Date): string => {
   return d.toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" });
 };
 
+let collectionGroupSupported = true;
+
 export default function AktivitaetAdminPage() {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,17 +114,33 @@ export default function AktivitaetAdminPage() {
 
       // Recent entries
       let entriesDocs: any[] = [];
-      try {
-        const entriesSnap = await getDocs(
-          query(collectionGroup(db, "entries"), orderBy("date", "desc"), limit(50))
-        );
-        entriesDocs = entriesSnap.docs;
-      } catch (err) {
-        console.warn("collectionGroup query failed (possibly missing index), falling back to club-by-club fetch:", err);
+      let usedFallback = false;
+
+      if (collectionGroupSupported) {
+        try {
+          const entriesSnap = await getDocs(
+            query(collectionGroup(db, "entries"), orderBy("date", "desc"), limit(50))
+          );
+          entriesDocs = entriesSnap.docs;
+        } catch (cgErr) {
+          console.error("collectionGroup query failed (falling back to club-by-club):", cgErr);
+          // Disable collectionGroup queries for the rest of this session to avoid spamming the console
+          collectionGroupSupported = false;
+          usedFallback = true;
+        }
+      } else {
+        usedFallback = true;
+      }
+
+      if (usedFallback) {
         try {
           const clubEntriesPromises = clubsSnap.docs.map(async (clubDoc) => {
             const entriesSnap = await getDocs(
-              query(collection(db, "clubs", clubDoc.id, "entries"), limit(50))
+              query(
+                collection(db, "clubs", clubDoc.id, "entries"),
+                orderBy("date", "desc"),
+                limit(50)
+              )
             );
             return entriesSnap.docs;
           });

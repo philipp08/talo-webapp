@@ -111,8 +111,8 @@ export default function PricingPage() {
       </section>
 
       <section className="pb-24">
-        <div className="max-w-[1500px] mx-auto px-6">
-          <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="max-w-6xl mx-auto px-6">
+          <StaggerContainer staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-3 gap-8 justify-center">
             {PLAN_TIERS.map((tier) => {
               const cta = tierCta[tier.key];
               return (

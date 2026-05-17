@@ -355,7 +355,7 @@ export default function ClubDetailPage() {
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl md:text-3xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{club.name}</h1>
                 {club.isTrial && (
-                  <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#0A0A0A] text-white">Trial</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#0A0A0A] text-white">Testphase</span>
                 )}
                 {licenseExpired && (
                   <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-red-500/10 text-red-500">Abgelaufen</span>

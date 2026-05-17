@@ -479,7 +479,7 @@ function LicenseCard({
           </span>
           <span className="text-[11px] font-poppins font-bold text-[#0A0A0A] uppercase tracking-wider">{planLabel}</span>
           {license.isTrial && (
-            <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#0A0A0A] text-white">Trial</span>
+            <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#0A0A0A] text-white">Testphase</span>
           )}
           {license.expiresAt && (
             <span className="flex items-center gap-1 text-[10px] ml-auto" style={{ color: "#A1A1AA" }}>

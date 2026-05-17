@@ -30,6 +30,84 @@ const defaultForm = (): ShiftFormData => ({
   slotsRequired: "1",
 });
 
+const cleanupPastShifts = async (clubId: string, loadedShifts: Shift[]): Promise<Shift[]> => {
+  const now = new Date();
+  const oneHour = 60 * 60 * 1000;
+  
+  // Helper to get end time of a shift
+  const getShiftEnd = (s: Shift): Date => {
+    if (!s.date) return new Date(0);
+    const [year, month, day] = s.date.split("-").map(Number);
+    if (s.time) {
+      const parts = s.time.split("-");
+      if (parts.length === 2) {
+        const endTimeStr = parts[1].trim().replace(".", ":");
+        const timeParts = endTimeStr.split(":");
+        const hours = Number(timeParts[0]) || 0;
+        const minutes = Number(timeParts[1]) || 0;
+        return new Date(year, month - 1, day, hours, minutes, 0, 0);
+      }
+    }
+    return new Date(year, month - 1, day, 23, 59, 59, 999);
+  };
+
+  // Group shifts by event name
+  const eventGroups: { [eventName: string]: Shift[] } = {};
+  const individualShifts: Shift[] = [];
+
+  loadedShifts.forEach(s => {
+    const ev = (s.event || "").trim();
+    if (ev) {
+      if (!eventGroups[ev]) {
+        eventGroups[ev] = [];
+      }
+      eventGroups[ev].push(s);
+    } else {
+      individualShifts.push(s);
+    }
+  });
+
+  const shiftIdsToDelete = new Set<string>();
+
+  // 1. Process event groups: all shifts in the event must be kept until the latest shift of the event is 1 hour in the past
+  Object.entries(eventGroups).forEach(([evName, evShifts]) => {
+    let maxEndTime = new Date(0);
+    evShifts.forEach(s => {
+      const endTime = getShiftEnd(s);
+      if (endTime.getTime() > maxEndTime.getTime()) {
+        maxEndTime = endTime;
+      }
+    });
+
+    if (now.getTime() - maxEndTime.getTime() >= oneHour) {
+      evShifts.forEach(s => shiftIdsToDelete.add(s.id));
+    }
+  });
+
+  // 2. Process individual shifts: delete if the individual shift is 1 hour in the past
+  individualShifts.forEach(s => {
+    const endTime = getShiftEnd(s);
+    if (now.getTime() - endTime.getTime() >= oneHour) {
+      shiftIdsToDelete.add(s.id);
+    }
+  });
+
+  // Perform deletions on Firestore in the background
+  if (shiftIdsToDelete.size > 0) {
+    console.log("Cleaning up past shifts:", Array.from(shiftIdsToDelete));
+    for (const id of shiftIdsToDelete) {
+      try {
+        await FirebaseManager.deleteShift(clubId, id);
+      } catch (e) {
+        console.error("Error auto-deleting past shift:", id, e);
+      }
+    }
+  }
+
+  // Return the remaining shifts
+  return loadedShifts.filter(s => !shiftIdsToDelete.has(s.id));
+};
+
 export default function ShiftsPage() {
   const { t } = useI18n();
   const currentClub = useAppStore((state) => state.currentClub);
@@ -52,8 +130,9 @@ export default function ShiftsPage() {
   // Firestore sync for active clubs
   useEffect(() => {
     if (!currentClub) return;
-    const unsub = FirebaseManager.listenToShifts(currentClub.id, (loadedShifts) => {
-      setShifts(loadedShifts.sort((a, b) => a.date.localeCompare(b.date)));
+    const unsub = FirebaseManager.listenToShifts(currentClub.id, async (loadedShifts) => {
+      const cleaned = await cleanupPastShifts(currentClub.id, loadedShifts);
+      setShifts(cleaned.sort((a, b) => a.date.localeCompare(b.date)));
       setLoading(false);
     });
     return unsub;
@@ -84,7 +163,7 @@ export default function ShiftsPage() {
   };
 
   const deleteShift = async (shiftId: string) => {
-    if (!currentClub || !confirm("Möchtest du diese Schicht wirklich löschen?")) return;
+    if (!currentClub || !confirm(t("schichten.confirmDelete"))) return;
     try {
       await FirebaseManager.deleteShift(currentClub.id, shiftId);
     } catch (e) {
@@ -100,7 +179,7 @@ export default function ShiftsPage() {
       || shift.claimedById === currentMember.id;
       
     if (alreadyClaimed) {
-      alert("Du hast diese Schicht bereits gebucht!");
+      alert(t("schichten.alreadyBooked"));
       return;
     }
 
@@ -108,7 +187,7 @@ export default function ShiftsPage() {
     const currentClaimedCount = shift.claimedSlots?.length || (shift.claimedById ? 1 : 0);
     
     if (currentClaimedCount >= required) {
-      alert("Diese Schicht ist bereits voll belegt!");
+      alert(t("schichten.alreadyFull"));
       return;
     }
 
@@ -172,12 +251,12 @@ export default function ShiftsPage() {
       });
     } catch (e) {
       console.error("Error claiming shift:", e);
-      alert("Fehler beim Buchen: " + (e instanceof Error ? e.message : String(e)));
+      alert(t("schichten.errorBooking") + (e instanceof Error ? e.message : String(e)));
     }
   };
 
   const releaseShift = async (shift: Shift) => {
-    if (!currentClub || !currentMember || !confirm("Möchtest du diese Schicht wieder freigeben? Deine Punktegutschrift wird dabei storniert.")) return;
+    if (!currentClub || !currentMember || !confirm(t("schichten.confirmRelease"))) return;
     try {
       let newSlots = shift.claimedSlots ? [...shift.claimedSlots] : [];
       if (shift.claimedById && newSlots.length === 0) {
@@ -208,7 +287,7 @@ export default function ShiftsPage() {
       }
     } catch (e) {
       console.error("Error releasing shift:", e);
-      alert("Fehler beim Freigeben: " + (e instanceof Error ? e.message : String(e)));
+      alert(t("schichten.errorReleasing") + (e instanceof Error ? e.message : String(e)));
     }
   };
 
@@ -224,7 +303,7 @@ export default function ShiftsPage() {
       });
     } catch (e) {
       console.error("Error adjusting slots count:", e);
-      alert("Fehler beim Anpassen der Slots: " + (e instanceof Error ? e.message : String(e)));
+      alert(t("schichten.errorAdjusting") + (e instanceof Error ? e.message : String(e)));
     }
   };
 
@@ -553,7 +632,7 @@ export default function ShiftsPage() {
                             </span>
                           </div>
                           <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] bg-black/[0.04] px-2.5 py-1 rounded-lg">
-                            {day.shifts.length} Schichten
+                            {day.shifts.length} {t("schichten.shiftsCount")}
                           </span>
                         </div>
 
@@ -564,9 +643,9 @@ export default function ShiftsPage() {
                             day.shifts.forEach((s) => {
                               const existing = timeGroups.find(g => g.timeStr === s.time);
                               if (existing) {
-                                existing.list.push(s);
+                                  existing.list.push(s);
                               } else {
-                                timeGroups.push({ timeStr: s.time, list: [s] });
+                                  timeGroups.push({ timeStr: s.time, list: [s] });
                               }
                             });
 
@@ -594,7 +673,7 @@ export default function ShiftsPage() {
                                     </div>
                                     {group.list.length > 1 && (
                                       <span className="text-[9px] font-black uppercase tracking-wider text-[#A1A1AA] pl-1.5">
-                                        {group.list.length} Schichten parallel
+                                        {group.list.length} {t("schichten.shiftsCount")} {t("schichten.shiftsParallel")}
                                       </span>
                                     )}
                                   </div>
@@ -638,14 +717,14 @@ export default function ShiftsPage() {
                                             {/* Occupancy and Claimers */}
                                             <div className="flex flex-col min-w-0">
                                               <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-[#71717A] mb-1">
-                                                <span>👥 Belegung:</span>
+                                                <span>👥 {t("schichten.occupancy")}</span>
                                                 {isAdmin ? (
                                                   <div className="flex items-center gap-1 bg-black/[0.03] px-1 py-0.5 rounded-lg border border-black/5 normal-case tracking-normal">
                                                     <button
                                                       type="button"
                                                       onClick={(e) => { e.stopPropagation(); adjustSlots(s, -1); }}
                                                       className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
-                                                      title="Helfer-Slots verringern"
+                                                      title={t("schichten.decreaseSlots")}
                                                     >
                                                       -
                                                     </button>
@@ -656,14 +735,14 @@ export default function ShiftsPage() {
                                                       type="button"
                                                       onClick={(e) => { e.stopPropagation(); adjustSlots(s, 1); }}
                                                       className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
-                                                      title="Helfer-Slots erhöhen"
+                                                      title={t("schichten.increaseSlots")}
                                                     >
                                                       +
                                                     </button>
                                                   </div>
                                                 ) : (
                                                   <span className={isFull ? "text-green-600 font-bold" : "text-[#0A0A0A]"}>
-                                                    {claimedCount} / {required} Personen
+                                                    {claimedCount} / {required} {t("schichten.people")}
                                                   </span>
                                                 )}
                                               </div>
@@ -676,7 +755,7 @@ export default function ShiftsPage() {
                                                   ))}
                                                 </div>
                                               ) : (
-                                                <span className="text-[9px] font-medium text-[#A1A1AA] italic">Noch niemand eingetragen</span>
+                                                <span className="text-[9px] font-medium text-[#A1A1AA] italic">{t("schichten.noOneRegistered")}</span>
                                               )}
                                             </div>
                                           </div>
@@ -691,7 +770,7 @@ export default function ShiftsPage() {
                                               type="button"
                                               onClick={() => shareSingleShift(s)}
                                               className="p-2.5 rounded-xl border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all"
-                                              title="Teilen"
+                                              title={t("schichten.share")}
                                             >
                                               <MessageCircle size={14} className="stroke-[2.5]" />
                                             </button>
@@ -702,11 +781,11 @@ export default function ShiftsPage() {
                                                 onClick={() => releaseShift(s)}
                                                 className="px-4 py-2 bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors shadow-sm"
                                               >
-                                                Storno
+                                                {t("schichten.cancelBooking")}
                                               </button>
                                             ) : isFull ? (
                                               <span className="px-3.5 py-2 bg-black/[0.04] text-[#71717A] rounded-xl text-[10px] font-black uppercase tracking-widest border border-black/5">
-                                                Voll
+                                                {t("schichten.full")}
                                               </span>
                                             ) : (
                                               <button
@@ -714,7 +793,7 @@ export default function ShiftsPage() {
                                                 onClick={() => claimShift(s)}
                                                 className="px-4 py-2 bg-[#0A0A0A] hover:bg-[#1E1E24] text-white rounded-xl text-xs font-black uppercase tracking-widest transition-colors shadow-sm"
                                               >
-                                                Buchen
+                                                {t("schichten.book")}
                                               </button>
                                             )}
 
@@ -723,7 +802,7 @@ export default function ShiftsPage() {
                                                 type="button"
                                                 onClick={() => deleteShift(s.id)}
                                                 className="p-2.5 rounded-xl border border-red-500/10 text-red-500 hover:bg-red-500/5 transition-all"
-                                                title="Löschen"
+                                                title={t("schichten.delete")}
                                               >
                                                 <Trash size={14} />
                                               </button>
@@ -759,10 +838,10 @@ export default function ShiftsPage() {
                           <button
                             onClick={() => shareEventShifts(group.eventName, group.list)}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all text-[10px] font-black uppercase tracking-widest shadow-sm"
-                            title="Gesamtes Event auf WhatsApp bewerben"
+                            title={t("schichten.promoteEventTitle")}
                           >
                             <MessageCircle size={14} className="stroke-[2.5]" />
-                            <span>Event bewerben</span>
+                            <span>{t("schichten.promoteEvent")}</span>
                           </button>
                         </div>
 
@@ -791,7 +870,7 @@ export default function ShiftsPage() {
                                     <button
                                       onClick={() => shareSingleShift(s)}
                                       className="p-1.5 rounded-lg border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all"
-                                      title="Schicht via WhatsApp teilen"
+                                      title={t("schichten.shareShiftTitle")}
                                     >
                                       <MessageCircle size={14} className="stroke-[2.5]" />
                                     </button>
@@ -811,14 +890,14 @@ export default function ShiftsPage() {
                                   {/* Slots and Claimers display */}
                                   <div className="flex flex-col gap-1 mt-2 border-t border-black/[0.03] pt-2">
                                     <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#71717A] pb-1.5">
-                                      <span>Platzbelegung</span>
+                                      <span>{t("schichten.slotOccupancy")}</span>
                                       {isAdmin ? (
                                         <div className="flex items-center gap-1 bg-black/[0.03] px-1.5 py-0.5 rounded-lg border border-black/5">
                                           <button
                                             type="button"
                                             onClick={(e) => { e.stopPropagation(); adjustSlots(s, -1); }}
                                             className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
-                                            title="Helfer-Slots verringern"
+                                            title={t("schichten.decreaseSlots")}
                                           >
                                             -
                                           </button>
@@ -829,14 +908,14 @@ export default function ShiftsPage() {
                                             type="button"
                                             onClick={(e) => { e.stopPropagation(); adjustSlots(s, 1); }}
                                             className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
-                                            title="Helfer-Slots erhöhen"
+                                            title={t("schichten.increaseSlots")}
                                           >
                                             +
                                           </button>
                                         </div>
                                       ) : (
                                         <span className={isFull ? "text-green-600 font-bold" : "text-[#0A0A0A]"}>
-                                          {claimedCount} / {required} Personen
+                                          {claimedCount} / {required} {t("schichten.people")}
                                         </span>
                                       )}
                                     </div>
@@ -857,10 +936,10 @@ export default function ShiftsPage() {
                                   {hasClaimedThis ? (
                                     <div className="flex flex-col gap-2">
                                       <div className="flex items-center gap-2 text-xs text-[#34C759] font-poppins font-bold bg-[#34C759]/10 border border-[#34C759]/20 px-3 py-2 rounded-xl justify-center">
-                                        <Check size={14} /> Du hast gebucht!
+                                        <Check size={14} /> {t("schichten.youBooked")}
                                       </div>
                                       <TButton
-                                        label="Schicht freigeben"
+                                        label={t("schichten.releaseShift")}
                                         variant="danger"
                                         onClick={() => releaseShift(s)}
                                         className="w-full rounded-xl py-2"
@@ -868,11 +947,11 @@ export default function ShiftsPage() {
                                     </div>
                                   ) : isFull ? (
                                     <div className="flex items-center gap-2 text-xs text-[#71717A] bg-black/[0.04] border border-black/5 px-3 py-2 rounded-xl w-full justify-center font-bold">
-                                      <Users size={12} /> Schicht voll belegt
+                                      <Users size={12} /> {t("schichten.shiftFull")}
                                     </div>
                                   ) : (
                                     <TButton
-                                      label={`Schicht buchen (${claimedCount}/${required})`}
+                                      label={`${t("schichten.bookShiftCount")} (${claimedCount}/${required})`}
                                       onClick={() => claimShift(s)}
                                       className="w-full rounded-xl py-2"
                                     />
@@ -883,7 +962,7 @@ export default function ShiftsPage() {
                                       onClick={() => deleteShift(s.id)}
                                       className="flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors mt-2"
                                     >
-                                      <Trash size={12} /> Schicht löschen
+                                      <Trash size={12} /> {t("schichten.deleteShift")}
                                     </button>
                                   )}
                                 </div>
@@ -922,7 +1001,7 @@ export default function ShiftsPage() {
                 <GlassSection className="p-6 flex flex-col gap-5">
                   <div className="flex items-center justify-between">
                     <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
-                      Neue Schicht anlegen
+                      {t("schichten.createModalTitle")}
                     </h3>
                     <button onClick={() => setShowForm(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
                       <X size={20} />
@@ -931,12 +1010,12 @@ export default function ShiftsPage() {
 
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2 relative">
-                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Veranstaltung / Event</label>
+                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("schichten.eventLabel")}</label>
                       <input
                         autoFocus
                         value={form.event}
                         onChange={(e) => setForm({ ...form, event: e.target.value })}
-                        placeholder="z.B. Sommerfest 2026, Clubturnier"
+                        placeholder={t("schichten.eventPlaceholder")}
                         className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                       />
                       
@@ -961,18 +1040,18 @@ export default function ShiftsPage() {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Schichtbezeichnung</label>
+                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("schichten.titleLabel")}</label>
                       <input
                         value={form.title}
                         onChange={(e) => setForm({ ...form, title: e.target.value })}
-                        placeholder="z.B. Grillstation Schicht 1"
+                        placeholder={t("schichten.titlePlaceholder")}
                         className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="flex flex-col gap-2">
-                        <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Datum</label>
+                        <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("schichten.dateLabel")}</label>
                         <input
                           type="date"
                           value={form.date}
@@ -981,7 +1060,7 @@ export default function ShiftsPage() {
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Punkte</label>
+                        <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("schichten.pointsLabel")}</label>
                         <input
                           type="number"
                           step="0.5"
@@ -994,7 +1073,7 @@ export default function ShiftsPage() {
 
                     <div className="grid grid-cols-2 gap-3 bg-black/[0.02] border border-black/5 p-4 rounded-[24px]">
                       <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-poppins font-black text-[#71717A] uppercase tracking-widest pl-1">Startzeit</label>
+                        <label className="text-[10px] font-poppins font-black text-[#71717A] uppercase tracking-widest pl-1">{t("schichten.startTimeLabel")}</label>
                         <input
                           type="time"
                           value={form.startTime}
@@ -1003,7 +1082,7 @@ export default function ShiftsPage() {
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-poppins font-black text-[#71717A] uppercase tracking-widest pl-1">Endzeit</label>
+                        <label className="text-[10px] font-poppins font-black text-[#71717A] uppercase tracking-widest pl-1">{t("schichten.endTimeLabel")}</label>
                         <input
                           type="time"
                           value={form.endTime}
@@ -1014,14 +1093,14 @@ export default function ShiftsPage() {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Helfer-Slots</label>
+                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("schichten.slotsLabel")}</label>
                       <input
                         type="number"
                         min="1"
                         max="99"
                         value={form.slotsRequired}
                         onChange={(e) => setForm({ ...form, slotsRequired: e.target.value })}
-                        placeholder="z.B. 5"
+                        placeholder={t("schichten.slotsPlaceholder")}
                         className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                       />
                     </div>
@@ -1029,7 +1108,7 @@ export default function ShiftsPage() {
 
                   <div className="flex flex-col gap-2 pt-2">
                     <TButton
-                      label={saving ? "Wird gespeichert..." : "Schicht erstellen"}
+                      label={saving ? t("schichten.saving") : t("schichten.createButton")}
                       onClick={saveForm}
                       disabled={saving || !form.title.trim() || !form.event.trim()}
                     />

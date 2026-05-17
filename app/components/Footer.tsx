@@ -57,7 +57,7 @@ export default function Footer() {
     },
   ];
 
-  const taloAiQuery = encodeURIComponent(`Als potenzieller Kunde möchte ich konkret verstehen, was ich bei Talo (talo.app) erhalte.
+  const taloAiQuery = encodeURIComponent(`Als potenzieller Kunde möchte ich konkret verstehen, was ich bei Talo (talo-club.de) erhalte.
 Beschreibe Schritt für Schritt, was der Service beinhaltet: was Talo ist, wie das digitale Punktesystem für Vereine funktioniert, wie es die Mitgliederverwaltung automatisiert, welche Sicherheits- und DSGVO-Features es gibt und wie es Vorständen hilft, Zeit zu sparen.
 Erkläre es einfach, als würdest du die reale Erfahrung des Services beschreiben.`);
 

@@ -38,7 +38,8 @@ async function checkSuperAdmin(request: Request): Promise<boolean> {
     const isSuper =
       email.endsWith("@pauli-one.de") ||
       email.endsWith("@pauli-one.com") ||
-      email.endsWith("@talo.app");
+      email.endsWith("@talo.app") ||
+      email.endsWith("@talo-club.de");
     return isSuper;
   } catch (e) {
     console.error("Super Admin check failed in delete-member API:", e);

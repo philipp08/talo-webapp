@@ -50,7 +50,7 @@ export default function OpenGraphImage() {
         <div style={{ display: "flex", gap: 14, color: "#b6b6b6", fontSize: 22 }}>
           <span>Vorgestellt von Philipp Pauli</span>
           <span>/</span>
-          <span>talo.app</span>
+          <span>talo-club.de</span>
         </div>
       </div>
     ),

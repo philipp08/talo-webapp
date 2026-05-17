@@ -8,7 +8,7 @@ interface Subscriber {
 }
 
 const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL ?? "newsletter@talo-club.de";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://talo.app";
+const SITE_URL = "https://talo-club.de";
 const MAX_SUBSCRIBERS_PER_SEND = 1000;
 
 function isRecord(value: unknown): value is Record<string, unknown> {

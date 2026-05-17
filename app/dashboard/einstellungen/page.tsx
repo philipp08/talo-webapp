@@ -48,16 +48,21 @@ function SettingsPricingCard({
   tier,
   isCurrent,
   isSimulating,
-  simulateUpgrade
+  simulateUpgrade,
+  expandedLimit,
+  setExpandedLimit
 }: {
   tier: typeof PLAN_TIERS[0],
   isCurrent: boolean,
   isSimulating: string | null,
-  simulateUpgrade: (key: string) => void
+  simulateUpgrade: (key: string) => void,
+  expandedLimit: number,
+  setExpandedLimit: (limit: number) => void
 }) {
-  const [showAll, setShowAll] = useState(false);
-  const visibleFeatures = showAll ? tier.features : tier.features.slice(0, 4);
-  const hasMore = tier.features.length > 4;
+  const visibleCount = Math.min(tier.features.length, expandedLimit);
+  const visibleFeatures = tier.features.slice(0, visibleCount);
+  const hasMore = tier.features.length > visibleCount;
+  const canCollapse = tier.features.length > 4 && expandedLimit > 4;
 
   return (
     <div className={`relative flex flex-col p-5 rounded-2xl bg-white border shrink-0 ${tier.popular ? "border-black/20 shadow-md scale-[1.01]" : "border-black/5 shadow-sm"} overflow-hidden`}>
@@ -83,13 +88,22 @@ function SettingsPricingCard({
             <span className="text-[11px] font-medium text-[#52525B] leading-snug">{feature}</span>
           </div>
         ))}
-        {hasMore && (
+        {hasMore ? (
           <button 
-            onClick={() => setShowAll(!showAll)}
+            onClick={() => setExpandedLimit(tier.features.length)}
             className="text-[11px] font-semibold text-[#71717A] underline underline-offset-2 hover:text-[#0A0A0A] self-start mt-1"
           >
-            {showAll ? "Weniger anzeigen" : `+ ${tier.features.length - 4} weitere`}
+            {`+ ${tier.features.length - visibleCount} weitere`}
           </button>
+        ) : (
+          canCollapse && visibleCount === tier.features.length && (
+            <button 
+              onClick={() => setExpandedLimit(4)}
+              className="text-[11px] font-semibold text-[#71717A] underline underline-offset-2 hover:text-[#0A0A0A] self-start mt-1"
+            >
+              Weniger anzeigen
+            </button>
+          )
         )}
       </div>
 
@@ -117,12 +131,13 @@ function SettingsPricingCard({
 }
 
 export default function SettingsPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const currentMember = useAppStore((s) => s.currentMember);
   const currentClub = useAppStore((s) => s.currentClub);
   const setCurrentClub = useAppStore((s) => s.setCurrentClub);
 
   const [resetState, setResetState] = useState<"idle" | "loading" | "sent">("idle");
+  const [expandedLimit, setExpandedLimit] = useState(4);
 
   const [clubName, setClubName] = useState(currentClub?.name ?? "");
   const [requiredPoints, setRequiredPoints] = useState(String(currentClub?.requiredPoints ?? 15));
@@ -708,7 +723,13 @@ export default function SettingsPage() {
                                 <div className="min-w-0 flex-1">
                                   <p className="truncate font-poppins font-bold text-sm text-[#0A0A0A]">{group.name}</p>
                                   <p className="truncate text-[11px] text-[#71717A]">
-                                    {count} {t("einstellungen.membersCount").toLowerCase()}{group.description ? ` · ${group.description}` : ""}
+                                    {count} {
+                                      locale === "de"
+                                        ? (count === 1 ? "Mitglied" : "Mitglieder")
+                                        : (locale === "en"
+                                          ? (count === 1 ? "member" : "members")
+                                          : t("einstellungen.membersCount"))
+                                    }{group.description ? ` · ${group.description}` : ""}
                                   </p>
                                 </div>
                                 <button
@@ -862,7 +883,9 @@ export default function SettingsPage() {
                           <span className="font-poppins font-bold text-lg text-[#0A0A0A] flex items-center gap-2">
                             {planFeatures.name}
                             {currentClub?.isTrial && (
-                              <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#0A0A0A] text-white">Trial</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#0A0A0A] text-white">
+                                {locale === "de" ? "Testphase" : "Trial"}
+                              </span>
                             )}
                           </span>
                           <span className="text-xs text-[#52525B]">
@@ -907,6 +930,8 @@ export default function SettingsPage() {
                         isCurrent={isCurrent}
                         isSimulating={isSimulating}
                         simulateUpgrade={simulateUpgrade}
+                        expandedLimit={expandedLimit}
+                        setExpandedLimit={setExpandedLimit}
                       />
                     );
                   })}
@@ -999,7 +1024,7 @@ export default function SettingsPage() {
                   <TLine />
                   <div className="flex flex-col sm:flex-row gap-3">
                     <a
-                      href={`mailto:datenschutz@talo.app?subject=Datenanfrage%20(Auskunft)&body=Hallo%2C%0A%0Aich%20m%C3%B6chte%20gem%C3%A4%C3%9F%20DSGVO%20Art.%2015%20eine%20Auskunft%20%C3%BCber%20meine%20bei%20Talo%20gespeicherten%20Daten.%0A%0AMeine%20E-Mail-Adresse%3A%20${encodeURIComponent(currentMember?.email ?? "")}`}
+                      href={`mailto:datenschutz@talo-club.de?subject=Datenanfrage%20(Auskunft)&body=Hallo%2C%0A%0Aich%20m%C3%B6chte%20gem%C3%A4%C3%9F%20DSGVO%20Art.%2015%20eine%20Auskunft%20%C3%BCber%20meine%20bei%20Talo%20gespeicherten%20Daten.%0A%0AMeine%20E-Mail-Adresse%3A%20${encodeURIComponent(currentMember?.email ?? "")}`}
                       className="flex-1 flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-black/[0.06] bg-black/[0.02] hover:bg-black/[0.04] transition-all group"
                     >
                       <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(0,122,255,0.1)" }}>
@@ -1007,11 +1032,11 @@ export default function SettingsPage() {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[12px] font-poppins font-bold text-[#0A0A0A] group-hover:underline">Daten exportieren (Auskunft)</span>
-                        <span className="text-[10px] text-[#71717A]">datenschutz@talo.app · DSGVO Art. 15</span>
+                        <span className="text-[10px] text-[#71717A]">datenschutz@talo-club.de · DSGVO Art. 15</span>
                       </div>
                     </a>
                     <a
-                      href={`mailto:datenschutz@talo.app?subject=Konto%20l%C3%B6schen&body=Hallo%2C%0A%0Aich%20m%C3%B6chte%20mein%20Talo-Konto%20und%20alle%20zugeh%C3%B6rigen%20Daten%20gem%C3%A4%C3%9F%20DSGVO%20Art.%2017%20l%C3%B6schen%20lassen.%0A%0AMeine%20E-Mail-Adresse%3A%20${encodeURIComponent(currentMember?.email ?? "")}`}
+                      href={`mailto:datenschutz@talo-club.de?subject=Konto%20l%C3%B6schen&body=Hallo%2C%0A%0Aich%20m%C3%B6chte%20mein%20Talo-Konto%20und%20alle%20zugeh%C3%B6rigen%20Daten%20gem%C3%A4%C3%9F%20DSGVO%20Art.%2017%20l%C3%B6schen%20lassen.%0A%0AMeine%20E-Mail-Adresse%3A%20${encodeURIComponent(currentMember?.email ?? "")}`}
                       className="flex-1 flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-red-500/20 bg-red-500/[0.03] hover:bg-red-500/[0.06] transition-all group"
                     >
                       <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,69,58,0.1)" }}>
@@ -1019,7 +1044,7 @@ export default function SettingsPage() {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[12px] font-poppins font-bold text-[#FF453A] group-hover:underline">Konto löschen</span>
-                        <span className="text-[10px] text-[#71717A]">datenschutz@talo.app · DSGVO Art. 17</span>
+                        <span className="text-[10px] text-[#71717A]">datenschutz@talo-club.de · DSGVO Art. 17</span>
                       </div>
                     </a>
                   </div>
