@@ -546,7 +546,7 @@ export default function ShiftsPage() {
                                         <div className="flex flex-wrap gap-1">
                                           {claimersList.map((name, idx) => (
                                             <span key={idx} className="text-[9px] font-bold bg-black/[0.03] text-[#52525B] border border-black/5 px-2 py-0.5 rounded-md truncate max-w-[120px]">
-                                              👤 {name}
+                                              {name}
                                             </span>
                                           ))}
                                         </div>
@@ -688,7 +688,7 @@ export default function ShiftsPage() {
                                       <div className="flex flex-wrap gap-1 mt-1">
                                         {claimersList.map((name, idx) => (
                                           <span key={idx} className="text-[9px] font-bold bg-black/[0.03] text-[#52525B] border border-black/5 px-2 py-0.5 rounded-md truncate max-w-full">
-                                            👤 {name}
+                                            {name}
                                           </span>
                                         ))}
                                       </div>
