@@ -1504,6 +1504,20 @@ function AttendanceCard({
                     <Trash2 size={12} /> Zusatz löschen
                   </button>
                 )}
+
+                <button
+                  onClick={() => {
+                    const text = `⚽ *TALO TRAININGSEINLADUNG* ⚽\n\nHallo zusammen! Hier ist die Einladung zur nächsten Session:\n\n📅 *Gruppe*: ${group.name}\n🕒 *Uhrzeit*: ${time} Uhr\n👤 *Trainer*: ${effectiveTrainerName}\n\n👉 Bitte meldet euch rechtzeitig im Talo Dashboard an- oder ab: ${window.location.origin}/dashboard/training\n\nWir freuen uns auf euch! 🚀`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all text-[10px] font-black uppercase tracking-widest shadow-sm"
+                  title="WhatsApp Einladungs-Generator"
+                >
+                  <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.002 5.419 5.4 0 12.008 0c3.202.001 6.212 1.246 8.477 3.517 2.266 2.27 3.51 5.284 3.508 8.49-.004 6.587-5.395 12.002-12.002 12.002-.003 0-.005 0-.008 0-1.997-.001-3.957-.502-5.69-1.455L0 24zm6.59-4.859c1.72.1.1.1-1.815.1 1.72.1-.1.1.002 0l.39.232c1.523.905 3.364 1.382 5.253 1.383 5.4 0 9.794-4.383 9.797-9.77.001-2.607-1.015-5.059-2.862-6.908C17.328 4.249 14.887 3.23 12.28 3.23c-5.4 0-9.794 4.383-9.797 9.771-.001 1.954.512 3.864 1.487 5.568l.243.424-.984 3.593 3.678-.965.421.25c1.653.978 3.536 1.493 5.452 1.493z" />
+                  </svg>
+                  <span>WhatsApp Einladung</span>
+                </button>
               </div>
 
               <AnimatePresence>

@@ -31,6 +31,7 @@ import {
   TrainingAnnouncement,
   ClubMembership,
   ClubGroup,
+  Shift,
   getEffectiveMemberForClub,
   normalizeClubIds,
 } from "./models";
@@ -52,6 +53,11 @@ const buildClub = (id: string, data: DocumentData): Club => ({
   plan: data.plan,
   logoUrl: data.logoUrl,
   brandColor: data.brandColor,
+  accentColor: data.accentColor,
+  customMemberTypes: data.customMemberTypes,
+  memberTypeFactors: data.memberTypeFactors,
+  seasonStart: data.seasonStart,
+  seasonEnd: data.seasonEnd,
   licenseStatus: data.licenseStatus,
   licenseExpiresAt: data.licenseExpiresAt,
 });
@@ -298,6 +304,29 @@ export class FirebaseManager {
         console.error("Error listening to entries:", error);
       }
     );
+  }
+
+  static async getEntries(clubId: string): Promise<Entry[]> {
+    const q = query(collection(db, `clubs/${clubId}/entries`));
+    const snapshot = await getDocs(q);
+    const entries: Entry[] = [];
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      entries.push({
+        id: docSnap.id,
+        memberId: data.memberId,
+        date: data.date instanceof Timestamp ? data.date.toDate() : data.date,
+        notes: data.notes || "",
+        points: data.points || 0,
+        status: data.status,
+        activityName: data.activityName,
+        activityCategory: data.activityCategory,
+        groupId: data.groupId,
+        rejectionReason: data.rejectionReason,
+        photoUrl: data.photoUrl,
+      });
+    });
+    return entries;
   }
 
   static listenToActivities(
@@ -1129,5 +1158,58 @@ export class FirebaseManager {
     groupId: string
   ): Promise<void> {
     await deleteDoc(doc(db, `clubs/${clubId}/trainingGroups`, groupId));
+  }
+
+  // === SHIFTS (Schicht-Börse) ===
+  static async addShift(
+    clubId: string,
+    shift: Omit<Shift, "id">
+  ): Promise<void> {
+    await addDoc(collection(db, `clubs/${clubId}/shifts`), shift);
+  }
+
+  static async updateShift(
+    clubId: string,
+    shiftId: string,
+    updates: Partial<Omit<Shift, "id">>
+  ): Promise<void> {
+    await updateDoc(doc(db, `clubs/${clubId}/shifts`, shiftId), updates);
+  }
+
+  static async deleteShift(
+    clubId: string,
+    shiftId: string
+  ): Promise<void> {
+    await deleteDoc(doc(db, `clubs/${clubId}/shifts`, shiftId));
+  }
+
+  static listenToShifts(
+    clubId: string,
+    callback: (shifts: Shift[]) => void
+  ) {
+    const q = query(collection(db, `clubs/${clubId}/shifts`));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const list: Shift[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          list.push({
+            id: docSnap.id,
+            title: data.title || "",
+            event: data.event || "",
+            date: data.date || "",
+            time: data.time || "",
+            points: Number(data.points) || 0,
+            claimedById: data.claimedById || null,
+            claimedByName: data.claimedByName || null,
+          });
+        });
+        callback(list);
+      },
+      (error) => {
+        console.error("Error listening to shifts:", error);
+      }
+    );
   }
 }

@@ -9,7 +9,7 @@ import {
   Settings, Megaphone, LogOut,
   ShieldCheck, PenLine, CheckSquare,
   Menu, X, MoreHorizontal, Building2,
-  ChevronDown, Check, Calendar,
+  ChevronDown, Check, Calendar, Layers,
 } from "lucide-react";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
@@ -126,6 +126,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     { href: "/dashboard/mitglieder",     label: t("nav.mitglieder"),     shortLabel: t("nav.mitglieder"),       icon: Users,         show: isAdmin || isTrainer },
     { href: "/dashboard/taetigkeiten",   label: t("nav.taetigkeiten"),   shortLabel: t("nav.taetigkeiten"),     icon: ClipboardList, show: isAdmin },
     { href: "/dashboard/ankuendigungen", label: t("nav.ankuendigungen"), shortLabel: t("nav.ankuendigungen"),   icon: Megaphone,     show: true },
+    { href: "/dashboard/schichten",      label: "Schicht-Börse",         shortLabel: "Schichten",               icon: Layers,        show: true },
     { href: "/dashboard/einstellungen",  label: t("nav.einstellungen"),  shortLabel: t("nav.einstellungen"),    icon: Settings,      show: true },
   ].filter((item) => item.show);
 

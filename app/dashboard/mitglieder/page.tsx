@@ -6,7 +6,7 @@ import {
   Search, Trophy,
   ChevronRight, Shield, UserPlus,
   Target, MoreVertical,
-  X, Mail, User, Check, Layers, Filter
+  X, Mail, User, Check, Layers, Filter, Swords
 } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
@@ -824,49 +824,116 @@ function LeaderboardView({
 
       {showGroupLeaderboards ? (
         groups.length > 0 && (
-          <div className="max-w-4xl mx-auto w-full px-3 md:px-4 flex flex-col gap-4">
-            <div className="flex items-center gap-2 text-[10px] font-black text-[#52525B] uppercase tracking-widest">
-              <Layers size={13} /> Gruppenranglisten
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {groups.map((group) => {
-                const groupItems = data
-                  .filter((item) => item.member.groupId === group.id)
-                  .slice(0, 5);
-                return (
-                  <div key={group.id} className="rounded-[24px] bg-white border border-black/5 p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-poppins font-black text-[#0A0A0A]">{group.name}</h3>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
-                        {groupItems.length} Personen
-                      </span>
-                    </div>
-                    {groupItems.length === 0 ? (
-                      <p className="text-xs text-[#71717A]">Noch keine Punkte in dieser Gruppe.</p>
-                    ) : (
-                      <div className="flex flex-col gap-2">
-                        {groupItems.map((item, index) => (
-                          <div key={item.member.id} className="flex items-center gap-3 rounded-xl bg-black/[0.03] px-3 py-2">
-                            <span className="w-6 text-xs font-mono font-black text-[#A1A1AA]">#{index + 1}</span>
-                            <TAvatar name={`${item.member.firstName} ${item.member.lastName}`} id={item.member.id} size={30} />
-                            <span className="min-w-0 flex-1 truncate text-sm font-poppins font-bold text-[#0A0A0A]">
-                              {item.member.firstName} {item.member.lastName}
+          <div className="max-w-4xl mx-auto w-full px-3 md:px-4 flex flex-col gap-8">
+            
+            {/* GRP DUELS */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-[10px] font-black text-[#52525B] uppercase tracking-widest">
+                  <Swords size={13} className="text-amber-500" /> Gruppen-Duelle (Schnitt pro Kopf)
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#A1A1AA] bg-black/[0.04] px-2 py-0.5 rounded-md">
+                  Aktiv
+                </span>
+              </div>
+              <div className="rounded-[28px] bg-white border border-black/5 p-6 shadow-sm flex flex-col gap-5">
+                {groups
+                  .map((g) => {
+                    const gItems = data.filter((item) => item.member.groupId === g.id);
+                    const memberCount = gItems.length;
+                    const totalPoints = gItems.reduce((sum, item) => sum + item.approved, 0);
+                    const averagePoints = memberCount > 0 ? totalPoints / memberCount : 0;
+                    return { ...g, memberCount, totalPoints, averagePoints };
+                  })
+                  .sort((a, b) => b.averagePoints - a.averagePoints)
+                  .map((duel, index, arr) => {
+                    const maxAvg = Math.max(...arr.map((d) => d.averagePoints), 1);
+                    const percent = (duel.averagePoints / maxAvg) * 100;
+                    return (
+                      <div key={duel.id} className="flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-5 h-5 rounded-full flex items-center justify-center font-mono font-black text-[10px] ${
+                              index === 0 ? "bg-amber-100 text-amber-600 border border-amber-200" : "bg-black/[0.04] text-[#71717A]"
+                            }`}>
+                              {index + 1}
                             </span>
-                            <span className="font-mono font-black text-sm text-[#0A0A0A]">{item.approved.toFixed(1)}</span>
+                            <span className="font-poppins font-bold text-sm text-[#0A0A0A]">{duel.name}</span>
+                            {index === 0 && duel.averagePoints > 0 && (
+                              <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-md animate-pulse">
+                                IN FÜHRUNG 🔥
+                              </span>
+                            )}
                           </div>
-                        ))}
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="font-mono font-black text-sm text-[#0A0A0A]">
+                              {duel.averagePoints.toFixed(1)} Pkt.
+                            </span>
+                            <span className="text-[10px] text-[#A1A1AA] hidden sm:inline">({duel.totalPoints.toFixed(0)} total / {duel.memberCount} Pers.)</span>
+                          </div>
+                        </div>
+                        <div className="h-3 w-full bg-black/[0.03] border border-black/5 rounded-full overflow-hidden relative">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percent}%` }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                            className="h-full rounded-full"
+                            style={{
+                              background: index === 0 ? "linear-gradient(90deg, #FF9500, #FFCC00)" : "linear-gradient(90deg, #0A0A0A, #52525B)",
+                            }}
+                          />
+                        </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* TRADITIONAL GROUPS LIST */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2 text-[10px] font-black text-[#52525B] uppercase tracking-widest">
+                <Layers size={13} /> Gruppenranglisten (Details)
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {groups.map((group) => {
+                  const groupItems = data
+                    .filter((item) => item.member.groupId === group.id)
+                    .slice(0, 5);
+                  return (
+                    <div key={group.id} className="rounded-[24px] bg-white border border-black/5 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-poppins font-black text-[#0A0A0A]">{group.name}</h3>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+                          {groupItems.length} Personen
+                        </span>
+                      </div>
+                      {groupItems.length === 0 ? (
+                        <p className="text-xs text-[#71717A]">Noch keine Punkte in dieser Gruppe.</p>
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                          {groupItems.map((item, index) => (
+                            <div key={item.member.id} className="flex items-center gap-3 rounded-xl bg-black/[0.03] px-3 py-2">
+                              <span className="w-6 text-xs font-mono font-black text-[#A1A1AA]">#{index + 1}</span>
+                              <TAvatar name={`${item.member.firstName} ${item.member.lastName}`} id={item.member.id} size={30} />
+                              <span className="min-w-0 flex-1 truncate text-sm font-poppins font-bold text-[#0A0A0A]">
+                                {item.member.firstName} {item.member.lastName}
+                              </span>
+                              <span className="font-mono font-black text-sm text-[#0A0A0A]">{item.approved.toFixed(1)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )
       ) : (
         <div className="max-w-4xl mx-auto w-full px-3 md:px-4">
           <div className="rounded-2xl border border-black/5 bg-black/[0.03] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
-            Gruppenranglisten ab Club
+            Gruppenranglisten & Duelle ab Club
           </div>
         </div>
       )}

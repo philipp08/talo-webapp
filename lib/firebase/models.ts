@@ -95,6 +95,17 @@ export interface Activity {
   isDefault: boolean;
 }
 
+export interface Shift {
+  id: string;
+  title: string;
+  event: string;
+  date: string;
+  time: string;
+  points: number;
+  claimedById: string | null;
+  claimedByName: string | null;
+}
+
 export interface Entry {
   id: string;
   memberId: string;
@@ -309,6 +320,7 @@ export interface PlanFeatures {
   canExportPdf: boolean;
   hasGroups: boolean;
   hasGroupLeaderboards: boolean;
+  hasSelfServiceShifts: boolean;
   hasAdvancedStats: boolean;
   hasAdvancedFilters: boolean;
   hasAdvancedRoles: boolean;
@@ -348,6 +360,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     canExportPdf: false,
     hasGroups: false,
     hasGroupLeaderboards: false,
+    hasSelfServiceShifts: false,
     hasAdvancedStats: false,
     hasAdvancedFilters: false,
     hasAdvancedRoles: false,
@@ -383,6 +396,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     canExportPdf: false,
     hasGroups: false,
     hasGroupLeaderboards: false,
+    hasSelfServiceShifts: false,
     hasAdvancedStats: false,
     hasAdvancedFilters: false,
     hasAdvancedRoles: false,
@@ -420,6 +434,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     canExportPdf: true,
     hasGroups: true,
     hasGroupLeaderboards: true,
+    hasSelfServiceShifts: false,
     hasAdvancedStats: true,
     hasAdvancedFilters: true,
     hasAdvancedRoles: false,
@@ -459,6 +474,7 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     canExportPdf: true,
     hasGroups: true,
     hasGroupLeaderboards: true,
+    hasSelfServiceShifts: true,
     hasAdvancedStats: true,
     hasAdvancedFilters: true,
     hasAdvancedRoles: true,
