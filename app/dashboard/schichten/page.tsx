@@ -129,6 +129,29 @@ export default function ShiftsPage() {
           claimedAt: s.claimedAt || new Date().toISOString()
         }));
 
+      // Calculate shift end date & time
+      let shiftEndDate = new Date();
+      if (shift.date && shift.time) {
+        try {
+          const parts = shift.time.split("-");
+          if (parts.length === 2) {
+            const endTimeStr = parts[1].trim().replace(".", ":");
+            const timeParts = endTimeStr.split(":");
+            const hours = Number(timeParts[0]) || 0;
+            const minutes = Number(timeParts[1]) || 0;
+            const [year, month, day] = shift.date.split("-").map(Number);
+            shiftEndDate = new Date(year, month - 1, day, hours, minutes, 0, 0);
+          } else {
+            // Default to end of shift date if no time range is specified
+            const [year, month, day] = shift.date.split("-").map(Number);
+            shiftEndDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+          }
+        } catch (err) {
+          console.error("Error parsing shift end time:", err);
+          shiftEndDate = new Date();
+        }
+      }
+
       // 1. Claim in Shifts collection
       await FirebaseManager.updateShift(currentClub.id, shift.id, {
         claimedSlots: cleanSlots,
@@ -140,7 +163,7 @@ export default function ShiftsPage() {
       // 2. Automatically log points entry
       await FirebaseManager.addEntry(currentClub.id, entryId, {
         memberId: currentMember.id,
-        date: new Date(),
+        date: shiftEndDate,
         notes: `Schicht-Börse: ${shift.event} - ${shift.title} (ShiftID: ${shift.id})`,
         points: shift.points,
         status: "Genehmigt",

@@ -18,6 +18,13 @@ import { EmailService } from "@/lib/firebase/emailService";
 import { TAvatar, GlassSection, TLine, TSearchBar } from "@/app/components/ui/NativeUI";
 import { useI18n } from "@/lib/i18n/I18nContext";
 
+const toDate = (d: any): Date => {
+  if (!d) return new Date();
+  if (d instanceof Date) return d;
+  if (typeof d.toDate === "function") return d.toDate();
+  return new Date(d);
+};
+
 const memberTypeOrder = [
   MemberType.Active,
   MemberType.Board,
@@ -147,7 +154,7 @@ export default function MembersPage() {
       .filter((m) => m.memberType !== MemberType.Passive)
       .map((m) => {
         const approved = entries
-          .filter((e) => e.memberId === m.id && e.status === "Genehmigt")
+          .filter((e) => e.memberId === m.id && e.status === "Genehmigt" && toDate(e.date) <= new Date())
           .reduce((sum, e) => sum + e.points, 0);
         const target = currentClub ? calculateTargetPoints(m, currentClub) : 15;
         const progress = target > 0 ? Math.min(1, approved / target) : 1;
@@ -684,7 +691,7 @@ function ListView({
               </thead>
               <tbody className="divide-y divide-black/[0.04]">
                 {group.map((member) => {
-                  const mEntries = entries.filter((e) => e.memberId === member.id && e.status === "Genehmigt");
+                  const mEntries = entries.filter((e) => e.memberId === member.id && e.status === "Genehmigt" && toDate(e.date) <= new Date());
                   const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
                   const target = currentClub ? calculateTargetPoints(member, currentClub) : 15;
                   const progress = target > 0 ? Math.min(1, approved / target) : 1;

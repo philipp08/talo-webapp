@@ -157,7 +157,7 @@ export default function MemberDetailPage() {
   })();
 
   const targetPts   = member && currentClub ? calculateTargetPoints(member, currentClub) : 15;
-  const approvedPts = entries.filter((e) => e.status === "Genehmigt").reduce((s, e) => s + e.points, 0);
+  const approvedPts = entries.filter((e) => e.status === "Genehmigt" && toDate(e.date) <= new Date()).reduce((s, e) => s + e.points, 0);
   const pendingPts  = entries.filter((e) => e.status === "Ausstehend").reduce((s, e) => s + e.points, 0);
   const missingPts  = Math.max(0, targetPts - approvedPts);
   const progress    = targetPts > 0 ? Math.min(1, approvedPts / targetPts) : 0;

@@ -85,10 +85,17 @@ export default function DashboardPage() {
     return () => { u1(); u2(); };
   }, [currentClub, currentMember]);
 
+  const toDate = (d: any): Date => {
+    if (!d) return new Date();
+    if (d instanceof Date) return d;
+    if (typeof d.toDate === "function") return d.toDate();
+    return new Date(d);
+  };
+
   if (!currentMember || !currentClub) return null;
 
   const targetPts  = calculateTargetPoints(currentMember, currentClub);
-  const approved   = entries.filter((e) => e.status === "Genehmigt").reduce((s, e) => s + e.points, 0);
+  const approved   = entries.filter((e) => e.status === "Genehmigt" && toDate(e.date) <= new Date()).reduce((s, e) => s + e.points, 0);
   const pending    = entries.filter((e) => e.status === "Ausstehend").reduce((s, e) => s + e.points, 0);
   const progress   = targetPts > 0 ? Math.min((approved / targetPts) * 100, 100) : 100;
   const remaining  = Math.max(targetPts - approved, 0);
