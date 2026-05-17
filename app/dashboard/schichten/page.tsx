@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Clock, Plus, Trash, Check, X, Shield, Users, Layers, Award } from "lucide-react";
+import { Calendar, Clock, Plus, Trash, Check, X, Shield, Users, Layers, Award, MessageCircle } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Shift, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
@@ -201,6 +201,16 @@ export default function ShiftsPage() {
     }));
   }, [shifts]);
 
+  const existingEvents = useMemo(() => {
+    const eventsSet = new Set<string>();
+    shifts.forEach((s) => {
+      if (s.event && s.event.trim()) {
+        eventsSet.add(s.event.trim());
+      }
+    });
+    return Array.from(eventsSet);
+  }, [shifts]);
+
   const groupedMockShifts = useMemo(() => {
     const groups: { [eventName: string]: Shift[] } = {};
     mockShifts.forEach((s) => {
@@ -364,9 +374,7 @@ export default function ShiftsPage() {
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all text-[10px] font-black uppercase tracking-widest shadow-sm"
                             title="Gesamtes Event auf WhatsApp bewerben"
                           >
-                            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.002 5.419 5.4 0 12.008 0c3.202.001 6.212 1.246 8.477 3.517 2.266 2.27 3.51 5.284 3.508 8.49-.004 6.587-5.395 12.002-12.002 12.002-.003 0-.005 0-.008 0-1.997-.001-3.957-.502-5.69-1.455L0 24zm6.59-4.859c1.72.1.1.1-1.815.1 1.72.1-.1.1.002 0l.39.232c1.523.905 3.364 1.382 5.253 1.383 5.4 0 9.794-4.383 9.797-9.77.001-2.607-1.015-5.059-2.862-6.908C17.328 4.249 14.887 3.23 12.28 3.23c-5.4 0-9.794 4.383-9.797 9.771-.001 1.954.512 3.864 1.487 5.568l.243.424-.984 3.593 3.678-.965.421.25c1.653.978 3.536 1.493 5.452 1.493z" />
-                            </svg>
+                            <MessageCircle size={14} className="stroke-[2.5]" />
                             <span>Event bewerben</span>
                           </button>
                         </div>
@@ -389,9 +397,7 @@ export default function ShiftsPage() {
                                       className="p-1.5 rounded-lg border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all"
                                       title="Schicht via WhatsApp teilen"
                                     >
-                                      <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.002 5.419 5.4 0 12.008 0c3.202.001 6.212 1.246 8.477 3.517 2.266 2.27 3.51 5.284 3.508 8.49-.004 6.587-5.395 12.002-12.002 12.002-.003 0-.005 0-.008 0-1.997-.001-3.957-.502-5.69-1.455L0 24zm6.59-4.859c1.72.1.1.1-1.815.1 1.72.1-.1.1.002 0l.39.232c1.523.905 3.364 1.382 5.253 1.383 5.4 0 9.794-4.383 9.797-9.77.001-2.607-1.015-5.059-2.862-6.908C17.328 4.249 14.887 3.23 12.28 3.23c-5.4 0-9.794 4.383-9.797 9.771-.001 1.954.512 3.864 1.487 5.568l.243.424-.984 3.593 3.678-.965.421.25c1.653.978 3.536 1.493 5.452 1.493z" />
-                                      </svg>
+                                      <MessageCircle size={14} className="stroke-[2.5]" />
                                     </button>
                                   </div>
                                   <div>
@@ -484,7 +490,7 @@ export default function ShiftsPage() {
                   </div>
 
                   <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 relative">
                       <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Veranstaltung / Event</label>
                       <input
                         autoFocus
@@ -493,6 +499,25 @@ export default function ShiftsPage() {
                         placeholder="z.B. Sommerfest 2026, Clubturnier"
                         className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                       />
+                      
+                      {existingEvents.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-1 max-h-[80px] overflow-y-auto no-scrollbar">
+                          {existingEvents.map((evt) => (
+                            <button
+                              key={evt}
+                              type="button"
+                              onClick={() => setForm({ ...form, event: evt })}
+                              className={`px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
+                                form.event === evt
+                                  ? "bg-[#0A0A0A] text-white border-black/15 shadow-sm"
+                                  : "bg-black/[0.04] text-[#71717A] border-black/10 hover:text-[#0A0A0A]"
+                              }`}
+                            >
+                              {evt}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex flex-col gap-2">
