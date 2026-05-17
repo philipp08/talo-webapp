@@ -223,16 +223,23 @@ export default function ShiftsPage() {
         <div className="flex flex-col gap-5 border-b border-black/5 pb-6 lg:pb-8">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2 text-[#0A0A0A]">
-                <Layers size={24} />
-              </div>
-              <div>
-                <h1 className="text-xl md:text-2xl font-black font-poppins text-[#0A0A0A] leading-tight">
-                  Self-Service Schicht-Börse
-                </h1>
-                <p className="text-xs text-[#71717A] mt-1">
-                  Sichere dir anstehende Helferschichten bei Vereinsfesten und sammle automatisch Punkte.
-                </p>
+              {currentClub?.logoUrl ? (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2" style={{ borderColor: `${accent}30` }}>
+                  <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-contain" />
+                </div>
+              ) : (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2 text-[#0A0A0A]">
+                  <Layers size={24} />
+                </div>
+              )}
+              <div className="flex flex-col">
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Self-Service Schicht-Börse</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name}</p>
+                  <div className="px-2 py-0.5 bg-black/[0.05] border border-black/10 rounded-full">
+                    <p className="text-[#52525B] font-bold text-[10px] uppercase tracking-widest">Schichten</p>
+                  </div>
+                </div>
               </div>
             </div>
             {hasAccess && isAdmin && (

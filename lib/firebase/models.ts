@@ -34,6 +34,23 @@ export interface CustomMemberType {
   pointFactor: number;
 }
 
+export interface DuelGroupConfig {
+  id: string;
+  name: string;
+  mappedGroupIds: string[];
+}
+
+export interface Duel {
+  id: string;
+  title: string;
+  startDate: any;
+  endDate: any;
+  isActive: boolean;
+  duelGroups: DuelGroupConfig[];
+}
+
+
+
 export interface Club {
   id: string;
   name: string;

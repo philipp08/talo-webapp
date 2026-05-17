@@ -6,12 +6,12 @@ import {
   Search, Trophy,
   ChevronRight, Shield, UserPlus,
   Target, MoreVertical,
-  X, Mail, User, Check, Layers, Filter, Swords
+  X, Mail, User, Check, Layers, Filter, Swords, Trash, Plus, Calendar, Clock
 } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
+import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFeatures, isLightColor, Duel, DuelGroupConfig } from "@/lib/firebase/models";
 import { AuthService } from "@/lib/firebase/authService";
 import { EmailService } from "@/lib/firebase/emailService";
 import { TAvatar, GlassSection, TLine, TSearchBar } from "@/app/components/ui/NativeUI";
@@ -40,6 +40,8 @@ type LeaderboardItem = {
 };
 
 export default function MembersPage() {
+  const [duels, setDuels] = useState<Duel[]>([]);
+
   const { t } = useI18n();
   const currentClub = useAppStore((state) => state.currentClub);
   const currentMember = useAppStore((state) => state.currentMember);
@@ -102,7 +104,11 @@ export default function MembersPage() {
       setEntries(es);
     });
 
-    return () => { unsubMembers(); unsubEntries(); };
+    const unsubDuels = FirebaseManager.listenToDuels(currentClub.id, (ds) => {
+      setDuels(ds);
+    });
+
+    return () => { unsubMembers(); unsubEntries(); unsubDuels(); };
   }, [currentClub]);
 
   useEffect(() => {
@@ -746,16 +752,173 @@ function LeaderboardView({
   groups,
   showGroupLeaderboards,
   showAdvancedStats,
+  duels = [],
+  members = [],
+  entries = [],
+  currentClub,
+  isAdmin,
 }: {
   data: LeaderboardItem[];
   groups: ClubGroup[];
   showGroupLeaderboards: boolean;
   showAdvancedStats: boolean;
+  duels?: Duel[];
+  members?: Member[];
+  entries?: Entry[];
+  currentClub?: any;
+  isAdmin?: boolean;
 }) {
   const top3 = data.slice(0, 3);
   const rest = data.slice(3);
   const totalApproved = data.reduce((sum, item) => sum + item.approved, 0);
   const completedMembers = data.filter((item) => item.progress >= 1).length;
+
+  const [selectedDuelId, setSelectedDuelId] = useState<string>("standard");
+  const [showCreateDuelModal, setShowCreateDuelModal] = useState(false);
+
+  // Form States for creating custom duels
+  const [duelTitle, setDuelTitle] = useState("");
+  const [duelStartDate, setDuelStartDate] = useState(new Date().toISOString().split("T")[0]);
+  const [duelEndDate, setDuelEndDate] = useState(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]);
+  const [customDuelGroups, setCustomDuelGroups] = useState<{
+    id: string;
+    name: string;
+    mappedGroupIds: string[];
+  }[]>([
+    { id: "dg-1", name: "Herren Gesamt", mappedGroupIds: [] },
+    { id: "dg-2", name: "Damen Gesamt", mappedGroupIds: [] }
+  ]);
+
+  const handleAddCustomGroup = () => {
+    setCustomDuelGroups(prev => [
+      ...prev,
+      { id: `dg-${Date.now()}`, name: `Gruppe ${String.fromCharCode(65 + prev.length)}`, mappedGroupIds: [] }
+    ]);
+  };
+
+  const handleUpdateGroupName = (id: string, name: string) => {
+    setCustomDuelGroups(prev => prev.map(g => g.id === id ? { ...g, name } : g));
+  };
+
+  const handleToggleMapping = (dgId: string, groupId: string) => {
+    setCustomDuelGroups(prev => prev.map(g => {
+      if (g.id !== dgId) return g;
+      const alreadyMapped = g.mappedGroupIds.includes(groupId);
+      return {
+        ...g,
+        mappedGroupIds: alreadyMapped
+          ? g.mappedGroupIds.filter(id => id !== groupId)
+          : [...g.mappedGroupIds, groupId]
+      };
+    }));
+  };
+
+  const handleDeleteCustomGroup = (id: string) => {
+    setCustomDuelGroups(prev => prev.filter(g => g.id !== id));
+  };
+
+  const handleSaveDuel = async () => {
+    if (!currentClub || !duelTitle.trim()) return;
+    try {
+      await FirebaseManager.addDuel(currentClub.id, {
+        title: duelTitle.trim(),
+        startDate: new Date(duelStartDate),
+        endDate: new Date(duelEndDate),
+        isActive: true,
+        duelGroups: customDuelGroups.map(dg => ({
+          id: dg.id,
+          name: dg.name.trim(),
+          mappedGroupIds: dg.mappedGroupIds
+        }))
+      });
+      // Reset
+      setDuelTitle("");
+      setCustomDuelGroups([
+        { id: "dg-1", name: "Herren Gesamt", mappedGroupIds: [] },
+        { id: "dg-2", name: "Damen Gesamt", mappedGroupIds: [] }
+      ]);
+      setShowCreateDuelModal(false);
+    } catch (e) {
+      console.error("Error creating duel:", e);
+    }
+  };
+
+  const handleDeleteDuel = async (duelId: string) => {
+    if (!currentClub || !confirm("Möchtest du dieses Gruppen-Duell wirklich löschen?")) return;
+    try {
+      await FirebaseManager.deleteDuel(currentClub.id, duelId);
+      if (selectedDuelId === duelId) {
+        setSelectedDuelId("standard");
+      }
+    } catch (e) {
+      console.error("Error deleting duel:", e);
+    }
+  };
+
+  const getDuelDateMs = (d: any) => {
+    if (!d) return Date.now();
+    if (d instanceof Date) return d.getTime();
+    if (d.seconds) return d.seconds * 1000;
+    if (d.toDate && typeof d.toDate === "function") return d.toDate().getTime();
+    return new Date(d).getTime();
+  };
+
+  const selectedDuel = useMemo(() => {
+    return duels.find(d => d.id === selectedDuelId);
+  }, [duels, selectedDuelId]);
+
+  const customDuelScores = useMemo(() => {
+    if (!selectedDuel) return [];
+    
+    const startMs = getDuelDateMs(selectedDuel.startDate);
+    const endMs = getDuelDateMs(selectedDuel.endDate);
+
+    return selectedDuel.duelGroups.map((dg) => {
+      // Find members whose groupId is in dg.mappedGroupIds
+      const dgMembers = members.filter(m => m.groupId && dg.mappedGroupIds.includes(m.groupId) && m.memberType !== MemberType.Passive);
+      
+      let totalPoints = 0;
+      dgMembers.forEach((m) => {
+        const mEntries = entries.filter((e) => {
+          if (e.memberId !== m.id || e.status !== "Genehmigt") return false;
+          
+          const entryTime = e.date instanceof Date 
+            ? e.date.getTime() 
+            : (e.date as any)?.toDate 
+              ? (e.date as any).toDate().getTime() 
+              : new Date(e.date as any).getTime();
+            
+          return entryTime >= startMs && entryTime <= endMs;
+        });
+        totalPoints += mEntries.reduce((sum, e) => sum + e.points, 0);
+      });
+
+      const memberCount = dgMembers.length;
+      const averagePoints = memberCount > 0 ? totalPoints / memberCount : 0;
+
+      return {
+        id: dg.id,
+        name: dg.name,
+        memberCount,
+        totalPoints,
+        averagePoints
+      };
+    }).sort((a, b) => b.averagePoints - a.averagePoints);
+  }, [selectedDuel, members, entries]);
+
+  const getCountdownText = (endDateStr: any) => {
+    const endMs = getDuelDateMs(endDateStr);
+    const diff = endMs - Date.now();
+    if (diff <= 0) return "Beendet 🏁";
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    if (days > 0) {
+      return `Noch ${days}t ${hours}std verbleibend ⏳`;
+    }
+    const mins = Math.floor((diff / (1000 * 60)) % 60);
+    return `Noch ${hours}std ${mins}min verbleibend ⏳`;
+  };
 
   return (
     <div className="flex flex-col gap-12 py-10">
@@ -763,7 +926,7 @@ function LeaderboardView({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-4xl mx-auto w-full px-3 md:px-4">
           <MetricCard label="Gesamtpunkte" value={totalApproved.toFixed(1)} />
           <MetricCard label="Ziel erreicht" value={String(completedMembers)} />
-          <MetricCard label="Ø Fortschritt" value={`${data.length ? Math.round(data.reduce((sum, item) => sum + item.progress, 0) / data.length * 100) : 0}%`} />
+          <MetricCard label="Ø Fortschritt" value={data.length ? `${Math.round(data.reduce((sum, item) => sum + item.progress, 0) / data.length * 100)}%` : "0%"} />
         </div>
       ) : (
         <div className="max-w-4xl mx-auto w-full px-3 md:px-4">
@@ -828,64 +991,169 @@ function LeaderboardView({
             
             {/* GRP DUELS */}
             <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between border-b border-black/5 pb-2">
                 <div className="flex items-center gap-2 text-[10px] font-black text-[#52525B] uppercase tracking-widest">
                   <Swords size={13} className="text-amber-500" /> Gruppen-Duelle (Schnitt pro Kopf)
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#A1A1AA] bg-black/[0.04] px-2 py-0.5 rounded-md">
-                  Aktiv
-                </span>
+                {isAdmin && (
+                  <button
+                    onClick={() => setShowCreateDuelModal(true)}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-black/[0.04] text-[#0A0A0A] transition-all text-[9px] font-black uppercase tracking-widest shadow-sm"
+                  >
+                    <Plus size={10} /> <span>Duell erstellen</span>
+                  </button>
+                )}
               </div>
+
+              {/* Duel Switcher Tabs */}
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => setSelectedDuelId("standard")}
+                  className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
+                    selectedDuelId === "standard"
+                      ? "bg-[#0A0A0A] text-white border-black/15 shadow-sm"
+                      : "bg-black/[0.04] text-[#71717A] border-black/10 hover:text-[#0A0A0A]"
+                  }`}
+                >
+                  Standard (Alle Gruppen)
+                </button>
+                {duels.map((duel) => (
+                  <div key={duel.id} className="flex items-center gap-1">
+                    <button
+                      onClick={() => setSelectedDuelId(duel.id)}
+                      className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
+                        selectedDuelId === duel.id
+                          ? "bg-[#0A0A0A] text-white border-black/15 shadow-sm"
+                          : "bg-black/[0.04] text-[#71717A] border-black/10 hover:text-[#0A0A0A]"
+                      }`}
+                    >
+                      {duel.title}
+                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDeleteDuel(duel.id)}
+                        className="p-1.5 rounded-lg border border-red-500/20 bg-red-500/10 text-red-600 hover:bg-red-500/15 transition-all"
+                        title="Duell löschen"
+                      >
+                        <Trash size={10} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Duel Card Container */}
               <div className="rounded-[28px] bg-white border border-black/5 p-6 shadow-sm flex flex-col gap-5">
-                {groups
-                  .map((g) => {
-                    const gItems = data.filter((item) => item.member.groupId === g.id);
-                    const memberCount = gItems.length;
-                    const totalPoints = gItems.reduce((sum, item) => sum + item.approved, 0);
-                    const averagePoints = memberCount > 0 ? totalPoints / memberCount : 0;
-                    return { ...g, memberCount, totalPoints, averagePoints };
-                  })
-                  .sort((a, b) => b.averagePoints - a.averagePoints)
-                  .map((duel, index, arr) => {
-                    const maxAvg = Math.max(...arr.map((d) => d.averagePoints), 1);
-                    const percent = (duel.averagePoints / maxAvg) * 100;
-                    return (
-                      <div key={duel.id} className="flex flex-col gap-1.5">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className={`w-5 h-5 rounded-full flex items-center justify-center font-mono font-black text-[10px] ${
-                              index === 0 ? "bg-amber-100 text-amber-600 border border-amber-200" : "bg-black/[0.04] text-[#71717A]"
-                            }`}>
-                              {index + 1}
-                            </span>
-                            <span className="font-poppins font-bold text-sm text-[#0A0A0A]">{duel.name}</span>
-                            {index === 0 && duel.averagePoints > 0 && (
-                              <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-md animate-pulse">
-                                IN FÜHRUNG 🔥
+                {selectedDuelId === "standard" ? (
+                  /* Standard auto group duel */
+                  groups
+                    .map((g) => {
+                      const gItems = data.filter((item) => item.member.groupId === g.id);
+                      const memberCount = gItems.length;
+                      const totalPoints = gItems.reduce((sum, item) => sum + item.approved, 0);
+                      const averagePoints = memberCount > 0 ? totalPoints / memberCount : 0;
+                      return { ...g, memberCount, totalPoints, averagePoints };
+                    })
+                    .sort((a, b) => b.averagePoints - a.averagePoints)
+                    .map((duel, index, arr) => {
+                      const maxAvg = Math.max(...arr.map((d) => d.averagePoints), 1);
+                      const percent = (duel.averagePoints / maxAvg) * 100;
+                      return (
+                        <div key={duel.id} className="flex flex-col gap-1.5">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-5 h-5 rounded-full flex items-center justify-center font-mono font-black text-[10px] ${
+                                index === 0 ? "bg-amber-100 text-amber-600 border border-amber-200" : "bg-black/[0.04] text-[#71717A]"
+                              }`}>
+                                {index + 1}
                               </span>
-                            )}
+                              <span className="font-poppins font-bold text-sm text-[#0A0A0A]">{duel.name}</span>
+                              {index === 0 && duel.averagePoints > 0 && (
+                                <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-md animate-pulse">
+                                  IN FÜHRUNG 🔥
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="font-mono font-black text-sm text-[#0A0A0A]">
+                                {duel.averagePoints.toFixed(1)} Pkt.
+                              </span>
+                              <span className="text-[10px] text-[#A1A1AA] hidden sm:inline">({duel.totalPoints.toFixed(0)} total / {duel.memberCount} Pers.)</span>
+                            </div>
                           </div>
-                          <div className="flex items-baseline gap-1.5">
-                            <span className="font-mono font-black text-sm text-[#0A0A0A]">
-                              {duel.averagePoints.toFixed(1)} Pkt.
-                            </span>
-                            <span className="text-[10px] text-[#A1A1AA] hidden sm:inline">({duel.totalPoints.toFixed(0)} total / {duel.memberCount} Pers.)</span>
+                          <div className="h-3 w-full bg-black/[0.03] border border-black/5 rounded-full overflow-hidden relative">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${percent}%` }}
+                              transition={{ duration: 0.8, ease: "easeOut" }}
+                              className="h-full rounded-full"
+                              style={{
+                                background: index === 0 ? "linear-gradient(90deg, #FF9500, #FFCC00)" : "linear-gradient(90deg, #0A0A0A, #52525B)",
+                              }}
+                            />
                           </div>
                         </div>
-                        <div className="h-3 w-full bg-black/[0.03] border border-black/5 rounded-full overflow-hidden relative">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${percent}%` }}
-                            transition={{ duration: 0.8, ease: "easeOut" }}
-                            className="h-full rounded-full"
-                            style={{
-                              background: index === 0 ? "linear-gradient(90deg, #FF9500, #FFCC00)" : "linear-gradient(90deg, #0A0A0A, #52525B)",
-                            }}
-                          />
-                        </div>
+                      );
+                    })
+                ) : selectedDuel ? (
+                  /* Custom group duel */
+                  <div className="flex flex-col gap-6">
+                    {/* Duel Meta Info Banner */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 bg-black/[0.03] border border-black/5 rounded-2xl px-4 py-3 text-xs text-[#52525B] font-poppins">
+                      <div className="flex items-center gap-4">
+                        <span className="flex items-center gap-1 font-bold"><Calendar size={13} /> {new Date(getDuelDateMs(selectedDuel.startDate)).toLocaleDateString("de-DE")} - {new Date(getDuelDateMs(selectedDuel.endDate)).toLocaleDateString("de-DE")}</span>
                       </div>
-                    );
-                  })}
+                      <span className="font-black uppercase tracking-wider bg-[#0A0A0A] text-white px-2.5 py-1 rounded-xl text-[9px] shadow-sm">
+                        {getCountdownText(selectedDuel.endDate)}
+                      </span>
+                    </div>
+
+                    {customDuelScores.length === 0 ? (
+                      <p className="text-xs text-[#71717A] text-center py-6">Keine Gruppen für dieses Duell konfiguriert.</p>
+                    ) : (
+                      customDuelScores.map((score, index, arr) => {
+                        const maxAvg = Math.max(...arr.map((d) => d.averagePoints), 1);
+                        const percent = (score.averagePoints / maxAvg) * 100;
+                        return (
+                          <div key={score.id} className="flex flex-col gap-1.5">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-5 h-5 rounded-full flex items-center justify-center font-mono font-black text-[10px] ${
+                                  index === 0 ? "bg-amber-100 text-amber-600 border border-amber-200" : "bg-black/[0.04] text-[#71717A]"
+                                }`}>
+                                  {index + 1}
+                                </span>
+                                <span className="font-poppins font-bold text-sm text-[#0A0A0A]">{score.name}</span>
+                                {index === 0 && score.averagePoints > 0 && (
+                                  <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-md animate-pulse">
+                                    IN FÜHRUNG 🔥
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="font-mono font-black text-sm text-[#0A0A0A]">
+                                  {score.averagePoints.toFixed(1)} Pkt.
+                                </span>
+                                <span className="text-[10px] text-[#A1A1AA] hidden sm:inline">({score.totalPoints.toFixed(0)} total / {score.memberCount} Pers.)</span>
+                              </div>
+                            </div>
+                            <div className="h-3 w-full bg-black/[0.03] border border-black/5 rounded-full overflow-hidden relative">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${percent}%` }}
+                                transition={{ duration: 0.8, ease: "easeOut" }}
+                                className="h-full rounded-full"
+                                style={{
+                                  background: index === 0 ? "linear-gradient(90deg, #FF9500, #FFCC00)" : "linear-gradient(90deg, #0A0A0A, #52525B)",
+                                }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                ) : null}
               </div>
             </div>
 
@@ -935,6 +1203,135 @@ function LeaderboardView({
           <div className="rounded-2xl border border-black/5 bg-black/[0.03] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
             Gruppenranglisten & Duelle ab Club
           </div>
+        </div>
+      )}
+
+      {/* Modal: Setup Custom Group Duel */}
+      {typeof document !== "undefined" && showCreateDuelModal && (
+        <div
+          className="fixed inset-0 z-[999] flex items-start justify-center p-4 pt-12 bg-black/40 backdrop-blur-sm overflow-y-auto"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowCreateDuelModal(false); }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-lg mb-12"
+          >
+            <GlassSection className="p-6 flex flex-col gap-6">
+              <div className="flex items-center justify-between">
+                <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
+                  Gruppen-Duell einrichten
+                </h3>
+                <button onClick={() => setShowCreateDuelModal(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                {/* Titel */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Duell Bezeichnung</label>
+                  <input
+                    value={duelTitle}
+                    onChange={(e) => setDuelTitle(e.target.value)}
+                    placeholder="z.B. Sommer-Challenge, Damen vs Herren"
+                    className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                  />
+                </div>
+
+                {/* Start / End Date */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Startdatum</label>
+                    <input
+                      type="date"
+                      value={duelStartDate}
+                      onChange={(e) => setDuelStartDate(e.target.value)}
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Enddatum (Deadline)</label>
+                    <input
+                      type="date"
+                      value={duelEndDate}
+                      onChange={(e) => setDuelEndDate(e.target.value)}
+                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Custom Duels Groups Builder */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between pl-1">
+                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest">Duell Gruppen definieren</label>
+                    <button
+                      onClick={handleAddCustomGroup}
+                      className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-amber-600 hover:text-amber-700 transition-colors"
+                    >
+                      <Plus size={10} /> <span>Gruppe hinzufügen</span>
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col gap-4">
+                    {customDuelGroups.map((dg, idx) => (
+                      <div key={dg.id} className="border border-black/5 bg-black/[0.02] rounded-2xl p-4 flex flex-col gap-3 relative">
+                        <div className="flex items-center justify-between">
+                          <input
+                            value={dg.name}
+                            onChange={(e) => handleUpdateGroupName(dg.id, e.target.value)}
+                            placeholder="Zusammenschluss-Name"
+                            className="bg-transparent font-poppins font-bold text-sm text-[#0A0A0A] focus:outline-none border-b border-transparent focus:border-black/20 pb-0.5 max-w-[200px]"
+                          />
+                          {customDuelGroups.length > 2 && (
+                            <button
+                              onClick={() => handleDeleteCustomGroup(dg.id)}
+                              className="text-red-500 hover:text-red-600 transition-colors"
+                              title="Gruppe entfernen"
+                            >
+                              <Trash size={14} />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Mapped settings groups selector */}
+                        <div className="flex flex-col gap-1.5">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A]">Gruppen zuteilen:</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {groups.map((group) => {
+                              const isSelected = dg.mappedGroupIds.includes(group.id);
+                              return (
+                                <button
+                                  key={group.id}
+                                  onClick={() => handleToggleMapping(dg.id, group.id)}
+                                  className={`px-2.5 py-1 rounded-xl text-[9px] font-bold transition-all border ${
+                                    isSelected
+                                      ? "bg-[#0A0A0A] text-white border-black/10 shadow-sm"
+                                      : "bg-white text-[#71717A] border-black/5 hover:text-[#0A0A0A]"
+                                  }`}
+                                >
+                                  {group.name}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Save button */}
+                <button
+                  onClick={handleSaveDuel}
+                  disabled={!duelTitle.trim() || customDuelGroups.some(dg => !dg.name.trim())}
+                  className="w-full h-12 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-[#1F1F23] transition-all disabled:opacity-50 mt-2 shadow-xl shadow-black/5"
+                >
+                  <Plus size={14} /> Duell speichern
+                </button>
+              </div>
+            </GlassSection>
+          </motion.div>
         </div>
       )}
     </div>

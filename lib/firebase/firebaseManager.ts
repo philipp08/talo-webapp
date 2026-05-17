@@ -32,6 +32,8 @@ import {
   ClubMembership,
   ClubGroup,
   Shift,
+  Duel,
+  DuelGroupConfig,
   getEffectiveMemberForClub,
   normalizeClubIds,
 } from "./models";
@@ -1212,4 +1214,56 @@ export class FirebaseManager {
       }
     );
   }
+
+  // === DUELS (Gruppen-Duelle) ===
+  static async addDuel(
+    clubId: string,
+    duel: Omit<Duel, "id">
+  ): Promise<void> {
+    await addDoc(collection(db, `clubs/${clubId}/duels`), duel);
+  }
+
+  static async updateDuel(
+    clubId: string,
+    duelId: string,
+    updates: Partial<Omit<Duel, "id">>
+  ): Promise<void> {
+    await updateDoc(doc(db, `clubs/${clubId}/duels`, duelId), updates);
+  }
+
+  static async deleteDuel(
+    clubId: string,
+    duelId: string
+  ): Promise<void> {
+    await deleteDoc(doc(db, `clubs/${clubId}/duels`, duelId));
+  }
+
+  static listenToDuels(
+    clubId: string,
+    callback: (duels: Duel[]) => void
+  ) {
+    const q = query(collection(db, `clubs/${clubId}/duels`));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const list: Duel[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          list.push({
+            id: docSnap.id,
+            title: data.title || "",
+            startDate: data.startDate instanceof Timestamp ? data.startDate.toDate() : data.startDate,
+            endDate: data.endDate instanceof Timestamp ? data.endDate.toDate() : data.endDate,
+            isActive: data.isActive ?? true,
+            duelGroups: data.duelGroups || [],
+          });
+        });
+        callback(list);
+      },
+      (error) => {
+        console.error("Error listening to duels:", error);
+      }
+    );
+  }
+
 }
