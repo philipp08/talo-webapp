@@ -28,7 +28,9 @@ const StatCard = ({
         border: "1px solid rgba(0,0,0,0.06)",
         isolation: "isolate",
         transform: "translateZ(0)",
-        WebkitTransform: "translateZ(0)"
+        WebkitTransform: "translateZ(0)",
+        WebkitMaskImage: "-webkit-radial-gradient(white, black)",
+        maskImage: "-webkit-radial-gradient(white, black)"
       }}
     >
       {/* Glow blob */}

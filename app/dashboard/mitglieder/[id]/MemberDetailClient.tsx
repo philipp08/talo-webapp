@@ -328,7 +328,16 @@ export default function MemberDetailPage() {
            <div className="xl:col-span-4 flex flex-col gap-5 lg:gap-8">
               
               {/* Profile Card */}
-              <div className="bg-white border border-black/5 rounded-[28px] lg:rounded-[40px] overflow-hidden p-5 sm:p-8 lg:p-10 flex flex-col items-center relative group">
+              <div 
+                 className="bg-white border border-black/5 rounded-[28px] lg:rounded-[40px] p-5 sm:p-8 lg:p-10 flex flex-col items-center relative group"
+                 style={{
+                    isolation: "isolate",
+                    transform: "translateZ(0)",
+                    WebkitTransform: "translateZ(0)",
+                    WebkitMaskImage: "-webkit-radial-gradient(white, black)",
+                    maskImage: "-webkit-radial-gradient(white, black)"
+                 }}
+              >
                  <div className="absolute top-0 right-0 w-32 h-32 bg-black/[0.03] blur-3xl rounded-full" />
                  
                  <div className="relative mb-6 lg:mb-8">
