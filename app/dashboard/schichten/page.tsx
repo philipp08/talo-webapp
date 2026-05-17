@@ -558,153 +558,185 @@ export default function ShiftsPage() {
                         </div>
 
                         {/* Vertical Timeline Axis & List */}
-                        <div className="relative border-l-2 border-black/[0.06] pl-6 ml-3 flex flex-col gap-5">
-                          {day.shifts.map((s) => {
-                            const required = s.slotsRequired || 1;
-                            const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
-                            const hasClaimedThis = s.claimedSlots?.some(slot => slot.memberId === currentMember?.id) || s.claimedById === currentMember?.id;
-                            const isFull = claimedCount >= required;
+                        <div className="relative border-l-2 border-black/[0.06] pl-6 ml-3 flex flex-col gap-8">
+                          {(() => {
+                            const timeGroups: { timeStr: string; list: Shift[] }[] = [];
+                            day.shifts.forEach((s) => {
+                              const existing = timeGroups.find(g => g.timeStr === s.time);
+                              if (existing) {
+                                existing.list.push(s);
+                              } else {
+                                timeGroups.push({ timeStr: s.time, list: [s] });
+                              }
+                            });
 
-                            let claimersList: string[] = [];
-                            if (s.claimedSlots && s.claimedSlots.length > 0) {
-                              claimersList = s.claimedSlots.map(c => c.memberName);
-                            } else if (s.claimedById) {
-                              claimersList = [s.claimedByName || ""];
-                            }
+                            return timeGroups.map((group) => {
+                              const hasAnyClaimed = group.list.some(s =>
+                                s.claimedSlots?.some(slot => slot.memberId === currentMember?.id) || s.claimedById === currentMember?.id
+                              );
 
-                            return (
-                              <div key={s.id} className="relative group">
-                                {/* Bullet Dot on the timeline axis */}
-                                <div className={`absolute -left-[31px] top-4 w-3.5 h-3.5 rounded-full border-2 bg-white transition-all group-hover:scale-125 ${
-                                  hasClaimedThis
-                                    ? "border-green-500 bg-green-50"
-                                    : isFull
-                                      ? "border-[#71717A] bg-black/[0.04]"
-                                      : "border-black bg-white"
-                                }`} />
+                              return (
+                                <div key={group.timeStr} className="relative flex flex-col lg:flex-row gap-4 lg:gap-8 group">
+                                  {/* Bullet Dot on the timeline axis */}
+                                  <div className={`absolute -left-[33px] top-2.5 w-4 h-4 rounded-full border-2 bg-white transition-all group-hover:scale-125 z-10 ${
+                                    hasAnyClaimed
+                                      ? "border-green-500 bg-green-50"
+                                      : "border-[#0A0A0A]/40 bg-white"
+                                  }`} />
 
-                                {/* Row Card */}
-                                <div className={`p-4 rounded-[20px] border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white ${
-                                  hasClaimedThis
-                                    ? "border-green-500/20 bg-green-500/[0.01] hover:shadow-sm"
-                                    : "border-black/5 hover:border-black/10 hover:shadow-sm"
-                                }`}>
-                                  {/* Info Columns */}
-                                  <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 flex-1 min-w-0">
-                                    {/* Time Block */}
-                                    <div className="flex flex-col shrink-0">
-                                      <span className="font-poppins font-black text-sm text-[#0A0A0A] leading-none mb-1">
-                                        {s.time}
-                                      </span>
-                                      <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A]">
-                                        ⏱️ Uhrzeit
+                                  {/* Left Side: Time Header Block */}
+                                  <div className="lg:w-36 shrink-0 flex flex-col gap-1 -mt-0.5">
+                                    <div className="inline-flex items-center gap-1.5 bg-black/[0.03] border border-black/5 rounded-xl px-3 py-1.5 w-fit">
+                                      <Clock size={12} className="text-[#52525B]" />
+                                      <span className="font-poppins font-black text-[13px] text-[#0A0A0A] tracking-tight leading-none">
+                                        {group.timeStr}
                                       </span>
                                     </div>
-
-                                    {/* Title & Event */}
-                                    <div className="flex flex-col min-w-0">
-                                      <h4 className="font-poppins font-bold text-sm text-[#0A0A0A] truncate">
-                                        {s.title}
-                                      </h4>
-                                      <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A] mt-0.5">
-                                        📁 {s.event}
+                                    {group.list.length > 1 && (
+                                      <span className="text-[9px] font-black uppercase tracking-wider text-[#A1A1AA] pl-1.5">
+                                        {group.list.length} Schichten parallel
                                       </span>
-                                    </div>
-
-                                    {/* Occupancy and Claimers */}
-                                    <div className="flex flex-col min-w-0">
-                                      <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-[#71717A] mb-1">
-                                        <span>👥 Belegung:</span>
-                                        {isAdmin ? (
-                                          <div className="flex items-center gap-1 bg-black/[0.03] px-1 py-0.5 rounded-lg border border-black/5 normal-case tracking-normal">
-                                            <button
-                                              type="button"
-                                              onClick={(e) => { e.stopPropagation(); adjustSlots(s, -1); }}
-                                              className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
-                                              title="Helfer-Slots verringern"
-                                            >
-                                              -
-                                            </button>
-                                            <span className="font-mono text-[9px] font-black text-[#0A0A0A] px-1">
-                                              {claimedCount} / {required}
-                                            </span>
-                                            <button
-                                              type="button"
-                                              onClick={(e) => { e.stopPropagation(); adjustSlots(s, 1); }}
-                                              className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
-                                              title="Helfer-Slots erhöhen"
-                                            >
-                                              +
-                                            </button>
-                                          </div>
-                                        ) : (
-                                          <span className={isFull ? "text-green-600 font-bold" : "text-[#0A0A0A]"}>
-                                            {claimedCount} / {required} Personen
-                                          </span>
-                                        )}
-                                      </div>
-                                      {claimersList.length > 0 ? (
-                                        <div className="flex flex-wrap gap-1">
-                                          {claimersList.map((name, idx) => (
-                                            <span key={idx} className="text-[9px] font-bold bg-black/[0.03] text-[#52525B] border border-black/5 px-2 py-0.5 rounded-md truncate max-w-[120px]">
-                                              {name}
-                                            </span>
-                                          ))}
-                                        </div>
-                                      ) : (
-                                        <span className="text-[9px] font-medium text-[#A1A1AA] italic">Noch niemand eingetragen</span>
-                                      )}
-                                    </div>
+                                    )}
                                   </div>
 
-                                  {/* Action Buttons */}
-                                  <div className="flex items-center gap-2.5 shrink-0">
-                                    <span className="text-[11px] font-mono font-black text-[#34C759] bg-[#34C759]/10 px-2.5 py-1 rounded-xl border border-[#34C759]/15">
-                                      +{s.points.toFixed(1)} P
-                                    </span>
+                                  {/* Right Side: Stack of Shifts */}
+                                  <div className="flex-1 flex flex-col gap-3">
+                                    {group.list.map((s) => {
+                                      const required = s.slotsRequired || 1;
+                                      const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
+                                      const hasClaimedThis = s.claimedSlots?.some(slot => slot.memberId === currentMember?.id) || s.claimedById === currentMember?.id;
+                                      const isFull = claimedCount >= required;
 
-                                    <button
-                                      onClick={() => shareSingleShift(s)}
-                                      className="p-2.5 rounded-xl border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all"
-                                      title="Teilen"
-                                    >
-                                      <MessageCircle size={14} className="stroke-[2.5]" />
-                                    </button>
+                                      let claimersList: string[] = [];
+                                      if (s.claimedSlots && s.claimedSlots.length > 0) {
+                                        claimersList = s.claimedSlots.map(c => c.memberName);
+                                      } else if (s.claimedById) {
+                                        claimersList = [s.claimedByName || ""];
+                                      }
 
-                                    {hasClaimedThis ? (
-                                      <button
-                                        onClick={() => releaseShift(s)}
-                                        className="px-4 py-2 bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors shadow-sm"
-                                      >
-                                        Storno
-                                      </button>
-                                    ) : isFull ? (
-                                      <span className="px-3.5 py-2 bg-black/[0.04] text-[#71717A] rounded-xl text-[10px] font-black uppercase tracking-widest border border-black/5">
-                                        Voll
-                                      </span>
-                                    ) : (
-                                      <button
-                                        onClick={() => claimShift(s)}
-                                        className="px-4 py-2 bg-[#0A0A0A] hover:bg-[#1E1E24] text-white rounded-xl text-xs font-black uppercase tracking-widest transition-colors shadow-sm"
-                                      >
-                                        Buchen
-                                      </button>
-                                    )}
+                                      return (
+                                        <div 
+                                          key={s.id} 
+                                          className={`p-4 sm:p-5 rounded-[22px] border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white ${
+                                            hasClaimedThis
+                                              ? "border-green-500/20 bg-green-500/[0.01] hover:shadow-sm"
+                                              : "border-black/5 hover:border-black/10 hover:shadow-sm"
+                                          }`}
+                                        >
+                                          {/* Info Columns */}
+                                          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 flex-1 min-w-0">
+                                            {/* Title & Event */}
+                                            <div className="flex flex-col min-w-0">
+                                              <h4 className="font-poppins font-bold text-sm text-[#0A0A0A] truncate">
+                                                {s.title}
+                                              </h4>
+                                              <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A] mt-0.5">
+                                                📁 {s.event}
+                                              </span>
+                                            </div>
 
-                                    {isAdmin && (
-                                      <button
-                                        onClick={() => deleteShift(s.id)}
-                                        className="p-2.5 rounded-xl border border-red-500/10 text-red-500 hover:bg-red-500/5 transition-all"
-                                        title="Löschen"
-                                      >
-                                        <Trash size={14} />
-                                      </button>
-                                    )}
+                                            {/* Occupancy and Claimers */}
+                                            <div className="flex flex-col min-w-0">
+                                              <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-[#71717A] mb-1">
+                                                <span>👥 Belegung:</span>
+                                                {isAdmin ? (
+                                                  <div className="flex items-center gap-1 bg-black/[0.03] px-1 py-0.5 rounded-lg border border-black/5 normal-case tracking-normal">
+                                                    <button
+                                                      type="button"
+                                                      onClick={(e) => { e.stopPropagation(); adjustSlots(s, -1); }}
+                                                      className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
+                                                      title="Helfer-Slots verringern"
+                                                    >
+                                                      -
+                                                    </button>
+                                                    <span className="font-mono text-[9px] font-black text-[#0A0A0A] px-1">
+                                                      {claimedCount} / {required}
+                                                    </span>
+                                                    <button
+                                                      type="button"
+                                                      onClick={(e) => { e.stopPropagation(); adjustSlots(s, 1); }}
+                                                      className="w-4 h-4 flex items-center justify-center font-bold text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/5 rounded transition-all text-[11px]"
+                                                      title="Helfer-Slots erhöhen"
+                                                    >
+                                                      +
+                                                    </button>
+                                                  </div>
+                                                ) : (
+                                                  <span className={isFull ? "text-green-600 font-bold" : "text-[#0A0A0A]"}>
+                                                    {claimedCount} / {required} Personen
+                                                  </span>
+                                                )}
+                                              </div>
+                                              {claimersList.length > 0 ? (
+                                                <div className="flex flex-wrap gap-1">
+                                                  {claimersList.map((name, idx) => (
+                                                    <span key={idx} className="text-[9px] font-bold bg-black/[0.03] text-[#52525B] border border-black/5 px-2 py-0.5 rounded-md truncate max-w-[120px]">
+                                                      {name}
+                                                    </span>
+                                                  ))}
+                                                </div>
+                                              ) : (
+                                                <span className="text-[9px] font-medium text-[#A1A1AA] italic">Noch niemand eingetragen</span>
+                                              )}
+                                            </div>
+                                          </div>
+
+                                          {/* Action Buttons */}
+                                          <div className="flex items-center gap-2.5 shrink-0">
+                                            <span className="text-[11px] font-mono font-black text-[#34C759] bg-[#34C759]/10 px-2.5 py-1 rounded-xl border border-[#34C759]/15">
+                                              +{s.points.toFixed(1)} P
+                                            </span>
+
+                                            <button
+                                              type="button"
+                                              onClick={() => shareSingleShift(s)}
+                                              className="p-2.5 rounded-xl border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all"
+                                              title="Teilen"
+                                            >
+                                              <MessageCircle size={14} className="stroke-[2.5]" />
+                                            </button>
+
+                                            {hasClaimedThis ? (
+                                              <button
+                                                type="button"
+                                                onClick={() => releaseShift(s)}
+                                                className="px-4 py-2 bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors shadow-sm"
+                                              >
+                                                Storno
+                                              </button>
+                                            ) : isFull ? (
+                                              <span className="px-3.5 py-2 bg-black/[0.04] text-[#71717A] rounded-xl text-[10px] font-black uppercase tracking-widest border border-black/5">
+                                                Voll
+                                              </span>
+                                            ) : (
+                                              <button
+                                                type="button"
+                                                onClick={() => claimShift(s)}
+                                                className="px-4 py-2 bg-[#0A0A0A] hover:bg-[#1E1E24] text-white rounded-xl text-xs font-black uppercase tracking-widest transition-colors shadow-sm"
+                                              >
+                                                Buchen
+                                              </button>
+                                            )}
+
+                                            {isAdmin && (
+                                              <button
+                                                type="button"
+                                                onClick={() => deleteShift(s.id)}
+                                                className="p-2.5 rounded-xl border border-red-500/10 text-red-500 hover:bg-red-500/5 transition-all"
+                                                title="Löschen"
+                                              >
+                                                <Trash size={14} />
+                                              </button>
+                                            )}
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            });
+                          })()}
                         </div>
                       </div>
                     ))}
