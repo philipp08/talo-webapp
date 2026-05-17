@@ -535,6 +535,22 @@ export const getPlanFeatures = (plan?: string): PlanFeatures => {
   return PLAN_FEATURES[getPlanKey(plan)];
 };
 
+export const isLicenseExpired = (club: Club): boolean => {
+  if (!club.licenseExpiresAt) return false;
+  const expiry =
+    club.licenseExpiresAt instanceof Date
+      ? club.licenseExpiresAt
+      : typeof (club.licenseExpiresAt as any).toDate === "function"
+      ? (club.licenseExpiresAt as any).toDate()
+      : new Date(club.licenseExpiresAt as any);
+  return expiry < new Date();
+};
+
+export const getEffectivePlanFeatures = (club: Club): PlanFeatures => {
+  if (isLicenseExpired(club)) return PLAN_FEATURES.free;
+  return getPlanFeatures(club.plan);
+};
+
 /** Returns true when a hex color is light enough to need dark text on top of it. */
 export const isLightColor = (hex?: string): boolean => {
   if (!hex) return false;
@@ -547,31 +563,27 @@ export const isLightColor = (hex?: string): boolean => {
 };
 
 export const SPORT_TYPE_EMOJIS: Record<string, string> = {
+  tischtennis: "🏓",
   general: "🏆",
   fussball: "⚽",
   tennis: "🎾",
-  tischtennis: "🏓",
   basketball: "🏀",
   volleyball: "🏐",
   handball: "🤾",
   turnen: "🤸",
   schwimmen: "🏊",
   leichtathletik: "🏃",
-  feuerwehr: "🚒",
-  musik: "🎺",
 };
 
 export const SPORT_TYPE_LABELS: Record<string, string> = {
-  general: "Allgemein / Sonstiger Verein",
+  tischtennis: "Tischtennis",
+  general: "Sonstiger Verein",
   fussball: "Fußball",
   tennis: "Tennis",
-  tischtennis: "Tischtennis",
   basketball: "Basketball",
   volleyball: "Volleyball",
   handball: "Handball",
   turnen: "Turnen & Gymnastik",
   schwimmen: "Schwimmen",
   leichtathletik: "Leichtathletik",
-  feuerwehr: "Feuerwehr",
-  musik: "Musik- / Gesangverein",
 };

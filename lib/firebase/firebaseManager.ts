@@ -62,6 +62,7 @@ const buildClub = (id: string, data: DocumentData): Club => ({
   seasonEnd: data.seasonEnd,
   licenseStatus: data.licenseStatus,
   licenseExpiresAt: data.licenseExpiresAt,
+  isTrial: data.isTrial ?? false,
   sportType: data.sportType,
 });
 

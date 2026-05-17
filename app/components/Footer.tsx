@@ -21,11 +21,9 @@ export default function Footer() {
     {
       title: "Lösungen",
       links: [
-        { name: "Sportvereine", href: "/loesungen#sport" },
-        { name: "Musik & Kultur", href: "/loesungen#kultur" },
-        { name: "Feuerwehr", href: "/loesungen#feuerwehr" },
-        { name: "Soziale Träger", href: "/loesungen" },
-        { name: "Hilfsorganisationen", href: "/loesungen" },
+        { name: "Tischtennis-Vereine 🏓", href: "/loesungen#tischtennis" },
+        { name: "Andere Sportvereine", href: "/loesungen#sport" },
+        { name: "TT-Abteilungen im Verein", href: "/loesungen#tischtennis" },
       ],
     },
     {

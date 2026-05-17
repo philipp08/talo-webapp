@@ -6,9 +6,9 @@ import ScrollReveal, { StaggerContainer, StaggerItem } from "@/app/components/Sc
 import Footer from "@/app/components/Footer";
 import Counter from "@/app/components/Counter";
 import {
-  Trophy, Music, Flame, Users, Heart, GraduationCap,
-  ArrowRight, ShieldCheck, BarChart3, Clock, Zap, Lock,
-  Globe, Sparkles, FileOutput,
+  Trophy, Users, Heart, GraduationCap,
+  ArrowRight, ShieldCheck, BarChart3, Clock, Zap,
+  Sparkles, FileOutput, Star, Calendar, Target,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -50,154 +50,119 @@ function ScrollText({ text, className }: { text: string; className?: string }) {
 /* ─── Data ────────────────────────────────────────────────────── */
 const solutions = [
   {
-    id: "sport",
+    id: "tischtennis",
     num: "01",
-    icon: <Trophy className="w-5 h-5" />,
-    label: "Sportvereine",
-    title: "Leistung & Gemeinschaft digital greifbar.",
-    desc: "Für Sportvereine ist Talo mehr als nur eine Liste. Es ist das Werkzeug, um Trainingsfleiß, ehrenamtliche Unterstützung am Spieltag und sportliche Erfolge in einem fairen System zu vereinen – automatisch und transparent.",
-    accent: "#3B82F6",
-    accentBg: "bg-blue-500/8 dark:bg-blue-500/10",
-    accentText: "text-blue-500",
+    icon: <span className="text-lg leading-none">🏓</span>,
+    label: "Tischtennis-Vereine",
+    title: "Euer TT-Verein. Digital. Fair.",
+    desc: "Talo wurde von Grund auf für Tischtennis-Abteilungen entwickelt. Pflichtdienste, Ligabetrieb, Trainingspräsenz und Jugendarbeit – alles in einem System, das eure WhatsApp-Kultur versteht.",
+    accent: "#F97316",
+    accentBg: "bg-orange-500/8 dark:bg-orange-500/10",
+    accentText: "text-orange-500",
     stats: [
-      { value: 3, suffix: "", label: "Abläufe gebündelt" },
-      { value: 1, suffix: "", label: "zentrale Übersicht", decimals: 0 },
-      { value: 0, suffix: "", label: "Excel-Zwang" },
+      { value: 0, suffix: "", label: "Excel-Listen", decimals: 0 },
+      { value: 100, suffix: "%", label: "WhatsApp-kompatibel" },
+      { value: 3, suffix: "min", label: "Einsatz eintragen" },
     ],
     useCases: [
       {
-        title: "Trainingsbeteiligung",
-        desc: "Trainer erfassen mit einem Klick die Anwesenheit. Spieler sehen ihren Fortschritt in Echtzeit und werden durch Aktivitäts-Badges motiviert.",
-        icon: <Users className="w-5 h-5" />,
+        title: "Pflichtdienste & Einsätze",
+        desc: "Tischbau, Schiedsrichter, Hallendienst – jeder Einsatz wird einem Mitglied zugeordnet, mit Punkten bewertet und auf WhatsApp geteilt. Kein Zettel, kein Vergessen.",
+        icon: <ShieldCheck className="w-5 h-5" />,
       },
       {
-        title: "Spieltags-Unterstützung",
-        desc: "Eltern oder Mitglieder, die den Verkauf übernehmen oder als Linienrichter fungieren, erhalten sofort Punkte als direkte Wertschätzung.",
+        title: "Trainings-RSVP & Präsenz",
+        desc: "Mitglieder melden sich digital zum Training an. Trainer sehen auf einen Blick, wer kommt – und wer regelmäßig fehlt. Perfekt für Kaderpflege und Ligaaufstellung.",
+        icon: <Calendar className="w-5 h-5" />,
+      },
+      {
+        title: "Saison-Ranking & Gamification",
+        desc: "Wer hat die meisten Dienste übernommen? Wer ist am treuesten beim Training? Ein transparentes Ranking motiviert – ohne Beschämung, mit echter Wertschätzung.",
         icon: <Trophy className="w-5 h-5" />,
-      },
-      {
-        title: "Saisonauswertung",
-        desc: "Automatisierte Berichte über die aktivsten Mitglieder erleichtern die Vergabe von Preisen oder die Beantragung von Fördermitteln.",
-        icon: <FileOutput className="w-5 h-5" />,
       },
     ],
     image: "https://i.ibb.co/FqXdb3Fk/IMG-8972.jpg",
     bgSection: "bg-white dark:bg-[#080808]",
   },
   {
-    id: "kultur",
+    id: "sport",
     num: "02",
-    icon: <Music className="w-5 h-5" />,
-    label: "Musik- & Kulturvereine",
-    title: "Harmonie in der Organisation.",
-    desc: "Vom Jugendorchester bis zum Traditionschor: Talo findet die Balance zwischen Probenarbeit und den vielen Aufgaben hinter der Bühne – und macht jede Form des Engagements sichtbar.",
-    accent: "#8B5CF6",
-    accentBg: "bg-purple-500/8 dark:bg-purple-500/10",
-    accentText: "text-purple-500",
+    icon: <Trophy className="w-5 h-5" />,
+    label: "Andere Sportvereine",
+    title: "Funktioniert auch für jede andere Sportart.",
+    desc: "Talo ist für Tischtennis gemacht – aber das Punktesystem, die Einsatzverwaltung und das Training-Modul funktionieren für Fußball, Tennis, Volleyball und jede andere Sportabteilung genauso.",
+    accent: "#3B82F6",
+    accentBg: "bg-blue-500/8 dark:bg-blue-500/10",
+    accentText: "text-blue-500",
     stats: [
-      { value: 3, suffix: "×", label: "höhere Motivation", decimals: 0 },
-      { value: 80, suffix: "%", label: "weniger Verwaltung" },
-      { value: 360, suffix: "°", label: "Engagement-Übersicht", decimals: 0 },
+      { value: 10, suffix: "+", label: "Sportarten unterstützt" },
+      { value: 1, suffix: "", label: "System für alle", decimals: 0 },
+      { value: 0, suffix: "", label: "Mehraufwand", decimals: 0 },
     ],
     useCases: [
       {
-        title: "Proben-Management",
-        desc: "Transparente Übersicht der Probenpräsenz – besonders hilfreich für die Planung von Konzerten und die Besetzung von Soli.",
-        icon: <Music className="w-5 h-5" />,
-      },
-      {
-        title: "Event-Logistik",
-        desc: "Auf- und Abbau-Teams sowie die Organisation von Notenmaterial werden durch Punktevergabe fair belohnt und sichtbar gemacht.",
-        icon: <Zap className="w-5 h-5" />,
-      },
-      {
-        title: "Jugendarbeit",
-        desc: "Junge Musiker werden spielerisch an die Vereinsarbeit herangeführt und für Engagement außerhalb des Instruments belohnt.",
+        title: "Sportart-spezifische Emojis",
+        desc: "WhatsApp-Nachrichten werden automatisch mit dem passenden Emoji eurer Sportart versehen – ⚽ für Fußball, 🎾 für Tennis, 🏓 für Tischtennis.",
         icon: <Sparkles className="w-5 h-5" />,
+      },
+      {
+        title: "Flexible Aktivitätskategorien",
+        desc: "Definiert eure eigenen Tätigkeiten mit individuellen Punktwerten – ob Platzwart, Jugendtrainer oder Turnierhelferin.",
+        icon: <Target className="w-5 h-5" />,
+      },
+      {
+        title: "Mehrere Abteilungen",
+        desc: "Ein Verein, viele Sportarten. Jede Abteilung hat ihre eigene Verwaltung – mit zentraler Sicht für den Vorstand.",
+        icon: <Users className="w-5 h-5" />,
       },
     ],
     image: "https://i.ibb.co/gFfXqzLk/IMG-8974.jpg",
     bgSection: "bg-[#f2f4f7] dark:bg-white/[0.02]",
   },
-  {
-    id: "feuerwehr",
-    num: "03",
-    icon: <Flame className="w-5 h-5" />,
-    label: "Feuerwehr & Rettungsdienste",
-    title: "Zuverlässigkeit lückenlos dokumentiert.",
-    desc: "Im Ehrenamt, wo es auf jede Sekunde ankommt, sorgt Talo für eine klare und einfache Dokumentation von Dienststunden und Fortbildungen – mobil, nachvollziehbar und exportierbar.",
-    accent: "#EF4444",
-    accentBg: "bg-red-500/8 dark:bg-red-500/10",
-    accentText: "text-red-500",
-    stats: [
-      { value: 3, suffix: "", label: "Rollen klar" },
-      { value: 1, suffix: "", label: "Exportübersicht", decimals: 0 },
-      { value: 0, suffix: "", label: "Papierchaos", decimals: 0 },
-    ],
-    useCases: [
-      {
-        title: "Dienstbeteiligung",
-        desc: "Einfache Erfassung von Übungsabenden und Sonderdiensten direkt über das Smartphone der Gruppenführer – ohne Papier.",
-        icon: <Clock className="w-5 h-5" />,
-      },
-      {
-        title: "Lehrgangs-Tracking",
-        desc: "Dokumentation von besuchten Lehrgängen und deren Anerkennung innerhalb des vereinsinternen Punktesystems.",
-        icon: <ShieldCheck className="w-5 h-5" />,
-      },
-      {
-        title: "Nachweis für Arbeitgeber",
-        desc: "Schneller Export von geleisteten Stunden als Nachweis für Freistellungen oder zur Vorlage bei Behörden.",
-        icon: <FileOutput className="w-5 h-5" />,
-      },
-    ],
-    image: "https://i.ibb.co/TMVDDwbs/IMG-8976.jpg",
-    bgSection: "bg-white dark:bg-[#080808]",
-  },
 ];
 
 const furtherScenarios = [
   {
-    icon: <Heart className="w-5 h-5" />,
-    title: "Soziale Träger",
-    desc: "Helfer-Stunden in Tafeln oder Nachbarschaftshilfen präzise erfassen und transparent ausweisen.",
-    color: "text-rose-500",
-    bg: "bg-rose-500/8 dark:bg-rose-500/10",
+    icon: <span className="text-lg">🏓</span>,
+    title: "TT-Jugendabteilung",
+    desc: "Jugendliche für Dienste begeistern – mit Punkten, Ranking und spielerischer Wertschätzung statt Pflichtgefühl.",
+    color: "text-orange-500",
+    bg: "bg-orange-500/8 dark:bg-orange-500/10",
   },
   {
-    icon: <GraduationCap className="w-5 h-5" />,
-    title: "Studierenden-Initiativen",
-    desc: "Organisation von Campus-Events und internen Ämtern ohne Excel-Chaos – digital und fair.",
-    color: "text-amber-500",
-    bg: "bg-amber-500/8 dark:bg-amber-500/10",
+    icon: <span className="text-lg">🏆</span>,
+    title: "Ligabetrieb & Spieltage",
+    desc: "Tischwarte, Aufbau, Schiedsrichter – Einsätze für Heimspieltage werden fair verteilt und automatisch dokumentiert.",
+    color: "text-yellow-500",
+    bg: "bg-yellow-500/8 dark:bg-yellow-500/10",
   },
   {
-    icon: <Users className="w-5 h-5" />,
-    title: "Bürgervereine",
-    desc: "Engagement im Kiez sichtbar machen und lokale Projekte vorantreiben – mit Echtzeit-Transparenz.",
-    color: "text-emerald-500",
-    bg: "bg-emerald-500/8 dark:bg-emerald-500/10",
-  },
-  {
-    icon: <Globe className="w-5 h-5" />,
-    title: "Internationale Verbände",
-    desc: "Mehrsprachige Plattform für Verbände mit Ortsgruppen in verschiedenen Ländern.",
+    icon: <span className="text-lg">📊</span>,
+    title: "Saison-Bericht für den Vorstand",
+    desc: "Ein-Klick-PDF für die Jahreshauptversammlung: Wer hat wie viel geleistet? Wer schuldet Ausgleichszahlungen?",
     color: "text-blue-500",
     bg: "bg-blue-500/8 dark:bg-blue-500/10",
   },
   {
-    icon: <Lock className="w-5 h-5" />,
-    title: "Berufsverbände",
-    desc: "Fortbildungspunkte und Mitgliederpflichten sicher und revisionsfest dokumentieren.",
-    color: "text-indigo-500",
-    bg: "bg-indigo-500/8 dark:bg-indigo-500/10",
+    icon: <span className="text-lg">💬</span>,
+    title: "WhatsApp-Integration",
+    desc: "Einsatzpläne werden direkt als WhatsApp-Nachricht geteilt – mit Namen, Datum und Aufgabe. Kein Gruppenchaos mehr.",
+    color: "text-green-500",
+    bg: "bg-green-500/8 dark:bg-green-500/10",
   },
   {
-    icon: <BarChart3 className="w-5 h-5" />,
-    title: "Fördervereine",
-    desc: "Spendenaktionen und projektbezogene Tätigkeiten für Zuwendungsbescheide lückenlos erfassen.",
+    icon: <span className="text-lg">🎯</span>,
+    title: "Trainingspräsenz-Tracking",
+    desc: "Wer kommt regelmäßig? Wer fehlt häufig? Trainer sehen Trends auf einen Blick – ohne manuelles Auswerten.",
     color: "text-purple-500",
     bg: "bg-purple-500/8 dark:bg-purple-500/10",
+  },
+  {
+    icon: <span className="text-lg">💶</span>,
+    title: "Ausgleichszahlungen",
+    desc: "Wer Pflichtdienste versäumt, wird automatisch zur Zahlung aufgefordert – fair, transparent und ohne Streit.",
+    color: "text-emerald-500",
+    bg: "bg-emerald-500/8 dark:bg-emerald-500/10",
   },
 ];
 
@@ -222,18 +187,18 @@ export default function SolutionsPage() {
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
           <ScrollReveal direction="up" delay={0.1}>
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-[#8A8A8A] font-bold text-[11px] uppercase tracking-widest mb-8">
-              <Sparkles size={11} /> Branchen-Lösungen
+              <span>🏓</span> Gemacht für Tischtennis-Vereine
             </div>
           </ScrollReveal>
           <ScrollReveal direction="up" delay={0.2} blur duration={1}>
             <h1 className="text-[2.4rem] sm:text-[3.5rem] md:text-[6.5rem] lg:text-[8rem] leading-[1.02] font-medium tracking-tighter font-logo text-gray-900 dark:text-white mb-10 max-w-6xl mx-auto">
-              Für jede Form<br />
-              <span className="text-gray-300 dark:text-white/20 italic">des Engagements.</span>
+              Tischtennis-Vereine<br />
+              <span className="text-gray-300 dark:text-white/20 italic">digital verwalten.</span>
             </h1>
           </ScrollReveal>
           <ScrollReveal direction="up" delay={0.3}>
             <p className="text-xl md:text-2xl text-gray-500 dark:text-[#8A8A8A] font-medium leading-relaxed max-w-3xl mx-auto mb-12">
-              Talo ist hochgradig modular. Wir orchestrieren eure Prozesse – vom kleinen Förderverein bis zur komplexen Hilfsorganisation.
+              Talo wurde speziell für Tischtennis-Abteilungen entwickelt. Pflichtdienste, Training, Ligabetrieb und WhatsApp-Integration – alles in einem System.
             </p>
           </ScrollReveal>
           <ScrollReveal direction="up" delay={0.4}>
@@ -264,7 +229,7 @@ export default function SolutionsPage() {
             </span>
           </ScrollReveal>
           <ScrollText
-            text="Jede Gemeinschaft ist anders. Deshalb passt sich Talo an euch an – nicht umgekehrt."
+            text="Kein Tischtennis-Verein sollte noch mit Excel-Listen, WhatsApp-Chaos und Zettelwirtschaft kämpfen."
             className="text-3xl md:text-5xl lg:text-6xl text-gray-900 dark:text-white font-medium leading-[1.2] tracking-tight max-w-5xl mx-auto"
           />
         </div>

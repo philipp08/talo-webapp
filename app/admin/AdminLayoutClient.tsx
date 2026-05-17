@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Loader2, LogIn, LogOut, Newspaper, Key, XCircle } from "lucide-react";
+import { Loader2, LogIn, LogOut, Newspaper, Key, XCircle, Building2 } from "lucide-react";
 
 export default function AdminLayoutClient({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -63,8 +63,9 @@ export default function AdminLayoutClient({ children }: { children: ReactNode })
   }
 
   const navItems = [
-    { href: "/admin/newsletter", label: "Newsletter", icon: Newspaper },
+    { href: "/admin/vereine", label: "Vereine", icon: Building2 },
     { href: "/admin/lizenzen", label: "Lizenzen", icon: Key },
+    { href: "/admin/newsletter", label: "Newsletter", icon: Newspaper },
   ];
 
   return (

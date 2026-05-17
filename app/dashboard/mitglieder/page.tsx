@@ -12,7 +12,7 @@ import {
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFeatures, isLightColor, Duel, DuelGroupConfig } from "@/lib/firebase/models";
+import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFeatures, getEffectivePlanFeatures, isLightColor, Duel, DuelGroupConfig } from "@/lib/firebase/models";
 import { AuthService } from "@/lib/firebase/authService";
 import { EmailService } from "@/lib/firebase/emailService";
 import { TAvatar, GlassSection, TLine, TSearchBar } from "@/app/components/ui/NativeUI";
@@ -93,7 +93,7 @@ export default function MembersPage() {
     setErrorMessage(null);
     setGeneratedPassword(null);
   };
-  const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
+  const planFeatures = currentClub ? getEffectivePlanFeatures(currentClub) : getPlanFeatures();
   const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
   const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
   const accentLight   = isLightColor(accent);
@@ -543,6 +543,10 @@ export default function MembersPage() {
 
                                   const clubId = currentClub?.id;
                                   if (!clubId) throw new Error("Kein Verein ausgewählt.");
+
+                                  if (members.length >= planFeatures.maxMembers) {
+                                    throw new Error(`Mitgliederlimit (${planFeatures.maxMembers}) für den ${planFeatures.name}-Plan erreicht. Bitte Lizenz upgraden.`);
+                                  }
 
                                   // Check if member already exists
                                   const existingMember = await FirebaseManager.getMemberByEmail(normalizedEmail);

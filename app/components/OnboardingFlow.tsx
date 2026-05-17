@@ -31,7 +31,7 @@ export default function OnboardingFlow() {
   const router = useRouter();
 
   const [clubName, setClubName] = useState("");
-  const [sportType, setSportType] = useState("general");
+  const [sportType, setSportType] = useState("tischtennis");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 

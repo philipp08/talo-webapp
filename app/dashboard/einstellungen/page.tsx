@@ -6,7 +6,7 @@ import {
   User, Lock, LogOut, Building2, ShieldCheck, Dumbbell,
   Calendar, Euro, Target, FileSpreadsheet, FileText,
   Users, Settings2, Download, Check, ChevronRight, Key, Sparkles,
-  ImageIcon, Palette, Layers, Trash2, Plus
+  ImageIcon, Palette, Layers, Trash2, Plus, Shield, Mail
 } from "lucide-react";
 import { db } from "@/lib/firebase/config";
 import { collection, query, where, getDocs, doc, updateDoc, Timestamp } from "firebase/firestore";
@@ -14,7 +14,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
-import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures, CustomMemberType, isLightColor, MemberType, PointFactors, SPORT_TYPE_LABELS } from "@/lib/firebase/models";
+import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures, getEffectivePlanFeatures, isLicenseExpired, CustomMemberType, isLightColor, MemberType, PointFactors, SPORT_TYPE_LABELS } from "@/lib/firebase/models";
 import {
   GlassSection, TLine, TAvatar, TButton, TBadge,
   PlanLockedField, PlanUpsell
@@ -161,7 +161,8 @@ export default function SettingsPage() {
 
   const isAdmin = currentMember?.isAdmin === true;
   const isTrainer = currentMember?.isTrainer === true;
-  const planFeatures = getPlanFeatures(currentClub?.plan);
+  const planFeatures = currentClub ? getEffectivePlanFeatures(currentClub) : getPlanFeatures();
+  const licenseExpired = currentClub ? isLicenseExpired(currentClub) : false;
   const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
   const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
   const accentLight   = isLightColor(accent);
@@ -393,7 +394,7 @@ export default function SettingsPage() {
   const runExport = async (key: ExportKey) => {
     if (!currentClub) return;
     
-    const planFeatures = getPlanFeatures(currentClub.plan);
+    const planFeatures = getEffectivePlanFeatures(currentClub);
     const isPdf = key.includes("pdf");
     const isCsv = key.includes("csv");
 
@@ -457,6 +458,21 @@ export default function SettingsPage() {
             </div>
           </div>
         </motion.div>
+
+        {/* LICENSE EXPIRED BANNER */}
+        {licenseExpired && currentClub?.plan && currentClub.plan !== "free" && (
+          <div className="flex items-center gap-4 p-4 rounded-2xl border border-orange-500/30 bg-orange-500/8">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,149,0,0.15)" }}>
+              <span className="text-lg">⚠️</span>
+            </div>
+            <div className="flex-1">
+              <p className="font-poppins font-bold text-sm text-[#0A0A0A]">Lizenz abgelaufen</p>
+              <p className="text-xs text-[#52525B] mt-0.5">
+                Deine {currentClub?.isTrial ? "Testphase" : "Lizenz"} ist abgelaufen. Du hast wieder Zugriff auf den <strong>Free-Plan</strong>. Aktiviere eine neue Lizenz unter „Lizenz & Plan".
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
 
@@ -966,6 +982,50 @@ export default function SettingsPage() {
                 </GlassSection>
               </motion.div>
             )}
+
+            {/* DATENSCHUTZ & DSGVO */}
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.18 }}
+              className="flex flex-col gap-3"
+            >
+              <SectionHeader title="DATENSCHUTZ" icon={Shield} color="#0A0A0A" />
+              <GlassSection>
+                <div className="p-5 flex flex-col gap-4">
+                  <p className="text-[12px] text-[#52525B] leading-relaxed">
+                    Gemäß DSGVO Art. 15–17 hast du das Recht auf <strong>Auskunft</strong>, <strong>Datenübertragbarkeit</strong> und <strong>Löschung</strong> deiner Daten. Kontaktiere uns per E-Mail — wir antworten innerhalb von 72 Stunden.
+                  </p>
+                  <TLine />
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <a
+                      href={`mailto:datenschutz@talo.app?subject=Datenanfrage%20(Auskunft)&body=Hallo%2C%0A%0Aich%20m%C3%B6chte%20gem%C3%A4%C3%9F%20DSGVO%20Art.%2015%20eine%20Auskunft%20%C3%BCber%20meine%20bei%20Talo%20gespeicherten%20Daten.%0A%0AMeine%20E-Mail-Adresse%3A%20${encodeURIComponent(currentMember?.email ?? "")}`}
+                      className="flex-1 flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-black/[0.06] bg-black/[0.02] hover:bg-black/[0.04] transition-all group"
+                    >
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(0,122,255,0.1)" }}>
+                        <Mail size={15} style={{ color: "#007AFF" }} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[12px] font-poppins font-bold text-[#0A0A0A] group-hover:underline">Daten exportieren (Auskunft)</span>
+                        <span className="text-[10px] text-[#71717A]">datenschutz@talo.app · DSGVO Art. 15</span>
+                      </div>
+                    </a>
+                    <a
+                      href={`mailto:datenschutz@talo.app?subject=Konto%20l%C3%B6schen&body=Hallo%2C%0A%0Aich%20m%C3%B6chte%20mein%20Talo-Konto%20und%20alle%20zugeh%C3%B6rigen%20Daten%20gem%C3%A4%C3%9F%20DSGVO%20Art.%2017%20l%C3%B6schen%20lassen.%0A%0AMeine%20E-Mail-Adresse%3A%20${encodeURIComponent(currentMember?.email ?? "")}`}
+                      className="flex-1 flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-red-500/20 bg-red-500/[0.03] hover:bg-red-500/[0.06] transition-all group"
+                    >
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,69,58,0.1)" }}>
+                        <Trash2 size={15} style={{ color: "#FF453A" }} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[12px] font-poppins font-bold text-[#FF453A] group-hover:underline">Konto löschen</span>
+                        <span className="text-[10px] text-[#71717A]">datenschutz@talo.app · DSGVO Art. 17</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </GlassSection>
+            </motion.div>
 
             {/* APP INFO */}
             <motion.div
