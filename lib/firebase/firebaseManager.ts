@@ -1205,6 +1205,8 @@ export class FirebaseManager {
             points: Number(data.points) || 0,
             claimedById: data.claimedById || null,
             claimedByName: data.claimedByName || null,
+            slotsRequired: data.slotsRequired !== undefined ? Number(data.slotsRequired) : 1,
+            claimedSlots: data.claimedSlots || [],
           });
         });
         callback(list);

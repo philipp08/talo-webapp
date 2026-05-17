@@ -242,9 +242,16 @@ export default function ShiftsPage() {
   const shareEventShifts = (eventName: string, list: Shift[]) => {
     let text = `📢 *HELFERSCHICHTEN: ${eventName.toUpperCase()}* 📢\n\nHallo zusammen! Für unser Event werden noch fleißige Helfer gesucht. Bitte tragt euch direkt ein:\n\n`;
     list.forEach((s) => {
-      const statusStr = s.claimedById 
-        ? `✅ Besetzt von ${s.claimedByName}` 
-        : `👉 Noch frei! (+${s.points.toFixed(1)} Pkt.)`;
+      const required = s.slotsRequired || 1;
+      const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
+      const isFull = claimedCount >= required;
+      let statusStr = "";
+      if (isFull) {
+        statusStr = `✅ Besetzt`;
+      } else {
+        const freeSlots = required - claimedCount;
+        statusStr = `👉 Noch frei! (${freeSlots} von ${required} Plätzen frei) (+${s.points.toFixed(1)} Pkt.)`;
+      }
       text += `🔹 *${s.title}*\n   🕒 ${s.date} | ${s.time}\n   ${statusStr}\n\n`;
     });
     text += `👉 Jetzt im Talo Dashboard anmelden und Wunschschicht buchen:\n${window.location.origin}/dashboard/schichten\n\nWir freuen uns auf eure Unterstützung! 🚀`;
@@ -252,9 +259,16 @@ export default function ShiftsPage() {
   };
 
   const shareSingleShift = (s: Shift) => {
-    const statusStr = s.claimedById 
-      ? `✅ Besetzt von ${s.claimedByName}` 
-      : `👉 Noch frei!`;
+    const required = s.slotsRequired || 1;
+    const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
+    const isFull = claimedCount >= required;
+    let statusStr = "";
+    if (isFull) {
+      statusStr = `✅ Besetzt`;
+    } else {
+      const freeSlots = required - claimedCount;
+      statusStr = `👉 Noch frei! (${freeSlots} von ${required} Plätzen frei)`;
+    }
     const text = `⚽ *TALO HELFERSCHICHT* ⚽\n\nFür das Event *${s.event}* wird ein Helfer gesucht:\n\n📌 *Schicht*: ${s.title}\n📅 *Datum*: ${s.date}\n🕒 *Uhrzeit*: ${s.time}\n🏆 *Punkte*: +${s.points.toFixed(1)} Pkt.\n\n${statusStr}\n\n👉 Jetzt direkt im Talo Dashboard buchen: ${window.location.origin}/dashboard/schichten\n\nDanke für deinen einsatz! 🙌`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
@@ -527,7 +541,7 @@ export default function ShiftsPage() {
                             const isFull = claimedCount >= required;
 
                             let claimersList: string[] = [];
-                            if (s.claimedSlots) {
+                            if (s.claimedSlots && s.claimedSlots.length > 0) {
                               claimersList = s.claimedSlots.map(c => c.memberName);
                             } else if (s.claimedById) {
                               claimersList = [s.claimedByName || ""];
@@ -704,7 +718,7 @@ export default function ShiftsPage() {
                             const isFull = claimedCount >= required;
 
                             let claimersList: string[] = [];
-                            if (s.claimedSlots) {
+                            if (s.claimedSlots && s.claimedSlots.length > 0) {
                               claimersList = s.claimedSlots.map(c => c.memberName);
                             } else if (s.claimedById) {
                               claimersList = [s.claimedByName || ""];
