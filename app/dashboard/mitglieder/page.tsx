@@ -501,7 +501,7 @@ export default function MembersPage() {
     
     // Refresh members list
     setLoading(true);
-    const list = await FirebaseManager.getMembers(clubId);
+    const list = await FirebaseManager.getMembersForClub(clubId);
     setMembers(list);
     setLoading(false);
     
