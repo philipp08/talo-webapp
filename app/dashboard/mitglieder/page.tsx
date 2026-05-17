@@ -371,9 +371,9 @@ export default function MembersPage() {
     const previewItems = await Promise.all(items.map(async (item) => {
       if (!item.isValid || !item.email) return item;
       try {
+        const inClub = members.some(m => m.email?.trim().toLowerCase() === item.email.trim().toLowerCase());
         const existing = await FirebaseManager.getMemberByEmail(item.email);
-        if (existing) {
-          const inClub = clubId ? (existing.clubIds?.includes(clubId) || existing.clubId === clubId) : false;
+        if (existing || inClub) {
           return {
             ...item,
             alreadyExists: true,
@@ -406,45 +406,44 @@ export default function MembersPage() {
       setCurrentImportingName(`${m.firstName} ${m.lastName}`);
       try {
         const existingMember = await FirebaseManager.getMemberByEmail(m.email);
+        const inClub = members.some(mb => mb.email?.trim().toLowerCase() === m.email.trim().toLowerCase());
 
-        if (existingMember) {
-          if (existingMember.clubIds.includes(clubId) || existingMember.clubId === clubId) {
-            results.push({
-              firstName: m.firstName,
-              lastName: m.lastName,
-              email: m.email,
-              status: "existing",
-            });
-          } else {
-            await FirebaseManager.addMemberToClub(existingMember, clubId, {
-              memberType: m.memberType,
-              isAdmin: false,
-              isTrainer: false,
-            });
+        if (inClub) {
+          results.push({
+            firstName: m.firstName,
+            lastName: m.lastName,
+            email: m.email,
+            status: "existing",
+          });
+        } else if (existingMember) {
+          await FirebaseManager.addMemberToClub(existingMember, clubId, {
+            memberType: m.memberType,
+            isAdmin: false,
+            isTrainer: false,
+          });
 
-            if (sendWelcomeEmailsBulk) {
-              try {
-                await EmailService.sendWelcomeMail({
-                  to: m.email,
-                  name: `${m.firstName} ${m.lastName}`,
-                  memberName: m.firstName,
-                  clubName: currentClub?.name || "Talo",
-                  clubId: clubId,
-                  adminName: `${currentMember?.firstName || "Admin"} ${currentMember?.lastName || ""}`,
-                  isExistingUser: true,
-                });
-              } catch (mailErr) {
-                console.error("Failed to send welcome email for existing user", m.email, mailErr);
-              }
+          if (sendWelcomeEmailsBulk) {
+            try {
+              await EmailService.sendWelcomeMail({
+                to: m.email,
+                name: `${m.firstName} ${m.lastName}`,
+                memberName: m.firstName,
+                clubName: currentClub?.name || "Talo",
+                clubId: clubId,
+                adminName: `${currentMember?.firstName || "Admin"} ${currentMember?.lastName || ""}`,
+                isExistingUser: true,
+              });
+            } catch (mailErr) {
+              console.error("Failed to send welcome email for existing user", m.email, mailErr);
             }
-
-            results.push({
-              firstName: m.firstName,
-              lastName: m.lastName,
-              email: m.email,
-              status: "existing",
-            });
           }
+
+          results.push({
+            firstName: m.firstName,
+            lastName: m.lastName,
+            email: m.email,
+            status: "existing",
+          });
         } else {
           const { uid, password } = await AuthService.createMemberAuth(m.email, m.firstName, m.lastName, clubId);
 
@@ -510,7 +509,7 @@ export default function MembersPage() {
 
     // Refresh members list
     setLoading(true);
-    const list = await FirebaseManager.getMembers(clubId);
+    const list = await FirebaseManager.getMembersForClub(clubId);
     setMembers(list);
     setLoading(false);
 
