@@ -7,7 +7,7 @@ import {
   Search, Trophy,
   ChevronRight, Shield, UserPlus,
   Target, MoreVertical,
-  X, Mail, User, Check, Layers, Filter, Swords, Trash, Plus, Calendar, Clock, Upload, ChevronDown
+  X, Mail, User, Check, Layers, Filter, Swords, Trash, Plus, Calendar, Clock
 } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
@@ -62,7 +62,7 @@ export default function MembersPage() {
   const [memberTypeFilter, setMemberTypeFilter] = useState<string | "all">("all");
   const [groupFilter, setGroupFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("administration");
-  
+
   // Invite member state
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -82,7 +82,6 @@ export default function MembersPage() {
   // CSV Import state
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [importStep, setImportStep] = useState<"upload" | "map" | "preview" | "progress" | "complete">("upload");
-  const [selectedProvider, setSelectedProvider] = useState<"clubdesk" | "spielerplus">("clubdesk");
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [csvRows, setCsvRows] = useState<string[][]>([]);
   const [fieldMappings, setFieldMappings] = useState<{
@@ -100,6 +99,7 @@ export default function MembersPage() {
     errorReason?: string;
     selected: boolean;
     alreadyExists: boolean;
+    alreadyInClub?: boolean;
   }[]>([]);
   const [importProgress, setImportProgress] = useState(0);
   const [currentImportingName, setCurrentImportingName] = useState("");
@@ -132,7 +132,6 @@ export default function MembersPage() {
   const closeImportModal = () => {
     setIsImportOpen(false);
     setImportStep("upload");
-    setSelectedProvider("clubdesk");
     setCsvHeaders([]);
     setCsvRows([]);
     setFieldMappings({ firstName: -1, lastName: -1, email: -1, memberType: -1 });
@@ -144,9 +143,9 @@ export default function MembersPage() {
     setImportedResults([]);
   };
   const planFeatures = currentClub ? getEffectivePlanFeatures(currentClub) : getPlanFeatures();
-  const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
-  const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
-  const accentLight   = isLightColor(accent);
+  const accentRaw = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+  const accentLight = isLightColor(accent);
   const isLimitReached = members.length >= planFeatures.maxMembers;
 
   useEffect(() => {
@@ -233,11 +232,11 @@ export default function MembersPage() {
     const lines: string[][] = [];
     let row: string[] = [""];
     let insideQuote = false;
-    
+
     for (let i = 0; i < text.length; i++) {
       const char = text[i];
       const nextChar = text[i + 1];
-      
+
       if (char === '"') {
         if (insideQuote && nextChar === '"') {
           row[row.length - 1] += '"';
@@ -265,11 +264,11 @@ export default function MembersPage() {
         row[row.length - 1] += char;
       }
     }
-    
+
     if (row.length > 1 || row[0] !== "") {
       lines.push(row);
     }
-    
+
     return lines;
   };
 
@@ -285,13 +284,13 @@ export default function MembersPage() {
         alert("Die CSV-Datei enthält nicht genügend Daten.");
         return;
       }
-      
+
       const headers = parsed[0].map(h => h.trim());
       const rows = parsed.slice(1).filter(r => r.some(c => c.trim() !== ""));
-      
+
       setCsvHeaders(headers);
       setCsvRows(rows);
-      
+
       // Auto mapping
       const mapping = { firstName: -1, lastName: -1, email: -1, memberType: -1 };
       headers.forEach((h, index) => {
@@ -301,21 +300,21 @@ export default function MembersPage() {
         } else if (lh.includes("nachname") || lh.includes("last name") || lh.includes("surname") || lh.includes("familyname") || lh.includes("name")) {
           if (mapping.lastName === -1) mapping.lastName = index;
         }
-        
+
         if (lh.includes("email") || lh.includes("e-mail") || lh.includes("mail")) {
           mapping.email = index;
         }
-        
-        if (lh.includes("typ") || lh.includes("type") || lh.includes("status") || lh.includes("mitgliedertyp") || lh.includes("role") || lh.includes("rolle")) {
+
+        if (lh.includes("typ") || lh.includes("type") || lh.includes("status") || lh.includes("mitgliedertyp")) {
           mapping.memberType = index;
         }
       });
-      
+
       if (mapping.lastName === -1) {
         const nameIdx = headers.findIndex(h => h.toLowerCase() === "name");
         if (nameIdx !== -1) mapping.lastName = nameIdx;
       }
-      
+
       setFieldMappings(mapping);
       setImportStep("map");
     };
@@ -325,27 +324,27 @@ export default function MembersPage() {
   const generatePreview = async () => {
     setIsPreviewLoading(true);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     const items = csvRows.map(row => {
       const fName = fieldMappings.firstName !== -1 ? row[fieldMappings.firstName]?.trim() : "";
       const lName = fieldMappings.lastName !== -1 ? row[fieldMappings.lastName]?.trim() : "";
       const emailVal = fieldMappings.email !== -1 ? row[fieldMappings.email]?.trim().toLowerCase() : "";
       let mType = fieldMappings.memberType !== -1 ? row[fieldMappings.memberType]?.trim() : "Aktiv";
-      
+
       const lType = mType.toLowerCase();
       if (lType.includes("vorstand") || lType.includes("board") || lType.includes("admin")) {
         mType = MemberType.Board;
       } else if (lType.includes("jugend") || lType.includes("youth") || lType.includes("kind") || lType.includes("junior")) {
         mType = MemberType.Youth;
-      } else if (lType.includes("passiv") || lType.includes("passive") || lType.includes("inaktiv") || lType.includes("inactive")) {
+      } else if (lType.includes("passiv") || lType.includes("passive")) {
         mType = MemberType.Passive;
       } else {
         mType = MemberType.Active;
       }
-      
+
       let isValid = true;
       let errorReason = "";
-      
+
       if (!fName || !lName) {
         isValid = false;
         errorReason = "Name fehlt";
@@ -353,7 +352,7 @@ export default function MembersPage() {
         isValid = false;
         errorReason = "Ungültige E-Mail";
       }
-      
+
       return {
         firstName: fName,
         lastName: lName,
@@ -363,23 +362,31 @@ export default function MembersPage() {
         errorReason,
         selected: isValid,
         alreadyExists: false,
+        alreadyInClub: false,
       };
     });
-    
+
+    const clubId = currentClub?.id;
     // Check registrations in Firestore in parallel
     const previewItems = await Promise.all(items.map(async (item) => {
       if (!item.isValid || !item.email) return item;
       try {
         const existing = await FirebaseManager.getMemberByEmail(item.email);
         if (existing) {
-          return { ...item, alreadyExists: true };
+          const inClub = clubId ? (existing.clubIds?.includes(clubId) || existing.clubId === clubId) : false;
+          return {
+            ...item,
+            alreadyExists: true,
+            alreadyInClub: inClub,
+            selected: !inClub, // default to unselected if already in the club!
+          };
         }
       } catch (err) {
         console.error("Error checking existing member for", item.email, err);
       }
       return item;
     }));
-    
+
     setMappedMembers(previewItems);
     setIsPreviewLoading(false);
     setImportStep("preview");
@@ -391,15 +398,15 @@ export default function MembersPage() {
     const results: typeof importedResults = [];
     const clubId = currentClub?.id;
     if (!clubId) return;
-    
+
     const validMembers = mappedMembers.filter(m => m.isValid && m.selected);
     let count = 0;
-    
+
     for (const m of validMembers) {
       setCurrentImportingName(`${m.firstName} ${m.lastName}`);
       try {
         const existingMember = await FirebaseManager.getMemberByEmail(m.email);
-        
+
         if (existingMember) {
           if (existingMember.clubIds.includes(clubId) || existingMember.clubId === clubId) {
             results.push({
@@ -414,7 +421,7 @@ export default function MembersPage() {
               isAdmin: false,
               isTrainer: false,
             });
-            
+
             if (sendWelcomeEmailsBulk) {
               try {
                 await EmailService.sendWelcomeMail({
@@ -440,7 +447,7 @@ export default function MembersPage() {
           }
         } else {
           const { uid, password } = await AuthService.createMemberAuth(m.email, m.firstName, m.lastName, clubId);
-          
+
           const newMember = {
             firstName: m.firstName,
             lastName: m.lastName,
@@ -458,9 +465,9 @@ export default function MembersPage() {
               },
             },
           };
-          
+
           await FirebaseManager.setMember(uid, newMember);
-          
+
           if (sendWelcomeEmailsBulk) {
             try {
               await EmailService.sendWelcomeMail({
@@ -496,24 +503,24 @@ export default function MembersPage() {
           errorMsg: err instanceof Error ? err.message : "Unbekannter Fehler",
         });
       }
-      
+
       count++;
       setImportProgress(Math.round((count / validMembers.length) * 100));
     }
-    
+
     // Refresh members list
     setLoading(true);
-    const list = await FirebaseManager.getMembersForClub(clubId);
+    const list = await FirebaseManager.getMembers(clubId);
     setMembers(list);
     setLoading(false);
-    
+
     setImportedResults(results);
     setImportStep("complete");
   };
 
   const downloadResults = () => {
     const header = "Vorname,Nachname,E-Mail,Status,Temporaeres Passwort\n";
-    const rows = importedResults.map(r => 
+    const rows = importedResults.map(r =>
       `"${r.firstName}","${r.lastName}","${r.email}","${r.status === "success" ? "Neu angelegt" : r.status === "existing" ? "Bereits Mitglied" : "Fehler"}","${r.password || ""}"`
     ).join("\n");
     const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
@@ -537,7 +544,7 @@ export default function MembersPage() {
   return (
     <div className="relative min-h-screen bg-[#FAFAFA]">
       <div className="max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10 flex flex-col gap-7 lg:gap-8 pb-16">
-        
+
         {/* Header Action Bar */}
         <div className="flex flex-col gap-5 border-b border-black/5 pb-6 lg:pb-8">
           <div className="flex items-start justify-between gap-4">
@@ -563,7 +570,7 @@ export default function MembersPage() {
                   onClick={() => setIsImportOpen(true)}
                   className="shrink-0 flex items-center gap-2 px-4 py-3 md:px-5 rounded-2xl border border-black/10 bg-white hover:bg-black/[0.02] text-[#0A0A0A] transition-all font-black text-[11px] uppercase tracking-widest shadow-sm"
                 >
-                  <Upload size={16} />
+                  <Layers size={16} />
                   <span className="hidden md:inline">Importieren</span>
                 </button>
                 <button
@@ -575,9 +582,8 @@ export default function MembersPage() {
                     setIsInviteOpen(true);
                   }}
                   style={isLimitReached ? undefined : { backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
-                  className={`shrink-0 flex items-center gap-2 px-4 py-3 md:px-6 rounded-2xl border transition-all font-black text-[11px] uppercase tracking-widest shadow-xl shadow-black/5 ${
-                    isLimitReached ? "bg-black/[0.05] text-[#71717A] border-black/10 cursor-not-allowed" : "hover:opacity-95 border-black/10 text-white"
-                  }`}
+                  className={`shrink-0 flex items-center gap-2 px-4 py-3 md:px-6 rounded-2xl border transition-all font-black text-[11px] uppercase tracking-widest shadow-xl shadow-black/5 ${isLimitReached ? "bg-black/[0.05] text-[#71717A] border-black/10 cursor-not-allowed" : "hover:opacity-95 border-black/10 text-white"
+                    }`}
                 >
                   <UserPlus size={16} />
                   <span className="hidden sm:inline">{isLimitReached ? t("common.limitReached") : t("mitglieder.addMember")}</span>
@@ -592,9 +598,8 @@ export default function MembersPage() {
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
-                className={`px-5 py-2.5 md:px-8 md:py-3 rounded-xl text-xs font-poppins font-black transition-all uppercase tracking-widest ${
-                  viewMode === mode ? "bg-[#0A0A0A] text-white shadow-2xl" : "text-[#71717A] hover:text-[#0A0A0A]"
-                }`}
+                className={`px-5 py-2.5 md:px-8 md:py-3 rounded-xl text-xs font-poppins font-black transition-all uppercase tracking-widest ${viewMode === mode ? "bg-[#0A0A0A] text-white shadow-2xl" : "text-[#71717A] hover:text-[#0A0A0A]"
+                  }`}
               >
                 {mode === "administration" ? t("mitglieder.administration") : t("mitglieder.leaderboard")}
               </button>
@@ -604,84 +609,84 @@ export default function MembersPage() {
 
         {loading ? (
           <div className="flex items-center justify-center py-40">
-             <div className="h-12 w-12 animate-spin rounded-full border-4 border-black/5 border-t-[#0A0A0A]" />
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-black/5 border-t-[#0A0A0A]" />
           </div>
         ) : (
           <AnimatePresence mode="wait">
-             {viewMode === "administration" ? (
-               <motion.div 
-                 key="admin"
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 exit={{ opacity: 0, y: -20 }}
-                 className="space-y-8"
-               >
-                 <div className="flex flex-col gap-3">
-                   <div className="w-full max-w-md">
-                     <TSearchBar value={searchText} onChange={setSearchText} placeholder={t("mitglieder.search")} />
-                   </div>
-                   {planFeatures.hasAdvancedFilters && (
-                     <div className="flex flex-wrap gap-2">
-                       <FilterPill
-                         label="Alle Typen"
-                         selected={memberTypeFilter === "all"}
-                         onClick={() => setMemberTypeFilter("all")}
-                       />
-                       {availableMemberTypes.map((type) => (
-                         <FilterPill
-                           key={type}
-                           label={type}
-                           selected={memberTypeFilter === type}
-                           onClick={() => setMemberTypeFilter(type)}
-                         />
-                       ))}
-                       {planFeatures.hasGroups && (
-                         <>
-                           <FilterPill
-                             label="Alle Gruppen"
-                             selected={groupFilter === "all"}
-                             onClick={() => setGroupFilter("all")}
-                           />
-                           {visibleGroups.map((group) => (
-                             <FilterPill
-                               key={group.id}
-                               label={group.name}
-                               selected={groupFilter === group.id}
-                               onClick={() => setGroupFilter(group.id)}
-                             />
-                           ))}
-                         </>
-                       )}
-                     </div>
-                   )}
-                   {!planFeatures.hasAdvancedFilters && (
-                     <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
-                       <Filter size={12} /> Erweiterte Filter ab Club
-                     </div>
-                   )}
-                 </div>
-                 <ListView members={filtered} entries={entries} currentClub={currentClub} groupNameById={groupNameById} showGroups={planFeatures.hasGroups} />
-               </motion.div>
-             ) : (
-               <motion.div 
-                 key="lead"
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 exit={{ opacity: 0, y: -20 }}
-               >
-                 <LeaderboardView
-                   data={leaderboard}
-                   groups={visibleGroups}
-                   showGroupLeaderboards={planFeatures.hasGroupLeaderboards}
-                   showAdvancedStats={planFeatures.hasAdvancedStats}
-                 />
-               </motion.div>
-             )}
+            {viewMode === "administration" ? (
+              <motion.div
+                key="admin"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-8"
+              >
+                <div className="flex flex-col gap-3">
+                  <div className="w-full max-w-md">
+                    <TSearchBar value={searchText} onChange={setSearchText} placeholder={t("mitglieder.search")} />
+                  </div>
+                  {planFeatures.hasAdvancedFilters && (
+                    <div className="flex flex-wrap gap-2">
+                      <FilterPill
+                        label="Alle Typen"
+                        selected={memberTypeFilter === "all"}
+                        onClick={() => setMemberTypeFilter("all")}
+                      />
+                      {availableMemberTypes.map((type) => (
+                        <FilterPill
+                          key={type}
+                          label={type}
+                          selected={memberTypeFilter === type}
+                          onClick={() => setMemberTypeFilter(type)}
+                        />
+                      ))}
+                      {planFeatures.hasGroups && (
+                        <>
+                          <FilterPill
+                            label="Alle Gruppen"
+                            selected={groupFilter === "all"}
+                            onClick={() => setGroupFilter("all")}
+                          />
+                          {visibleGroups.map((group) => (
+                            <FilterPill
+                              key={group.id}
+                              label={group.name}
+                              selected={groupFilter === group.id}
+                              onClick={() => setGroupFilter(group.id)}
+                            />
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {!planFeatures.hasAdvancedFilters && (
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
+                      <Filter size={12} /> Erweiterte Filter ab Club
+                    </div>
+                  )}
+                </div>
+                <ListView members={filtered} entries={entries} currentClub={currentClub} groupNameById={groupNameById} showGroups={planFeatures.hasGroups} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="lead"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <LeaderboardView
+                  data={leaderboard}
+                  groups={visibleGroups}
+                  showGroupLeaderboards={planFeatures.hasGroupLeaderboards}
+                  showAdvancedStats={planFeatures.hasAdvancedStats}
+                />
+              </motion.div>
+            )}
           </AnimatePresence>
         )}
       </div>
 
-       {/* Invite Member Modal */}
+      {/* Invite Member Modal */}
       {typeof document !== "undefined" && createPortal(
         <AnimatePresence>
           {isInviteOpen && isAdmin && (
@@ -692,763 +697,653 @@ export default function MembersPage() {
               onClick={(e) => { if (e.target === e.currentTarget) closeInviteModal(); }}
               className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto"
             >
-               <motion.div
-                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                 onClick={(e) => e.stopPropagation()}
-                 className="w-full max-w-lg mb-8"
-               >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-lg mb-8"
+              >
                 <GlassSection className="relative overflow-hidden border-black/10 shadow-3xl">
-                   {/* Gradient Glow */}
-                   <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px] pointer-events-none" />
-                   
-                   <div className="p-8 flex flex-col gap-8">
-                      {/* Header */}
-                      <div className="flex items-start justify-between">
-                         <div className="flex flex-col gap-2">
-                            <h2 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic">MITGLIED ANLEGEN</h2>
-                            <p className="text-[#71717A] font-bold text-[10px] uppercase tracking-[0.2em]">Konto erstellen und Zugangsdaten senden</p>
-                         </div>
-                         <button
-                           type="button"
-                           onClick={(e) => { e.stopPropagation(); closeInviteModal(); }}
-                           className="relative z-10 w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
-                         >
-                            <X size={20} />
-                         </button>
-                      </div>
+                  {/* Gradient Glow */}
+                  <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px] pointer-events-none" />
 
-                      {generatedPassword ? (
-                        <motion.div 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="flex flex-col gap-8 text-center py-4"
-                        >
-                          <div className="flex flex-col gap-2">
-                            <div className="w-16 h-16 bg-black/[0.04] rounded-2xl flex items-center justify-center mx-auto mb-2 border border-black/10">
-                              <Check className="text-[#52525B]" size={32} />
-                            </div>
-                            <h3 className="text-xl font-bold text-[#0A0A0A]">Mitglied erfolgreich angelegt!</h3>
-                            <p className="text-sm text-[#71717A]">
-                              {userAlreadyExisted ? "Der Nutzer wurde dem Verein hinzugefügt." : "Das Konto wurde erstellt. Hier sind die Zugangsdaten:"}
+                  <div className="p-8 flex flex-col gap-8">
+                    {/* Header */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex flex-col gap-2">
+                        <h2 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic">MITGLIED ANLEGEN</h2>
+                        <p className="text-[#71717A] font-bold text-[10px] uppercase tracking-[0.2em]">Konto erstellen und Zugangsdaten senden</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); closeInviteModal(); }}
+                        className="relative z-10 w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+
+                    {generatedPassword ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col gap-8 text-center py-4"
+                      >
+                        <div className="flex flex-col gap-2">
+                          <div className="w-16 h-16 bg-black/[0.04] rounded-2xl flex items-center justify-center mx-auto mb-2 border border-black/10">
+                            <Check className="text-[#52525B]" size={32} />
+                          </div>
+                          <h3 className="text-xl font-bold text-[#0A0A0A]">Mitglied erfolgreich angelegt!</h3>
+                          <p className="text-sm text-[#71717A]">
+                            {userAlreadyExisted ? "Der Nutzer wurde dem Verein hinzugefügt." : "Das Konto wurde erstellt. Hier sind die Zugangsdaten:"}
+                          </p>
+                        </div>
+
+                        {userAlreadyExisted ? (
+                          <div className="bg-black/[0.04] rounded-3xl p-6 border border-black/10 flex flex-col gap-3 items-center">
+                            <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest bg-black/[0.05] border border-black/10 px-3 py-1 rounded-full">Bestehender Account</span>
+                            <p className="text-sm text-[#0A0A0A] font-semibold mt-2">Nutzer hatte bereits einen Talo-Account.</p>
+                            <p className="text-xs text-[#52525B] leading-relaxed">
+                              {inviteFirstName} kann sich einfach mit dem <br />bisherigen Passwort einloggen und sieht nun <br />deinen Verein im Dashboard.
                             </p>
                           </div>
-
-                          {userAlreadyExisted ? (
-                            <div className="bg-black/[0.04] rounded-3xl p-6 border border-black/10 flex flex-col gap-3 items-center">
-                              <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest bg-black/[0.05] border border-black/10 px-3 py-1 rounded-full">Bestehender Account</span>
-                              <p className="text-sm text-[#0A0A0A] font-semibold mt-2">Nutzer hatte bereits einen Talo-Account.</p>
-                              <p className="text-xs text-[#52525B] leading-relaxed">
-                                {inviteFirstName} kann sich einfach mit dem <br/>bisherigen Passwort einloggen und sieht nun <br/>deinen Verein im Dashboard.
-                              </p>
+                        ) : (
+                          <div className="bg-black/[0.04] rounded-3xl p-6 border border-black/10 flex flex-col gap-4">
+                            <div className="flex flex-col items-start gap-1">
+                              <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">E-Mail Adresse</span>
+                              <div className="w-full bg-black/20 rounded-xl p-3 text-sm text-[#0A0A0A] font-mono border border-black/5">{inviteEmail}</div>
                             </div>
-                          ) : (
-                            <div className="bg-black/[0.04] rounded-3xl p-6 border border-black/10 flex flex-col gap-4">
-                              <div className="flex flex-col items-start gap-1">
-                                <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">E-Mail Adresse</span>
-                                <div className="w-full bg-black/20 rounded-xl p-3 text-sm text-[#0A0A0A] font-mono border border-black/5">{inviteEmail}</div>
-                              </div>
-                              <div className="flex flex-col items-start gap-1">
-                                <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">Passwort</span>
-                                <div className="w-full bg-black/20 rounded-xl p-3 text-xl text-[#0A0A0A] font-mono font-bold border border-black/5 tracking-[0.2em]">{generatedPassword}</div>
-                              </div>
+                            <div className="flex flex-col items-start gap-1">
+                              <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">Passwort</span>
+                              <div className="w-full bg-black/20 rounded-xl p-3 text-xl text-[#0A0A0A] font-mono font-bold border border-black/5 tracking-[0.2em]">{generatedPassword}</div>
                             </div>
-                          )}
+                          </div>
+                        )}
 
-                          <div className="flex flex-col gap-3">
-                            {!userAlreadyExisted && (
-                              <button 
-                                onClick={async () => {
-                                  if (!currentClub || !currentMember) return;
-                                  setIsSendingMail(true);
-                                  setErrorMessage(null);
-                                  try {
-                                    await EmailService.sendWelcomeMail({
-                                      to: inviteEmail,
-                                      name: `${inviteFirstName} ${inviteLastName}`,
-                                      subject: `Willkommen bei ${currentClub.name} – Deine Zugangsdaten`,
-                                      memberName: inviteFirstName,
-                                      password: generatedPassword!,
-                                      clubName: currentClub.name,
-                                      clubId: currentClub.id,
-                                      adminName: `${currentMember.firstName} ${currentMember.lastName}`
-                                    });
-                                    setMailSent(true);
-                                  } catch (err) {
-                                    setErrorMessage(err instanceof Error ? err.message : "E-Mail konnte nicht gesendet werden.");
-                                  } finally {
-                                    setIsSendingMail(false);
-                                  }
-                                }}
-                                disabled={isSendingMail || mailSent}
-                                className="w-full h-14 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-[#1F1F23] transition-all shadow-2xl active:scale-95 disabled:opacity-50"
-                              >
-                                {isSendingMail ? (
-                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
-                                ) : mailSent ? (
-                                  <>
-                                    <Check size={18} /> Mail gesendet
-                                  </>
-                                ) : (
-                                  <>
-                                    <Mail size={18} /> Willkommens-Mail senden
-                                  </>
-                                )}
-                              </button>
-                            )}
+                        <div className="flex flex-col gap-3">
+                          {!userAlreadyExisted && (
                             <button
-                              onClick={closeInviteModal}
-                              className={`w-full h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${userAlreadyExisted ? "bg-[#0A0A0A] text-white hover:bg-[#1F1F23]" : "text-[#71717A] hover:text-[#0A0A0A]"}`}
-                            >
-                              Schließen
-                            </button>
-                          </div>
-                        </motion.div>
-                      ) : (
-                        <>
-                          {/* Form */}
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Vorname</label>
-                                <div className="relative">
-                                  <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
-                                  <input 
-                                    value={inviteFirstName}
-                                    onChange={(e) => setInviteFirstName(e.target.value)}
-                                    placeholder="z.B. Max"
-                                    className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-base font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
-                                  />
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Nachname</label>
-                                <input 
-                                  value={inviteLastName}
-                                  onChange={(e) => setInviteLastName(e.target.value)}
-                                  placeholder="Mustermann"
-                                  className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 px-4 text-base font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
-                                />
-                            </div>
-                            <div className="flex flex-col gap-2 col-span-2">
-                                <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">E-Mail Adresse</label>
-                                <div className="relative">
-                                  <Mail size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
-                                  <input 
-                                    type="email"
-                                    value={inviteEmail}
-                                    onChange={(e) => setInviteEmail(e.target.value)}
-                                    placeholder="name@beispiel.de"
-                                    className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-base font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
-                                  />
-                                </div>
-                            </div>
-                          </div>
-
-                          <TLine />
-
-                          {/* Member Type Selection */}
-                          <div className="flex flex-col gap-4">
-                            <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Mitgliedstyp</label>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                {availableMemberTypes.map((type) => (
-                                  <button
-                                    key={type}
-                                    onClick={() => setInviteType(type)}
-                                    className={`py-3 px-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                                      inviteType === type 
-                                        ? "bg-[#0A0A0A] text-white border-black/15" 
-                                        : "bg-black/[0.04] text-[#71717A] border-black/5 hover:border-black/10"
-                                    }`}
-                                  >
-                                      {type}
-                                  </button>
-                                ))}
-                            </div>
-                          </div>
-
-                          {planFeatures.hasGroups && (
-                            <div className="flex flex-col gap-2">
-                              <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Gruppe / Team</label>
-                              <div className="relative">
-                                <Layers size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
-                                <select
-                                  value={inviteGroupId}
-                                  onChange={(e) => setInviteGroupId(e.target.value)}
-                                  className="w-full appearance-none bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
-                                >
-                                  <option value="">Keine Gruppe</option>
-                                  {visibleGroups.map((group) => (
-                                    <option key={group.id} value={group.id}>{group.name}</option>
-                                  ))}
-                                </select>
-                              </div>
-                            </div>
-                          )}
-
-                          {errorMessage && (
-                            <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
-                              {errorMessage}
-                            </div>
-                          )}
-
-                          {/* Footer Actions */}
-                          <div className="flex flex-col gap-3 pt-4">
-                            <button 
                               onClick={async () => {
-                                const normalizedEmail = inviteEmail.trim().toLowerCase();
-                                if (!inviteFirstName.trim() || !inviteLastName.trim() || !normalizedEmail) {
-                                  setErrorMessage("Bitte alle Felder ausfüllen.");
-                                  return;
-                                }
-                                setIsCreating(true);
+                                if (!currentClub || !currentMember) return;
+                                setIsSendingMail(true);
                                 setErrorMessage(null);
                                 try {
-                                  if (!currentMember?.isAdmin) {
-                                    throw new Error("Nur Admins können Mitglieder anlegen.");
-                                  }
-
-                                  const clubId = currentClub?.id;
-                                  if (!clubId) throw new Error("Kein Verein ausgewählt.");
-
-                                  if (members.length >= planFeatures.maxMembers) {
-                                    throw new Error(`Mitgliederlimit (${planFeatures.maxMembers}) für den ${planFeatures.name}-Plan erreicht. Bitte Lizenz upgraden.`);
-                                  }
-
-                                  // Check if member already exists
-                                  const existingMember = await FirebaseManager.getMemberByEmail(normalizedEmail);
-                                  
-                                  if (existingMember) {
-                                    if (existingMember.clubIds.includes(clubId) || existingMember.clubId === clubId) {
-                                      throw new Error("Dieser Nutzer ist bereits Mitglied im Verein.");
-                                    }
-                                    
-                                    await FirebaseManager.addMemberToClub(existingMember, clubId, {
-                                      memberType: inviteType,
-                                      isAdmin: false,
-                                      isTrainer: false,
-                                      ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
-                                    });
-                                    
-                                    setUserAlreadyExisted(true);
-                                    setGeneratedPassword("existing");
-                                  } else {
-                                    const { uid, password } = await AuthService.createMemberAuth(normalizedEmail, inviteFirstName.trim(), inviteLastName.trim(), clubId);
-                                    
-                                    const newMember = {
-                                      firstName: inviteFirstName.trim(),
-                                      lastName: inviteLastName.trim(),
-                                      email: normalizedEmail,
-                                      memberType: inviteType,
-                                      isAdmin: false,
-                                      isTrainer: false,
-                                      clubId: clubId,
-                                      clubIds: [clubId],
-                                      ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
-                                      clubMemberships: {
-                                        [clubId]: {
-                                          memberType: inviteType,
-                                          isAdmin: false,
-                                          isTrainer: false,
-                                          ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
-                                        },
-                                      },
-                                    };
-                                    
-                                    await FirebaseManager.setMember(uid, newMember);
-                                    
-                                    setGeneratedPassword(password);
-                                  }
+                                  await EmailService.sendWelcomeMail({
+                                    to: inviteEmail,
+                                    name: `${inviteFirstName} ${inviteLastName}`,
+                                    subject: `Willkommen bei ${currentClub.name} – Deine Zugangsdaten`,
+                                    memberName: inviteFirstName,
+                                    password: generatedPassword!,
+                                    clubName: currentClub.name,
+                                    clubId: currentClub.id,
+                                    adminName: `${currentMember.firstName} ${currentMember.lastName}`
+                                  });
+                                  setMailSent(true);
                                 } catch (err) {
-                                  setErrorMessage(err instanceof Error ? err.message : "Fehler beim Anlegen.");
+                                  setErrorMessage(err instanceof Error ? err.message : "E-Mail konnte nicht gesendet werden.");
                                 } finally {
-                                  setIsCreating(false);
+                                  setIsSendingMail(false);
                                 }
                               }}
-                              disabled={isCreating}
-                              className="w-full h-14 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-[#1F1F23] transition-all shadow-2xl shadow-black/5 active:scale-95 disabled:opacity-50"
+                              disabled={isSendingMail || mailSent}
+                              className="w-full h-14 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-[#1F1F23] transition-all shadow-2xl active:scale-95 disabled:opacity-50"
                             >
-                                {isCreating ? (
-                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
-                                ) : (
-                                  <>
-                                    <UserPlus size={18} /> Mitglied anlegen
-                                  </>
-                                )}
+                              {isSendingMail ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
+                              ) : mailSent ? (
+                                <>
+                                  <Check size={18} /> Mail gesendet
+                                </>
+                              ) : (
+                                <>
+                                  <Mail size={18} /> Willkommens-Mail senden
+                                </>
+                              )}
                             </button>
-                            <p className="text-[9px] text-[#52525B] font-bold uppercase tracking-widest text-center px-8 leading-relaxed italic">
-                                Das Konto wird sofort erstellt und kann genutzt werden.
-                            </p>
+                          )}
+                          <button
+                            onClick={closeInviteModal}
+                            className={`w-full h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${userAlreadyExisted ? "bg-[#0A0A0A] text-white hover:bg-[#1F1F23]" : "text-[#71717A] hover:text-[#0A0A0A]"}`}
+                          >
+                            Schließen
+                          </button>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <>
+                        {/* Form */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Vorname</label>
+                            <div className="relative">
+                              <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
+                              <input
+                                value={inviteFirstName}
+                                onChange={(e) => setInviteFirstName(e.target.value)}
+                                placeholder="z.B. Max"
+                                className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-base font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                              />
+                            </div>
                           </div>
-                        </>
-                      )}
-                   </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Nachname</label>
+                            <input
+                              value={inviteLastName}
+                              onChange={(e) => setInviteLastName(e.target.value)}
+                              placeholder="Mustermann"
+                              className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 px-4 text-base font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-2 col-span-2">
+                            <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">E-Mail Adresse</label>
+                            <div className="relative">
+                              <Mail size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
+                              <input
+                                type="email"
+                                value={inviteEmail}
+                                onChange={(e) => setInviteEmail(e.target.value)}
+                                placeholder="name@beispiel.de"
+                                className="w-full bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-base font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <TLine />
+
+                        {/* Member Type Selection */}
+                        <div className="flex flex-col gap-4">
+                          <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Mitgliedstyp</label>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {availableMemberTypes.map((type) => (
+                              <button
+                                key={type}
+                                onClick={() => setInviteType(type)}
+                                className={`py-3 px-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${inviteType === type
+                                    ? "bg-[#0A0A0A] text-white border-black/15"
+                                    : "bg-black/[0.04] text-[#71717A] border-black/5 hover:border-black/10"
+                                  }`}
+                              >
+                                {type}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {planFeatures.hasGroups && (
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Gruppe / Team</label>
+                            <div className="relative">
+                              <Layers size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#52525B]" />
+                              <select
+                                value={inviteGroupId}
+                                onChange={(e) => setInviteGroupId(e.target.value)}
+                                className="w-full appearance-none bg-black/[0.04] border border-black/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-poppins text-[#0A0A0A] focus:outline-none focus:border-black/10 transition-all"
+                              >
+                                <option value="">Keine Gruppe</option>
+                                {visibleGroups.map((group) => (
+                                  <option key={group.id} value={group.id}>{group.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        )}
+
+                        {errorMessage && (
+                          <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
+                            {errorMessage}
+                          </div>
+                        )}
+
+                        {/* Footer Actions */}
+                        <div className="flex flex-col gap-3 pt-4">
+                          <button
+                            onClick={async () => {
+                              const normalizedEmail = inviteEmail.trim().toLowerCase();
+                              if (!inviteFirstName.trim() || !inviteLastName.trim() || !normalizedEmail) {
+                                setErrorMessage("Bitte alle Felder ausfüllen.");
+                                return;
+                              }
+                              setIsCreating(true);
+                              setErrorMessage(null);
+                              try {
+                                if (!currentMember?.isAdmin) {
+                                  throw new Error("Nur Admins können Mitglieder anlegen.");
+                                }
+
+                                const clubId = currentClub?.id;
+                                if (!clubId) throw new Error("Kein Verein ausgewählt.");
+
+                                if (members.length >= planFeatures.maxMembers) {
+                                  throw new Error(`Mitgliederlimit (${planFeatures.maxMembers}) für den ${planFeatures.name}-Plan erreicht. Bitte Lizenz upgraden.`);
+                                }
+
+                                // Check if member already exists
+                                const existingMember = await FirebaseManager.getMemberByEmail(normalizedEmail);
+
+                                if (existingMember) {
+                                  if (existingMember.clubIds.includes(clubId) || existingMember.clubId === clubId) {
+                                    throw new Error("Dieser Nutzer ist bereits Mitglied im Verein.");
+                                  }
+
+                                  await FirebaseManager.addMemberToClub(existingMember, clubId, {
+                                    memberType: inviteType,
+                                    isAdmin: false,
+                                    isTrainer: false,
+                                    ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
+                                  });
+
+                                  setUserAlreadyExisted(true);
+                                  setGeneratedPassword("existing");
+                                } else {
+                                  const { uid, password } = await AuthService.createMemberAuth(normalizedEmail, inviteFirstName.trim(), inviteLastName.trim(), clubId);
+
+                                  const newMember = {
+                                    firstName: inviteFirstName.trim(),
+                                    lastName: inviteLastName.trim(),
+                                    email: normalizedEmail,
+                                    memberType: inviteType,
+                                    isAdmin: false,
+                                    isTrainer: false,
+                                    clubId: clubId,
+                                    clubIds: [clubId],
+                                    ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
+                                    clubMemberships: {
+                                      [clubId]: {
+                                        memberType: inviteType,
+                                        isAdmin: false,
+                                        isTrainer: false,
+                                        ...(inviteGroupId ? { groupId: inviteGroupId } : {}),
+                                      },
+                                    },
+                                  };
+
+                                  await FirebaseManager.setMember(uid, newMember);
+
+                                  setGeneratedPassword(password);
+                                }
+                              } catch (err) {
+                                setErrorMessage(err instanceof Error ? err.message : "Fehler beim Anlegen.");
+                              } finally {
+                                setIsCreating(false);
+                              }
+                            }}
+                            disabled={isCreating}
+                            className="w-full h-14 rounded-2xl bg-[#0A0A0A] text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-[#1F1F23] transition-all shadow-2xl shadow-black/5 active:scale-95 disabled:opacity-50"
+                          >
+                            {isCreating ? (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/10 border-t-black" />
+                            ) : (
+                              <>
+                                <UserPlus size={18} /> Mitglied anlegen
+                              </>
+                            )}
+                          </button>
+                          <p className="text-[9px] text-[#52525B] font-bold uppercase tracking-widest text-center px-8 leading-relaxed italic">
+                            Das Konto wird sofort erstellt und kann genutzt werden.
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </GlassSection>
-               </motion.div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>,
         document.body
       )}
 
-        {/* CSV Import Modal */}
-        {typeof document !== "undefined" && createPortal(
-          <AnimatePresence>
-            {isImportOpen && isAdmin && (
+      {/* CSV Import Modal */}
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {isImportOpen && isAdmin && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={(e) => { if (e.target === e.currentTarget) closeImportModal(); }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto"
+            >
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={(e) => { if (e.target === e.currentTarget) closeImportModal(); }}
-                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-2xl my-8"
               >
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  onClick={(e) => e.stopPropagation()}
-                  className={`w-full my-8 transition-all duration-300 ${
-                    importStep === "map" || importStep === "preview" ? "max-w-4xl" : "max-w-2xl"
-                  }`}
-                >
-                  <GlassSection className="relative overflow-hidden border-black/10 shadow-3xl">
-                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px] pointer-events-none" />
-                    
-                    <div className="p-8 flex flex-col gap-6">
-                      {/* Header */}
-                      <div className="flex items-start justify-between">
-                        <div className="flex flex-col gap-2">
-                          <h2 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic">MITGLIEDER IMPORTIEREN</h2>
-                          <p className="text-[#71717A] font-bold text-[10px] uppercase tracking-[0.2em]">Mitglieder aus Clubdesk oder Excel via CSV importieren</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={closeImportModal}
-                          className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
-                        >
-                          <X size={16} />
-                        </button>
+                <GlassSection className="relative overflow-hidden border-black/10 shadow-3xl">
+                  <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px] pointer-events-none" />
+
+                  <div className="p-8 flex flex-col gap-6">
+                    {/* Header */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex flex-col gap-2">
+                        <h2 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic">MITGLIEDER IMPORTIEREN</h2>
+                        <p className="text-[#71717A] font-bold text-[10px] uppercase tracking-[0.2em]">Mitglieder aus Clubdesk oder Excel via CSV importieren</p>
                       </div>
+                      <button
+                        type="button"
+                        onClick={closeImportModal}
+                        className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
 
-                      {/* Step 1: Upload */}
-                      {importStep === "upload" && (
-                        <div className="flex flex-col gap-6">
-                          <div className="flex flex-col gap-2">
-                            <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">Import-Quelle auswählen</span>
-                            <div className="grid grid-cols-2 gap-4">
-                              {/* ClubDesk */}
-                              <button
-                                type="button"
-                                onClick={() => setSelectedProvider("clubdesk")}
-                                className={`p-5 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
-                                  selectedProvider === "clubdesk"
-                                    ? "border-[#0A0A0A] bg-black/[0.02] shadow-sm"
-                                    : "border-black/5 bg-transparent hover:border-black/10 hover:bg-black/[0.005]"
-                                }`}
-                              >
-                                <div className="h-10 flex items-center justify-center overflow-hidden rounded-xl bg-white px-3 py-1.5 border border-black/5 shadow-sm">
-                                  <img
-                                    src="https://assets.reviews.omr.com/ucezzmrel1u19brhvuz4yix51qhj"
-                                    alt="ClubDesk Logo"
-                                    className="h-full object-contain"
-                                  />
-                                </div>
-                                <div className="flex flex-col items-center">
-                                  <h4 className="text-[11px] font-black text-[#0A0A0A] uppercase tracking-wider">ClubDesk</h4>
-                                  <p className="text-[9px] text-[#71717A] font-medium mt-0.5">Smarter Spaltenabgleich</p>
-                                </div>
-                              </button>
-
-                              {/* SpielerPlus */}
-                              <button
-                                type="button"
-                                onClick={() => setSelectedProvider("spielerplus")}
-                                className={`p-5 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
-                                  selectedProvider === "spielerplus"
-                                    ? "border-[#0A0A0A] bg-black/[0.02] shadow-sm"
-                                    : "border-black/5 bg-transparent hover:border-black/10 hover:bg-black/[0.005]"
-                                }`}
-                              >
-                                <div className="h-10 flex items-center justify-center overflow-hidden rounded-xl bg-white px-3 py-1.5 border border-black/5 shadow-sm">
-                                  <img
-                                    src="https://cdn.prod.website-files.com/5f50ccfbebad96116fd08dee/682c7de3f38d7e1e55109dc1_SPIELERPLUS_LOGO.png"
-                                    alt="SpielerPlus Logo"
-                                    className="h-full object-contain"
-                                  />
-                                </div>
-                                <div className="flex flex-col items-center">
-                                  <h4 className="text-[11px] font-black text-[#0A0A0A] uppercase tracking-wider">SpielerPlus</h4>
-                                  <p className="text-[9px] text-[#71717A] font-medium mt-0.5">Automatisches Rollen-Mapping</p>
-                                </div>
-                              </button>
-                            </div>
-                          </div>
-
-                          {selectedProvider === "clubdesk" && (
-                            <div className="flex flex-col gap-6">
-                              <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
-                                <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für Clubdesk-Export:</p>
-                                <ol className="list-decimal list-inside space-y-2 font-medium">
-                                  <li>Logge dich bei <strong>Clubdesk</strong> ein.</li>
-                                  <li>Gehe links im Hauptmenü auf <strong>„Kontakte“</strong> (oder „Mitglieder“).</li>
-                                  <li>Klicke oben in der Leiste auf den Button <strong>„Exportieren“</strong>.</li>
-                                  <li>Wähle im folgenden Fenster das Format <strong>„CSV“</strong> und lade die Datei auf deinen Computer herunter.</li>
-                                </ol>
-                                <p className="italic text-[10px] text-[#71717A]">Talo erkennt die Spalten wie Name, Vorname und E-Mail automatisch.</p>
-                              </div>
-
-                              <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
-                                <input
-                                  type="file"
-                                  accept=".csv"
-                                  onChange={handleFileChange}
-                                  className="absolute inset-0 opacity-0 cursor-pointer"
-                                />
-                                <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
-                                  <Plus size={20} />
-                                </div>
-                                <div className="text-center">
-                                  <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
-                                  <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {selectedProvider === "spielerplus" && (
-                            <div className="flex flex-col gap-6">
-                              <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
-                                <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für SpielerPlus-Export:</p>
-                                <ol className="list-decimal list-inside space-y-2 font-medium">
-                                  <li>Logge dich bei <strong>SpielerPlus</strong> ein.</li>
-                                  <li>Gehe in dein Team-Dashboard und klicke auf <strong>„Mitglieder“</strong>.</li>
-                                  <li>Klicke oben rechts auf den Menü-Button (drei Punkte) und wähle <strong>„Exportieren“</strong>.</li>
-                                  <li>Wähle das Format <strong>„CSV“</strong> und speichere die Datei auf deinem Computer.</li>
-                                </ol>
-                                <p className="italic text-[10px] text-[#71717A]">Talo erkennt die Spalten wie First Name, Last Name und Email vollautomatisch.</p>
-                              </div>
-
-                              <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
-                                <input
-                                  type="file"
-                                  accept=".csv"
-                                  onChange={handleFileChange}
-                                  className="absolute inset-0 opacity-0 cursor-pointer"
-                                />
-                                <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
-                                  <Plus size={20} />
-                                </div>
-                                <div className="text-center">
-                                  <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
-                                  <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
+                    {/* Step 1: Upload */}
+                    {importStep === "upload" && (
+                      <div className="flex flex-col gap-6">
+                        <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
+                          <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für Clubdesk-Export:</p>
+                          <ol className="list-decimal list-inside space-y-2 font-medium">
+                            <li>Logge dich bei <strong>Clubdesk</strong> ein.</li>
+                            <li>Gehe links im Hauptmenü auf <strong>„Kontakte“</strong> (oder „Mitglieder“).</li>
+                            <li>Klicke oben in der Leiste auf den Button <strong>„Exportieren“</strong>.</li>
+                            <li>Wähle im folgenden Fenster das Format <strong>„CSV“</strong> und lade die Datei auf deinen Computer herunter.</li>
+                          </ol>
+                          <p className="italic text-[10px] text-[#71717A]">Talo erkennt die Spalten wie Name, Vorname und E-Mail automatisch.</p>
                         </div>
-                      )}
 
-                      {/* Step 2: Map Fields */}
-                      {importStep === "map" && (
-                        <div className="flex flex-col gap-6">
-                          <p className="text-xs font-semibold text-[#52525B]">
-                            Ordne die Talo-Felder den Spalten deiner hochgeladenen CSV-Datei zu:
-                          </p>
-
-                          <div className="flex flex-col gap-4 bg-black/[0.01] p-5 rounded-2xl border border-black/5">
-                            <div className="flex flex-col gap-1">
-                              <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Vorname *</label>
-                              <div className="relative w-full">
-                                <select
-                                  value={fieldMappings.firstName}
-                                  onChange={(e) => setFieldMappings(prev => ({ ...prev, firstName: Number(e.target.value) }))}
-                                  className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
-                                >
-                                  <option value={-1}>-- Spalte auswählen --</option>
-                                  {csvHeaders.map((h, idx) => (
-                                    <option key={idx} value={idx}>{h}</option>
-                                  ))}
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
-                                  <ChevronDown size={14} />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Nachname *</label>
-                              <div className="relative w-full">
-                                <select
-                                  value={fieldMappings.lastName}
-                                  onChange={(e) => setFieldMappings(prev => ({ ...prev, lastName: Number(e.target.value) }))}
-                                  className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
-                                >
-                                  <option value={-1}>-- Spalte auswählen --</option>
-                                  {csvHeaders.map((h, idx) => (
-                                    <option key={idx} value={idx}>{h}</option>
-                                  ))}
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
-                                  <ChevronDown size={14} />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">E-Mail *</label>
-                              <div className="relative w-full">
-                                <select
-                                  value={fieldMappings.email}
-                                  onChange={(e) => setFieldMappings(prev => ({ ...prev, email: Number(e.target.value) }))}
-                                  className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
-                                >
-                                  <option value={-1}>-- Spalte auswählen --</option>
-                                  {csvHeaders.map((h, idx) => (
-                                    <option key={idx} value={idx}>{h}</option>
-                                  ))}
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
-                                  <ChevronDown size={14} />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Mitgliedertyp (Optional)</label>
-                              <div className="relative w-full">
-                                <select
-                                  value={fieldMappings.memberType}
-                                  onChange={(e) => setFieldMappings(prev => ({ ...prev, memberType: Number(e.target.value) }))}
-                                  className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
-                                >
-                                  <option value={-1}>-- Standard (Aktiv) --</option>
-                                  {csvHeaders.map((h, idx) => (
-                                    <option key={idx} value={idx}>{h}</option>
-                                  ))}
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
-                                  <ChevronDown size={14} />
-                                </div>
-                              </div>
-                            </div>
+                        <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
+                          <input
+                            type="file"
+                            accept=".csv"
+                            onChange={handleFileChange}
+                            className="absolute inset-0 opacity-0 cursor-pointer"
+                          />
+                          <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
+                            <Plus size={20} />
                           </div>
-
-                          <div className="flex gap-3">
-                            <button
-                              onClick={() => setImportStep("upload")}
-                              className="flex-1 h-12 rounded-xl border border-black/10 font-bold text-xs uppercase tracking-widest text-[#52525B]"
-                            >
-                              Zurück
-                            </button>
-                            <button
-                              onClick={generatePreview}
-                              disabled={isPreviewLoading || fieldMappings.firstName === -1 || fieldMappings.lastName === -1 || fieldMappings.email === -1}
-                              style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
-                              className="flex-1 h-12 rounded-xl font-bold text-xs uppercase tracking-widest text-white disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                              {isPreviewLoading ? (
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
-                              ) : (
-                                "Vorschau generieren"
-                              )}
-                            </button>
+                          <div className="text-center">
+                            <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
+                            <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
                           </div>
                         </div>
-                      )}
+                      </div>
+                    )}
 
-                      {/* Step 3: Preview */}
-                      {importStep === "preview" && (
-                        <div className="flex flex-col gap-6">
-                          <div className="flex justify-between items-center text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">
-                            <span>Vorschau ({mappedMembers.filter(m => m.isValid && m.selected).length} bereit zum Import)</span>
-                            {mappedMembers.some(m => !m.isValid) && (
-                              <span className="text-red-500 font-semibold">{mappedMembers.filter(m => !m.isValid).length} Fehlerhaft</span>
-                            )}
-                          </div>
+                    {/* Step 2: Map Fields */}
+                    {importStep === "map" && (
+                      <div className="flex flex-col gap-6">
+                        <p className="text-xs font-semibold text-[#52525B]">
+                          Ordne die Talo-Felder den Spalten deiner hochgeladenen CSV-Datei zu:
+                        </p>
 
-                          <div className="max-h-60 overflow-y-auto border border-black/5 rounded-2xl bg-black/[0.01] overflow-x-auto">
-                            <table className="w-full text-left border-collapse text-xs">
-                              <thead>
-                                <tr className="border-b border-black/5 text-[9px] font-black text-[#71717A] uppercase tracking-wider bg-black/[0.02]">
-                                  <th className="p-3 w-10 text-center">
-                                    <input
-                                      type="checkbox"
-                                      checked={mappedMembers.length > 0 && mappedMembers.filter(m => m.isValid).every(m => m.selected)}
-                                      onChange={(e) => {
-                                        const checked = e.target.checked;
-                                        setMappedMembers(prev => prev.map(m => m.isValid ? { ...m, selected: checked } : m));
-                                      }}
-                                      className="w-3.5 h-3.5 rounded border-black/10 text-black focus:ring-black accent-black cursor-pointer"
-                                    />
-                                  </th>
-                                  <th className="p-3">Mitglied</th>
-                                  <th className="p-3">E-Mail</th>
-                                  <th className="p-3">Typ</th>
-                                  <th className="p-3 text-right">Status</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-black/5">
-                                {mappedMembers.map((m, idx) => (
-                                  <tr key={idx} className={`hover:bg-black/[0.01] transition-all ${!m.isValid ? "opacity-60 bg-red-500/[0.01]" : ""}`}>
-                                    <td className="p-3 text-center">
-                                      <input
-                                        type="checkbox"
-                                        disabled={!m.isValid}
-                                        checked={m.selected}
-                                        onChange={(e) => {
-                                          const checked = e.target.checked;
-                                          setMappedMembers(prev => prev.map((item, i) => i === idx ? { ...item, selected: checked } : item));
-                                        }}
-                                        className="w-3.5 h-3.5 rounded border-black/10 text-black focus:ring-black accent-black cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                                      />
-                                    </td>
-                                    <td className="p-3 font-semibold text-[#0A0A0A] whitespace-nowrap">
-                                      <div className="flex items-center gap-2">
-                                        <span>{m.firstName} {m.lastName}</span>
-                                        {m.alreadyExists && (
-                                          <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-600 text-[9px] font-black uppercase tracking-wider">
-                                            Bestehendes Konto
-                                          </span>
-                                        )}
-                                      </div>
-                                    </td>
-                                    <td className="p-3 font-medium text-[#71717A] whitespace-nowrap font-mono text-[10px]">
-                                      {m.email || "Keine E-Mail"}
-                                    </td>
-                                    <td className="p-3 whitespace-nowrap">
-                                      {m.isValid ? (
-                                        <div className="relative inline-block">
-                                          <select
-                                            value={m.memberType}
-                                            onChange={(e) => {
-                                              const newType = e.target.value;
-                                              setMappedMembers(prev => prev.map((item, i) => i === idx ? { ...item, memberType: newType } : item));
-                                            }}
-                                            className="h-8 pl-3 pr-7 py-0.5 rounded-lg border border-black/10 bg-white text-[10px] font-black uppercase tracking-wider text-[#0A0A0A] focus:outline-none cursor-pointer appearance-none"
-                                          >
-                                            {availableTypes.map((type) => (
-                                              <option key={type} value={type}>{type}</option>
-                                            ))}
-                                          </select>
-                                          <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
-                                            <ChevronDown size={10} />
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <span className="px-2 py-0.5 rounded bg-black/[0.04] text-[9px] uppercase tracking-widest font-black text-[#52525B]">
-                                          {m.memberType}
-                                        </span>
-                                      )}
-                                    </td>
-                                    <td className="p-3 text-right whitespace-nowrap">
-                                      {m.isValid ? (
-                                        <span className="text-green-600 font-bold text-[10px] uppercase tracking-wider">Bereit</span>
-                                      ) : (
-                                        <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-500 font-black text-[9px] uppercase tracking-wider">{m.errorReason}</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-
-                          <div className="flex items-center gap-3 p-4 rounded-2xl bg-black/[0.02] border border-black/5">
-                            <input
-                              type="checkbox"
-                              id="bulkSendWelcomeEmails"
-                              checked={sendWelcomeEmailsBulk}
-                              onChange={(e) => setSendWelcomeEmailsBulk(e.target.checked)}
-                              className="w-4 h-4 rounded border-black/10 text-black focus:ring-black accent-black cursor-pointer"
-                            />
-                            <label htmlFor="bulkSendWelcomeEmails" className="text-xs text-[#52525B] font-bold uppercase tracking-wider select-none cursor-pointer">
-                              Willkommens-E-Mails direkt nach Erstellung automatisch an alle neuen Mitglieder senden
-                            </label>
-                          </div>
-
-                          <div className="flex gap-3">
-                            <button
-                              onClick={() => setImportStep("map")}
-                              className="flex-1 h-12 rounded-xl border border-black/10 font-bold text-xs uppercase tracking-widest text-[#52525B]"
+                        <div className="flex flex-col gap-4 bg-black/[0.01] p-5 rounded-2xl border border-black/5">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Vorname *</label>
+                            <select
+                              value={fieldMappings.firstName}
+                              onChange={(e) => setFieldMappings(prev => ({ ...prev, firstName: Number(e.target.value) }))}
+                              className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
                             >
-                              Zurück
-                            </button>
-                            <button
-                              onClick={() => {
-                                const validCount = mappedMembers.filter(m => m.isValid && m.selected).length;
-                                if (members.length + validCount > planFeatures.maxMembers) {
-                                  alert(`Mitgliederlimit (${planFeatures.maxMembers}) würde überschritten. Du kannst maximal ${planFeatures.maxMembers - members.length} neue Mitglieder hinzufügen.`);
-                                  return;
-                                }
-                                startImport();
-                              }}
-                              disabled={mappedMembers.filter(m => m.isValid && m.selected).length === 0}
-                              style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
-                              className="flex-1 h-12 rounded-xl font-bold text-xs uppercase tracking-widest text-white disabled:opacity-50 shadow-lg shadow-black/10"
+                              <option value={-1}>-- Spalte auswählen --</option>
+                              {csvHeaders.map((h, idx) => (
+                                <option key={idx} value={idx}>{h}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Nachname *</label>
+                            <select
+                              value={fieldMappings.lastName}
+                              onChange={(e) => setFieldMappings(prev => ({ ...prev, lastName: Number(e.target.value) }))}
+                              className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
                             >
-                              Import starten
-                            </button>
+                              <option value={-1}>-- Spalte auswählen --</option>
+                              {csvHeaders.map((h, idx) => (
+                                <option key={idx} value={idx}>{h}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">E-Mail *</label>
+                            <select
+                              value={fieldMappings.email}
+                              onChange={(e) => setFieldMappings(prev => ({ ...prev, email: Number(e.target.value) }))}
+                              className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
+                            >
+                              <option value={-1}>-- Spalte auswählen --</option>
+                              {csvHeaders.map((h, idx) => (
+                                <option key={idx} value={idx}>{h}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Mitgliedertyp (Optional)</label>
+                            <select
+                              value={fieldMappings.memberType}
+                              onChange={(e) => setFieldMappings(prev => ({ ...prev, memberType: Number(e.target.value) }))}
+                              className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
+                            >
+                              <option value={-1}>-- Standard (Aktiv) --</option>
+                              {csvHeaders.map((h, idx) => (
+                                <option key={idx} value={idx}>{h}</option>
+                              ))}
+                            </select>
                           </div>
                         </div>
-                      )}
 
-                      {/* Step 4: Progress */}
-                      {importStep === "progress" && (
-                        <div className="flex flex-col gap-6 items-center justify-center py-8">
-                          <div className="relative w-24 h-24 flex items-center justify-center">
-                            <div className="absolute inset-0 rounded-full border-4 border-black/5" />
-                            <div className="absolute inset-0 rounded-full border-4 border-[#0A0A0A] border-t-transparent animate-spin" />
-                            <span className="text-lg font-black font-poppins text-[#0A0A0A]">{importProgress}%</span>
-                          </div>
-                          <div className="flex flex-col gap-1 text-center">
-                            <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">Mitglieder werden angelegt...</p>
-                            <p className="text-[10px] text-[#71717A] font-semibold italic">Importiere: {currentImportingName}</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Step 5: Complete */}
-                      {importStep === "complete" && (
-                        <div className="flex flex-col gap-6">
-                          <div className="flex flex-col items-center justify-center gap-3 py-4 text-center">
-                            <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-600">
-                              <Check size={28} strokeWidth={3} />
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <h3 className="text-lg font-bold font-logo uppercase tracking-widest text-[#0A0A0A]">Import erfolgreich!</h3>
-                              <p className="text-xs text-[#52525B] font-medium max-w-sm leading-relaxed">
-                                Die Mitglieder wurden erfolgreich in Talo registriert. Du kannst die Liste der Passwörter jetzt herunterladen.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="p-4 rounded-2xl bg-black/[0.02] border border-black/5 flex justify-between items-center">
-                            <div className="flex flex-col gap-0.5">
-                              <span className="text-xs font-bold text-[#0A0A0A] uppercase tracking-wider">Ergebnis-Report</span>
-                              <span className="text-[10px] text-[#71717A] font-semibold">Enthält alle neuen Mitglieder und temporäre Passwörter</span>
-                            </div>
-                            <button
-                              onClick={downloadResults}
-                              className="px-4 py-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
-                            >
-                              Report herunterladen (CSV)
-                            </button>
-                          </div>
-
+                        <div className="flex gap-3">
                           <button
-                            onClick={closeImportModal}
-                            className="w-full h-12 rounded-xl border border-black/10 font-bold text-xs uppercase tracking-widest text-[#0A0A0A] hover:bg-black/[0.02]"
+                            onClick={() => setImportStep("upload")}
+                            className="flex-1 h-12 rounded-xl border border-black/10 font-bold text-xs uppercase tracking-widest text-[#52525B]"
                           >
-                            Fertigstellen
+                            Zurück
+                          </button>
+                          <button
+                            onClick={generatePreview}
+                            disabled={isPreviewLoading || fieldMappings.firstName === -1 || fieldMappings.lastName === -1 || fieldMappings.email === -1}
+                            style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
+                            className="flex-1 h-12 rounded-xl font-bold text-xs uppercase tracking-widest text-white disabled:opacity-50 flex items-center justify-center gap-2"
+                          >
+                            {isPreviewLoading ? (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                            ) : (
+                              "Vorschau generieren"
+                            )}
                           </button>
                         </div>
-                      )}
+                      </div>
+                    )}
 
-                    </div>
-                  </GlassSection>
-                </motion.div>
+                    {/* Step 3: Preview */}
+                    {importStep === "preview" && (
+                      <div className="flex flex-col gap-6">
+                        <div className="flex justify-between items-center text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">
+                          <span>Vorschau ({mappedMembers.filter(m => m.isValid && m.selected).length} bereit zum Import)</span>
+                          {mappedMembers.some(m => !m.isValid) && (
+                            <span className="text-red-500 font-semibold">{mappedMembers.filter(m => !m.isValid).length} Fehlerhaft</span>
+                          )}
+                        </div>
+
+                        <div className="max-h-60 overflow-y-auto border border-black/5 rounded-2xl bg-black/[0.01] overflow-x-auto">
+                          <table className="w-full text-left border-collapse text-xs">
+                            <thead>
+                              <tr className="border-b border-black/5 text-[9px] font-black text-[#71717A] uppercase tracking-wider bg-black/[0.02]">
+                                <th className="p-3 w-10 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={mappedMembers.length > 0 && mappedMembers.filter(m => m.isValid).every(m => m.selected)}
+                                    onChange={(e) => {
+                                      const checked = e.target.checked;
+                                      setMappedMembers(prev => prev.map(m => m.isValid ? { ...m, selected: checked } : m));
+                                    }}
+                                    className="w-3.5 h-3.5 rounded border-black/10 text-black focus:ring-black accent-black cursor-pointer"
+                                  />
+                                </th>
+                                <th className="p-3">Mitglied</th>
+                                <th className="p-3">E-Mail</th>
+                                <th className="p-3">Typ</th>
+                                <th className="p-3 text-right">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-black/5">
+                              {mappedMembers.map((m, idx) => (
+                                <tr key={idx} className={`hover:bg-black/[0.01] transition-all ${!m.isValid ? "opacity-60 bg-red-500/[0.01]" : ""}`}>
+                                  <td className="p-3 text-center">
+                                    <input
+                                      type="checkbox"
+                                      disabled={!m.isValid}
+                                      checked={m.selected}
+                                      onChange={(e) => {
+                                        const checked = e.target.checked;
+                                        setMappedMembers(prev => prev.map((item, i) => i === idx ? { ...item, selected: checked } : item));
+                                      }}
+                                      className="w-3.5 h-3.5 rounded border-black/10 text-black focus:ring-black accent-black cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                                    />
+                                  </td>
+                                  <td className="p-3 font-semibold text-[#0A0A0A] whitespace-nowrap">
+                                    <div className="flex items-center gap-2">
+                                      <span>{m.firstName} {m.lastName}</span>
+                                      {m.alreadyInClub ? (
+                                        <span className="px-1.5 py-0.5 rounded bg-black/[0.04] border border-black/5 text-[#52525B] text-[9px] font-black uppercase tracking-wider">
+                                          Bereits im Verein
+                                        </span>
+                                      ) : m.alreadyExists ? (
+                                        <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-600 text-[9px] font-black uppercase tracking-wider">
+                                          Bestehendes Konto
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                  </td>
+                                  <td className="p-3 font-medium text-[#71717A] whitespace-nowrap font-mono text-[10px]">
+                                    {m.email || "Keine E-Mail"}
+                                  </td>
+                                  <td className="p-3 whitespace-nowrap">
+                                    {m.isValid ? (
+                                      <select
+                                        value={m.memberType}
+                                        onChange={(e) => {
+                                          const newType = e.target.value;
+                                          setMappedMembers(prev => prev.map((item, i) => i === idx ? { ...item, memberType: newType } : item));
+                                        }}
+                                        className="h-8 px-2 py-0.5 rounded-lg border border-black/10 bg-white text-[10px] font-black uppercase tracking-wider text-[#0A0A0A] focus:outline-none cursor-pointer"
+                                      >
+                                        {availableTypes.map((type) => (
+                                          <option key={type} value={type}>{type}</option>
+                                        ))}
+                                      </select>
+                                    ) : (
+                                      <span className="px-2 py-0.5 rounded bg-black/[0.04] text-[9px] uppercase tracking-widest font-black text-[#52525B]">
+                                        {m.memberType}
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="p-3 text-right whitespace-nowrap">
+                                    {m.isValid ? (
+                                      <span className="text-green-600 font-bold text-[10px] uppercase tracking-wider">Bereit</span>
+                                    ) : (
+                                      <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-500 font-black text-[9px] uppercase tracking-wider">{m.errorReason}</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-4 rounded-2xl bg-black/[0.02] border border-black/5">
+                          <input
+                            type="checkbox"
+                            id="bulkSendWelcomeEmails"
+                            checked={sendWelcomeEmailsBulk}
+                            onChange={(e) => setSendWelcomeEmailsBulk(e.target.checked)}
+                            className="w-4 h-4 rounded border-black/10 text-black focus:ring-black accent-black cursor-pointer"
+                          />
+                          <label htmlFor="bulkSendWelcomeEmails" className="text-xs text-[#52525B] font-bold uppercase tracking-wider select-none cursor-pointer">
+                            Willkommens-E-Mails direkt nach Erstellung automatisch an alle neuen Mitglieder senden
+                          </label>
+                        </div>
+
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => setImportStep("map")}
+                            className="flex-1 h-12 rounded-xl border border-black/10 font-bold text-xs uppercase tracking-widest text-[#52525B]"
+                          >
+                            Zurück
+                          </button>
+                          <button
+                            onClick={() => {
+                              const validCount = mappedMembers.filter(m => m.isValid && m.selected).length;
+                              if (members.length + validCount > planFeatures.maxMembers) {
+                                alert(`Mitgliederlimit (${planFeatures.maxMembers}) würde überschritten. Du kannst maximal ${planFeatures.maxMembers - members.length} neue Mitglieder hinzufügen.`);
+                                return;
+                              }
+                              startImport();
+                            }}
+                            disabled={mappedMembers.filter(m => m.isValid && m.selected).length === 0}
+                            style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
+                            className="flex-1 h-12 rounded-xl font-bold text-xs uppercase tracking-widest text-white disabled:opacity-50 shadow-lg shadow-black/10"
+                          >
+                            Import starten
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 4: Progress */}
+                    {importStep === "progress" && (
+                      <div className="flex flex-col gap-6 items-center justify-center py-8">
+                        <div className="relative w-24 h-24 flex items-center justify-center">
+                          <div className="absolute inset-0 rounded-full border-4 border-black/5" />
+                          <div className="absolute inset-0 rounded-full border-4 border-[#0A0A0A] border-t-transparent animate-spin" />
+                          <span className="text-lg font-black font-poppins text-[#0A0A0A]">{importProgress}%</span>
+                        </div>
+                        <div className="flex flex-col gap-1 text-center">
+                          <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">Mitglieder werden angelegt...</p>
+                          <p className="text-[10px] text-[#71717A] font-semibold italic">Importiere: {currentImportingName}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 5: Complete */}
+                    {importStep === "complete" && (
+                      <div className="flex flex-col gap-6">
+                        <div className="flex flex-col items-center justify-center gap-3 py-4 text-center">
+                          <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-600">
+                            <Check size={28} strokeWidth={3} />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <h3 className="text-lg font-bold font-logo uppercase tracking-widest text-[#0A0A0A]">Import erfolgreich!</h3>
+                            <p className="text-xs text-[#52525B] font-medium max-w-sm leading-relaxed">
+                              Die Mitglieder wurden erfolgreich in Talo registriert. Du kannst die Liste der Passwörter jetzt herunterladen.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-2xl bg-black/[0.02] border border-black/5 flex justify-between items-center">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-xs font-bold text-[#0A0A0A] uppercase tracking-wider">Ergebnis-Report</span>
+                            <span className="text-[10px] text-[#71717A] font-semibold">Enthält alle neuen Mitglieder und temporäre Passwörter</span>
+                          </div>
+                          <button
+                            onClick={downloadResults}
+                            className="px-4 py-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
+                          >
+                            Report herunterladen (CSV)
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={closeImportModal}
+                          className="w-full h-12 rounded-xl border border-black/10 font-bold text-xs uppercase tracking-widest text-[#0A0A0A] hover:bg-black/[0.02]"
+                        >
+                          Fertigstellen
+                        </button>
+                      </div>
+                    )}
+
+                  </div>
+                </GlassSection>
               </motion.div>
-            )}
-          </AnimatePresence>,
-          document.body
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
@@ -1468,9 +1363,9 @@ function ListView({
 }) {
   const { t } = useI18n();
   const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
-  const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
-  const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
-  const accentLight   = isLightColor(accent);
+  const accentRaw = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+  const accentLight = isLightColor(accent);
   const allTypes = [...memberTypeOrder];
   if (planFeatures.hasCustomMemberTypes && currentClub?.customMemberTypes) {
     currentClub.customMemberTypes.forEach((c: any) => allTypes.push(c.name));
@@ -1631,11 +1526,11 @@ function LeaderboardView({
       {/* High-End List */}
       <div className="max-w-4xl mx-auto w-full space-y-3 px-3 md:px-4">
         <div className="hidden sm:flex items-center justify-between px-6 text-[10px] font-black text-[#52525B] uppercase tracking-widest border-b border-black/5 pb-4 mb-6">
-           <span>PLATZIERUNG</span>
-           <span className="ml-12 mr-auto">MITGLIED</span>
-           <span>GESAMTPUNKTE</span>
+          <span>PLATZIERUNG</span>
+          <span className="ml-12 mr-auto">MITGLIED</span>
+          <span>GESAMTPUNKTE</span>
         </div>
-        
+
         {rest.length > 0 ? rest.map((item, idx) => (
           <motion.div
             key={item.member.id}
@@ -1662,8 +1557,8 @@ function LeaderboardView({
           </motion.div>
         )) : data.length === 0 && (
           <div className="flex flex-col items-center justify-center py-40 opacity-20">
-             <Trophy size={64} className="mb-6" />
-             <p className="font-poppins font-black uppercase tracking-[0.2em]">Keine Punkte im System</p>
+            <Trophy size={64} className="mb-6" />
+            <p className="font-poppins font-black uppercase tracking-[0.2em]">Keine Punkte im System</p>
           </div>
         )}
       </div>
@@ -1671,7 +1566,7 @@ function LeaderboardView({
       {showGroupLeaderboards ? (
         groups.length > 0 && (
           <div className="max-w-4xl mx-auto w-full px-3 md:px-4 flex flex-col gap-8">
-            
+
             {/* GRP DUELS */}
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between border-b border-black/5 pb-2">
@@ -1698,9 +1593,8 @@ function LeaderboardView({
                       <div key={duel.id} className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className={`w-5 h-5 rounded-full flex items-center justify-center font-mono font-black text-[10px] ${
-                              index === 0 ? "bg-amber-100 text-amber-600 border border-amber-200" : "bg-black/[0.04] text-[#71717A]"
-                            }`}>
+                            <span className={`w-5 h-5 rounded-full flex items-center justify-center font-mono font-black text-[10px] ${index === 0 ? "bg-amber-100 text-amber-600 border border-amber-200" : "bg-black/[0.04] text-[#71717A]"
+                              }`}>
                               {index + 1}
                             </span>
                             <span className="font-poppins font-bold text-sm text-[#0A0A0A]">{duel.name}</span>
@@ -1807,11 +1701,10 @@ function FilterPill({
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
-        selected
+      className={`shrink-0 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${selected
           ? "bg-[#0A0A0A] text-white border-black/15"
           : "bg-black/[0.04] text-[#71717A] border-black/10 hover:text-[#0A0A0A]"
-      }`}
+        }`}
     >
       {label}
     </button>
