@@ -729,7 +729,7 @@ export default function MemberDetailPage() {
                             className={`py-2.5 rounded-xl text-[11px] font-poppins font-black transition-all uppercase tracking-[0.15em] text-center ${
                               active ? "shadow-sm" : "text-[#71717A] hover:text-[#0A0A0A]"
                             }`}>
-                            {s === EntryStatus.Pending ? "Prüfung" : s === EntryStatus.Approved ? "OK" : "Abbruch"}
+                            {s === EntryStatus.Pending ? "Prüfung" : s === EntryStatus.Approved ? "Genehmigt" : "Abgelehnt"}
                           </button>
                         );
                       })}
