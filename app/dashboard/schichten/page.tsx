@@ -286,44 +286,8 @@ export default function ShiftsPage() {
     return Object.entries(dateGroups)
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([dateStr, dateShifts]) => {
-        let dayMin = 8;
-        let dayMax = 20;
-        dateShifts.forEach((s) => {
-          const { startDecimal, endDecimal } = parseTime(s.time);
-          dayMin = Math.min(dayMin, Math.floor(startDecimal));
-          dayMax = Math.max(dayMax, Math.ceil(endDecimal));
-        });
-        
-        dayMin = Math.max(0, dayMin - 1);
-        dayMax = Math.min(24, dayMax + 1);
-        const dayDuration = dayMax - dayMin;
-
-        const hoursArray: number[] = [];
-        for (let h = dayMin; h <= dayMax; h++) {
-          hoursArray.push(h);
-        }
-
         const sorted = [...dateShifts].sort((a, b) => {
           return parseTime(a.time).startDecimal - parseTime(b.time).startDecimal;
-        });
-
-        const lanes: Shift[][] = [];
-        sorted.forEach((s) => {
-          const { startDecimal } = parseTime(s.time);
-          let placed = false;
-          for (let i = 0; i < lanes.length; i++) {
-            const lane = lanes[i];
-            const lastShift = lane[lane.length - 1];
-            const { endDecimal: lastEnd } = parseTime(lastShift.time);
-            if (lastEnd <= startDecimal) {
-              lane.push(s);
-              placed = true;
-              break;
-            }
-          }
-          if (!placed) {
-            lanes.push([s]);
-          }
         });
 
         let formattedDate = dateStr;
@@ -340,11 +304,7 @@ export default function ShiftsPage() {
         return {
           dateStr,
           formattedDate,
-          dayMin,
-          dayMax,
-          dayDuration,
-          hoursArray,
-          lanes
+          shifts: sorted
         };
       });
   }, [shifts]);
@@ -505,111 +465,145 @@ export default function ShiftsPage() {
                     </p>
                   </div>
                 ) : viewMode === "timeline" ? (
-                  /* Dynamic Overlap-Safe Horizontal Timeline View */
-                  <div className="flex flex-col gap-8 w-full">
+                  /* Spacious, Overlap-Free Vertical Timeline View */
+                  <div className="flex flex-col gap-10 w-full">
                     {timelineData.map((day) => (
-                      <div key={day.dateStr} className="flex flex-col gap-6 bg-white border border-black/5 rounded-[28px] p-6 shadow-sm">
+                      <div key={day.dateStr} className="flex flex-col bg-white border border-black/5 rounded-[28px] p-6 shadow-sm">
+                        
                         {/* Day Header */}
-                        <div className="flex items-center justify-between border-b border-black/5 pb-3">
-                          <span className="font-poppins font-black text-sm text-[#0A0A0A] uppercase tracking-wider">
-                            {day.formattedDate}
-                          </span>
-                          <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A]">
-                            {day.lanes.reduce((sum, l) => sum + l.length, 0)} Schichten
+                        <div className="flex items-center justify-between border-b border-black/5 pb-4 mb-6">
+                          <div className="flex items-center gap-2.5">
+                            <Calendar className="text-[#0A0A0A]" size={16} />
+                            <span className="font-poppins font-black text-sm text-[#0A0A0A] uppercase tracking-wider">
+                              {day.formattedDate}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] bg-black/[0.04] px-2.5 py-1 rounded-lg">
+                            {day.shifts.length} Schichten
                           </span>
                         </div>
 
-                        {/* Horizontal Timeline Track Area */}
-                        <div className="relative pt-6 pb-2 min-h-[140px] flex flex-col gap-4 overflow-x-auto no-scrollbar">
-                          {/* Vertical hour grid lines */}
-                          <div className="absolute inset-0 flex justify-between pointer-events-none px-4">
-                            {day.hoursArray.map((hour) => (
-                              <div key={hour} className="h-full border-l border-black/[0.03] relative flex-1 flex justify-start">
-                                <span className="absolute -top-5 left-0 -translate-x-1/2 text-[8px] font-black text-[#A1A1AA] tracking-tighter">
-                                  {String(hour).padStart(2, "0")}:00
-                                </span>
-                              </div>
-                            ))}
-                          </div>
+                        {/* Vertical Timeline Axis & List */}
+                        <div className="relative border-l-2 border-black/[0.06] pl-6 ml-3 flex flex-col gap-5">
+                          {day.shifts.map((s) => {
+                            const required = s.slotsRequired || 1;
+                            const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
+                            const hasClaimedThis = s.claimedSlots?.some(slot => slot.memberId === currentMember?.id) || s.claimedById === currentMember?.id;
+                            const isFull = claimedCount >= required;
 
-                          {/* Lanes Container */}
-                          <div className="flex flex-col gap-3 relative z-10 min-w-[650px] px-4">
-                            {day.lanes.map((lane, laneIdx) => (
-                              <div key={laneIdx} className="relative h-[68px] w-full border border-black/[0.02] bg-black/[0.01] rounded-2xl">
-                                {lane.map((s) => {
-                                  const { startDecimal, endDecimal, start, end } = parseTime(s.time);
-                                  const left = ((startDecimal - day.dayMin) / day.dayDuration) * 100;
-                                  const width = ((endDecimal - startDecimal) / day.dayDuration) * 100;
-                                  
-                                  const required = s.slotsRequired || 1;
-                                  const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
-                                  const hasClaimedThis = s.claimedSlots?.some(slot => slot.memberId === currentMember?.id) || s.claimedById === currentMember?.id;
-                                  const isFull = claimedCount >= required;
+                            let claimersList: string[] = [];
+                            if (s.claimedSlots) {
+                              claimersList = s.claimedSlots.map(c => c.memberName);
+                            } else if (s.claimedById) {
+                              claimersList = [s.claimedByName || ""];
+                            }
 
-                                  return (
-                                    <div
-                                      key={s.id}
-                                      style={{
-                                        left: `${left}%`,
-                                        width: `${width}%`,
-                                      }}
-                                      className="absolute top-1/2 -translate-y-1/2 h-[52px] px-1"
-                                    >
-                                      <div
-                                        className={`h-full rounded-xl border p-2 flex flex-col justify-between hover:scale-[1.02] hover:shadow-md transition-all ${
-                                          hasClaimedThis
-                                            ? "bg-green-500/10 border-green-500/20 text-green-700 shadow-sm"
-                                            : isFull
-                                              ? "bg-black/[0.04] border-black/5 text-[#71717A] opacity-70"
-                                              : "bg-white border-black/10 text-[#0A0A0A]"
-                                        }`}
-                                      >
-                                        {/* Title & Points Row */}
-                                        <div className="flex items-center justify-between gap-1">
-                                          <span className="text-[10px] font-poppins font-black truncate max-w-[70%]" title={s.title}>
-                                            {s.title}
-                                          </span>
-                                          <span className="text-[8px] font-mono font-black shrink-0">
-                                            +{s.points.toFixed(1)} P
-                                          </span>
-                                        </div>
+                            return (
+                              <div key={s.id} className="relative group">
+                                {/* Bullet Dot on the timeline axis */}
+                                <div className={`absolute -left-[31px] top-4 w-3.5 h-3.5 rounded-full border-2 bg-white transition-all group-hover:scale-125 ${
+                                  hasClaimedThis
+                                    ? "border-green-500 bg-green-50"
+                                    : isFull
+                                      ? "border-[#71717A] bg-black/[0.04]"
+                                      : "border-black bg-white"
+                                }`} />
 
-                                        {/* Time and Action */}
-                                        <div className="flex items-center justify-between gap-2 border-t border-black/5 pt-1 mt-0.5">
-                                          <span className="text-[8px] font-bold opacity-80">
-                                            {start} - {end}
-                                          </span>
-
-                                          {/* Claims Actions */}
-                                          {hasClaimedThis ? (
-                                            <button
-                                              type="button"
-                                              onClick={(e) => { e.stopPropagation(); releaseShift(s); }}
-                                              className="text-[7px] font-black text-red-600 bg-red-500/10 px-1 py-0.5 rounded border border-red-500/20 uppercase tracking-widest transition-all"
-                                            >
-                                              Storno
-                                            </button>
-                                          ) : isFull ? (
-                                            <span className="text-[7px] font-black bg-black/5 text-[#71717A] px-1 py-0.5 rounded border border-black/5 uppercase tracking-widest">
-                                              Voll
-                                            </span>
-                                          ) : (
-                                            <button
-                                              type="button"
-                                              onClick={(e) => { e.stopPropagation(); claimShift(s); }}
-                                              className="text-[7px] font-black text-white bg-[#0A0A0A] hover:bg-[#1F1F23] px-1 py-0.5 rounded uppercase tracking-widest transition-all"
-                                            >
-                                              Buchen ({claimedCount}/{required})
-                                            </button>
-                                          )}
-                                        </div>
-                                      </div>
+                                {/* Row Card */}
+                                <div className={`p-4 rounded-[20px] border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white ${
+                                  hasClaimedThis
+                                    ? "border-green-500/20 bg-green-500/[0.01] hover:shadow-sm"
+                                    : "border-black/5 hover:border-black/10 hover:shadow-sm"
+                                }`}>
+                                  {/* Info Columns */}
+                                  <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 flex-1 min-w-0">
+                                    {/* Time Block */}
+                                    <div className="flex flex-col shrink-0">
+                                      <span className="font-poppins font-black text-sm text-[#0A0A0A] leading-none mb-1">
+                                        {s.time}
+                                      </span>
+                                      <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A]">
+                                        ⏱️ Uhrzeit
+                                      </span>
                                     </div>
-                                  );
-                                })}
+
+                                    {/* Title & Event */}
+                                    <div className="flex flex-col min-w-0">
+                                      <h4 className="font-poppins font-bold text-sm text-[#0A0A0A] truncate">
+                                        {s.title}
+                                      </h4>
+                                      <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A] mt-0.5">
+                                        📁 {s.event}
+                                      </span>
+                                    </div>
+
+                                    {/* Occupancy and Claimers */}
+                                    <div className="flex flex-col min-w-0">
+                                      <span className="text-[9px] font-black uppercase tracking-widest text-[#71717A] mb-1">
+                                        👥 Belegung: <span className={isFull ? "text-green-600 font-bold" : "text-[#0A0A0A]"}>{claimedCount} / {required} Personen</span>
+                                      </span>
+                                      {claimersList.length > 0 ? (
+                                        <div className="flex flex-wrap gap-1">
+                                          {claimersList.map((name, idx) => (
+                                            <span key={idx} className="text-[9px] font-bold bg-black/[0.03] text-[#52525B] border border-black/5 px-2 py-0.5 rounded-md truncate max-w-[120px]">
+                                              👤 {name}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <span className="text-[9px] font-medium text-[#A1A1AA] italic">Noch niemand eingetragen</span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Action Buttons */}
+                                  <div className="flex items-center gap-2.5 shrink-0">
+                                    <span className="text-[11px] font-mono font-black text-[#34C759] bg-[#34C759]/10 px-2.5 py-1 rounded-xl border border-[#34C759]/15">
+                                      +{s.points.toFixed(1)} P
+                                    </span>
+
+                                    <button
+                                      onClick={() => shareSingleShift(s)}
+                                      className="p-2.5 rounded-xl border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all"
+                                      title="Teilen"
+                                    >
+                                      <MessageCircle size={14} className="stroke-[2.5]" />
+                                    </button>
+
+                                    {hasClaimedThis ? (
+                                      <button
+                                        onClick={() => releaseShift(s)}
+                                        className="px-4 py-2 bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors shadow-sm"
+                                      >
+                                        Storno
+                                      </button>
+                                    ) : isFull ? (
+                                      <span className="px-3.5 py-2 bg-black/[0.04] text-[#71717A] rounded-xl text-[10px] font-black uppercase tracking-widest border border-black/5">
+                                        Voll
+                                      </span>
+                                    ) : (
+                                      <button
+                                        onClick={() => claimShift(s)}
+                                        className="px-4 py-2 bg-[#0A0A0A] hover:bg-[#1E1E24] text-white rounded-xl text-xs font-black uppercase tracking-widest transition-colors shadow-sm"
+                                      >
+                                        Buchen
+                                      </button>
+                                    )}
+
+                                    {isAdmin && (
+                                      <button
+                                        onClick={() => deleteShift(s.id)}
+                                        className="p-2.5 rounded-xl border border-red-500/10 text-red-500 hover:bg-red-500/5 transition-all"
+                                        title="Löschen"
+                                      >
+                                        <Trash size={14} />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
-                            ))}
-                          </div>
+                            );
+                          })}
                         </div>
                       </div>
                     ))}
