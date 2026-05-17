@@ -568,10 +568,10 @@ export default function MembersPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setIsImportOpen(true)}
-                  className="shrink-0 flex items-center gap-2 px-4 py-3 md:px-5 rounded-2xl border border-black/10 bg-white hover:bg-black/[0.02] text-[#0A0A0A] transition-all font-black text-[11px] uppercase tracking-widest shadow-sm"
+                  className="shrink-0 hidden md:flex items-center gap-2 px-5 py-3 rounded-2xl border border-black/10 bg-white hover:bg-black/[0.02] text-[#0A0A0A] transition-all font-black text-[11px] uppercase tracking-widest shadow-sm"
                 >
                   <Layers size={16} />
-                  <span className="hidden md:inline">Importieren</span>
+                  <span>Importieren</span>
                 </button>
                 <button
                   onClick={() => {
