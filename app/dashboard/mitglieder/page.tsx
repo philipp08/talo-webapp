@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Trophy,
-  ChevronRight, Shield, UserPlus,
+  ChevronRight, Shield, UserPlus, ChevronDown,
   Target, MoreVertical,
   X, Mail, User, Check, Layers, Filter, Swords, Trash, Plus, Calendar, Clock
 } from "lucide-react";
@@ -81,6 +81,7 @@ export default function MembersPage() {
 
   // CSV Import state
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<"clubdesk" | "spielerplus">("clubdesk");
   const [importStep, setImportStep] = useState<"upload" | "map" | "preview" | "progress" | "complete">("upload");
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [csvRows, setCsvRows] = useState<string[][]>([]);
@@ -1010,7 +1011,7 @@ export default function MembersPage() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-2xl my-8"
+                className={`w-full ${importStep === "preview" || importStep === "complete" ? "max-w-4xl" : "max-w-2xl"} my-8 transition-all duration-300`}
               >
                 <GlassSection className="relative overflow-hidden border-black/10 shadow-3xl">
                   <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px] pointer-events-none" />
@@ -1034,32 +1035,118 @@ export default function MembersPage() {
                     {/* Step 1: Upload */}
                     {importStep === "upload" && (
                       <div className="flex flex-col gap-6">
-                        <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
-                          <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für Clubdesk-Export:</p>
-                          <ol className="list-decimal list-inside space-y-2 font-medium">
-                            <li>Logge dich bei <strong>Clubdesk</strong> ein.</li>
-                            <li>Gehe links im Hauptmenü auf <strong>„Kontakte“</strong> (oder „Mitglieder“).</li>
-                            <li>Klicke oben in der Leiste auf den Button <strong>„Exportieren“</strong>.</li>
-                            <li>Wähle im folgenden Fenster das Format <strong>„CSV“</strong> und lade die Datei auf deinen Computer herunter.</li>
-                          </ol>
-                          <p className="italic text-[10px] text-[#71717A]">Talo erkennt die Spalten wie Name, Vorname und E-Mail automatisch.</p>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Import-Quelle auswählen</label>
+                          <div className="grid grid-cols-2 gap-4">
+                            {/* ClubDesk */}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedProvider("clubdesk")}
+                              className={`p-5 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
+                                selectedProvider === "clubdesk"
+                                  ? "border-[#0A0A0A] bg-black/[0.02] shadow-sm"
+                                  : "border-black/5 bg-transparent hover:border-black/10 hover:bg-black/[0.005]"
+                              }`}
+                            >
+                              <div className="h-10 flex items-center justify-center overflow-hidden rounded-xl bg-white px-3 py-1.5 border border-black/5 shadow-sm">
+                                <img
+                                  src="https://assets.reviews.omr.com/ucezzmrel1u19brhvuz4yix51qhj"
+                                  alt="ClubDesk Logo"
+                                  className="h-full object-contain"
+                                />
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <h4 className="text-[11px] font-black text-[#0A0A0A] uppercase tracking-wider">ClubDesk</h4>
+                                <p className="text-[9px] text-[#71717A] font-medium mt-0.5">Smarter Spaltenabgleich</p>
+                              </div>
+                            </button>
+
+                            {/* SpielerPlus */}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedProvider("spielerplus")}
+                              className={`p-5 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
+                                selectedProvider === "spielerplus"
+                                  ? "border-[#0A0A0A] bg-black/[0.02] shadow-sm"
+                                  : "border-black/5 bg-transparent hover:border-black/10 hover:bg-black/[0.005]"
+                              }`}
+                            >
+                              <div className="h-10 flex items-center justify-center overflow-hidden rounded-xl bg-white px-3 py-1.5 border border-black/5 shadow-sm">
+                                <img
+                                  src="https://cdn.prod.website-files.com/5f50ccfbebad96116fd08dee/682c7de3f38d7e1e55109dc1_SPIELERPLUS_LOGO.png"
+                                  alt="SpielerPlus Logo"
+                                  className="h-full object-contain"
+                                />
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <h4 className="text-[11px] font-black text-[#0A0A0A] uppercase tracking-wider">SpielerPlus</h4>
+                                <p className="text-[9px] text-[#71717A] font-medium mt-0.5">Automatisches Mapping</p>
+                              </div>
+                            </button>
+                          </div>
                         </div>
 
-                        <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
-                          <input
-                            type="file"
-                            accept=".csv"
-                            onChange={handleFileChange}
-                            className="absolute inset-0 opacity-0 cursor-pointer"
-                          />
-                          <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
-                            <Plus size={20} />
+                        {selectedProvider === "clubdesk" && (
+                          <div className="flex flex-col gap-6">
+                            <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
+                              <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für Clubdesk-Export:</p>
+                              <ol className="list-decimal list-inside space-y-2 font-medium">
+                                <li>Logge dich bei <strong>Clubdesk</strong> ein.</li>
+                                <li>Gehe links im Hauptmenü auf <strong>„Kontakte“</strong> (oder „Mitglieder“).</li>
+                                <li>Klicke oben in der Leiste auf den Button <strong>„Exportieren“</strong>.</li>
+                                <li>Wähle im folgenden Fenster das Format <strong>„CSV“</strong> und lade die Datei auf deinen Computer herunter.</li>
+                              </ol>
+                              <p className="italic text-[10px] text-[#71717A]">Talo erkennt die Spalten wie Name, Vorname und E-Mail automatisch.</p>
+                            </div>
+
+                            <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
+                              <input
+                                type="file"
+                                accept=".csv"
+                                onChange={handleFileChange}
+                                className="absolute inset-0 opacity-0 cursor-pointer"
+                              />
+                              <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
+                                <Plus size={20} />
+                              </div>
+                              <div className="text-center">
+                                <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
+                                <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-center">
-                            <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
-                            <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
+                        )}
+
+                        {selectedProvider === "spielerplus" && (
+                          <div className="flex flex-col gap-6">
+                            <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
+                              <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für SpielerPlus-Export:</p>
+                              <ol className="list-decimal list-inside space-y-2 font-medium">
+                                <li>Logge dich bei <strong>SpielerPlus</strong> ein.</li>
+                                <li>Gehe links im Hauptmenü auf <strong>„Mitglieder“</strong>.</li>
+                                <li>Klicke oben rechts auf den Button <strong>„Mitglieder verwalten“</strong> und wähle <strong>„Exportieren (CSV)“</strong>.</li>
+                                <li>Lade die Datei herunter und wähle sie unten aus.</li>
+                              </ol>
+                              <p className="italic text-[10px] text-[#71717A]">Talo erkennt SpielerPlus Spalten und mappt diese automatisch.</p>
+                            </div>
+
+                            <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
+                              <input
+                                type="file"
+                                accept=".csv"
+                                onChange={handleFileChange}
+                                className="absolute inset-0 opacity-0 cursor-pointer"
+                              />
+                              <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
+                                <Plus size={20} />
+                              </div>
+                              <div className="text-center">
+                                <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
+                                <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     )}
 
@@ -1073,55 +1160,75 @@ export default function MembersPage() {
                         <div className="flex flex-col gap-4 bg-black/[0.01] p-5 rounded-2xl border border-black/5">
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Vorname *</label>
-                            <select
-                              value={fieldMappings.firstName}
-                              onChange={(e) => setFieldMappings(prev => ({ ...prev, firstName: Number(e.target.value) }))}
-                              className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
-                            >
-                              <option value={-1}>-- Spalte auswählen --</option>
-                              {csvHeaders.map((h, idx) => (
-                                <option key={idx} value={idx}>{h}</option>
-                              ))}
-                            </select>
+                            <div className="relative w-full">
+                              <select
+                                value={fieldMappings.firstName}
+                                onChange={(e) => setFieldMappings(prev => ({ ...prev, firstName: Number(e.target.value) }))}
+                                className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
+                              >
+                                <option value={-1}>-- Spalte auswählen --</option>
+                                {csvHeaders.map((h, idx) => (
+                                  <option key={idx} value={idx}>{h}</option>
+                                ))}
+                              </select>
+                              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
+                                <ChevronDown size={14} />
+                              </div>
+                            </div>
                           </div>
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Nachname *</label>
-                            <select
-                              value={fieldMappings.lastName}
-                              onChange={(e) => setFieldMappings(prev => ({ ...prev, lastName: Number(e.target.value) }))}
-                              className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
-                            >
-                              <option value={-1}>-- Spalte auswählen --</option>
-                              {csvHeaders.map((h, idx) => (
-                                <option key={idx} value={idx}>{h}</option>
-                              ))}
-                            </select>
+                            <div className="relative w-full">
+                              <select
+                                value={fieldMappings.lastName}
+                                onChange={(e) => setFieldMappings(prev => ({ ...prev, lastName: Number(e.target.value) }))}
+                                className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
+                              >
+                                <option value={-1}>-- Spalte auswählen --</option>
+                                {csvHeaders.map((h, idx) => (
+                                  <option key={idx} value={idx}>{h}</option>
+                                ))}
+                              </select>
+                              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
+                                <ChevronDown size={14} />
+                              </div>
+                            </div>
                           </div>
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">E-Mail *</label>
-                            <select
-                              value={fieldMappings.email}
-                              onChange={(e) => setFieldMappings(prev => ({ ...prev, email: Number(e.target.value) }))}
-                              className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
-                            >
-                              <option value={-1}>-- Spalte auswählen --</option>
-                              {csvHeaders.map((h, idx) => (
-                                <option key={idx} value={idx}>{h}</option>
-                              ))}
-                            </select>
+                            <div className="relative w-full">
+                              <select
+                                value={fieldMappings.email}
+                                onChange={(e) => setFieldMappings(prev => ({ ...prev, email: Number(e.target.value) }))}
+                                className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
+                              >
+                                <option value={-1}>-- Spalte auswählen --</option>
+                                {csvHeaders.map((h, idx) => (
+                                  <option key={idx} value={idx}>{h}</option>
+                                ))}
+                              </select>
+                              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
+                                <ChevronDown size={14} />
+                              </div>
+                            </div>
                           </div>
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Mitgliedertyp (Optional)</label>
-                            <select
-                              value={fieldMappings.memberType}
-                              onChange={(e) => setFieldMappings(prev => ({ ...prev, memberType: Number(e.target.value) }))}
-                              className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
-                            >
-                              <option value={-1}>-- Standard (Aktiv) --</option>
-                              {csvHeaders.map((h, idx) => (
-                                <option key={idx} value={idx}>{h}</option>
-                              ))}
-                            </select>
+                            <div className="relative w-full">
+                              <select
+                                value={fieldMappings.memberType}
+                                onChange={(e) => setFieldMappings(prev => ({ ...prev, memberType: Number(e.target.value) }))}
+                                className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
+                              >
+                                <option value={-1}>-- Standard (Aktiv) --</option>
+                                {csvHeaders.map((h, idx) => (
+                                  <option key={idx} value={idx}>{h}</option>
+                                ))}
+                              </select>
+                              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
+                                <ChevronDown size={14} />
+                              </div>
+                            </div>
                           </div>
                         </div>
 
@@ -1165,10 +1272,10 @@ export default function MembersPage() {
                                 <th className="p-3 w-10 text-center">
                                   <input
                                     type="checkbox"
-                                    checked={mappedMembers.length > 0 && mappedMembers.filter(m => m.isValid).every(m => m.selected)}
+                                    checked={mappedMembers.length > 0 && mappedMembers.filter(m => m.isValid && !m.alreadyInClub).every(m => m.selected)}
                                     onChange={(e) => {
                                       const checked = e.target.checked;
-                                      setMappedMembers(prev => prev.map(m => m.isValid ? { ...m, selected: checked } : m));
+                                      setMappedMembers(prev => prev.map(m => (m.isValid && !m.alreadyInClub) ? { ...m, selected: checked } : m));
                                     }}
                                     className="w-3.5 h-3.5 rounded border-black/10 text-black focus:ring-black accent-black cursor-pointer"
                                   />
@@ -1185,7 +1292,7 @@ export default function MembersPage() {
                                   <td className="p-3 text-center">
                                     <input
                                       type="checkbox"
-                                      disabled={!m.isValid}
+                                      disabled={!m.isValid || m.alreadyInClub}
                                       checked={m.selected}
                                       onChange={(e) => {
                                         const checked = e.target.checked;
