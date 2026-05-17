@@ -1564,48 +1564,38 @@ function ListView({
             </div>
           </div>
 
-          <div className="bg-white border border-black/5 rounded-[32px] overflow-x-auto shadow-xl">
-            <table className="w-full text-left border-collapse min-w-[520px]">
-              <thead>
-                <tr className="border-b border-black/5" style={{ backgroundColor: accent }}>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest rounded-tl-[31px]" style={{ color: accentLight ? "#0A0A0A" : "#FFFFFF" }}>Mitglied</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest" style={{ color: accentLight ? "#0A0A0A" : "#FFFFFF" }}>Fortschritt</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-right" style={{ color: accentLight ? "#0A0A0A" : "#FFFFFF" }}>Punkte</th>
-                  <th className="px-6 py-4 w-12 rounded-tr-[31px]"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/[0.04]">
-                {group.map((member) => {
-                  const mEntries = entries.filter((e) => e.memberId === member.id && e.status === "Genehmigt" && toDate(e.date) <= new Date());
-                  const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
-                  const target = currentClub ? calculateTargetPoints(member, currentClub) : 15;
-                  const progress = target > 0 ? Math.min(1, approved / target) : 1;
-                  const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF453A";
+          <div className="bg-white border border-black/5 rounded-[32px] shadow-xl overflow-hidden">
+            {/* Mobile View */}
+            <div className="md:hidden flex flex-col divide-y divide-black/[0.04]">
+              {group.map((member) => {
+                const mEntries = entries.filter((e) => e.memberId === member.id && e.status === "Genehmigt" && toDate(e.date) <= new Date());
+                const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
+                const target = currentClub ? calculateTargetPoints(member, currentClub) : 15;
+                const progress = target > 0 ? Math.min(1, approved / target) : 1;
+                const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF453A";
 
-                  return (
-                    <tr key={member.id} className="group hover:bg-black/[0.03] transition-colors cursor-pointer">
-                      <td className="px-6 py-4">
-                        <Link href={`/dashboard/mitglieder/${member.id}`} className="flex items-center gap-3">
-                          <TAvatar name={`${member.firstName} ${member.lastName}`} id={member.id} imageUrl={member.profileImageUrl} size={40} />
-                          <div className="flex flex-col">
-                            <span className="text-sm font-poppins font-bold text-[#0A0A0A] group-hover:underline underline-offset-4 decoration-black/20 whitespace-nowrap">
-                              {member.firstName} {member.lastName}
+                return (
+                  <div key={member.id} className="flex items-center justify-between p-5 hover:bg-black/[0.01] transition-colors">
+                    <Link href={`/dashboard/mitglieder/${member.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                      <TAvatar name={`${member.firstName} ${member.lastName}`} id={member.id} imageUrl={member.profileImageUrl} size={42} />
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-poppins font-bold text-[#0A0A0A] truncate">
+                            {member.firstName} {member.lastName}
+                          </span>
+                          {member.isAdmin && <Shield size={10} className="text-[#52525B] shrink-0" />}
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">{member.memberType}</span>
+                          {showGroups && member.groupId && (
+                            <span className="text-[9px] font-black text-[#A1A1AA] uppercase tracking-widest truncate">
+                              · {groupNameById.get(member.groupId) ?? "Gruppe"}
                             </span>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">{member.memberType}</span>
-                              {member.isAdmin && <Shield size={9} className="text-[#52525B]" />}
-                              {showGroups && member.groupId && (
-                                <span className="text-[9px] font-black text-[#A1A1AA] uppercase tracking-widest">
-                                  · {groupNameById.get(member.groupId) ?? "Gruppe"}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1.5 min-w-[120px] max-w-[200px]">
-                          <div className="h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
+                          )}
+                        </div>
+                        {/* Progress Bar & Value */}
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="h-1.5 w-24 rounded-full bg-black/[0.04] overflow-hidden shrink-0">
                             <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: `${progress * 100}%` }}
@@ -1613,28 +1603,108 @@ function ListView({
                               style={{ background: color }}
                             />
                           </div>
-                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-[0.15em]">
+                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-[0.1em] shrink-0">
                             {(progress * 100).toFixed(0)}% erreicht
                           </span>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-right font-mono font-black text-sm whitespace-nowrap" style={{ color }}>
-                        {approved.toFixed(1)}{" "}
-                        <span className="text-[10px] font-black text-gray-700">/ {target.toFixed(1)}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Link
-                          href={`/dashboard/mitglieder/${member.id}`}
-                          className="w-8 h-8 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all"
-                        >
-                          <MoreVertical size={14} />
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </div>
+                    </Link>
+                    
+                    <div className="flex items-center gap-3 shrink-0 pl-2">
+                      <div className="flex flex-col items-end shrink-0">
+                        <span className="font-mono font-black text-xs" style={{ color }}>
+                          {approved.toFixed(1)}
+                        </span>
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider">
+                          / {target.toFixed(1)} Pkt.
+                        </span>
+                      </div>
+                      
+                      <Link
+                        href={`/dashboard/mitglieder/${member.id}`}
+                        className="w-8 h-8 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all"
+                      >
+                        <MoreVertical size={14} />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[520px]">
+                <thead>
+                  <tr className="border-b border-black/5" style={{ backgroundColor: accent }}>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest rounded-tl-[31px]" style={{ color: accentLight ? "#0A0A0A" : "#FFFFFF" }}>Mitglied</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest" style={{ color: accentLight ? "#0A0A0A" : "#FFFFFF" }}>Fortschritt</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-right" style={{ color: accentLight ? "#0A0A0A" : "#FFFFFF" }}>Punkte</th>
+                    <th className="px-6 py-4 w-12 rounded-tr-[31px]"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-black/[0.04]">
+                  {group.map((member) => {
+                    const mEntries = entries.filter((e) => e.memberId === member.id && e.status === "Genehmigt" && toDate(e.date) <= new Date());
+                    const approved = mEntries.reduce((sum, e) => sum + e.points, 0);
+                    const target = currentClub ? calculateTargetPoints(member, currentClub) : 15;
+                    const progress = target > 0 ? Math.min(1, approved / target) : 1;
+                    const color = progress >= 1 ? "#34C759" : progress >= 0.5 ? "#FF9500" : "#FF453A";
+
+                    return (
+                      <tr key={member.id} className="group hover:bg-black/[0.03] transition-colors cursor-pointer">
+                        <td className="px-6 py-4">
+                          <Link href={`/dashboard/mitglieder/${member.id}`} className="flex items-center gap-3">
+                            <TAvatar name={`${member.firstName} ${member.lastName}`} id={member.id} imageUrl={member.profileImageUrl} size={40} />
+                            <div className="flex flex-col">
+                              <span className="text-sm font-poppins font-bold text-[#0A0A0A] group-hover:underline underline-offset-4 decoration-black/20 whitespace-nowrap">
+                                {member.firstName} {member.lastName}
+                              </span>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">{member.memberType}</span>
+                                {member.isAdmin && <Shield size={9} className="text-[#52525B]" />}
+                                {showGroups && member.groupId && (
+                                  <span className="text-[9px] font-black text-[#A1A1AA] uppercase tracking-widest">
+                                    · {groupNameById.get(member.groupId) ?? "Gruppe"}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </Link>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1.5 min-w-[120px] max-w-[200px]">
+                            <div className="h-1.5 rounded-full bg-black/[0.04] overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progress * 100}%` }}
+                                className="h-full"
+                                style={{ background: color }}
+                              />
+                            </div>
+                            <span className="text-[9px] font-black text-[#52525B] uppercase tracking-[0.15em]">
+                              {(progress * 100).toFixed(0)}% erreicht
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right font-mono font-black text-sm whitespace-nowrap" style={{ color }}>
+                          {approved.toFixed(1)}{" "}
+                          <span className="text-[10px] font-black text-gray-700">/ {target.toFixed(1)}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <Link
+                            href={`/dashboard/mitglieder/${member.id}`}
+                            className="w-8 h-8 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all"
+                          >
+                            <MoreVertical size={14} />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       ))}
