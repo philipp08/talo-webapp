@@ -15,6 +15,7 @@ import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFea
 import { AuthService } from "@/lib/firebase/authService";
 import { EmailService } from "@/lib/firebase/emailService";
 import { TAvatar, GlassSection, TLine, TSearchBar } from "@/app/components/ui/NativeUI";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 const memberTypeOrder = [
   MemberType.Active,
@@ -39,6 +40,7 @@ type LeaderboardItem = {
 };
 
 export default function MembersPage() {
+  const { t } = useI18n();
   const currentClub = useAppStore((state) => state.currentClub);
   const currentMember = useAppStore((state) => state.currentMember);
 
@@ -160,7 +162,7 @@ export default function MembersPage() {
   if (!canViewMembers) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-[#52525B] font-poppins font-bold uppercase tracking-widest bg-black/[0.04] px-8 py-4 rounded-full">Kein Zugriff.</p>
+        <p className="text-[#52525B] font-poppins font-bold uppercase tracking-widest bg-black/[0.04] px-8 py-4 rounded-full">{t("common.noAccess")}</p>
       </div>
     );
   }
@@ -179,7 +181,7 @@ export default function MembersPage() {
                 </div>
               )}
               <div className="flex flex-col">
-                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Team & Engagement</h1>
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{t("mitglieder.title")}</h1>
                 <div className="flex items-center gap-2 mt-1">
                   <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name}</p>
                   <div className="px-2 py-0.5 bg-black/[0.05] border border-black/10 rounded-full">
@@ -203,7 +205,7 @@ export default function MembersPage() {
                 }`}
               >
                 <UserPlus size={16} />
-                <span className="hidden sm:inline">{isLimitReached ? "Limit erreicht" : "Mitglied hinzufügen"}</span>
+                <span className="hidden sm:inline">{isLimitReached ? t("common.limitReached") : t("mitglieder.addMember")}</span>
               </button>
             )}
           </div>
@@ -218,7 +220,7 @@ export default function MembersPage() {
                   viewMode === mode ? "bg-[#0A0A0A] text-white shadow-2xl" : "text-[#71717A] hover:text-[#0A0A0A]"
                 }`}
               >
-                {mode === "administration" ? "Verwaltung" : "Leaderboard"}
+                {mode === "administration" ? t("mitglieder.administration") : t("mitglieder.leaderboard")}
               </button>
             ))}
           </div>
@@ -240,7 +242,7 @@ export default function MembersPage() {
                >
                  <div className="flex flex-col gap-3">
                    <div className="w-full max-w-md">
-                     <TSearchBar value={searchText} onChange={setSearchText} placeholder="Mitglied suchen…" />
+                     <TSearchBar value={searchText} onChange={setSearchText} placeholder={t("mitglieder.search")} />
                    </div>
                    {planFeatures.hasAdvancedFilters && (
                      <div className="flex flex-wrap gap-2">
@@ -618,6 +620,7 @@ function ListView({
   groupNameById: Map<string, string>;
   showGroups: boolean;
 }) {
+  const { t } = useI18n();
   const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
   const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
   const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
@@ -652,7 +655,7 @@ function ListView({
             }} />
             <div className="flex flex-col">
               <span className="text-[15px] font-poppins font-black text-[#0A0A0A] uppercase tracking-tight leading-none italic">
-                {memberTypeLabel[type] ?? type}
+                {type === MemberType.Active ? t("mitglieder.typeActive") : type === MemberType.Board ? t("mitglieder.typeBoard") : type === MemberType.Passive ? t("mitglieder.typePassive") : type === MemberType.Youth ? t("mitglieder.typeYouth") : (memberTypeLabel[type] ?? type)}
               </span>
               <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5 italic">
                 {group.length} Personen

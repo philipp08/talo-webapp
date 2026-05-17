@@ -6,15 +6,17 @@ import { Plus, Trash2, X, Pin, Megaphone } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { TrainingAnnouncement, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
-import { 
+import {
   GlassSection, TLine, TAvatar,
   TButton, TSearchBar
 } from "@/app/components/ui/NativeUI";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 export default function AnnouncementsPage() {
+  const { t } = useI18n();
   const currentClub = useAppStore((state) => state.currentClub);
   const currentMember = useAppStore((state) => state.currentMember);
-  
+
   const planFeatures  = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("free");
   const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
   const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
@@ -108,8 +110,8 @@ export default function AnnouncementsPage() {
                 </div>
               )}
               <div className="flex flex-col">
-                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Ankündigungen</h1>
-                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Neuigkeiten & Mitteilungen</p>
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{t("ankuendigungen.title")}</h1>
+                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · {t("ankuendigungen.subtitle")}</p>
               </div>
             </div>
             {isAdminOrTrainer && (
@@ -118,14 +120,14 @@ export default function AnnouncementsPage() {
                 style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
                 className="shrink-0 flex items-center gap-2 hover:opacity-95 px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-black/5"
               >
-                <Plus size={16} /> Neu
+                <Plus size={16} /> {t("common.new")}
               </button>
             )}
           </div>
         </motion.div>
 
         {/* Search */}
-        <TSearchBar value={searchText} onChange={setSearchText} placeholder="Ankündigungen suchen…" />
+        <TSearchBar value={searchText} onChange={setSearchText} placeholder={t("ankuendigungen.search")} />
 
         {/* List */}
         {loading ? (
@@ -135,7 +137,7 @@ export default function AnnouncementsPage() {
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center opacity-40">
             <Megaphone size={40} className="text-[#0A0A0A] mb-4" />
-            <p className="font-poppins text-[#52525B]">Keine Ankündigungen vorhanden.</p>
+            <p className="font-poppins text-[#52525B]">{t("ankuendigungen.empty")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -185,7 +187,7 @@ export default function AnnouncementsPage() {
                                  {announcement.isPinned && (
                                    <div className="flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-[#E87AA0]/10 border border-[#E87AA0]/20">
                                       <Pin size={8} className="text-[#E87AA0]" fill="currentColor" />
-                                      <span className="text-[8px] font-bold text-[#E87AA0] uppercase tracking-widest">WICHTIG</span>
+                                      <span className="text-[8px] font-bold text-[#E87AA0] uppercase tracking-widest">{t("ankuendigungen.important")}</span>
                                    </div>
                                  )}
                               </div>
@@ -242,7 +244,7 @@ export default function AnnouncementsPage() {
               <GlassSection className="p-6 flex flex-col gap-5">
                 <div className="flex items-center justify-between">
                   <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
-                    Ankündigung
+                    {t("ankuendigungen.modalTitle")}
                   </h3>
                   <button onClick={() => setShowForm(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
                     <X size={20} />
@@ -251,21 +253,21 @@ export default function AnnouncementsPage() {
 
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Nachricht</label>
+                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("ankuendigungen.message")}</label>
                     <textarea
                       autoFocus
                       rows={6}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Was gibt es Neues?"
+                      placeholder={t("ankuendigungen.placeholder")}
                       className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all resize-none"
                     />
                   </div>
 
                   <div className="flex items-center justify-between px-1">
                       <div className="flex flex-col gap-0.5">
-                         <span className="font-poppins font-semibold text-[#0A0A0A] text-sm">Oben anheften</span>
-                         <span className="text-[11px] font-poppins text-[#52525B]">Ganz oben als wichtig markieren</span>
+                         <span className="font-poppins font-semibold text-[#0A0A0A] text-sm">{t("ankuendigungen.pinLabel")}</span>
+                         <span className="text-[11px] font-poppins text-[#52525B]">{t("ankuendigungen.pinSub")}</span>
                       </div>
                       <button 
                         onClick={() => setIsPinned(!isPinned)}
@@ -277,8 +279,8 @@ export default function AnnouncementsPage() {
                 </div>
 
                 <div className="pt-2">
-                  <TButton 
-                    label={saving ? "Wird gesendet…" : "Jetzt senden"} 
+                  <TButton
+                    label={saving ? t("common.saving") : t("common.create")}
                     onClick={saveForm}
                     disabled={saving || !message.trim()}
                   />
@@ -298,11 +300,11 @@ export default function AnnouncementsPage() {
                 <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-3 border border-red-500/20">
                   <Trash2 size={28} className="text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold text-[#0A0A0A]">Löschen?</h3>
-                <p className="text-sm text-[#52525B] mb-4 px-2">Soll diese Ankündigung wirklich unwiderruflich gelöscht werden?</p>
+                <h3 className="text-xl font-bold text-[#0A0A0A]">{t("ankuendigungen.deleteTitle")}</h3>
+                <p className="text-sm text-[#52525B] mb-4 px-2">{t("ankuendigungen.deleteConfirm")}</p>
                 <div className="flex flex-col gap-2 w-full">
-                  <TButton label="Löschen" variant="danger" onClick={deleteAnnouncement} />
-                  <TButton label="Abbrechen" variant="secondary" onClick={() => setDeleteTarget(null)} />
+                  <TButton label={t("common.delete")} variant="danger" onClick={deleteAnnouncement} />
+                  <TButton label={t("common.cancel")} variant="secondary" onClick={() => setDeleteTarget(null)} />
                 </div>
               </GlassSection>
             </motion.div>

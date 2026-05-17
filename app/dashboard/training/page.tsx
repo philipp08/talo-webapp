@@ -16,6 +16,7 @@ import {
 import {
   GlassSection, TLine, TAvatar, TButton, TSearchBar, PlanUpsell,
 } from "@/app/components/ui/NativeUI";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -99,6 +100,7 @@ const emptyExtra = (): ExtraForm => ({
 // ── main page ─────────────────────────────────────────────────────────────────
 
 export default function TrainingPage() {
+  const { t } = useI18n();
   const currentClub  = useAppStore((s) => s.currentClub);
   const currentMember = useAppStore((s) => s.currentMember);
 
@@ -407,7 +409,7 @@ export default function TrainingPage() {
       <div className="relative min-h-screen">
         <div className="relative z-10 max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10">
           <PlanUpsell
-            title="Trainings-Modul ist ab dem Club-Plan verfügbar."
+            title={t("training.moduleUnavailable")}
             text="Verwalte Trainingsgruppen mit eingebettetem Wochenplan und tracke Abwesenheiten ganz einfach."
           />
         </div>
@@ -430,8 +432,8 @@ export default function TrainingPage() {
                 </div>
               )}
               <div className="flex flex-col">
-                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Training</h1>
-                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Gruppen & Anwesenheit</p>
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{t("training.title")}</h1>
+                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · {t("training.subtitle")}</p>
               </div>
             </div>
             {isAdminOrTrainer && (
@@ -460,17 +462,17 @@ export default function TrainingPage() {
 
         {/* Tabs */}
         <div className="flex p-1 rounded-2xl bg-black/[0.03] border border-black/5 self-start">
-          {(["woche", "gruppen"] as const).map((t) => (
+          {(["woche", "gruppen"] as const).map((tabKey) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={tabKey}
+              onClick={() => setTab(tabKey)}
               className={`px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                tab === t
+                tab === tabKey
                   ? "bg-white text-[#0A0A0A] shadow-sm border border-black/5"
                   : "text-[#71717A] hover:text-[#0A0A0A]"
               }`}
             >
-              {t === "woche" ? "Woche" : "Gruppen"}
+              {tabKey === "woche" ? t("training.week") : t("training.groups")}
             </button>
           ))}
         </div>
@@ -520,7 +522,7 @@ export default function TrainingPage() {
         {absenceTarget && (
           <Backdrop onClick={() => setAbsenceTarget(null)}>
             <Modal>
-              <ModalHeader title="Abwesenheit melden" onClose={() => setAbsenceTarget(null)} />
+              <ModalHeader title={t("training.reportAbsence")} onClose={() => setAbsenceTarget(null)} />
               <div className="p-5 flex flex-col gap-4">
                 <p className="text-xs text-[#71717A] font-bold uppercase tracking-widest pl-1">Grund wählen</p>
                 <div className="grid grid-cols-2 gap-2">
@@ -548,7 +550,7 @@ export default function TrainingPage() {
                   />
                 )}
                 <TButton
-                  label={savingAbsence ? "Wird gespeichert…" : "Abwesenheit bestätigen"}
+                  label={savingAbsence ? t("training.saving") : t("training.confirmAbsence")}
                   onClick={saveAbsence}
                   disabled={savingAbsence || !absenceReason || (absenceReason === "Sonstiges" && !customReason.trim())}
                 />
@@ -564,14 +566,14 @@ export default function TrainingPage() {
           <Backdrop onClick={() => setShowGroupForm(false)}>
             <Modal extraWide onClick={(e) => e.stopPropagation()}>
               <ModalHeader
-                title={editingGroup ? "Gruppe bearbeiten" : "Neue Trainingsgruppe"}
+                title={editingGroup ? t("training.editGroup") : t("training.newGroup")}
                 onClose={() => setShowGroupForm(false)}
               />
               <div className="p-8 overflow-y-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   {/* Left Column: Group Details */}
                   <div className="flex flex-col gap-6">
-                    <Field label="Name der Gruppe">
+                    <Field label={t("training.groupName")}>
                       <input
                         autoFocus
                         value={form.name}
@@ -581,7 +583,7 @@ export default function TrainingPage() {
                       />
                     </Field>
 
-                    <Field label="Farbe">
+                    <Field label={t("training.groupColor")}>
                       <div className="flex gap-3 flex-wrap">
                         {TRAINING_GROUP_COLORS.map((c) => (
                           <button
@@ -615,7 +617,7 @@ export default function TrainingPage() {
                     )}
 
                     {/* Schedule */}
-                    <Field label="Trainingszeiten">
+                    <Field label={t("training.trainingTimes")}>
                       <div className="flex flex-col gap-2">
                         {form.schedule.map((entry) => (
                           <div key={entry.id} className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-black/[0.03] border border-black/5">
@@ -677,7 +679,7 @@ export default function TrainingPage() {
                             onChange={(e) => setForm((f) => ({ ...f, trainerId: e.target.value }))}
                             className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                           >
-                            <option value="">Kein Trainer zugewiesen</option>
+                            <option value="">{t("training.noTrainer")}</option>
                             {allMembers
                               .filter((m) => m.isTrainer || m.isAdmin)
                               .map((m) => (
@@ -771,7 +773,7 @@ export default function TrainingPage() {
 
               <div className="p-5 border-t border-black/5">
                 <TButton
-                  label={savingGroup ? "Wird gespeichert…" : editingGroup ? "Änderungen speichern" : "Gruppe erstellen"}
+                  label={savingGroup ? t("training.saving") : editingGroup ? t("training.saveChanges") : t("training.createGroup")}
                   onClick={saveGroup}
                   disabled={savingGroup || !form.name.trim()}
                 />
@@ -786,9 +788,9 @@ export default function TrainingPage() {
         {showExtraForm && (
           <Backdrop onClick={() => setShowExtraForm(false)}>
             <Modal onClick={(e) => e.stopPropagation()}>
-              <ModalHeader title="Zusatztermin anlegen" onClose={() => setShowExtraForm(false)} />
+              <ModalHeader title={t("training.extraSession")} onClose={() => setShowExtraForm(false)} />
               <div className="p-5 flex flex-col gap-4">
-                <Field label="Trainingsgruppe">
+                <Field label={t("training.trainingGroup")}>
                   <select
                     autoFocus
                     value={extraForm.groupId}
@@ -811,7 +813,7 @@ export default function TrainingPage() {
                       className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all min-h-[48px]"
                     />
                   </Field>
-                  <Field label="Uhrzeit">
+                  <Field label={t("training.time")}>
                     <input
                       type="time"
                       value={extraForm.time}
@@ -832,7 +834,7 @@ export default function TrainingPage() {
                 </Field>
 
                 <TButton
-                  label={savingExtra ? "Wird gespeichert…" : "Zusatztermin anlegen"}
+                  label={savingExtra ? t("training.saving") : t("training.extraSession")}
                   onClick={saveExtra}
                   disabled={savingExtra || !extraForm.groupId || !extraForm.date || !extraForm.time}
                 />
@@ -855,13 +857,13 @@ export default function TrainingPage() {
                 <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-3 border border-red-500/20">
                   <Trash2 size={28} className="text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold text-[#0A0A0A]">Gruppe löschen?</h3>
+                <h3 className="text-xl font-bold text-[#0A0A0A]">{t("training.deleteGroup")}</h3>
                 <p className="text-sm text-[#52525B] mb-4 px-2">
                   &ldquo;{deleteTarget.name}&rdquo; wird dauerhaft gelöscht.
                 </p>
                 <div className="flex flex-col gap-2 w-full">
-                  <TButton label="Löschen" variant="danger" onClick={confirmDelete} />
-                  <TButton label="Abbrechen" variant="secondary" onClick={() => setDeleteTarget(null)} />
+                  <TButton label={t("common.delete")} variant="danger" onClick={confirmDelete} />
+                  <TButton label={t("common.cancel")} variant="secondary" onClick={() => setDeleteTarget(null)} />
                 </div>
               </GlassSection>
             </motion.div>
@@ -1030,6 +1032,7 @@ function WeekView({
   planFeatures: PlanFeatures;
   accent: string;
 }) {
+  const { t } = useI18n();
   const selectedDate = weekDays[selectedDayIdx];
   const dateStr = toDateString(selectedDate);
 
@@ -1063,7 +1066,7 @@ function WeekView({
                 style={isSelected ? { color: accentLight ? "rgba(10,10,10,0.6)" : "rgba(255,255,255,0.6)" } : undefined}
                 className={`text-[9px] font-black uppercase tracking-widest ${isSelected ? "" : "text-[#A1A1AA]"}`}
               >
-                {isToday ? "Heute" : WEEKDAY_LABELS[day.getDay()]}
+                {isToday ? t("training.today") : WEEKDAY_LABELS[day.getDay()]}
               </span>
               <span className="text-sm font-black">{day.getDate()}</span>
             </button>
@@ -1078,7 +1081,7 @@ function WeekView({
         </h2>
         {slotsForDay.length > 0 && (
           <span className="text-[10px] font-black uppercase tracking-widest text-[#A1A1AA]">
-            · {slotsForDay.length} {slotsForDay.length === 1 ? "Termin" : "Termine"}
+            · {slotsForDay.length} {slotsForDay.length === 1 ? t("training.appointments") : t("training.appointmentsPlural")}
           </span>
         )}
       </div>
@@ -1146,6 +1149,7 @@ function AttendanceCard({
   onToggleMemberExcluded: (groupId: string, date: Date, memberId: string, excluded: boolean) => void;
   planFeatures: PlanFeatures;
 }) {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const group = slot.group;
   const time = slot.time;
@@ -1176,7 +1180,7 @@ function AttendanceCard({
   }, [session, group, planFeatures]);
 
   const isAssignedTrainer = useMemo(() => {
-    return assignedTrainers.some(t => t.id === currentMember?.id);
+    return assignedTrainers.some(trainerInfo => trainerInfo.id === currentMember?.id);
   }, [assignedTrainers, currentMember]);
 
   const canManageSession = isAdmin || isAssignedTrainer;
@@ -1188,8 +1192,8 @@ function AttendanceCard({
       const trainer = allMembers.find(m => m.id === primaryId);
       return trainer ? getMemberFullName(trainer) : "Unbekannt";
     }
-    return "Kein Trainer zugewiesen";
-  }, [session, group.trainerId, allMembers]);
+    return t("training.noTrainer");
+  }, [session, group.trainerId, allMembers, t]);
 
   const isTrainerAbsent = session?.isTrainerAbsent ?? false;
 
@@ -1361,7 +1365,7 @@ function AttendanceCard({
               {assignedTrainers.length === 0 && (
                 <div className="flex items-center gap-3 bg-black/[0.02] border border-dashed border-black/10 rounded-[18px] p-3 text-center justify-center">
                   <span className="text-[12px] font-poppins font-bold text-[#71717A]">
-                    Kein Trainer zugewiesen
+                    {t("training.noTrainer")}
                   </span>
                 </div>
               )}
@@ -1470,7 +1474,7 @@ function AttendanceCard({
                   className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#71717A] hover:text-[#0A0A0A] transition-all"
                 >
                   {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  {expanded ? "Ausblenden" : "Anwesenheitsliste"}
+                  {expanded ? t("training.hide") : t("training.attendance")}
                 </button>
               )}
 
@@ -1809,11 +1813,12 @@ function GroupCard({
 // ── small helpers ──────────────────────────────────────────────────────────────
 
 function EmptyDay({ isToday }: { isToday: boolean }) {
+  const { t } = useI18n();
   return (
     <div className="py-16 flex flex-col items-center justify-center text-center opacity-40">
       <AlertCircle size={36} className="text-[#0A0A0A] mb-3" />
       <p className="font-poppins text-[#52525B] font-bold uppercase tracking-widest text-xs">
-        {isToday ? "Kein Training heute." : "Kein Training an diesem Tag."}
+        {isToday ? t("training.noTrainingToday") : t("training.noTrainingDay")}
       </p>
     </div>
   );

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { TCatBadge, TStatusBadge } from "@/app/components/ui/NativeUI";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
 const StatCard = ({
@@ -92,6 +93,7 @@ export default function DashboardPage() {
   const progress   = targetPts > 0 ? Math.min((approved / targetPts) * 100, 100) : 100;
   const remaining  = Math.max(targetPts - approved, 0);
 
+  const { t, locale } = useI18n();
   const isAdmin = currentMember.isAdmin;
 
   // Top 3 announcements (pinned first)
@@ -113,7 +115,7 @@ export default function DashboardPage() {
             )}
             <div className="flex flex-col">
               <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Dashboard</h1>
-              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Dein Überblick</p>
+              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · {t("dashboard.subtitle")}</p>
             </div>
           </div>
         </div>
@@ -126,17 +128,17 @@ export default function DashboardPage() {
           <>
             {/* ── Stats ───────────────────────────────────────────── */}
             <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-              <StatCard label="Bestätigte Punkte" value={approved.toFixed(1)} icon={CheckCircle} color="#34C759" delay={0.05} subtext="Erfolgreich verbucht" />
-              <StatCard label="Warteschlange"     value={pending.toFixed(1)}  icon={Clock}        color="#FF9500" delay={0.10} subtext="In Prüfung" />
-              <StatCard label="Soll-Erfüllung"    value={`${progress.toFixed(0)}%`} icon={Zap}   color={accent} delay={0.15} subtext={`${remaining.toFixed(1)} Pkt. verbleibend`} />
-              <StatCard label="Jahresziel"        value={targetPts.toFixed(1)} icon={BarChart3}  color="#E87AA0" delay={0.20} subtext={`Ziel ${new Date().getFullYear()}`} />
+              <StatCard label={t("dashboard.approvedPoints")} value={approved.toFixed(1)} icon={CheckCircle} color="#34C759" delay={0.05} subtext={t("dashboard.approvedSub")} />
+              <StatCard label={t("dashboard.queue")}     value={pending.toFixed(1)}  icon={Clock}        color="#FF9500" delay={0.10} subtext={t("dashboard.queueSub")} />
+              <StatCard label={t("dashboard.targetCompletion")}    value={`${progress.toFixed(0)}%`} icon={Zap}   color={accent} delay={0.15} subtext={`${remaining.toFixed(1)} ${t("dashboard.remaining")}`} />
+              <StatCard label={t("dashboard.annualGoal")}        value={targetPts.toFixed(1)} icon={BarChart3}  color="#E87AA0" delay={0.20} subtext={`${t("dashboard.goalYear")} ${new Date().getFullYear()}`} />
             </div>
 
             {/* ── Progress bar ────────────────────────────────────── */}
             <div className="flex flex-col gap-2 -mt-4">
               <div className="flex items-center justify-between text-[11px] font-poppins font-bold uppercase tracking-widest px-1"
                    style={{ color: "#71717A" }}>
-                <span>Fortschritt</span>
+                <span>{t("common.progress")}</span>
                 <span style={{ color: progress >= 100 ? "#34C759" : "#52525B" }}>{progress.toFixed(0)}%</span>
               </div>
               <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.06)" }}>
@@ -158,9 +160,9 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between pb-3"
                      style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
                   <div>
-                    <h2 className="text-[20px] font-poppins font-bold text-[#0A0A0A]">Aktivitätsverlauf</h2>
+                    <h2 className="text-[20px] font-poppins font-bold text-[#0A0A0A]">{t("dashboard.activityLog")}</h2>
                     <p className="text-[11px] font-black uppercase tracking-widest mt-0.5" style={{ color: "#71717A" }}>
-                      Deine letzten 10 Einträge
+                      {t("dashboard.last10")}
                     </p>
                   </div>
                   {isAdmin && (
@@ -169,7 +171,7 @@ export default function DashboardPage() {
                       className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all hover:border-black/15"
                       style={{ background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.09)", color: "#52525B" }}
                     >
-                      Genehmigungen <ArrowUpRight size={12} />
+                      {t("dashboard.approvals")} <ArrowUpRight size={12} />
                     </Link>
                   )}
                 </div>
@@ -181,14 +183,14 @@ export default function DashboardPage() {
                          style={{ background: "rgba(0,0,0,0.05)" }}>
                       <PenLine size={22} style={{ color: "#B4B4BA" }} />
                     </div>
-                    <p className="font-poppins font-bold text-[#0A0A0A] text-[16px] mb-1">Kein Verlauf</p>
-                    <p className="text-[13px] mb-6" style={{ color: "#71717A" }}>Erfasse deine erste Tätigkeit.</p>
+                    <p className="font-poppins font-bold text-[#0A0A0A] text-[16px] mb-1">{t("dashboard.noHistory")}</p>
+                    <p className="text-[13px] mb-6" style={{ color: "#71717A" }}>{t("dashboard.noHistorySub")}</p>
                     <Link
                       href="/dashboard/eintragen"
                       style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
                       className="flex items-center gap-2 px-5 py-2.5 rounded-full font-poppins font-semibold text-[13px] hover:opacity-95 transition-all"
                     >
-                      <PenLine size={14} /> Jetzt eintragen
+                      <PenLine size={14} /> {t("dashboard.startEntry")}
                     </Link>
                   </div>
                 ) : (
@@ -216,7 +218,7 @@ export default function DashboardPage() {
                             <Calendar size={11} style={{ color: "#71717A" }} />
                             <span className="text-[11px]" style={{ color: "#52525B" }}>
                               {entry.date instanceof Date
-                                ? entry.date.toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })
+                                ? entry.date.toLocaleDateString(locale === "de" ? "de-DE" : locale, { day: "2-digit", month: "short", year: "numeric" })
                                 : "–"}
                             </span>
                           </div>
@@ -242,7 +244,7 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 pl-1 flex items-center h-10"
                      style={{ color: "#71717A", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-                    Quick Actions
+                    {t("dashboard.quickActions")}
                   </p>
                   <div className="flex flex-col gap-3">
                     <Link
@@ -254,8 +256,8 @@ export default function DashboardPage() {
                         <PenLine size={20} strokeWidth={2.5} />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[15px] font-poppins font-black leading-tight uppercase tracking-tight">Eintragen</span>
-                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ opacity: accentLight ? 0.6 : 0.4 }}>Tätigkeit erfassen</span>
+                        <span className="text-[15px] font-poppins font-black leading-tight uppercase tracking-tight">{t("dashboard.entryAction")}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ opacity: accentLight ? 0.6 : 0.4 }}>{t("dashboard.entryActionSub")}</span>
                       </div>
                     </Link>
 
@@ -271,9 +273,9 @@ export default function DashboardPage() {
                         <Calendar size={20} style={{ color: "#34C759" }} />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[15px] font-poppins font-semibold text-[#0A0A0A]">Training</span>
+                        <span className="text-[15px] font-poppins font-semibold text-[#0A0A0A]">{t("dashboard.trainingAction")}</span>
                         <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#71717A" }}>
-                           Zu- & Absagen
+                           {t("dashboard.trainingActionSub")}
                         </span>
                       </div>
                     </Link>
@@ -290,9 +292,9 @@ export default function DashboardPage() {
                         <Megaphone size={20} style={{ color: "#0A0A0A" }} />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[15px] font-poppins font-semibold text-[#0A0A0A]">Ankündigungen</span>
+                        <span className="text-[15px] font-poppins font-semibold text-[#0A0A0A]">{t("nav.ankuendigungen")}</span>
                         <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#71717A" }}>
-                          {announcements.length} Einträge
+                          {`${announcements.length} ${t("dashboard.announceSub")}`}
                         </span>
                       </div>
                     </Link>
@@ -304,7 +306,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between mb-4"
                        style={{ borderBottom: "1px solid rgba(0,0,0,0.06)", paddingBottom: "12px" }}>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: "#71717A" }}>
-                      Letzte Ankündigungen
+                      {t("dashboard.latestAnnounce")}
                     </p>
                     <Bell size={13} style={{ color: "#B4B4BA" }} />
                   </div>
@@ -312,7 +314,7 @@ export default function DashboardPage() {
                   {topAnnouncements.length === 0 ? (
                     <div className="py-8 text-center rounded-[24px]"
                          style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.05)" }}>
-                      <p className="text-[13px] font-poppins" style={{ color: "#71717A" }}>Keine Ankündigungen</p>
+                      <p className="text-[13px] font-poppins" style={{ color: "#71717A" }}>{t("dashboard.noAnnounce")}</p>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2.5">
@@ -337,7 +339,7 @@ export default function DashboardPage() {
                           </p>
                           <p className="text-[10px]" style={{ color: "#71717A" }}>
                             {ann.createdAt instanceof Date
-                              ? ann.createdAt.toLocaleDateString("de-DE", { day: "2-digit", month: "short" })
+                              ? ann.createdAt.toLocaleDateString(locale === "de" ? "de-DE" : locale, { day: "2-digit", month: "short" })
                               : ""}
                           </p>
                         </div>
@@ -349,7 +351,7 @@ export default function DashboardPage() {
                         onMouseEnter={(e) => (e.currentTarget.style.color = "#0A0A0A")}
                         onMouseLeave={(e) => (e.currentTarget.style.color = "#71717A")}
                       >
-                        Alle anzeigen
+                        {t("common.showAll")}
                       </Link>
                     </div>
                   )}

@@ -12,6 +12,7 @@ import {
   MailQuestion, Activity, Settings, Layers, Lock
 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
+import { useI18n } from "@/lib/i18n/I18nContext";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import {
   Member, Entry, MemberType,
@@ -93,6 +94,8 @@ export default function MemberDetailPage() {
       alert("Fehler beim Senden.");
     }
   };
+
+  const { t, locale } = useI18n();
 
   const isAdmin = currentMember?.isAdmin === true;
   const isTrainer = currentMember?.isTrainer === true;
@@ -273,7 +276,7 @@ export default function MemberDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <p className="text-[#8A8A8A] font-poppins font-bold uppercase tracking-widest bg-white/5 px-8 py-4 rounded-full">
-          Kein Zugriff.
+          {t("common.noAccess")}
         </p>
       </div>
     );
@@ -429,11 +432,11 @@ export default function MemberDetailPage() {
                           <span className="text-xl sm:text-2xl font-mono font-black text-[#A1A1AA]">+{pendingPts.toFixed(1)}</span>
                        </div>
                        <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
-                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">Ziel</span>
+                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">{t("memberDetail.target")}</span>
                           <span className="text-xl sm:text-2xl font-mono font-black text-[#0A0A0A]">{targetPts.toFixed(1)}</span>
                        </div>
                        <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
-                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">Fehlend</span>
+                          <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">{t("memberDetail.missing")}</span>
                           <span className="text-xl sm:text-2xl font-mono font-black text-[#71717A]">{isExempt ? "–" : missingPts.toFixed(1)}</span>
                        </div>
                     </div>
@@ -462,7 +465,7 @@ export default function MemberDetailPage() {
                               </div>
                               <div className="flex min-w-0 flex-col">
                                  <span className="text-sm font-bold text-[#0A0A0A]">
-                                    {resetState === "sent" ? "Link gesendet!" : "Passwort Reset"}
+                                    {resetState === "sent" ? t("memberDetail.resetSent") : t("memberDetail.resetPassword")}
                                  </span>
                                  <span className="truncate text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">
                                     {resetState === "sent" ? "Prüfe dein Postfach" : "Link per Mail senden"}
@@ -503,13 +506,13 @@ export default function MemberDetailPage() {
                          </div>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-7 lg:gap-10">
                             <div className="space-y-6">
-                               <FormInput label="Vorname" value={editForm.firstName} onChange={(v) => setEditForm({...editForm, firstName: v})} />
-                               <FormInput label="Nachname" value={editForm.lastName} onChange={(v) => setEditForm({...editForm, lastName: v})} />
-                               <FormInput label="E-Mail" value={editForm.email} onChange={(v) => setEditForm({...editForm, email: v})} />
+                               <FormInput label={t("memberDetail.firstName")} value={editForm.firstName} onChange={(v) => setEditForm({...editForm, firstName: v})} />
+                               <FormInput label={t("memberDetail.lastName")} value={editForm.lastName} onChange={(v) => setEditForm({...editForm, lastName: v})} />
+                               <FormInput label={t("memberDetail.email")} value={editForm.email} onChange={(v) => setEditForm({...editForm, email: v})} />
                             </div>
                             <div className="space-y-6">
                                <div className="flex flex-col gap-3">
-                                  <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">Mitgliedstyp</label>
+                                  <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">{t("memberDetail.memberType")}</label>
                                   <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                                      {availableMemberTypes.map((t) => (
                                        <button key={t} onClick={() => setEditForm({...editForm, memberType: t})}
@@ -595,7 +598,7 @@ export default function MemberDetailPage() {
                       <div className="w-16 h-16 bg-black/[0.04] rounded-full flex items-center justify-center mx-auto mb-6">
                          <Calendar size={24} />
                       </div>
-                      <h3 className="text-lg font-bold text-[#0A0A0A]">Keine Einträge</h3>
+                      <h3 className="text-lg font-bold text-[#0A0A0A]">{t("memberDetail.noEntries")}</h3>
                       <p className="text-sm font-medium">Noch keine Tätigkeiten in diesem Zeitraum.</p>
                    </div>
                  ) : (
@@ -605,9 +608,9 @@ export default function MemberDetailPage() {
                          <thead>
                             <tr className="border-b border-black/5 bg-black/[0.02]">
                                <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Tätigkeit</th>
-                               <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Datum</th>
+                               <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest">{t("common.date")}</th>
                                <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Status</th>
-                               <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-right">Punkte</th>
+                               <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-right">{t("common.points")}</th>
                                <th className="px-10 py-6 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-center w-20"></th>
                             </tr>
                          </thead>
@@ -621,7 +624,7 @@ export default function MemberDetailPage() {
                                      </div>
                                   </td>
                                   <td className="px-10 py-6 text-[13px] font-bold text-[#71717A]">
-                                     {toDate(entry.date).toLocaleDateString("de-DE", { day: '2-digit', month: 'long', year: 'numeric' })}
+                                     {toDate(entry.date).toLocaleDateString(locale === "de" ? "de-DE" : locale, { day: '2-digit', month: 'long', year: 'numeric' })}
                                   </td>
                                   <td className="px-10 py-6">
                                      <TStatusBadge status={entry.status} />
@@ -643,7 +646,7 @@ export default function MemberDetailPage() {
                    </div>
                    <div className="md:hidden flex flex-col gap-3">
                       {entries.map((entry) => {
-                        const dateStr = toDate(entry.date).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" });
+                        const dateStr = toDate(entry.date).toLocaleDateString(locale === "de" ? "de-DE" : locale, { day: "2-digit", month: "short", year: "numeric" });
                         return (
                           <div key={entry.id} className="rounded-[24px] bg-white border border-black/5 p-4 flex flex-col gap-4">
                             <div className="flex items-start gap-3">
@@ -699,19 +702,19 @@ export default function MemberDetailPage() {
                       <Activity size={20} />
                     </div>
                     <div className="flex min-w-0 flex-col">
-                      <h3 className="font-poppins font-black text-[#0A0A0A] text-lg uppercase tracking-tight italic leading-none">Eintrag bearbeiten</h3>
-                      <span className="mt-1 text-[10px] font-black text-[#A1A1AA] uppercase tracking-[0.2em]">Administrative Korrektur</span>
+                      <h3 className="font-poppins font-black text-[#0A0A0A] text-lg uppercase tracking-tight italic leading-none">{t("memberDetail.editEntry")}</h3>
+                      <span className="mt-1 text-[10px] font-black text-[#A1A1AA] uppercase tracking-[0.2em]">{t("memberDetail.adminCorrection")}</span>
                     </div>
                   </div>
                   <button onClick={() => setEntryToEdit(null)} className="w-9 h-9 shrink-0 rounded-xl bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] transition-colors"><X size={18} /></button>
                 </div>
 
                 <div className="flex flex-col gap-5">
-                  <FormInput label="Bezeichnung" value={entryForm.activityName} onChange={(v) => setEntryForm({...entryForm, activityName: v})} />
+                  <FormInput label={t("memberDetail.label")} value={entryForm.activityName} onChange={(v) => setEntryForm({...entryForm, activityName: v})} />
 
                   <div className="grid grid-cols-2 gap-4">
-                    <FormInput label="Punkte" value={entryForm.points} onChange={(v) => setEntryForm({...entryForm, points: v})} type="number" />
-                    <FormInput label="Datum" value={entryForm.date} onChange={(v) => setEntryForm({...entryForm, date: v})} type="date" />
+                    <FormInput label={t("common.points")} value={entryForm.points} onChange={(v) => setEntryForm({...entryForm, points: v})} type="number" />
+                    <FormInput label={t("common.date")} value={entryForm.date} onChange={(v) => setEntryForm({...entryForm, date: v})} type="date" />
                   </div>
 
                   <div className="flex flex-col gap-2.5">
@@ -729,7 +732,7 @@ export default function MemberDetailPage() {
                             className={`py-2.5 rounded-xl text-[11px] font-poppins font-black transition-all uppercase tracking-[0.15em] text-center ${
                               active ? "shadow-sm" : "text-[#71717A] hover:text-[#0A0A0A]"
                             }`}>
-                            {s === EntryStatus.Pending ? "Prüfung" : s === EntryStatus.Approved ? "Genehmigt" : "Abgelehnt"}
+                            {s === EntryStatus.Pending ? t("common.pending") : s === EntryStatus.Approved ? t("common.approved") : t("common.rejected")}
                           </button>
                         );
                       })}
@@ -753,7 +756,7 @@ export default function MemberDetailPage() {
 
                 <div className="flex flex-col gap-2.5 pt-1">
                   <button onClick={saveEntry} disabled={savingEntry} style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }} className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-[0.98] disabled:opacity-60 hover:brightness-110">
-                    {savingEntry ? "Speichern…" : "Speichern"}
+                    {savingEntry ? t("common.saving") : t("memberDetail.saveEntry")}
                   </button>
                   <button onClick={() => setEntryToEdit(null)} className="w-full py-4 bg-black/[0.04] hover:bg-black/[0.08] text-[#0A0A0A] rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all border border-black/5 active:scale-[0.98]">
                     Abbrechen
@@ -777,16 +780,16 @@ export default function MemberDetailPage() {
                 <div className="w-20 h-20 rounded-[24px] bg-red-500/10 flex items-center justify-center mb-5 border border-red-500/20">
                   <AlertTriangle size={40} className="text-red-500" />
                 </div>
-                <h3 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic uppercase">Mitglied Entfernen</h3>
+                <h3 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic uppercase">{t("memberDetail.deleteTitle")}</h3>
                 <p className="text-[#71717A] font-bold text-sm mb-6 px-4">
                   {member.clubIds.length <= 1 ? (
-                    <>Soll <span className="text-[#0A0A0A] underline decoration-red-500/40">{member.firstName} {member.lastName}</span> endgültig entfernt werden? Das Konto und alle Daten werden unwiderruflich gelöscht.</>
+                    <>Soll <span className="text-[#0A0A0A] underline decoration-red-500/40">{member.firstName} {member.lastName}</span> {t("memberDetail.deleteConfirm")}</>
                   ) : (
-                    <>Soll <span className="text-[#0A0A0A] underline decoration-red-500/40">{member.firstName} {member.lastName}</span> aus diesem Verein entfernt werden? Das Konto bleibt bestehen, da noch andere Vereine verknüpft sind.</>
+                    <>Soll <span className="text-[#0A0A0A] underline decoration-red-500/40">{member.firstName} {member.lastName}</span> {t("memberDetail.deleteClub")}</>
                   )}
                 </p>
                 <div className="flex flex-col gap-3 w-full">
-                  <button onClick={removeMember} className="w-full py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95">Endgültig Löschen</button>
+                  <button onClick={removeMember} className="w-full py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95">{t("memberDetail.deletePermanent")}</button>
                   <button onClick={() => setMemberToDelete(false)} className="w-full py-4 bg-black/[0.04] hover:bg-black/[0.08] text-[#0A0A0A] rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all border border-black/5 active:scale-95">Abbrechen</button>
                 </div>
               </div>

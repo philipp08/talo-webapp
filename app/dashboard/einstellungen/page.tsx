@@ -19,6 +19,7 @@ import {
   GlassSection, TLine, TAvatar, TButton, TBadge,
   PlanLockedField, PlanUpsell
 } from "@/app/components/ui/NativeUI";
+import { useI18n } from "@/lib/i18n/I18nContext";
 import {
   csvForEntries, csvForMembers, downloadTextFile, exportFilename,
 } from "@/lib/exports/csv";
@@ -116,6 +117,7 @@ function SettingsPricingCard({
 }
 
 export default function SettingsPage() {
+  const { t } = useI18n();
   const currentMember = useAppStore((s) => s.currentMember);
   const currentClub = useAppStore((s) => s.currentClub);
   const setCurrentClub = useAppStore((s) => s.setCurrentClub);
@@ -446,8 +448,8 @@ export default function SettingsPage() {
                 </div>
               )}
               <div className="flex flex-col">
-                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Einstellungen</h1>
-                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Konto, Verein & Exporte</p>
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{t("einstellungen.title")}</h1>
+                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · {t("einstellungen.account")}, Verein & {t("einstellungen.exportData")}</p>
               </div>
             </div>
           </div>
@@ -490,16 +492,16 @@ export default function SettingsPage() {
               <div className="p-2">
                 <SettingsRow
                   icon={Lock}
-                  label="Passwort ändern"
-                  sub="Reset-Link an deine E-Mail"
+                  label={t("einstellungen.changePassword")}
+                  sub={t("einstellungen.changePasswordSub")}
                   onClick={sendPasswordReset}
                   busy={resetState === "loading"}
                   done={resetState === "sent"}
                 />
                 <SettingsRow
                   icon={LogOut}
-                  label="Abmelden"
-                  sub="Von diesem Gerät ausloggen"
+                  label={t("einstellungen.logout")}
+                  sub={t("einstellungen.logoutSub")}
                   onClick={() => signOut(auth)}
                   variant="danger"
                 />
@@ -521,18 +523,18 @@ export default function SettingsPage() {
               {isAdmin ? (
                 <GlassSection>
                   <div className="p-5 flex flex-col gap-4">
-                    <Field icon={Building2} label="Vereinsname">
+                    <Field icon={Building2} label={t("einstellungen.clubName")}>
                       <Input value={clubName} onChange={setClubName} />
                     </Field>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field icon={Target} label="Pflichtpunkte / Jahr">
+                      <Field icon={Target} label={t("einstellungen.requiredPoints")}>
                         <Input value={requiredPoints} onChange={setRequiredPoints} type="number" step="0.5" />
                       </Field>
-                      <Field icon={Euro} label="Ausgleichsbetrag / Punkt">
+                      <Field icon={Euro} label={t("einstellungen.compensationAmount")}>
                         <Input value={compensation} onChange={setCompensation} type="number" step="0.5" suffix="€" />
                       </Field>
                     </div>
-                    <Field icon={Calendar} label="Saisontyp">
+                    <Field icon={Calendar} label={t("einstellungen.seasonType")}>
                       <Select value={seasonType} onChange={setSeasonType} options={Object.values(SeasonType).map(s => ({ value: s, label: s }))} />
                     </Field>
 
@@ -542,10 +544,10 @@ export default function SettingsPage() {
                       unlockText="ab Verein"
                     >
                       <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 transition-opacity ${seasonType !== SeasonType.Custom ? "opacity-40 pointer-events-none" : ""}`}>
-                        <Field label="Saisonstart">
+                        <Field label={t("einstellungen.seasonStart")}>
                           <Input value={sStart} onChange={setSStart} type="date" />
                         </Field>
-                        <Field label="Saisonende">
+                        <Field label={t("einstellungen.seasonEnd")}>
                           <Input value={sEnd} onChange={setSEnd} type="date" />
                         </Field>
                       </div>
@@ -557,7 +559,7 @@ export default function SettingsPage() {
                         label="Vereinslogo"
                         unlockText="ab Verein"
                       >
-                        <Field icon={ImageIcon} label="Logo-URL">
+                        <Field icon={ImageIcon} label={t("einstellungen.logoUrl")}>
                           <Input value={logoUrl} onChange={setLogoUrl} placeholder="https://..." />
                         </Field>
                       </PlanLockedField>
@@ -566,7 +568,7 @@ export default function SettingsPage() {
                         label="Vereinsfarben"
                         unlockText="ab Pro"
                       >
-                        <Field icon={Palette} label="Akzentfarbe">
+                        <Field icon={Palette} label={t("einstellungen.accentColor")}>
                           <ColorPicker value={accentColor} onChange={setAccentColor} />
                         </Field>
                       </PlanLockedField>
@@ -586,7 +588,7 @@ export default function SettingsPage() {
 
                     <div className="pt-1">
                       <TButton
-                        label={clubState === "saving" ? "Speichert…" : clubState === "saved" ? "Gespeichert ✓" : "Änderungen speichern"}
+                        label={clubState === "saving" ? t("einstellungen.saving") : clubState === "saved" ? t("common.saved") : t("einstellungen.saveChanges")}
                         onClick={saveClub}
                         disabled={clubState !== "idle"}
                       />
@@ -766,14 +768,14 @@ export default function SettingsPage() {
 
                         {customMemberTypes.length > 0 && (
                           <div className="flex flex-col gap-2">
-                            {customMemberTypes.map((t) => (
-                              <div key={t.id} className="flex items-center gap-3 rounded-2xl bg-black/[0.03] border border-black/5 px-4 py-3">
+                            {customMemberTypes.map((cmt) => (
+                              <div key={cmt.id} className="flex items-center gap-3 rounded-2xl bg-black/[0.03] border border-black/5 px-4 py-3">
                                 <div className="min-w-0 flex-1">
-                                  <p className="truncate font-poppins font-bold text-sm text-[#0A0A0A]">{t.name}</p>
-                                  <p className="text-[11px] text-[#71717A]">{Math.round(t.pointFactor * 100)} % der Pflichtpunkte</p>
+                                  <p className="truncate font-poppins font-bold text-sm text-[#0A0A0A]">{cmt.name}</p>
+                                  <p className="text-[11px] text-[#71717A]">{Math.round(cmt.pointFactor * 100)} % der Pflichtpunkte</p>
                                 </div>
                                 <button
-                                  onClick={() => removeCustomMemberType(t.id)}
+                                  onClick={() => removeCustomMemberType(cmt.id)}
                                   className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#FF453A] hover:bg-[#FF453A]/10 transition-all"
                                 >
                                   <Trash2 size={14} />
@@ -809,7 +811,7 @@ export default function SettingsPage() {
                     <div className="p-5 flex flex-col gap-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex flex-col gap-1.5 p-4 rounded-xl bg-black/[0.03] border border-black/5 flex-1">
-                          <span className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">Aktueller Plan</span>
+                          <span className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">{t("einstellungen.currentPlan")}</span>
                           <span className="font-poppins font-bold text-lg text-[#0A0A0A] flex items-center gap-2">
                             {planFeatures.name}
                             {currentClub?.isTrial && (
@@ -822,7 +824,7 @@ export default function SettingsPage() {
                         </div>
                         
                         <div className="flex-1 flex flex-col gap-2 p-4 rounded-xl bg-black/[0.03] border border-black/5">
-                          <span className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">Lizenzschlüssel einlösen</span>
+                          <span className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em]">{t("einstellungen.licenseKey")}</span>
                           <div className="flex gap-2 w-full">
                             <div className="flex-1">
                               <Input value={licKeyInput} onChange={setLicKeyInput} type="text" />

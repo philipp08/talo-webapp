@@ -7,13 +7,8 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Activity, ActivityCategory, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
 import { GlassSection, TCatBadge, TSearchBar, TButton, TBadge } from "@/app/components/ui/NativeUI";
-
-const categoryLabels: Record<string, string> = {
-  A: "Kategorie A",
-  B: "Kategorie B",
-  C: "Kategorie C",
-  S: "Kategorie S",
-};
+import { useI18n } from "@/lib/i18n/I18nContext";
+import type { TranslationKey } from "@/lib/i18n/translations";
 
 const categoryColors: Record<string, string> = {
   A: "#E87AA0",
@@ -28,6 +23,7 @@ type FormData = { name: string; points: string; category: ActivityCategory };
 const defaultForm = (): FormData => ({ name: "", points: "2.0", category: ActivityCategory.B });
 
 export default function ActivitiesPage() {
+  const { t } = useI18n();
   const currentClub = useAppStore((state) => state.currentClub);
   const currentMember = useAppStore((state) => state.currentMember);
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -39,6 +35,10 @@ export default function ActivitiesPage() {
   const [form, setForm] = useState<FormData>(defaultForm());
   const [saving, setSaving] = useState(false);
 
+  const catLabel = (cat: string) => {
+    const map: Record<string, TranslationKey> = { A: "taetigkeiten.catA", B: "taetigkeiten.catB", C: "taetigkeiten.catC", S: "taetigkeiten.catS" };
+    return t(map[cat] as TranslationKey);
+  };
   const isAdmin = currentMember?.isAdmin === true;
   const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
   const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
@@ -67,7 +67,7 @@ export default function ActivitiesPage() {
 
   const openAdd = () => {
     if (isLimitReached) {
-      alert(`Das Tätigkeiten-Limit (${planFeatures.maxActivities}) deines aktuellen Plans ist erreicht. Bitte im Bereich 'Einstellungen' den Plan upgraden.`);
+      alert(t("taetigkeiten.limitAlert"));
       return;
     }
     setEditTarget(null);
@@ -116,10 +116,10 @@ export default function ActivitiesPage() {
               )}
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-3">
-                  <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Tätigkeiten</h1>
+                  <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{t("taetigkeiten.title")}</h1>
                   <TBadge color={isLimitReached ? "#EF4444" : "#0A0A0A"} className="hidden sm:inline-flex" label={`${activities.length} ${planFeatures.maxActivities < 999 ? `/ ${planFeatures.maxActivities}` : ""} Tätigkeiten`} />
                 </div>
-                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Aktivitätskatalog verwalten</p>
+                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · {t("taetigkeiten.subtitle")}</p>
               </div>
             </div>
             {isAdmin && (
@@ -129,7 +129,7 @@ export default function ActivitiesPage() {
                 style={isLimitReached ? undefined : { backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
                 className={`shrink-0 flex items-center gap-2 ${isLimitReached ? "bg-[#E4E4E7] text-[#A1A1AA] cursor-not-allowed" : "hover:opacity-95 text-white"} px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all`}
               >
-                <Plus size={16} /> Neu
+                <Plus size={16} /> {t("common.new")}
               </button>
             )}
           </div>
@@ -137,7 +137,7 @@ export default function ActivitiesPage() {
 
         {/* Search & Filter */}
         <div className="flex flex-col gap-4">
-          <TSearchBar value={searchText} onChange={setSearchText} placeholder="Tätigkeit suchen…" />
+          <TSearchBar value={searchText} onChange={setSearchText} placeholder={t("taetigkeiten.search")} />
           
           <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar">
             <button
@@ -148,7 +148,7 @@ export default function ActivitiesPage() {
                   : "bg-black/[0.04] text-[#52525B] border-black/10 hover:text-[#0A0A0A]"
               }`}
             >
-              Alle
+              {t("common.all")}
             </button>
             {ALL_CATS.map((cat) => {
               const catColor = categoryColors[cat];
@@ -178,7 +178,7 @@ export default function ActivitiesPage() {
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center opacity-40">
             <Search size={40} className="text-[#0A0A0A] mb-4" />
-            <p className="font-poppins text-[#52525B]">Keine Tätigkeiten gefunden.</p>
+            <p className="font-poppins text-[#52525B]">{t("taetigkeiten.empty")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3.5 pb-20">
@@ -200,7 +200,7 @@ export default function ActivitiesPage() {
                         {activity.name}
                       </span>
                       <span className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-wider mt-1 opacity-60">
-                         {categoryLabels[activity.category]}
+                         {catLabel(activity.category)}
                       </span>
                     </div>
 
@@ -238,7 +238,7 @@ export default function ActivitiesPage() {
               <GlassSection className="p-6 flex flex-col gap-5">
                 <div className="flex items-center justify-between">
                   <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
-                    {editTarget ? "Bearbeiten" : "Neu"}
+                    {editTarget ? t("taetigkeiten.editTitle") : t("taetigkeiten.newTitle")}
                   </h3>
                   <button onClick={() => setShowForm(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
                     <X size={20} />
@@ -247,18 +247,18 @@ export default function ActivitiesPage() {
 
                 <div className="flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Name</label>
+                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("common.name")}</label>
                     <input
                       autoFocus
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      placeholder="z.B. Training geleitet"
+                      placeholder={t("taetigkeiten.namePlaceholder")}
                       className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all"
                     />
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Punkte</label>
+                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("common.points")}</label>
                     <input
                       type="number"
                       step="0.5"
@@ -269,7 +269,7 @@ export default function ActivitiesPage() {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Kategorie</label>
+                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("common.category")}</label>
                     <div className="grid grid-cols-4 gap-2">
                       {ALL_CATS.map((cat) => (
                         <button
@@ -289,14 +289,14 @@ export default function ActivitiesPage() {
                 </div>
 
                 <div className="flex flex-col gap-2 pt-2">
-                  <TButton 
-                    label={saving ? "Speichern…" : (editTarget ? "Speichern" : "Erstellen")} 
+                  <TButton
+                    label={saving ? t("common.saving") : (editTarget ? t("common.save") : t("common.create"))}
                     onClick={saveForm}
                     disabled={saving || !form.name.trim()}
                   />
                   {editTarget && (
-                    <TButton 
-                      label="Löschen" 
+                    <TButton
+                      label={t("common.delete")}
                       variant="danger" 
                       onClick={async () => {
                          if (!currentClub || !editTarget) return;

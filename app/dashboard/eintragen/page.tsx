@@ -7,6 +7,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Activity, ActivityCategory, EntryStatus, Member, getMemberFullName, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
 import { GlassSection, TLine, TCatBadge, TAvatar, TFilterPill, TButton } from "@/app/components/ui/NativeUI";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 const ALL_CATS = [ActivityCategory.A, ActivityCategory.B, ActivityCategory.C, ActivityCategory.S];
 
@@ -22,6 +23,7 @@ function parseDateInput(value: string) {
 }
 
 export default function EintragenPage() {
+  const { t } = useI18n();
   const currentMember = useAppStore((s) => s.currentMember);
   const currentClub   = useAppStore((s) => s.currentClub);
 
@@ -150,8 +152,8 @@ export default function EintragenPage() {
               </div>
             )}
             <div className="flex flex-col">
-              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Eintragen</h1>
-              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Tätigkeit erfassen</p>
+              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{t("eintragen.title")}</h1>
+              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · {t("eintragen.subtitle")}</p>
             </div>
           </div>
           {/* Status-Badge im Header */}
@@ -163,8 +165,8 @@ export default function EintragenPage() {
             <span className="text-[11px] font-poppins font-medium hidden sm:block"
                   style={{ color: entryStatus === EntryStatus.Approved ? "#34C759" : "#FF9500" }}>
               {entryStatus === EntryStatus.Approved
-                ? "Wird direkt genehmigt"
-                : "Muss genehmigt werden"}
+                ? t("eintragen.directApproved")
+                : t("eintragen.needsApproval")}
             </span>
           </motion.div>
         </div>
@@ -179,7 +181,7 @@ export default function EintragenPage() {
             {isAdmin && (
               <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
                 <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#71717A" }}>
-                  Für wen
+                  {t("eintragen.forWhom")}
                 </p>
                 <GlassSection>
                   {/* Selbst */}
@@ -192,7 +194,7 @@ export default function EintragenPage() {
                       <span className="font-poppins font-semibold text-[14px] text-[#0A0A0A] leading-tight">
                         {currentMember?.firstName} {currentMember?.lastName}
                       </span>
-                      <span className="text-[11px]" style={{ color: "#52525B" }}>Für mich selbst</span>
+                      <span className="text-[11px]" style={{ color: "#52525B" }}>{t("eintragen.forMyself")}</span>
                     </div>
                     {selectedMemberId === null && (
                       <CheckCircle size={20} style={{ color: "#0A0A0A" }} />
@@ -221,11 +223,11 @@ export default function EintragenPage() {
                             <span className="font-poppins font-semibold text-[14px] text-[#0A0A0A] leading-tight">
                               {getMemberFullName(selectedMemberObj)}
                             </span>
-                            <span className="text-[11px]" style={{ color: "#52525B" }}>Anderes Mitglied</span>
+                            <span className="text-[11px]" style={{ color: "#52525B" }}>{t("eintragen.otherMemberLabel")}</span>
                           </>
                         ) : (
                           <span className="font-poppins font-semibold text-[14px]" style={{ color: "#52525B" }}>
-                            Anderes Mitglied wählen…
+                            {t("eintragen.otherMember")}
                           </span>
                         )}
                       </div>
@@ -248,7 +250,7 @@ export default function EintragenPage() {
                             <input
                               value={memberSearch}
                               onChange={(e) => setMemberSearch(e.target.value)}
-                              placeholder="Suchen…"
+                              placeholder={t("eintragen.searchMember")}
                               className="flex-1 bg-transparent text-[14px] font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none"
                             />
                             {memberSearch && (
@@ -308,12 +310,12 @@ export default function EintragenPage() {
             {/* ── Aktivitäten */}
             <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.08 } }}>
               <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#71717A" }}>
-                Tätigkeit wählen
+                {t("eintragen.chooseActivity")}
               </p>
 
               {/* Category filter */}
               <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 mb-3">
-                <TFilterPill label="Alle" isSelected={filterCategory === null} onClick={() => setFilterCategory(null)} />
+                <TFilterPill label={t("common.all")} isSelected={filterCategory === null} onClick={() => setFilterCategory(null)} />
                 {ALL_CATS.map((cat) => (
                   <TFilterPill
                     key={cat}
@@ -330,7 +332,7 @@ export default function EintragenPage() {
                 <input
                   value={activitySearch}
                   onChange={(e) => setActivitySearch(e.target.value)}
-                  placeholder="Tätigkeit suchen…"
+                  placeholder={t("eintragen.searchActivity")}
                   className="w-full rounded-2xl pl-9 pr-9 py-3 text-[13px] font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none transition-all"
                   style={{ background: "rgba(0,0,0,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
                 />
@@ -349,7 +351,7 @@ export default function EintragenPage() {
                 <GlassSection>
                   {filteredActivities.length === 0 ? (
                     <p className="text-center py-8 text-[13px]" style={{ color: "#71717A" }}>
-                      Keine Tätigkeiten gefunden.
+                      {t("eintragen.noActivities")}
                     </p>
                   ) : (
                     filteredActivities.map((a, idx) => {
@@ -387,13 +389,13 @@ export default function EintragenPage() {
             {/* ── Details */}
             <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.12 } }}>
               <p className="text-[10px] font-black uppercase tracking-widest mb-2 pl-1" style={{ color: "#71717A" }}>
-                Details
+                {t("eintragen.details")}
               </p>
               <GlassSection>
                 {/* Datum */}
                 <div className="flex items-center gap-3 px-4 py-4">
                   <Calendar size={16} style={{ color: "#71717A" }} />
-                  <span className="font-poppins text-[14px] text-[#0A0A0A] flex-1">Datum</span>
+                  <span className="font-poppins text-[14px] text-[#0A0A0A] flex-1">{t("common.date")}</span>
                   <input
                     type="date"
                     value={date}
@@ -408,7 +410,7 @@ export default function EintragenPage() {
                 {/* Punkte */}
                 <div className="flex items-center gap-3 px-4 py-4">
                   <Star size={16} style={{ color: "#71717A" }} />
-                  <span className="font-poppins text-[14px] text-[#0A0A0A] flex-1">Punkte</span>
+                  <span className="font-poppins text-[14px] text-[#0A0A0A] flex-1">{t("common.points")}</span>
                   <span
                     className="font-mono font-black text-[22px] transition-all"
                     style={{ color: selectedActivity ? "#0A0A0A" : "#B4B4BA" }}
@@ -424,7 +426,7 @@ export default function EintragenPage() {
                   <CheckCircle size={16} style={{ color: selectedActivity ? "#0A0A0A" : "#B4B4BA" }} />
                   <span className="font-poppins text-[14px] flex-1 transition-colors"
                         style={{ color: selectedActivity ? "#0A0A0A" : "#B4B4BA" }}>
-                    {selectedActivity ? selectedActivity.name : "Keine Tätigkeit gewählt"}
+                    {selectedActivity ? selectedActivity.name : t("eintragen.noActivity")}
                   </span>
                   {selectedActivity && (
                     <TCatBadge category={selectedActivity.category} size={28} />
@@ -439,7 +441,7 @@ export default function EintragenPage() {
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Notiz (optional)"
+                    placeholder={t("common.note")}
                     rows={3}
                     className="flex-1 bg-transparent font-poppins text-[14px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none resize-none"
                   />
@@ -468,23 +470,23 @@ export default function EintragenPage() {
                         <CheckCircle size={20} style={{ color: "#34C759" }} />
                       </div>
                       <div>
-                        <p className="font-poppins font-bold text-[15px] text-[#0A0A0A]">Erfolgreich eingetragen!</p>
+                        <p className="font-poppins font-bold text-[15px] text-[#0A0A0A]">{t("eintragen.success")}</p>
                         <p className="text-[12px]" style={{ color: "#52525B" }}>
-                          {entryStatus === EntryStatus.Approved ? "Direkt genehmigt ✓" : "Wartet auf Genehmigung"}
+                          {entryStatus === EntryStatus.Approved ? t("eintragen.successDirect") : t("eintragen.successPending")}
                         </p>
                       </div>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2">
                       <TButton
-                        label={submitting ? "Wird gespeichert…" : (entryStatus === EntryStatus.Pending ? "Zur Genehmigung einreichen" : "Eintrag speichern")}
+                        label={submitting ? t("eintragen.submitting") : (entryStatus === EntryStatus.Pending ? t("eintragen.submitApproval") : t("eintragen.submitDirect"))}
                         onClick={submit}
                         disabled={submitting || !canSubmit}
                         className="w-full py-4 text-[15px]"
                       />
                       {isOverLimit && (
                         <p className="text-[11px] text-[#FF3B30] text-center font-poppins font-medium mt-1">
-                          Limit erreicht: Eintragen gesperrt.
+                          {t("eintragen.limitBlocked")}
                         </p>
                       )}
                     </div>

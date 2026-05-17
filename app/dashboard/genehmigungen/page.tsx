@@ -7,6 +7,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Entry, Member, getMemberFullName, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
 import { GlassSection, TLine, TCatBadge, TAvatar, TButton, TStatusBadge } from "@/app/components/ui/NativeUI";
+import { useI18n } from "@/lib/i18n/I18nContext";
 
 export default function GenehmigungPage() {
   const currentMember = useAppStore((s) => s.currentMember);
@@ -26,6 +27,7 @@ export default function GenehmigungPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [saving,       setSaving]       = useState(false);
 
+  const { t } = useI18n();
   const isAdmin = currentMember?.isAdmin === true;
 
   useEffect(() => {
@@ -75,7 +77,7 @@ export default function GenehmigungPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <p style={{ color: "#52525B" }} className="font-poppins text-sm">
-          Nur Admins können Genehmigungen verwalten.
+          {t("genehmigungen.adminOnly")}
         </p>
       </div>
     );
@@ -95,21 +97,21 @@ export default function GenehmigungPage() {
                 </div>
               )}
               <div className="flex flex-col">
-                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Genehmigungen</h1>
-                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Einträge prüfen und freigeben</p>
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{t("genehmigungen.title")}</h1>
+                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · {t("genehmigungen.subtitle")}</p>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {pending.length > 0 && (
                 <span className="text-[11px] font-poppins font-bold px-3 py-1.5 rounded-full"
                       style={{ background: "rgba(255,149,0,0.15)", color: "#FF9500" }}>
-                  {pending.length} ausstehend
+                  {pending.length} {t("genehmigungen.pending")}
                 </span>
               )}
               {entries.filter(e => e.status === "Genehmigt").length > 0 && (
                 <span className="text-[11px] font-poppins font-bold px-3 py-1.5 rounded-full"
                       style={{ background: "rgba(52,199,89,0.12)", color: "#34C759" }}>
-                  {entries.filter(e => e.status === "Genehmigt").length} genehmigt
+                  {entries.filter(e => e.status === "Genehmigt").length} {t("genehmigungen.approved")}
                 </span>
               )}
             </div>
@@ -133,9 +135,9 @@ export default function GenehmigungPage() {
                  style={{ background: "rgba(52,199,89,0.1)" }}>
               <Sparkles size={28} style={{ color: "#34C759" }} />
             </div>
-            <p className="font-poppins font-bold text-[18px] text-[#0A0A0A] mb-2">Alles erledigt!</p>
+            <p className="font-poppins font-bold text-[18px] text-[#0A0A0A] mb-2">{t("genehmigungen.allDone")}</p>
             <p className="text-[13px]" style={{ color: "#52525B" }}>
-              Keine ausstehenden Einträge.
+              {t("genehmigungen.noPending")}
             </p>
           </motion.div>
 
@@ -168,7 +170,7 @@ export default function GenehmigungPage() {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="font-poppins font-semibold text-[14px] text-[#0A0A0A] leading-tight truncate">
-                          {member ? getMemberFullName(member) : "Unbekanntes Mitglied"}
+                          {member ? getMemberFullName(member) : t("genehmigungen.unknownMember")}
                         </p>
                         <p className="text-[11px] mt-0.5" style={{ color: "#52525B" }}>
                           {member?.memberType ?? ""}
@@ -219,7 +221,7 @@ export default function GenehmigungPage() {
                         style={{ background: "rgba(255,69,58,0.1)", color: "#FF453A" }}
                       >
                         <XCircle size={15} />
-                        Ablehnen
+                        {t("common.reject")}
                       </button>
 
                       {/* Genehmigen */}
@@ -229,7 +231,7 @@ export default function GenehmigungPage() {
                         style={{ background: "rgba(52,199,89,0.12)", color: "#34C759" }}
                       >
                         <CheckCircle size={15} />
-                        Genehmigen
+                        {t("common.approve")}
                       </button>
                     </div>
                   </GlassSection>
@@ -254,7 +256,7 @@ export default function GenehmigungPage() {
             >
               <GlassSection className="p-6 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <p className="font-poppins font-bold text-[17px] text-[#0A0A0A]">Eintrag ablehnen</p>
+                  <p className="font-poppins font-bold text-[17px] text-[#0A0A0A]">{t("genehmigungen.rejectTitle")}</p>
                   <button onClick={() => setRejectTarget(null)}>
                     <X size={18} style={{ color: "#52525B" }} />
                   </button>
@@ -271,12 +273,12 @@ export default function GenehmigungPage() {
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest pl-0.5"
                          style={{ color: "#71717A" }}>
-                    Ablehnungsgrund (optional)
+                    {t("genehmigungen.rejectReason")}
                   </label>
                   <textarea
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
-                    placeholder="z.B. Nachweis fehlt"
+                    placeholder={t("genehmigungen.rejectHint")}
                     rows={3}
                     className="w-full rounded-2xl px-4 py-3 text-[14px] font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none resize-none transition-all"
                     style={{
@@ -295,7 +297,7 @@ export default function GenehmigungPage() {
                     style={{ background: "rgba(255,69,58,0.15)", color: "#FF453A" }}
                   >
                     <XCircle size={15} />
-                    {saving ? "Wird abgelehnt…" : "Ablehnen"}
+                    {saving ? t("genehmigungen.rejecting") : t("common.reject")}
                   </button>
                 </div>
               </GlassSection>
