@@ -1007,7 +1007,9 @@ export default function MembersPage() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 20 }}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-full max-w-2xl my-8"
+                  className={`w-full my-8 transition-all duration-300 ${
+                    importStep === "map" || importStep === "preview" ? "max-w-4xl" : "max-w-2xl"
+                  }`}
                 >
                   <GlassSection className="relative overflow-hidden border-black/10 shadow-3xl">
                     <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px] pointer-events-none" />
