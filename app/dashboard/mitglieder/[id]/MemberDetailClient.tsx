@@ -353,13 +353,32 @@ export default function MemberDetailPage() {
                  <div className="flex flex-col items-center gap-3 text-center mb-8 lg:mb-10 max-w-full">
                     <div className="flex max-w-full items-center gap-3">
                        <h2 className="truncate text-xl sm:text-2xl font-poppins font-black text-[#0A0A0A]">{member.firstName} {member.lastName}</h2>
-                       {member.isAdmin && <ShieldCheck size={20} className="text-[#0A0A0A]/60" />}
                     </div>
                     <p className="max-w-full break-all text-[#71717A] font-bold text-sm">{member.email}</p>
                     <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
-                       <span className="px-4 py-1.5 rounded-full bg-black/[0.04] border border-black/10 text-[10px] font-black text-[#A1A1AA] uppercase tracking-widest">{member.memberType}</span>
-                       {member.isTrainer && <span className="px-4 py-1.5 rounded-full bg-black/[0.07] border border-black/15 text-[10px] font-black text-[#0A0A0A]/60 uppercase tracking-widest">Trainer</span>}
-                    </div>
+                        {/* Member Type / Vorstand Badge */}
+                        <span className={`px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${
+                           member.memberType === "Vorstand" 
+                              ? "bg-[#15803D]/10 border-[#15803D]/20 text-[#15803D]" 
+                              : "bg-black/[0.04] border-black/10 text-[#71717A]"
+                        }`}>
+                           {member.memberType}
+                        </span>
+
+                        {/* Trainer Badge */}
+                        {member.isTrainer && (
+                           <span className="px-4 py-1.5 rounded-full bg-[#CA8A04]/10 border-[#CA8A04]/20 text-[10px] font-black text-[#CA8A04] uppercase tracking-widest">
+                              Trainer
+                           </span>
+                        )}
+
+                        {/* Admin Badge */}
+                        {member.isAdmin && (
+                           <span className="px-4 py-1.5 rounded-full bg-[#0284C7]/10 border-[#0284C7]/20 text-[10px] font-black text-[#0284C7] uppercase tracking-widest">
+                              Admin
+                           </span>
+                        )}
+                     </div>
                  </div>
 
                  {/* Detailed Progress Stats */}
