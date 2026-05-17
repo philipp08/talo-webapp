@@ -615,9 +615,9 @@ export default function MemberDetailPage() {
       {/* Entry Edit Modal */}
       <AnimatePresence>
         {entryToEdit && entryForm && (
-           <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+           <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/40 backdrop-blur-sm flex justify-center p-4 sm:p-6 md:p-10">
              <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }} className="w-full max-w-xl my-auto">
-                <div className="bg-white border border-black/10 rounded-[30px] sm:rounded-[48px] p-5 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-8 shadow-2xl relative">
+                <div className="bg-white border border-black/10 rounded-[30px] sm:rounded-[40px] p-6 sm:p-8 lg:p-9 flex flex-col gap-5 sm:gap-6 shadow-2xl relative">
                    <div className="absolute top-0 right-0 w-64 h-64 bg-black/[0.03] blur-3xl rounded-full" />
                    
                    <div className="flex items-start justify-between gap-4 relative z-10">
