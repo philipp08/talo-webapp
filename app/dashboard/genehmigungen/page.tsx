@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, X, Sparkles, Calendar } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
@@ -244,67 +245,76 @@ export default function GenehmigungPage() {
       </div>
 
       {/* ── Reject Modal ──────────────────────────────────────────── */}
-      <AnimatePresence>
-        {rejectTarget && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-               style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {rejectTarget && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.94 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.94 }}
-              className="w-full max-w-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={(e) => { if (e.target === e.currentTarget) setRejectTarget(null); }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             >
-              <GlassSection className="p-6 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <p className="font-poppins font-bold text-[17px] text-[#0A0A0A]">{t("genehmigungen.rejectTitle")}</p>
-                  <button onClick={() => setRejectTarget(null)}>
-                    <X size={18} style={{ color: "#52525B" }} />
-                  </button>
-                </div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm"
+              >
+                <GlassSection className="p-6 flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <p className="font-poppins font-bold text-[17px] text-[#0A0A0A]">{t("genehmigungen.rejectTitle")}</p>
+                    <button onClick={() => setRejectTarget(null)}>
+                      <X size={18} style={{ color: "#52525B" }} />
+                    </button>
+                  </div>
 
-                <p className="text-[13px]" style={{ color: "#52525B" }}>
-                  <span className="text-[#0A0A0A] font-semibold">{rejectTarget.activityName}</span>
-                  {" – "}
-                  {memberMap.get(rejectTarget.memberId)
-                    ? getMemberFullName(memberMap.get(rejectTarget.memberId)!)
-                    : "Unbekannt"}
-                </p>
+                  <p className="text-[13px]" style={{ color: "#52525B" }}>
+                    <span className="text-[#0A0A0A] font-semibold">{rejectTarget.activityName}</span>
+                    {" – "}
+                    {memberMap.get(rejectTarget.memberId)
+                      ? getMemberFullName(memberMap.get(rejectTarget.memberId)!)
+                      : "Unbekannt"}
+                  </p>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest pl-0.5"
-                         style={{ color: "#71717A" }}>
-                    {t("genehmigungen.rejectReason")}
-                  </label>
-                  <textarea
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    placeholder={t("genehmigungen.rejectHint")}
-                    rows={3}
-                    className="w-full rounded-2xl px-4 py-3 text-[14px] font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none resize-none transition-all"
-                    style={{
-                      background: "rgba(0,0,0,0.05)",
-                      border: "1px solid rgba(0,0,0,0.09)",
-                    }}
-                  />
-                </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest pl-0.5"
+                           style={{ color: "#71717A" }}>
+                      {t("genehmigungen.rejectReason")}
+                    </label>
+                    <textarea
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      placeholder={t("genehmigungen.rejectHint")}
+                      rows={3}
+                      className="w-full rounded-2xl px-4 py-3 text-[14px] font-poppins text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none resize-none transition-all"
+                      style={{
+                        background: "rgba(0,0,0,0.05)",
+                        border: "1px solid rgba(0,0,0,0.09)",
+                      }}
+                    />
+                  </div>
 
-                <div className="flex gap-2 pt-1">
-                  <TButton label="Abbrechen" variant="ghost" onClick={() => setRejectTarget(null)} className="flex-1" />
-                  <button
-                    onClick={rejectConfirm}
-                    disabled={saving}
-                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full font-poppins font-semibold text-[14px] transition-all disabled:opacity-40"
-                    style={{ background: "rgba(255,69,58,0.15)", color: "#FF453A" }}
-                  >
-                    <XCircle size={15} />
-                    {saving ? t("genehmigungen.rejecting") : t("common.reject")}
-                  </button>
-                </div>
-              </GlassSection>
+                  <div className="flex gap-2 pt-1">
+                    <TButton label="Abbrechen" variant="ghost" onClick={() => setRejectTarget(null)} className="flex-1" />
+                    <button
+                      onClick={rejectConfirm}
+                      disabled={saving}
+                      className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full font-poppins font-semibold text-[14px] transition-all disabled:opacity-40"
+                      style={{ background: "rgba(255,69,58,0.15)", color: "#FF453A" }}
+                    >
+                      <XCircle size={15} />
+                      {saving ? t("genehmigungen.rejecting") : t("common.reject")}
+                    </button>
+                  </div>
+                </GlassSection>
+              </motion.div>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }

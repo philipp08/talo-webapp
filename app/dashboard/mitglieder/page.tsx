@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Trophy,
@@ -307,18 +308,23 @@ export default function MembersPage() {
       </div>
 
        {/* Invite Member Modal */}
-      <AnimatePresence>
-        {isInviteOpen && isAdmin && (
-          <div
-            className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 bg-black/40 backdrop-blur-sm overflow-y-auto"
-            onClick={(e) => { if (e.target === e.currentTarget) closeInviteModal(); }}
-          >
-             <motion.div
-               initial={{ opacity: 0, scale: 0.95, y: 20 }}
-               animate={{ opacity: 1, scale: 1, y: 0 }}
-               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-               className="w-full max-w-lg mb-8"
-             >
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {isInviteOpen && isAdmin && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={(e) => { if (e.target === e.currentTarget) closeInviteModal(); }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto"
+            >
+               <motion.div
+                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                 animate={{ opacity: 1, scale: 1, y: 0 }}
+                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                 onClick={(e) => e.stopPropagation()}
+                 className="w-full max-w-lg mb-8"
+               >
                 <GlassSection className="relative overflow-hidden border-black/10 shadow-3xl">
                    {/* Gradient Glow */}
                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px] pointer-events-none" />
@@ -600,10 +606,12 @@ export default function MembersPage() {
                       )}
                    </div>
                 </GlassSection>
-             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+               </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }

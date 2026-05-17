@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, X, Pin, Megaphone } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
@@ -232,85 +233,110 @@ export default function AnnouncementsPage() {
       </div>
 
       {/* Sheet Modal: Form */}
-      <AnimatePresence>
-        {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-sm"
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {showForm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             >
-              <GlassSection className="p-6 flex flex-col gap-5">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
-                    {t("ankuendigungen.modalTitle")}
-                  </h3>
-                  <button onClick={() => setShowForm(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-6">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("ankuendigungen.message")}</label>
-                    <textarea
-                      autoFocus
-                      rows={6}
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder={t("ankuendigungen.placeholder")}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all resize-none"
-                    />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm"
+              >
+                <GlassSection className="p-6 flex flex-col gap-5">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
+                      {t("ankuendigungen.modalTitle")}
+                    </h3>
+                    <button onClick={() => setShowForm(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
+                      <X size={20} />
+                    </button>
                   </div>
 
-                  <div className="flex items-center justify-between px-1">
-                      <div className="flex flex-col gap-0.5">
-                         <span className="font-poppins font-semibold text-[#0A0A0A] text-sm">{t("ankuendigungen.pinLabel")}</span>
-                         <span className="text-[11px] font-poppins text-[#52525B]">{t("ankuendigungen.pinSub")}</span>
-                      </div>
-                      <button 
-                        onClick={() => setIsPinned(!isPinned)}
-                        className={`w-11 h-6 rounded-full relative transition-all ${isPinned ? "bg-[#E87AA0]" : "bg-black/[0.07]"}`}
-                      >
-                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${isPinned ? "left-6" : "left-1"}`} />
-                      </button>
-                   </div>
-                </div>
+                  <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("ankuendigungen.message")}</label>
+                      <textarea
+                        autoFocus
+                        rows={6}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder={t("ankuendigungen.placeholder")}
+                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all resize-none"
+                      />
+                    </div>
 
-                <div className="pt-2">
-                  <TButton
-                    label={saving ? t("common.saving") : t("common.create")}
-                    onClick={saveForm}
-                    disabled={saving || !message.trim()}
-                  />
-                </div>
-              </GlassSection>
+                    <div className="flex items-center justify-between px-1">
+                        <div className="flex flex-col gap-0.5">
+                           <span className="font-poppins font-semibold text-[#0A0A0A] text-sm">{t("ankuendigungen.pinLabel")}</span>
+                           <span className="text-[11px] font-poppins text-[#52525B]">{t("ankuendigungen.pinSub")}</span>
+                        </div>
+                        <button 
+                          onClick={() => setIsPinned(!isPinned)}
+                          className={`w-11 h-6 rounded-full relative transition-all ${isPinned ? "bg-[#E87AA0]" : "bg-black/[0.07]"}`}
+                        >
+                           <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${isPinned ? "left-6" : "left-1"}`} />
+                        </button>
+                     </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <TButton
+                      label={saving ? t("common.saving") : t("common.create")}
+                      onClick={saveForm}
+                      disabled={saving || !message.trim()}
+                    />
+                  </div>
+                </GlassSection>
+              </motion.div>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Delete Confirmation */}
-      <AnimatePresence>
-        {deleteTarget && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="w-full max-w-xs">
-              <GlassSection className="p-7 flex flex-col items-center text-center gap-1 font-poppins">
-                <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-3 border border-red-500/20">
-                  <Trash2 size={28} className="text-red-400" />
-                </div>
-                <h3 className="text-xl font-bold text-[#0A0A0A]">{t("ankuendigungen.deleteTitle")}</h3>
-                <p className="text-sm text-[#52525B] mb-4 px-2">{t("ankuendigungen.deleteConfirm")}</p>
-                <div className="flex flex-col gap-2 w-full">
-                  <TButton label={t("common.delete")} variant="danger" onClick={deleteAnnouncement} />
-                  <TButton label={t("common.cancel")} variant="secondary" onClick={() => setDeleteTarget(null)} />
-                </div>
-              </GlassSection>
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {deleteTarget && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={(e) => { if (e.target === e.currentTarget) setDeleteTarget(null); }}
+              className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }} 
+                animate={{ scale: 1, opacity: 1 }} 
+                exit={{ scale: 0.9, opacity: 0 }} 
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-xs"
+              >
+                <GlassSection className="p-7 flex flex-col items-center text-center gap-1 font-poppins">
+                  <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-3 border border-red-500/20">
+                    <Trash2 size={28} className="text-red-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#0A0A0A]">{t("ankuendigungen.deleteTitle")}</h3>
+                  <p className="text-sm text-[#52525B] mb-4 px-2">{t("ankuendigungen.deleteConfirm")}</p>
+                  <div className="flex flex-col gap-2 w-full">
+                    <TButton label={t("common.delete")} variant="danger" onClick={deleteAnnouncement} />
+                    <TButton label={t("common.cancel")} variant="secondary" onClick={() => setDeleteTarget(null)} />
+                  </div>
+                </GlassSection>
+              </motion.div>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
