@@ -23,7 +23,13 @@ const StatCard = ({
   <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.5 }}>
     <div
       className="p-4 sm:p-6 rounded-[20px] sm:rounded-[28px] flex flex-col gap-3 sm:gap-5 relative overflow-hidden group cursor-default h-full transition-all hover:border-black/10"
-      style={{ background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.06)" }}
+      style={{ 
+        background: "#FFFFFF", 
+        border: "1px solid rgba(0,0,0,0.06)",
+        isolation: "isolate",
+        transform: "translateZ(0)",
+        WebkitTransform: "translateZ(0)"
+      }}
     >
       {/* Glow blob */}
       <div className="absolute top-0 right-0 w-20 h-20 sm:w-28 sm:h-28 rounded-full -mr-10 -mt-10 sm:-mr-14 sm:-mt-14 transition-colors"
