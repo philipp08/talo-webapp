@@ -7,7 +7,7 @@ import {
   Search, Trophy,
   ChevronRight, Shield, UserPlus,
   Target, MoreVertical,
-  X, Mail, User, Check, Layers, Filter, Swords, Trash, Plus, Calendar, Clock, Upload
+  X, Mail, User, Check, Layers, Filter, Swords, Trash, Plus, Calendar, Clock, Upload, ChevronDown
 } from "lucide-react";
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
@@ -1158,55 +1158,75 @@ export default function MembersPage() {
                           <div className="flex flex-col gap-4 bg-black/[0.01] p-5 rounded-2xl border border-black/5">
                             <div className="flex flex-col gap-1">
                               <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Vorname *</label>
-                              <select
-                                value={fieldMappings.firstName}
-                                onChange={(e) => setFieldMappings(prev => ({ ...prev, firstName: Number(e.target.value) }))}
-                                className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
-                              >
-                                <option value={-1}>-- Spalte auswählen --</option>
-                                {csvHeaders.map((h, idx) => (
-                                  <option key={idx} value={idx}>{h}</option>
-                                ))}
-                              </select>
+                              <div className="relative w-full">
+                                <select
+                                  value={fieldMappings.firstName}
+                                  onChange={(e) => setFieldMappings(prev => ({ ...prev, firstName: Number(e.target.value) }))}
+                                  className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
+                                >
+                                  <option value={-1}>-- Spalte auswählen --</option>
+                                  {csvHeaders.map((h, idx) => (
+                                    <option key={idx} value={idx}>{h}</option>
+                                  ))}
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
+                                  <ChevronDown size={14} />
+                                </div>
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1">
                               <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Nachname *</label>
-                              <select
-                                value={fieldMappings.lastName}
-                                onChange={(e) => setFieldMappings(prev => ({ ...prev, lastName: Number(e.target.value) }))}
-                                className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
-                              >
-                                <option value={-1}>-- Spalte auswählen --</option>
-                                {csvHeaders.map((h, idx) => (
-                                  <option key={idx} value={idx}>{h}</option>
-                                ))}
-                              </select>
+                              <div className="relative w-full">
+                                <select
+                                  value={fieldMappings.lastName}
+                                  onChange={(e) => setFieldMappings(prev => ({ ...prev, lastName: Number(e.target.value) }))}
+                                  className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
+                                >
+                                  <option value={-1}>-- Spalte auswählen --</option>
+                                  {csvHeaders.map((h, idx) => (
+                                    <option key={idx} value={idx}>{h}</option>
+                                  ))}
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
+                                  <ChevronDown size={14} />
+                                </div>
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1">
                               <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">E-Mail *</label>
-                              <select
-                                value={fieldMappings.email}
-                                onChange={(e) => setFieldMappings(prev => ({ ...prev, email: Number(e.target.value) }))}
-                                className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
-                              >
-                                <option value={-1}>-- Spalte auswählen --</option>
-                                {csvHeaders.map((h, idx) => (
-                                  <option key={idx} value={idx}>{h}</option>
-                                ))}
-                              </select>
+                              <div className="relative w-full">
+                                <select
+                                  value={fieldMappings.email}
+                                  onChange={(e) => setFieldMappings(prev => ({ ...prev, email: Number(e.target.value) }))}
+                                  className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
+                                >
+                                  <option value={-1}>-- Spalte auswählen --</option>
+                                  {csvHeaders.map((h, idx) => (
+                                    <option key={idx} value={idx}>{h}</option>
+                                  ))}
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
+                                  <ChevronDown size={14} />
+                                </div>
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1">
                               <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Mitgliedertyp (Optional)</label>
-                              <select
-                                value={fieldMappings.memberType}
-                                onChange={(e) => setFieldMappings(prev => ({ ...prev, memberType: Number(e.target.value) }))}
-                                className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
-                              >
-                                <option value={-1}>-- Standard (Aktiv) --</option>
-                                {csvHeaders.map((h, idx) => (
-                                  <option key={idx} value={idx}>{h}</option>
-                                ))}
-                              </select>
+                              <div className="relative w-full">
+                                <select
+                                  value={fieldMappings.memberType}
+                                  onChange={(e) => setFieldMappings(prev => ({ ...prev, memberType: Number(e.target.value) }))}
+                                  className="w-full h-12 pl-4 pr-10 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none appearance-none cursor-pointer"
+                                >
+                                  <option value={-1}>-- Standard (Aktiv) --</option>
+                                  {csvHeaders.map((h, idx) => (
+                                    <option key={idx} value={idx}>{h}</option>
+                                  ))}
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
+                                  <ChevronDown size={14} />
+                                </div>
+                              </div>
                             </div>
                           </div>
 
@@ -1294,18 +1314,23 @@ export default function MembersPage() {
                                     </td>
                                     <td className="p-3 whitespace-nowrap">
                                       {m.isValid ? (
-                                        <select
-                                          value={m.memberType}
-                                          onChange={(e) => {
-                                            const newType = e.target.value;
-                                            setMappedMembers(prev => prev.map((item, i) => i === idx ? { ...item, memberType: newType } : item));
-                                          }}
-                                          className="h-8 px-2 py-0.5 rounded-lg border border-black/10 bg-white text-[10px] font-black uppercase tracking-wider text-[#0A0A0A] focus:outline-none cursor-pointer"
-                                        >
-                                          {availableTypes.map((type) => (
-                                            <option key={type} value={type}>{type}</option>
-                                          ))}
-                                        </select>
+                                        <div className="relative inline-block">
+                                          <select
+                                            value={m.memberType}
+                                            onChange={(e) => {
+                                              const newType = e.target.value;
+                                              setMappedMembers(prev => prev.map((item, i) => i === idx ? { ...item, memberType: newType } : item));
+                                            }}
+                                            className="h-8 pl-3 pr-7 py-0.5 rounded-lg border border-black/10 bg-white text-[10px] font-black uppercase tracking-wider text-[#0A0A0A] focus:outline-none cursor-pointer appearance-none"
+                                          >
+                                            {availableTypes.map((type) => (
+                                              <option key={type} value={type}>{type}</option>
+                                            ))}
+                                          </select>
+                                          <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#71717A]">
+                                            <ChevronDown size={10} />
+                                          </div>
+                                        </div>
                                       ) : (
                                         <span className="px-2 py-0.5 rounded bg-black/[0.04] text-[9px] uppercase tracking-widest font-black text-[#52525B]">
                                           {m.memberType}
