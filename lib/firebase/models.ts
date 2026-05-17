@@ -69,6 +69,7 @@ export interface Club {
   customMemberTypes?: CustomMemberType[];
   seasonStart?: Timestamp | Date | null;
   seasonEnd?: Timestamp | Date | null;
+  sportType?: string;
 }
 
 export interface ClubMembership {
@@ -543,4 +544,34 @@ export const isLightColor = (hex?: string): boolean => {
   const g = parseInt(full.slice(2, 4), 16);
   const b = parseInt(full.slice(4, 6), 16);
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55;
+};
+
+export const SPORT_TYPE_EMOJIS: Record<string, string> = {
+  general: "🏆",
+  fussball: "⚽",
+  tennis: "🎾",
+  tischtennis: "🏓",
+  basketball: "🏀",
+  volleyball: "🏐",
+  handball: "🤾",
+  turnen: "🤸",
+  schwimmen: "🏊",
+  leichtathletik: "🏃",
+  feuerwehr: "🚒",
+  musik: "🎺",
+};
+
+export const SPORT_TYPE_LABELS: Record<string, string> = {
+  general: "Allgemein / Sonstiger Verein",
+  fussball: "Fußball",
+  tennis: "Tennis",
+  tischtennis: "Tischtennis",
+  basketball: "Basketball",
+  volleyball: "Volleyball",
+  handball: "Handball",
+  turnen: "Turnen & Gymnastik",
+  schwimmen: "Schwimmen",
+  leichtathletik: "Leichtathletik",
+  feuerwehr: "Feuerwehr",
+  musik: "Musik- / Gesangverein",
 };

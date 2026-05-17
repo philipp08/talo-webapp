@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, Plus, Trash, Check, X, Shield, Users, Layers, Award, MessageCircle } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Shift, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
+import { Shift, getPlanFeatures, isLightColor, SPORT_TYPE_EMOJIS } from "@/lib/firebase/models";
 import { GlassSection, TButton, TBadge } from "@/app/components/ui/NativeUI";
 import { useI18n } from "@/lib/i18n/I18nContext";
 
@@ -240,7 +240,8 @@ export default function ShiftsPage() {
   ];
 
   const shareEventShifts = (eventName: string, list: Shift[]) => {
-    let text = `📢 *HELFERSCHICHTEN: ${eventName.toUpperCase()}* 📢\n\nHallo zusammen! Für unser Event werden noch fleißige Helfer gesucht. Bitte tragt euch direkt ein:\n\n`;
+    const emoji = SPORT_TYPE_EMOJIS[currentClub?.sportType || "general"] || "🏆";
+    let text = `${emoji} *HELFERSCHICHTEN: ${eventName.toUpperCase()}* ${emoji}\n\nHallo zusammen! Für unser Event werden noch fleißige Helfer gesucht. Bitte tragt euch direkt ein:\n\n`;
     list.forEach((s) => {
       const required = s.slotsRequired || 1;
       const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
@@ -269,7 +270,8 @@ export default function ShiftsPage() {
       const freeSlots = required - claimedCount;
       statusStr = `👉 Noch frei! (${freeSlots} von ${required} Plätzen frei)`;
     }
-    const text = `⚽ *TALO HELFERSCHICHT* ⚽\n\nFür das Event *${s.event}* wird ein Helfer gesucht:\n\n📌 *Schicht*: ${s.title}\n📅 *Datum*: ${s.date}\n🕒 *Uhrzeit*: ${s.time}\n🏆 *Punkte*: +${s.points.toFixed(1)} Pkt.\n\n${statusStr}\n\n👉 Jetzt direkt im Talo Dashboard buchen: ${window.location.origin}/dashboard/schichten\n\nDanke für deinen einsatz! 🙌`;
+    const emoji = SPORT_TYPE_EMOJIS[currentClub?.sportType || "general"] || "🏆";
+    const text = `${emoji} *TALO HELFERSCHICHT* ${emoji}\n\nFür das Event *${s.event}* wird ein Helfer gesucht:\n\n📌 *Schicht*: ${s.title}\n📅 *Datum*: ${s.date}\n🕒 *Uhrzeit*: ${s.time}\n🏆 *Punkte*: +${s.points.toFixed(1)} Pkt.\n\n${statusStr}\n\n👉 Jetzt direkt im Talo Dashboard buchen: ${window.location.origin}/dashboard/schichten\n\nDanke für deinen einsatz! 🙌`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
 

@@ -14,7 +14,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
-import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures, CustomMemberType, isLightColor, MemberType, PointFactors } from "@/lib/firebase/models";
+import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures, CustomMemberType, isLightColor, MemberType, PointFactors, SPORT_TYPE_LABELS } from "@/lib/firebase/models";
 import {
   GlassSection, TLine, TAvatar, TButton, TBadge,
   PlanLockedField, PlanUpsell
@@ -138,6 +138,7 @@ export default function SettingsPage() {
   const [memberTypeFactors, setMemberTypeFactors] = useState<Record<string, number>>(currentClub?.memberTypeFactors ?? {});
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypeFactor, setNewTypeFactor] = useState("100");
+  const [sportType, setSportType] = useState<string>(currentClub?.sportType ?? "general");
   const [clubState, setClubState] = useState<"idle" | "saving" | "saved">("idle");
 
   const thisYear = new Date().getFullYear();
@@ -185,6 +186,7 @@ export default function SettingsPage() {
     setAccentColor(currentClub.accentColor ?? currentClub.brandColor ?? "#0A0A0A");
     setCustomMemberTypes(currentClub.customMemberTypes ?? []);
     setMemberTypeFactors(currentClub.memberTypeFactors ?? {});
+    setSportType(currentClub.sportType ?? "general");
   }, [currentClub]);
 
   useEffect(() => {
@@ -323,6 +325,7 @@ export default function SettingsPage() {
         } : {}),
         ...(planFeatures.hasClubColors ? { brandColor, accentColor } : {}),
         ...(planFeatures.hasCustomMemberTypes ? { customMemberTypes, memberTypeFactors } : {}),
+        sportType,
       };
       await FirebaseManager.updateClub(currentClub.id, updates);
       setCurrentClub({ ...currentClub, ...updates });
@@ -547,6 +550,16 @@ export default function SettingsPage() {
                         }))} 
                       />
                     </Field>
+                    <Field icon={Dumbbell} label="Vereinssparte / Sportart">
+                      <Select 
+                        value={sportType} 
+                        onChange={setSportType} 
+                        options={Object.entries(SPORT_TYPE_LABELS).map(([key, label]) => ({
+                          value: key,
+                          label
+                        }))} 
+                      />
+                    </Field>
 
                     <PlanLockedField
                       locked={!planFeatures.hasCustomSeason}
@@ -615,6 +628,8 @@ export default function SettingsPage() {
                     <InfoRow icon={Euro} label={t("einstellungen.compensationAmount")} value={`${(currentClub?.compensationPerMissingPoint ?? 0).toFixed(2)} ${t("einstellungen.euroPerPoint")}`} color="#0A0A0A" />
                     <TLine className="ml-[68px]" />
                     <InfoRow icon={Calendar} label={t("einstellungen.seasonType")} value={currentClub?.seasonType === SeasonType.Calendar ? t("einstellungen.seasonCalendarYear") : currentClub?.seasonType === SeasonType.School ? t("einstellungen.seasonSchoolYear") : (currentClub?.seasonType ?? "–")} color="#0A0A0A" />
+                    <TLine className="ml-[68px]" />
+                    <InfoRow icon={Dumbbell} label="Vereinssparte / Sportart" value={SPORT_TYPE_LABELS[currentClub?.sportType || "general"] || "Allgemein"} color="#0A0A0A" />
                     {currentClub?.logoUrl && planFeatures.hasClubLogo && (
                       <>
                         <TLine className="ml-[68px]" />

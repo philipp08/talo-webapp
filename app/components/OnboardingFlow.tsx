@@ -9,7 +9,7 @@ import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { normalizeClubIds } from "@/lib/firebase/models";
+import { normalizeClubIds, SPORT_TYPE_LABELS } from "@/lib/firebase/models";
 
 const activeClubStorageKey = (uid: string) => `talo.activeClubId.${uid}`;
 
@@ -31,6 +31,7 @@ export default function OnboardingFlow() {
   const router = useRouter();
 
   const [clubName, setClubName] = useState("");
+  const [sportType, setSportType] = useState("general");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -52,6 +53,7 @@ export default function OnboardingFlow() {
         seasonType: "Kalenderjahr",
         approvalRequired: true,
         plan: "free",
+        sportType: sportType,
       });
       console.log("Club created with ID:", newClubId);
 
@@ -154,6 +156,23 @@ export default function OnboardingFlow() {
               placeholder="z.B. FC Musterstadt e.V."
               className="w-full rounded-xl border border-black/10 bg-white/50 px-4 py-3.5 outline-none transition-all placeholder:text-[#A1A1AA] focus:border-black/30 focus:bg-white"
             />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="font-poppins text-sm font-bold text-[#0A0A0A]">
+              Vereinssparte / Sportart
+            </label>
+            <select
+              value={sportType}
+              onChange={(e) => setSportType(e.target.value)}
+              className="w-full rounded-xl border border-black/10 bg-white/50 px-4 py-3.5 outline-none transition-all focus:border-black/30 focus:bg-white cursor-pointer font-poppins text-sm text-[#0A0A0A]"
+            >
+              {Object.entries(SPORT_TYPE_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <AnimatePresence>
