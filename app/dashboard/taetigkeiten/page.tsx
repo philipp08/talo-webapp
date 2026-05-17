@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, Pencil, X } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
@@ -226,91 +227,101 @@ export default function ActivitiesPage() {
       </div>
 
       {/* Sheet Modal: Form */}
-      <AnimatePresence>
-        {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-sm"
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {showForm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowForm(false)}
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             >
-              <GlassSection className="p-6 flex flex-col gap-5">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
-                    {editTarget ? t("taetigkeiten.editTitle") : t("taetigkeiten.newTitle")}
-                  </h3>
-                  <button onClick={() => setShowForm(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-5">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("common.name")}</label>
-                    <input
-                      autoFocus
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      placeholder={t("taetigkeiten.namePlaceholder")}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all"
-                    />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm"
+              >
+                <GlassSection className="p-6 flex flex-col gap-5">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
+                      {editTarget ? t("taetigkeiten.editTitle") : t("taetigkeiten.newTitle")}
+                    </h3>
+                    <button onClick={() => setShowForm(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
+                      <X size={20} />
+                    </button>
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("common.points")}</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={form.points}
-                      onChange={(e) => setForm({ ...form, points: e.target.value })}
-                      className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
-                    />
-                  </div>
+                  <div className="flex flex-col gap-5">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("common.name")}</label>
+                      <input
+                        autoFocus
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        placeholder={t("taetigkeiten.namePlaceholder")}
+                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all"
+                      />
+                    </div>
 
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("common.category")}</label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {ALL_CATS.map((cat) => (
-                        <button
-                          key={cat}
-                          onClick={() => setForm({ ...form, category: cat })}
-                          className={`h-12 rounded-xl flex items-center justify-center font-bold font-poppins transition-all border ${
-                            form.category === cat
-                              ? "bg-[#0A0A0A] text-white border-black/15"
-                              : "bg-black/[0.04] text-[#52525B] border-black/10"
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      ))}
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("common.points")}</label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={form.points}
+                        onChange={(e) => setForm({ ...form, points: e.target.value })}
+                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("common.category")}</label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {ALL_CATS.map((cat) => (
+                          <button
+                            key={cat}
+                            onClick={() => setForm({ ...form, category: cat })}
+                            className={`h-12 rounded-xl flex items-center justify-center font-bold font-poppins transition-all border ${
+                              form.category === cat
+                                ? "bg-[#0A0A0A] text-white border-black/15"
+                                : "bg-black/[0.04] text-[#52525B] border-black/10"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex flex-col gap-2 pt-2">
-                  <TButton
-                    label={saving ? t("common.saving") : (editTarget ? t("common.save") : t("common.create"))}
-                    onClick={saveForm}
-                    disabled={saving || !form.name.trim()}
-                  />
-                  {editTarget && (
+                  <div className="flex flex-col gap-2 pt-2">
                     <TButton
-                      label={t("common.delete")}
-                      variant="danger" 
-                      onClick={async () => {
-                         if (!currentClub || !editTarget) return;
-                         await FirebaseManager.deleteActivity(currentClub.id, editTarget.id);
-                         setShowForm(false);
-                      }} 
+                      label={saving ? t("common.saving") : (editTarget ? t("common.save") : t("common.create"))}
+                      onClick={saveForm}
+                      disabled={saving || !form.name.trim()}
                     />
-                  )}
-                </div>
-              </GlassSection>
+                    {editTarget && (
+                      <TButton
+                        label={t("common.delete")}
+                        variant="danger" 
+                        onClick={async () => {
+                           if (!currentClub || !editTarget) return;
+                           await FirebaseManager.deleteActivity(currentClub.id, editTarget.id);
+                           setShowForm(false);
+                        }} 
+                      />
+                    )}
+                  </div>
+                </GlassSection>
+              </motion.div>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }

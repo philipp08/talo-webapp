@@ -535,7 +535,17 @@ export default function SettingsPage() {
                       </Field>
                     </div>
                     <Field icon={Calendar} label={t("einstellungen.seasonType")}>
-                      <Select value={seasonType} onChange={setSeasonType} options={Object.values(SeasonType).map(s => ({ value: s, label: s }))} />
+                      <Select 
+                        value={seasonType} 
+                        onChange={setSeasonType} 
+                        options={Object.values(SeasonType).map(s => ({ 
+                          value: s, 
+                          label: s === SeasonType.Calendar ? t("einstellungen.seasonCalendarYear") :
+                                 s === SeasonType.School ? t("einstellungen.seasonSchoolYear") :
+                                 s === SeasonType.Club ? "Vereinssaison (Jul–Jun)" :
+                                 s === SeasonType.Custom ? "Individueller Zeitraum" : s
+                        }))} 
+                      />
                     </Field>
 
                     <PlanLockedField
@@ -556,8 +566,8 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <PlanLockedField
                         locked={!planFeatures.hasClubLogo}
-                        label="Vereinslogo"
-                        unlockText="ab Verein"
+                        label={t("einstellungen.clubLogo")}
+                        unlockText="ab Club"
                       >
                         <Field icon={ImageIcon} label={t("einstellungen.logoUrl")}>
                           <Input value={logoUrl} onChange={setLogoUrl} placeholder="https://..." />
@@ -565,7 +575,7 @@ export default function SettingsPage() {
                       </PlanLockedField>
                       <PlanLockedField
                         locked={!planFeatures.hasClubColors}
-                        label="Vereinsfarben"
+                        label={t("einstellungen.clubColors")}
                         unlockText="ab Pro"
                       >
                         <Field icon={Palette} label={t("einstellungen.accentColor")}>
@@ -578,9 +588,9 @@ export default function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-poppins font-semibold text-[#0A0A0A] text-sm">Genehmigungspflicht</span>
+                        <span className="font-poppins font-semibold text-[#0A0A0A] text-sm">{t("einstellungen.approvalRequired")}</span>
                         <span className="text-[11px] font-poppins text-[#52525B]">
-                          {approvalRequired ? "Einträge brauchen Admin-Freigabe" : "Auto-Genehmigung"}
+                          {approvalRequired ? t("einstellungen.requiresApproval") : t("einstellungen.autoApprove")}
                         </span>
                       </div>
                       <Toggle value={approvalRequired} onChange={setApprovalRequired} />
@@ -598,17 +608,17 @@ export default function SettingsPage() {
               ) : (
                 <GlassSection>
                   <div className="p-2">
-                    <InfoRow icon={Building2} label="Verein" value={currentClub?.name ?? "–"} color="#0A0A0A" />
+                    <InfoRow icon={Building2} label={t("nav.verein")} value={currentClub?.name ?? "–"} color="#0A0A0A" />
                     <TLine className="ml-[68px]" />
-                    <InfoRow icon={Target} label="Pflichtpunkte" value={`${currentClub?.requiredPoints ?? 15} Punkte / Jahr`} color="#0A0A0A" />
+                    <InfoRow icon={Target} label={t("einstellungen.requiredPoints")} value={`${currentClub?.requiredPoints ?? 15} ${t("einstellungen.pointsPerYear")}`} color="#0A0A0A" />
                     <TLine className="ml-[68px]" />
-                    <InfoRow icon={Euro} label="Ausgleichsbetrag" value={`${(currentClub?.compensationPerMissingPoint ?? 0).toFixed(2)} € / fehlendem Punkt`} color="#0A0A0A" />
+                    <InfoRow icon={Euro} label={t("einstellungen.compensationAmount")} value={`${(currentClub?.compensationPerMissingPoint ?? 0).toFixed(2)} ${t("einstellungen.euroPerPoint")}`} color="#0A0A0A" />
                     <TLine className="ml-[68px]" />
-                    <InfoRow icon={Calendar} label="Saisontyp" value={currentClub?.seasonType ?? "–"} color="#0A0A0A" />
+                    <InfoRow icon={Calendar} label={t("einstellungen.seasonType")} value={currentClub?.seasonType === SeasonType.Calendar ? t("einstellungen.seasonCalendarYear") : currentClub?.seasonType === SeasonType.School ? t("einstellungen.seasonSchoolYear") : (currentClub?.seasonType ?? "–")} color="#0A0A0A" />
                     {currentClub?.logoUrl && planFeatures.hasClubLogo && (
                       <>
                         <TLine className="ml-[68px]" />
-                        <InfoRow icon={ImageIcon} label="Vereinslogo" value="Aktiv" color="#0A0A0A" />
+                        <InfoRow icon={ImageIcon} label={t("einstellungen.clubLogo")} value={t("einstellungen.activeState")} color="#0A0A0A" />
                       </>
                     )}
                   </div>
@@ -624,24 +634,24 @@ export default function SettingsPage() {
                 transition={{ delay: 0.11 }}
                 className="flex flex-col gap-3"
               >
-                <SectionHeader title="GRUPPEN & TEAMS" icon={Layers} color="#0A0A0A" />
+                <SectionHeader title={t("einstellungen.groupsAndTeams").toUpperCase()} icon={Layers} color="#0A0A0A" />
                 <GlassSection>
                   {!planFeatures.hasGroups ? (
                     <PlanUpsell
-                      title="Gruppen sind ab dem Club-Plan verfügbar."
-                      text="Erstelle Teams, Abteilungen und Gruppenranglisten, sobald der Verein auf Club oder höher läuft."
+                      title={t("einstellungen.planLockedGroups")}
+                      text={t("einstellungen.planLockedGroupSub")}
                     />
                   ) : (
                     <div className="p-5 flex flex-col gap-4">
                       <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-end">
-                        <Field icon={Layers} label="Gruppenname">
-                          <Input value={groupName} onChange={setGroupName} placeholder="z.B. Jugend, Damen, Team A" />
+                        <Field icon={Layers} label={t("einstellungen.groupName")}>
+                          <Input value={groupName} onChange={setGroupName} placeholder={t("einstellungen.groupNamePlaceholder")} />
                         </Field>
-                        <Field label="Beschreibung">
-                          <Input value={groupDescription} onChange={setGroupDescription} placeholder="Optional" />
+                        <Field label={t("einstellungen.description")}>
+                          <Input value={groupDescription} onChange={setGroupDescription} placeholder={t("einstellungen.optional")} />
                         </Field>
                         <TButton
-                          label="Anlegen"
+                          label={savingGroup ? t("einstellungen.savingGroup") : t("einstellungen.create")}
                           icon={Plus}
                           onClick={saveGroup}
                           disabled={savingGroup || !groupName.trim()}
@@ -653,7 +663,7 @@ export default function SettingsPage() {
 
                       {visibleGroups.length === 0 ? (
                         <p className="text-sm font-poppins text-[#71717A]">
-                          Noch keine Gruppen angelegt.
+                          {t("einstellungen.noGroupsYet")}
                         </p>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -667,7 +677,7 @@ export default function SettingsPage() {
                                 <div className="min-w-0 flex-1">
                                   <p className="truncate font-poppins font-bold text-sm text-[#0A0A0A]">{group.name}</p>
                                   <p className="truncate text-[11px] text-[#71717A]">
-                                    {count} Mitglieder{group.description ? ` · ${group.description}` : ""}
+                                    {count} {t("einstellungen.membersCount").toLowerCase()}{group.description ? ` · ${group.description}` : ""}
                                   </p>
                                 </div>
                                 <button
@@ -695,19 +705,19 @@ export default function SettingsPage() {
                 transition={{ delay: 0.115 }}
                 className="flex flex-col gap-3"
               >
-                <SectionHeader title="MITGLIEDERTYPEN" icon={Users} color="#0A0A0A" />
+                <SectionHeader title={t("einstellungen.memberTypes").toUpperCase()} icon={Users} color="#0A0A0A" />
                 <GlassSection>
                   {!planFeatures.hasCustomMemberTypes ? (
                     <PlanUpsell
-                      title="Mitgliedertypen konfigurieren ist ab dem Club-Plan verfügbar."
-                      text="Passe die Punkt-Faktoren für Aktiv, Passiv & Co. an und erstelle eigene Typen wie Fördermitglied."
+                      title={t("einstellungen.planLockedTypes")}
+                      text={t("einstellungen.planLockedTypesSub")}
                     />
                   ) : (
                     <div className="p-5 flex flex-col gap-5">
 
                       {/* Built-in types */}
                       <div className="flex flex-col gap-2">
-                        <p className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em] pl-1">Standardtypen – Punkte-Faktor</p>
+                        <p className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em] pl-1">{t("einstellungen.standardTypes")}</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {([MemberType.Active, MemberType.Passive, MemberType.Youth, MemberType.Board] as const).map((type) => {
                             const defaultPct = Math.round((PointFactors[type] ?? 0) * 100);
@@ -717,7 +727,13 @@ export default function SettingsPage() {
                             return (
                               <div key={type} className="flex items-center gap-3 rounded-2xl bg-black/[0.03] border border-black/5 px-3 py-2.5">
                                 <div className="min-w-0 flex-1">
-                                  <p className="font-poppins font-bold text-sm text-[#0A0A0A]">{type}</p>
+                                  <p className="font-poppins font-bold text-sm text-[#0A0A0A]">
+                                    {type === MemberType.Active ? t("einstellungen.builtInActive") :
+                                     type === MemberType.Passive ? t("einstellungen.builtInPassive") :
+                                     type === MemberType.Youth ? t("einstellungen.builtInYouth") :
+                                     type === MemberType.Board ? t("einstellungen.builtInBoard") :
+                                     type}
+                                  </p>
                                   <p className="text-[10px] text-[#A1A1AA]">Standard: {defaultPct} %</p>
                                 </div>
                                 <div className="w-24 shrink-0">
@@ -749,16 +765,16 @@ export default function SettingsPage() {
 
                       {/* Custom types */}
                       <div className="flex flex-col gap-3">
-                        <p className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em] pl-1">Eigene Typen anlegen</p>
+                        <p className="text-[10px] font-poppins font-bold text-[#71717A] uppercase tracking-[0.15em] pl-1">{t("einstellungen.createCustomType")}</p>
                         <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
-                          <Field icon={Users} label="Bezeichnung">
-                            <Input value={newTypeName} onChange={setNewTypeName} placeholder="z.B. Fördermitglied" />
+                          <Field icon={Users} label={t("common.name")}>
+                            <Input value={newTypeName} onChange={setNewTypeName} placeholder={t("einstellungen.customTypePlaceholder")} />
                           </Field>
-                          <Field label="Punkte-%">
+                          <Field label={t("einstellungen.pointsPercent")}>
                             <Input value={newTypeFactor} onChange={setNewTypeFactor} type="number" step="5" suffix="%" />
                           </Field>
                           <TButton
-                            label="Anlegen"
+                            label={t("einstellungen.create")}
                             icon={Plus}
                             onClick={addCustomMemberType}
                             disabled={!newTypeName.trim()}

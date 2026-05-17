@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Trash2, X, Users, ChevronDown, ChevronUp,
@@ -1825,10 +1826,21 @@ function EmptyDay({ isToday }: { isToday: boolean }) {
 }
 
 function Backdrop({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm" onClick={onClick}>
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || typeof document === "undefined") return null;
+
+  return createPortal(
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" 
+      onClick={onClick}
+    >
       {children}
-    </div>
+    </div>,
+    document.body
   );
 }
 

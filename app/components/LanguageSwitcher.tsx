@@ -40,7 +40,7 @@ export function LanguageSwitcher() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
             transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute bottom-full mb-2 left-0 w-full bg-white border border-black/10 rounded-2xl shadow-xl overflow-hidden z-50"
+            className="absolute bottom-full mb-2 left-0 w-full bg-white border border-black/10 rounded-2xl shadow-xl overflow-hidden z-[9999]"
           >
             {LOCALES.map((l) => (
               <button

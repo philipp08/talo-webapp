@@ -194,18 +194,26 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                     type="button"
                     onClick={() => handleClubSwitch(club.id)}
                     disabled={switchingClubId !== null}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-black/[0.04] disabled:opacity-60"
+                    className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-black/[0.04] disabled:opacity-60 ${
+                      active ? "bg-black/[0.02]" : ""
+                    }`}
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/[0.04] text-[#0A0A0A]">
-                      {active ? <Check size={15} style={{ color: accent }} /> : switching ? (
-                        <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/10 border-t-[#0A0A0A]" />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white border border-black/5 overflow-hidden">
+                      {club.logoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={club.logoUrl} alt={club.name} className="h-full w-full object-cover" />
                       ) : (
-                        <Building2 size={15} />
+                        <Building2 size={14} className="text-[#52525B]" />
                       )}
                     </div>
                     <span className="min-w-0 flex-1 truncate text-sm font-poppins font-semibold text-[#0A0A0A]">
                       {club.name}
                     </span>
+                    {switching ? (
+                      <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/10 border-t-[#0A0A0A] shrink-0" />
+                    ) : active ? (
+                      <Check size={14} style={{ color: accent }} className="shrink-0" />
+                    ) : null}
                   </button>
                 );
               })}
@@ -290,7 +298,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         {/* User card */}
         <div className="p-5">
           <div
-            className="rounded-[24px] p-4 relative overflow-hidden"
+            className="rounded-[24px] p-4 relative"
             style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.06)" }}
           >
             <div className="flex items-center gap-3">
