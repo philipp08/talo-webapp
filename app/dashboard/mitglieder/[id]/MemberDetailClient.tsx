@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -676,13 +677,14 @@ export default function MemberDetailPage() {
       </div>
 
       {/* Entry Edit Modal */}
+      {typeof document !== "undefined" && createPortal(
       <AnimatePresence>
         {entryToEdit && entryForm && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={() => setEntryToEdit(null)}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 16 }}
@@ -761,12 +763,15 @@ export default function MemberDetailPage() {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
 
       {/* Delete Member Modal */}
+      {typeof document !== "undefined" && createPortal(
       <AnimatePresence>
         {memberToDelete && isAdmin && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
             <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="w-full max-w-sm">
               <div className="bg-white rounded-[28px] border border-black/8 shadow-xl p-8 flex flex-col items-center text-center gap-1">
                 <div className="w-20 h-20 rounded-[24px] bg-red-500/10 flex items-center justify-center mb-5 border border-red-500/20">
@@ -788,7 +793,9 @@ export default function MemberDetailPage() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
     </div>
   );
 }
