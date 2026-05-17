@@ -306,7 +306,7 @@ export default function MembersPage() {
           mapping.email = index;
         }
         
-        if (lh.includes("typ") || lh.includes("type") || lh.includes("status") || lh.includes("mitgliedertyp")) {
+        if (lh.includes("typ") || lh.includes("type") || lh.includes("status") || lh.includes("mitgliedertyp") || lh.includes("role") || lh.includes("rolle")) {
           mapping.memberType = index;
         }
       });
@@ -337,7 +337,7 @@ export default function MembersPage() {
         mType = MemberType.Board;
       } else if (lType.includes("jugend") || lType.includes("youth") || lType.includes("kind") || lType.includes("junior")) {
         mType = MemberType.Youth;
-      } else if (lType.includes("passiv") || lType.includes("passive")) {
+      } else if (lType.includes("passiv") || lType.includes("passive") || lType.includes("inaktiv") || lType.includes("inactive")) {
         mType = MemberType.Passive;
       } else {
         mType = MemberType.Active;
@@ -1062,12 +1062,13 @@ export default function MembersPage() {
                               {/* SpielerPlus */}
                               <button
                                 type="button"
-                                disabled
-                                className="p-5 rounded-2xl border border-black/5 bg-black/[0.01] opacity-40 flex flex-col items-center justify-center gap-4 text-center relative cursor-not-allowed overflow-hidden"
+                                onClick={() => setSelectedProvider("spielerplus")}
+                                className={`p-5 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
+                                  selectedProvider === "spielerplus"
+                                    ? "border-[#0A0A0A] bg-black/[0.02] shadow-sm"
+                                    : "border-black/5 bg-transparent hover:border-black/10 hover:bg-black/[0.005]"
+                                }`}
                               >
-                                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/[0.04] text-[8px] font-black uppercase tracking-wider text-[#52525B]">
-                                  In Kürze
-                                </div>
                                 <div className="h-10 flex items-center justify-center overflow-hidden rounded-xl bg-white px-3 py-1.5 border border-black/5 shadow-sm">
                                   <img
                                     src="https://cdn.prod.website-files.com/5f50ccfbebad96116fd08dee/682c7de3f38d7e1e55109dc1_SPIELERPLUS_LOGO.png"
@@ -1076,8 +1077,8 @@ export default function MembersPage() {
                                   />
                                 </div>
                                 <div className="flex flex-col items-center">
-                                  <h4 className="text-[11px] font-black text-[#52525B] uppercase tracking-wider">SpielerPlus</h4>
-                                  <p className="text-[9px] text-[#A1A1AA] font-medium mt-0.5">Automatisches Rollen-Mapping</p>
+                                  <h4 className="text-[11px] font-black text-[#0A0A0A] uppercase tracking-wider">SpielerPlus</h4>
+                                  <p className="text-[9px] text-[#71717A] font-medium mt-0.5">Automatisches Rollen-Mapping</p>
                                 </div>
                               </button>
                             </div>
@@ -1094,6 +1095,37 @@ export default function MembersPage() {
                                   <li>Wähle im folgenden Fenster das Format <strong>„CSV“</strong> und lade die Datei auf deinen Computer herunter.</li>
                                 </ol>
                                 <p className="italic text-[10px] text-[#71717A]">Talo erkennt die Spalten wie Name, Vorname und E-Mail automatisch.</p>
+                              </div>
+
+                              <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
+                                <input
+                                  type="file"
+                                  accept=".csv"
+                                  onChange={handleFileChange}
+                                  className="absolute inset-0 opacity-0 cursor-pointer"
+                                />
+                                <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
+                                  <Plus size={20} />
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
+                                  <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {selectedProvider === "spielerplus" && (
+                            <div className="flex flex-col gap-6">
+                              <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
+                                <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für SpielerPlus-Export:</p>
+                                <ol className="list-decimal list-inside space-y-2 font-medium">
+                                  <li>Logge dich bei <strong>SpielerPlus</strong> ein.</li>
+                                  <li>Gehe in dein Team-Dashboard und klicke auf <strong>„Mitglieder“</strong>.</li>
+                                  <li>Klicke oben rechts auf den Menü-Button (drei Punkte) und wähle <strong>„Exportieren“</strong>.</li>
+                                  <li>Wähle das Format <strong>„CSV“</strong> und speichere die Datei auf deinem Computer.</li>
+                                </ol>
+                                <p className="italic text-[10px] text-[#71717A]">Talo erkennt die Spalten wie First Name, Last Name und Email vollautomatisch.</p>
                               </div>
 
                               <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
