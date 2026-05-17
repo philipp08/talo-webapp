@@ -513,13 +513,25 @@ export default function ClubDetailPage() {
                     </div>
                     <div className="flex flex-col gap-1">
                       <label className="text-[10px] font-black uppercase tracking-widest text-[#71717A]">Sportart</label>
-                      <input
-                        type="text"
+                      <select
                         value={configSportType}
                         onChange={(e) => setConfigSportType(e.target.value)}
-                        placeholder="z.B. Fußball, Tennis, etc."
                         className="px-3 py-2 rounded-xl bg-black/[0.03] border border-black/[0.06] text-[12px] font-poppins text-[#0A0A0A] focus:outline-none"
-                      />
+                      >
+                        <option value="">Keine Angabe</option>
+                        <option value="Tennis">Tennis</option>
+                        <option value="Fußball">Fußball</option>
+                        <option value="Basketball">Basketball</option>
+                        <option value="Handball">Handball</option>
+                        <option value="Volleyball">Volleyball</option>
+                        <option value="Turnen">Turnen</option>
+                        <option value="Tischtennis">Tischtennis</option>
+                        <option value="Badminton">Badminton</option>
+                        <option value="Leichtathletik">Leichtathletik</option>
+                        <option value="Schwimmen">Schwimmen</option>
+                        <option value="Fitness / Breitensport">Fitness / Breitensport</option>
+                        <option value="Sonstige">Sonstige / Andere</option>
+                      </select>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="flex flex-col gap-1">
