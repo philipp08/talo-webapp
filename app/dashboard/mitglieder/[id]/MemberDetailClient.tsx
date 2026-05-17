@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Trash2, AlertTriangle, X, Pencil, Camera,
-  ShieldCheck, Calendar,
+  ShieldCheck, Calendar, CheckCircle,
   RefreshCcw, ChevronRight, MoreHorizontal,
   MailQuestion, Activity, Settings, Layers, Lock
 } from "lucide-react";
@@ -67,8 +67,31 @@ export default function MemberDetailPage() {
   } | null>(null);
   const [savingEntry, setSavingEntry] = useState(false);
 
-  // delete modals
   const [memberToDelete, setMemberToDelete] = useState(false);
+
+  // reset password state
+  const [resetState, setResetState] = useState<"idle" | "loading" | "sent">("idle");
+
+  const handlePasswordReset = async () => {
+    if (!member?.email) return;
+    setResetState("loading");
+    try {
+      const res = await fetch("/api/auth/password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: member.email }),
+      });
+      if (res.ok) {
+        setResetState("sent");
+      } else {
+        setResetState("idle");
+        alert("Reset-Link konnte nicht gesendet werden.");
+      }
+    } catch {
+      setResetState("idle");
+      alert("Fehler beim Senden.");
+    }
+  };
 
   const isAdmin = currentMember?.isAdmin === true;
   const isTrainer = currentMember?.isTrainer === true;
@@ -420,18 +443,34 @@ export default function MemberDetailPage() {
               <div className="bg-white border border-black/5 rounded-[28px] lg:rounded-[40px] p-5 sm:p-8 lg:p-10 space-y-5 lg:space-y-6">
                  <h3 className="text-xs font-black text-[#52525B] uppercase tracking-[0.3em] pl-1">Sicherheit & Verwaltung</h3>
                  <div className="flex flex-col gap-3">
-                    <button className="w-full flex items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-black/[0.03] border border-black/5 hover:bg-black/[0.05] transition-all text-left group">
-                       <div className="flex min-w-0 items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
-                             <MailQuestion size={18} />
-                          </div>
-                          <div className="flex min-w-0 flex-col">
-                             <span className="text-sm font-bold text-[#0A0A0A]">Passwort Reset</span>
-                             <span className="truncate text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">Link per Mail senden</span>
-                          </div>
-                       </div>
-                       <ChevronRight size={16} className="text-gray-800 group-hover:text-[#0A0A0A]" />
-                    </button>
+                    {currentMember?.id === member?.id && (
+                        <button 
+                           onClick={handlePasswordReset}
+                           disabled={resetState === "loading" || resetState === "sent"}
+                           className="w-full flex items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-black/[0.03] border border-black/5 hover:bg-black/[0.05] transition-all text-left group disabled:opacity-75 disabled:cursor-not-allowed"
+                        >
+                           <div className="flex min-w-0 items-center gap-4">
+                              <div className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
+                                 {resetState === "loading" ? (
+                                    <div className="w-4.5 h-4.5 border-2 border-black/10 border-t-black animate-spin rounded-full" />
+                                 ) : resetState === "sent" ? (
+                                    <CheckCircle size={18} className="text-[#34C759]" />
+                                 ) : (
+                                    <MailQuestion size={18} />
+                                 )}
+                              </div>
+                              <div className="flex min-w-0 flex-col">
+                                 <span className="text-sm font-bold text-[#0A0A0A]">
+                                    {resetState === "sent" ? "Link gesendet!" : "Passwort Reset"}
+                                 </span>
+                                 <span className="truncate text-[10px] font-black text-[#52525B] uppercase tracking-widest mt-0.5">
+                                    {resetState === "sent" ? "Prüfe dein Postfach" : "Link per Mail senden"}
+                                 </span>
+                              </div>
+                           </div>
+                           {resetState === "idle" && <ChevronRight size={16} className="text-gray-800 group-hover:text-[#0A0A0A]" />}
+                        </button>
+                     )}
 
                     <button className="w-full flex items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-black/[0.03] border border-black/5 hover:bg-black/[0.05] transition-all text-left group">
                        <div className="flex min-w-0 items-center gap-4">
