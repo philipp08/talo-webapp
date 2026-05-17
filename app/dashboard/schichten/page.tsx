@@ -27,7 +27,7 @@ const defaultForm = (): ShiftFormData => ({
   startTime: "12:00",
   endTime: "14:00",
   points: "2.0",
-  slotsRequired: "1",
+  slotsRequired: "5",
 });
 
 export default function ShiftsPage() {
@@ -69,7 +69,7 @@ export default function ShiftsPage() {
         date: form.date,
         time: `${form.startTime} - ${form.endTime}`,
         points: parseFloat(form.points) || 2.0,
-        slotsRequired: parseInt(form.slotsRequired) || 1,
+        slotsRequired: parseInt(form.slotsRequired) || 5,
         claimedSlots: [],
         claimedById: null,
         claimedByName: null,
@@ -104,7 +104,7 @@ export default function ShiftsPage() {
       return;
     }
 
-    const required = shift.slotsRequired || 1;
+    const required = shift.slotsRequired || 5;
     const currentClaimedCount = shift.claimedSlots?.length || (shift.claimedById ? 1 : 0);
     
     if (currentClaimedCount >= required) {
@@ -191,7 +191,7 @@ export default function ShiftsPage() {
 
   const adjustSlots = async (shift: Shift, delta: number) => {
     if (!currentClub) return;
-    const currentRequired = shift.slotsRequired || 1;
+    const currentRequired = shift.slotsRequired || 5;
     const newRequired = Math.max(1, currentRequired + delta);
     if (newRequired === currentRequired) return;
     
@@ -521,7 +521,7 @@ export default function ShiftsPage() {
                         {/* Vertical Timeline Axis & List */}
                         <div className="relative border-l-2 border-black/[0.06] pl-6 ml-3 flex flex-col gap-5">
                           {day.shifts.map((s) => {
-                            const required = s.slotsRequired || 1;
+                            const required = s.slotsRequired || 5;
                             const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
                             const hasClaimedThis = s.claimedSlots?.some(slot => slot.memberId === currentMember?.id) || s.claimedById === currentMember?.id;
                             const isFull = claimedCount >= required;
@@ -698,7 +698,7 @@ export default function ShiftsPage() {
                         {/* Shifts Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                           {group.list.map((s) => {
-                            const required = s.slotsRequired || 1;
+                            const required = s.slotsRequired || 5;
                             const claimedCount = s.claimedSlots?.length || (s.claimedById ? 1 : 0);
                             const hasClaimedThis = s.claimedSlots?.some(slot => slot.memberId === currentMember?.id) || s.claimedById === currentMember?.id;
                             const isFull = claimedCount >= required;
