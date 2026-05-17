@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, X, Pin, Megaphone } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { TrainingAnnouncement } from "@/lib/firebase/models";
+import { TrainingAnnouncement, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
 import { 
   GlassSection, TLine, TAvatar,
   TButton, TSearchBar
@@ -14,6 +14,11 @@ import {
 export default function AnnouncementsPage() {
   const currentClub = useAppStore((state) => state.currentClub);
   const currentMember = useAppStore((state) => state.currentMember);
+  
+  const planFeatures  = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("free");
+  const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+  const accentLight   = isLightColor(accent);
   
   const [announcements, setAnnouncements] = useState<TrainingAnnouncement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,14 +101,22 @@ export default function AnnouncementsPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-start justify-between gap-4 border-b border-black/5 pb-6 lg:pb-8">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Ankündigungen</h1>
-              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Neuigkeiten & Mitteilungen</p>
+            <div className="flex items-center gap-4">
+              {currentClub?.logoUrl && (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2" style={{ borderColor: `${accent}30` }}>
+                  <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-contain" />
+                </div>
+              )}
+              <div className="flex flex-col">
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Ankündigungen</h1>
+                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Neuigkeiten & Mitteilungen</p>
+              </div>
             </div>
             {isAdminOrTrainer && (
               <button
                 onClick={openAdd}
-                className="shrink-0 flex items-center gap-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
+                style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
+                className="shrink-0 flex items-center gap-2 hover:opacity-95 px-4 sm:px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-black/5"
               >
                 <Plus size={16} /> Neu
               </button>

@@ -5,12 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, X, Sparkles, Calendar } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Entry, Member, getMemberFullName } from "@/lib/firebase/models";
+import { Entry, Member, getMemberFullName, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
 import { GlassSection, TLine, TCatBadge, TAvatar, TButton, TStatusBadge } from "@/app/components/ui/NativeUI";
 
 export default function GenehmigungPage() {
   const currentMember = useAppStore((s) => s.currentMember);
   const currentClub   = useAppStore((s) => s.currentClub);
+
+  const planFeatures  = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("free");
+  const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+  const accentLight   = isLightColor(accent);
 
   const [entries,  setEntries]  = useState<Entry[]>([]);
   const [members,  setMembers]  = useState<Member[]>([]);
@@ -83,9 +88,16 @@ export default function GenehmigungPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-black/5 pb-6 lg:pb-8">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Genehmigungen</h1>
-              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Einträge prüfen und freigeben</p>
+            <div className="flex items-center gap-4">
+              {currentClub?.logoUrl && (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2" style={{ borderColor: `${accent}30` }}>
+                  <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-contain" />
+                </div>
+              )}
+              <div className="flex flex-col">
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Genehmigungen</h1>
+                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Einträge prüfen und freigeben</p>
+              </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {pending.length > 0 && (

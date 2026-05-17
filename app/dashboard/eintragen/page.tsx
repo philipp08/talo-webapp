@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Circle, ChevronDown, ChevronUp, Search, X, Calendar, Star, MessageSquare, User } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Activity, ActivityCategory, EntryStatus, Member, getMemberFullName } from "@/lib/firebase/models";
+import { Activity, ActivityCategory, EntryStatus, Member, getMemberFullName, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
 import { GlassSection, TLine, TCatBadge, TAvatar, TFilterPill, TButton } from "@/app/components/ui/NativeUI";
 
 const ALL_CATS = [ActivityCategory.A, ActivityCategory.B, ActivityCategory.C, ActivityCategory.S];
@@ -24,6 +24,10 @@ function parseDateInput(value: string) {
 export default function EintragenPage() {
   const currentMember = useAppStore((s) => s.currentMember);
   const currentClub   = useAppStore((s) => s.currentClub);
+
+  const planFeatures  = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("free");
+  const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
 
   const [activities,     setActivities]     = useState<Activity[]>([]);
   const [members,        setMembers]        = useState<Member[]>([]);
@@ -139,9 +143,16 @@ export default function EintragenPage() {
 
         {/* Page Header */}
         <div className="flex items-start justify-between gap-4 border-b border-black/5 pb-6 lg:pb-8">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Eintragen</h1>
-            <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Tätigkeit erfassen</p>
+          <div className="flex items-center gap-4">
+            {currentClub?.logoUrl && (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2" style={{ borderColor: `${accent}30` }}>
+                <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-contain" />
+              </div>
+            )}
+            <div className="flex flex-col">
+              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Eintragen</h1>
+              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Tätigkeit erfassen</p>
+            </div>
           </div>
           {/* Status-Badge im Header */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.05 } }}

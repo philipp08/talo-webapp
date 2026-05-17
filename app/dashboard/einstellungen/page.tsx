@@ -159,6 +159,9 @@ export default function SettingsPage() {
   const isAdmin = currentMember?.isAdmin === true;
   const isTrainer = currentMember?.isTrainer === true;
   const planFeatures = getPlanFeatures(currentClub?.plan);
+  const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+  const accentLight   = isLightColor(accent);
 
   const formatTimestampForInput = (ts: any) => {
     if (!ts) return "";
@@ -436,9 +439,16 @@ export default function SettingsPage() {
         {/* PAGE HEADER */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center justify-between border-b border-black/5 pb-6 lg:pb-8">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Einstellungen</h1>
-              <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">Konto, Verein & Exporte</p>
+            <div className="flex items-center gap-4">
+              {currentClub?.logoUrl && (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2" style={{ borderColor: `${accent}30` }}>
+                  <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-contain" />
+                </div>
+              )}
+              <div className="flex flex-col">
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Einstellungen</h1>
+                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Konto, Verein & Exporte</p>
+              </div>
             </div>
           </div>
         </motion.div>

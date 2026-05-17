@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { FirebaseManager } from "@/lib/firebase/firebaseManager";
-import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFeatures } from "@/lib/firebase/models";
+import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFeatures, isLightColor } from "@/lib/firebase/models";
 import { AuthService } from "@/lib/firebase/authService";
 import { EmailService } from "@/lib/firebase/emailService";
 import { TAvatar, GlassSection, TLine, TSearchBar } from "@/app/components/ui/NativeUI";
@@ -41,6 +41,8 @@ type LeaderboardItem = {
 export default function MembersPage() {
   const currentClub = useAppStore((state) => state.currentClub);
   const currentMember = useAppStore((state) => state.currentMember);
+
+
   const [members, setMembers] = useState<Member[]>([]);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [groups, setGroups] = useState<ClubGroup[]>([]);
@@ -81,6 +83,9 @@ export default function MembersPage() {
     setGeneratedPassword(null);
   };
   const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
+  const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+  const accentLight   = isLightColor(accent);
   const isLimitReached = members.length >= planFeatures.maxMembers;
 
   useEffect(() => {
@@ -167,12 +172,19 @@ export default function MembersPage() {
         {/* Header Action Bar */}
         <div className="flex flex-col gap-5 border-b border-black/5 pb-6 lg:pb-8">
           <div className="flex items-start justify-between gap-4">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Team & Engagement</h1>
-              <div className="flex items-center gap-2">
-                <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name}</p>
-                <div className="px-2 py-0.5 roundedbg-black/[0.05] border border-black/10 rounded-full">
-                  <p className="text-[#52525B] font-bold text-[10px] uppercase tracking-widest">{members.length} / {planFeatures.maxMembers} Mitglieder</p>
+            <div className="flex items-center gap-4">
+              {currentClub?.logoUrl && (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white border border-black/10 overflow-hidden shadow-sm p-2" style={{ borderColor: `${accent}30` }}>
+                  <img src={currentClub.logoUrl} alt={currentClub.name} className="h-full w-full object-contain" />
+                </div>
+              )}
+              <div className="flex flex-col">
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Team & Engagement</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name}</p>
+                  <div className="px-2 py-0.5 bg-black/[0.05] border border-black/10 rounded-full">
+                    <p className="text-[#52525B] font-bold text-[10px] uppercase tracking-widest">{members.length} / {planFeatures.maxMembers} Mitglieder</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -185,8 +197,9 @@ export default function MembersPage() {
                   }
                   setIsInviteOpen(true);
                 }}
+                style={isLimitReached ? undefined : { backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
                 className={`shrink-0 flex items-center gap-2 px-4 py-3 md:px-6 rounded-2xl border transition-all font-black text-[11px] uppercase tracking-widest shadow-xl shadow-black/5 ${
-                  isLimitReached ? "bg-black/[0.05] text-[#71717A] border-black/10 cursor-not-allowed" : "bg-[#0A0A0A] text-white hover:bg-[#1F1F23] border-black/10"
+                  isLimitReached ? "bg-black/[0.05] text-[#71717A] border-black/10 cursor-not-allowed" : "hover:opacity-95 border-black/10 text-white"
                 }`}
               >
                 <UserPlus size={16} />
