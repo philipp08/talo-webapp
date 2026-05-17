@@ -146,10 +146,9 @@ export default function AktivitaetAdminPage() {
           });
           const resolved = await Promise.all(clubEntriesPromises);
           const allEntries = resolved.flat();
-          // Sort by date in memory desc
           allEntries.sort((a, b) => {
-            const dateA = getSafeDate(a.data().date);
-            const dateB = getSafeDate(b.data().date);
+            const dateA = getSafeDate(a.data().createdAt || a.data().date);
+            const dateB = getSafeDate(b.data().createdAt || b.data().date);
             return dateB.getTime() - dateA.getTime();
           });
           entriesDocs = allEntries.slice(0, 50);
@@ -160,7 +159,7 @@ export default function AktivitaetAdminPage() {
 
       entriesDocs.forEach((e: any) => {
         const d = e.data();
-        const ts = getSafeDate(d.date);
+        const ts = getSafeDate(d.createdAt || d.date);
         const pathParts = e.ref.path.split("/");
         const clubId = pathParts[1];
         feed.push({

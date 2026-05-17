@@ -981,6 +981,7 @@ export class FirebaseManager {
       status:           data.status,
       activityName:     data.activityName,
       activityCategory: data.activityCategory,
+      createdAt:        Timestamp.now(),
     };
     if (data.groupId !== undefined) {
       payload.groupId = data.groupId;
