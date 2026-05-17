@@ -678,13 +678,28 @@ export default function MemberDetailPage() {
       {/* Entry Edit Modal */}
       <AnimatePresence>
         {entryToEdit && entryForm && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 16 }} transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }} className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto no-scrollbar">
-              <div className="bg-white border border-black/8 rounded-[28px] shadow-xl p-7 flex flex-col gap-6">
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            onClick={() => setEntryToEdit(null)}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 16 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto no-scrollbar"
+            >
+              <div className="bg-white border border-black/8 rounded-[28px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] p-7 flex flex-col gap-6">
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <h3 className="font-poppins font-black text-[#0A0A0A] text-xl tracking-tight italic uppercase">Eintrag bearbeiten</h3>
-                    <span className="text-[10px] font-black text-[#71717A] uppercase tracking-[0.2em]">Administrative Korrektur</span>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="w-11 h-11 shrink-0 rounded-2xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
+                      <Activity size={20} />
+                    </div>
+                    <div className="flex min-w-0 flex-col">
+                      <h3 className="font-poppins font-black text-[#0A0A0A] text-lg uppercase tracking-tight italic leading-none">Eintrag bearbeiten</h3>
+                      <span className="mt-1 text-[10px] font-black text-[#A1A1AA] uppercase tracking-[0.2em]">Administrative Korrektur</span>
+                    </div>
                   </div>
                   <button onClick={() => setEntryToEdit(null)} className="w-9 h-9 shrink-0 rounded-xl bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] transition-colors"><X size={18} /></button>
                 </div>
@@ -700,22 +715,38 @@ export default function MemberDetailPage() {
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.2em] pl-1">Status</label>
                     <div className="grid grid-cols-3 gap-1 p-1 rounded-2xl bg-black/[0.04] border border-black/5">
-                      {[EntryStatus.Pending, EntryStatus.Approved, EntryStatus.Rejected].map((s) => (
-                        <button key={s} onClick={() => setEntryForm({...entryForm, status: s})}
-                          className={`py-2.5 rounded-xl text-[11px] font-poppins font-black transition-all uppercase tracking-[0.15em] ${
-                            entryForm.status === s
-                              ? "bg-white text-[#0A0A0A] shadow-sm"
-                              : "text-[#71717A] hover:text-[#0A0A0A]"
-                          }`}>
-                          {s === EntryStatus.Pending ? "Prüfung" : s === EntryStatus.Approved ? "OK" : "Abbruch"}
-                        </button>
-                      ))}
+                      {[EntryStatus.Pending, EntryStatus.Approved, EntryStatus.Rejected].map((s) => {
+                        const active = entryForm.status === s;
+                        const bg =
+                          s === EntryStatus.Approved ? "#16A34A" :
+                          s === EntryStatus.Rejected ? "#DC2626" :
+                                                       "#F59E0B";
+                        return (
+                          <button key={s} onClick={() => setEntryForm({...entryForm, status: s})}
+                            style={active ? { backgroundColor: bg, color: "#FFFFFF" } : undefined}
+                            className={`py-2.5 rounded-xl text-[11px] font-poppins font-black transition-all uppercase tracking-[0.15em] text-center ${
+                              active ? "shadow-sm" : "text-[#71717A] hover:text-[#0A0A0A]"
+                            }`}>
+                            {s === EntryStatus.Pending ? "Prüfung" : s === EntryStatus.Approved ? "OK" : "Abbruch"}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  {entryForm.status === EntryStatus.Rejected && (
-                    <FormInput label="Ablehnungsgrund" value={entryForm.rejectionReason} onChange={(v) => setEntryForm({...entryForm, rejectionReason: v})} />
-                  )}
+                  <AnimatePresence initial={false}>
+                    {entryForm.status === EntryStatus.Rejected && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <FormInput label="Ablehnungsgrund" value={entryForm.rejectionReason} onChange={(v) => setEntryForm({...entryForm, rejectionReason: v})} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 <div className="flex flex-col gap-2.5 pt-1">
@@ -728,7 +759,7 @@ export default function MemberDetailPage() {
                 </div>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
