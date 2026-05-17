@@ -14,7 +14,8 @@ type ShiftFormData = {
   title: string;
   event: string;
   date: string;
-  time: string;
+  startTime: string;
+  endTime: string;
   points: string;
   slotsRequired: string;
 };
@@ -23,7 +24,8 @@ const defaultForm = (): ShiftFormData => ({
   title: "",
   event: "",
   date: new Date().toISOString().split("T")[0],
-  time: "12:00 - 14:00",
+  startTime: "12:00",
+  endTime: "14:00",
   points: "2.0",
   slotsRequired: "1",
 });
@@ -65,7 +67,7 @@ export default function ShiftsPage() {
         title: form.title.trim(),
         event: form.event.trim(),
         date: form.date,
-        time: form.time.trim(),
+        time: `${form.startTime} - ${form.endTime}`,
         points: parseFloat(form.points) || 2.0,
         slotsRequired: parseInt(form.slotsRequired) || 1,
         claimedSlots: [],
@@ -919,28 +921,38 @@ export default function ShiftsPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3 bg-black/[0.02] border border-black/5 p-4 rounded-[24px]">
                       <div className="flex flex-col gap-2">
-                        <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Uhrzeit</label>
+                        <label className="text-[10px] font-poppins font-black text-[#71717A] uppercase tracking-widest pl-1">Startzeit</label>
                         <input
-                          value={form.time}
-                          onChange={(e) => setForm({ ...form, time: e.target.value })}
-                          placeholder="z.B. 12:00 - 14:00"
-                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                          type="time"
+                          value={form.startTime}
+                          onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+                          className="w-full rounded-2xl bg-white border border-black/10 px-4 py-3 font-mono font-bold text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 shadow-sm transition-all cursor-pointer"
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Helfer-Slots</label>
+                        <label className="text-[10px] font-poppins font-black text-[#71717A] uppercase tracking-widest pl-1">Endzeit</label>
                         <input
-                          type="number"
-                          min="1"
-                          max="20"
-                          value={form.slotsRequired}
-                          onChange={(e) => setForm({ ...form, slotsRequired: e.target.value })}
-                          placeholder="z.B. 5"
-                          className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                          type="time"
+                          value={form.endTime}
+                          onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+                          className="w-full rounded-2xl bg-white border border-black/10 px-4 py-3 font-mono font-bold text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 shadow-sm transition-all cursor-pointer"
                         />
                       </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">Helfer-Slots</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={form.slotsRequired}
+                        onChange={(e) => setForm({ ...form, slotsRequired: e.target.value })}
+                        placeholder="z.B. 5"
+                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-[14px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                      />
                     </div>
                   </div>
 
