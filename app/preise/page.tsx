@@ -13,8 +13,17 @@ const tierCta: Record<string, { cta: string; href: string }> = {
   pro: { cta: "Pro-Lizenz aktivieren", href: "/anmelden" },
 };
 
-function PricingCard({ tier, cta }: { tier: typeof PLAN_TIERS[0], cta: { cta: string, href: string } }) {
-  const [showAll, setShowAll] = React.useState(false);
+function PricingCard({
+  tier,
+  cta,
+  showAll,
+  setShowAll,
+}: {
+  tier: typeof PLAN_TIERS[0];
+  cta: { cta: string; href: string };
+  showAll: boolean;
+  setShowAll: (val: boolean) => void;
+}) {
   const visibleFeatures = showAll ? tier.features : tier.features.slice(0, 5);
   const hasMore = tier.features.length > 5;
 
@@ -90,6 +99,8 @@ function PricingCard({ tier, cta }: { tier: typeof PLAN_TIERS[0], cta: { cta: st
 }
 
 export default function PricingPage() {
+  const [showAll, setShowAll] = React.useState(false);
+
   return (
     <main className="relative min-h-screen bg-white dark:bg-[#080808]">
       <Navbar />
@@ -117,7 +128,12 @@ export default function PricingPage() {
               const cta = tierCta[tier.key];
               return (
               <StaggerItem key={tier.key}>
-                <PricingCard tier={tier} cta={cta} />
+                <PricingCard
+                  tier={tier}
+                  cta={cta}
+                  showAll={showAll}
+                  setShowAll={setShowAll}
+                />
               </StaggerItem>
               );
             })}
