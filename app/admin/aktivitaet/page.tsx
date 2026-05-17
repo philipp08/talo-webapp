@@ -110,31 +110,53 @@ export default function AktivitaetAdminPage() {
         }
       });
 
-      // Recent entries (collectionGroup)
+      // Recent entries
+      let entriesDocs: any[] = [];
       try {
         const entriesSnap = await getDocs(
           query(collectionGroup(db, "entries"), orderBy("date", "desc"), limit(50))
         );
-        entriesSnap.docs.forEach((e: any) => {
-          const d = e.data();
-          const ts = getSafeDate(d.date);
-          const pathParts = e.ref.path.split("/");
-          const clubId = pathParts[1];
-          feed.push({
-            kind: "entry",
-            id: e.id,
-            ts,
-            clubId,
-            clubName: clubNameById.get(clubId) ?? clubId,
-            memberName: memberNameById.get(d.memberId) ?? "—",
-            activityName: d.activityName ?? "—",
-            points: d.points ?? 0,
-            status: d.status ?? "—",
-          });
-        });
+        entriesDocs = entriesSnap.docs;
       } catch (err) {
-        console.error("Failed to query entries in activity feed:", err);
+        console.warn("collectionGroup query failed (possibly missing index), falling back to club-by-club fetch:", err);
+        try {
+          const clubEntriesPromises = clubsSnap.docs.map(async (clubDoc) => {
+            const entriesSnap = await getDocs(
+              query(collection(db, "clubs", clubDoc.id, "entries"), orderBy("date", "desc"), limit(25))
+            );
+            return entriesSnap.docs;
+          });
+          const resolved = await Promise.all(clubEntriesPromises);
+          const allEntries = resolved.flat();
+          // Sort by date in memory desc
+          allEntries.sort((a, b) => {
+            const dateA = a.data().date?.toDate?.() ?? new Date(a.data().date ?? 0);
+            const dateB = b.data().date?.toDate?.() ?? new Date(b.data().date ?? 0);
+            return dateB.getTime() - dateA.getTime();
+          });
+          entriesDocs = allEntries.slice(0, 50);
+        } catch (fallbackErr) {
+          console.error("Fallback club-by-club fetch failed too:", fallbackErr);
+        }
       }
+
+      entriesDocs.forEach((e: any) => {
+        const d = e.data();
+        const ts = getSafeDate(d.date);
+        const pathParts = e.ref.path.split("/");
+        const clubId = pathParts[1];
+        feed.push({
+          kind: "entry",
+          id: e.id,
+          ts,
+          clubId,
+          clubName: clubNameById.get(clubId) ?? clubId,
+          memberName: memberNameById.get(d.memberId) ?? "—",
+          activityName: d.activityName ?? "—",
+          points: d.points ?? 0,
+          status: d.status ?? "—",
+        });
+      });
 
       feed.sort((a, b) => b.ts.getTime() - a.ts.getTime());
       setItems(feed.slice(0, 100));
