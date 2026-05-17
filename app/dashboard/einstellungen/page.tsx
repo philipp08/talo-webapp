@@ -460,7 +460,7 @@ export default function SettingsPage() {
         </motion.div>
 
         {/* LICENSE EXPIRED BANNER */}
-        {licenseExpired && currentClub?.plan && currentClub.plan !== "free" && (
+        {licenseExpired && currentClub?.plan && currentClub.plan !== "starter" && currentClub.plan !== "free" && (
           <div className="flex items-center gap-4 p-4 rounded-2xl border border-orange-500/30 bg-orange-500/8">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,149,0,0.15)" }}>
               <span className="text-lg">⚠️</span>
@@ -468,7 +468,7 @@ export default function SettingsPage() {
             <div className="flex-1">
               <p className="font-poppins font-bold text-sm text-[#0A0A0A]">Lizenz abgelaufen</p>
               <p className="text-xs text-[#52525B] mt-0.5">
-                Deine {currentClub?.isTrial ? "Testphase" : "Lizenz"} ist abgelaufen. Du hast wieder Zugriff auf den <strong>Free-Plan</strong>. Aktiviere eine neue Lizenz unter „Lizenz & Plan".
+                Deine {currentClub?.isTrial ? "Testphase" : "Lizenz"} ist abgelaufen. Du hast wieder Zugriff auf den <strong>Starter-Plan</strong>. Aktiviere eine neue Lizenz unter „Lizenz & Plan".
               </p>
             </div>
           </div>

@@ -18,7 +18,7 @@ export default function AnnouncementsPage() {
   const currentClub = useAppStore((state) => state.currentClub);
   const currentMember = useAppStore((state) => state.currentMember);
 
-  const planFeatures  = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("free");
+  const planFeatures  = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("starter");
   const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
   const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
   const accentLight   = isLightColor(accent);

@@ -21,9 +21,9 @@ export default function Footer() {
     {
       title: "Lösungen",
       links: [
-        { name: "Tischtennis-Vereine 🏓", href: "/loesungen#tischtennis" },
-        { name: "Andere Sportvereine", href: "/loesungen#sport" },
-        { name: "TT-Abteilungen im Verein", href: "/loesungen#tischtennis" },
+        { name: "Sportvereine", href: "/loesungen#sport" },
+        { name: "Mehrspartenvereine", href: "/loesungen#abteilungen" },
+        { name: "Jugendabteilungen", href: "/loesungen" },
       ],
     },
     {

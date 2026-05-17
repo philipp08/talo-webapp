@@ -79,7 +79,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const isTrainer = currentMember?.isTrainer === true;
   const canSwitchClubs = availableClubs.length > 1;
 
-  const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("free");
+  const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("starter");
   const accentRaw = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
   const accent = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
   const accentLight = isLightColor(accent);

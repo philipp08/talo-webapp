@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Loader2, LogIn, LogOut, Newspaper, Key, XCircle, Building2 } from "lucide-react";
+import { Loader2, LogIn, LogOut, Newspaper, Key, XCircle, Building2, LayoutDashboard, Users, Activity } from "lucide-react";
 
 export default function AdminLayoutClient({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -63,7 +63,10 @@ export default function AdminLayoutClient({ children }: { children: ReactNode })
   }
 
   const navItems = [
+    { href: "/admin", label: "Übersicht", icon: LayoutDashboard, exact: true },
     { href: "/admin/vereine", label: "Vereine", icon: Building2 },
+    { href: "/admin/mitglieder", label: "Mitglieder", icon: Users },
+    { href: "/admin/aktivitaet", label: "Aktivität", icon: Activity },
     { href: "/admin/lizenzen", label: "Lizenzen", icon: Key },
     { href: "/admin/newsletter", label: "Newsletter", icon: Newspaper },
   ];
@@ -89,7 +92,9 @@ export default function AdminLayoutClient({ children }: { children: ReactNode })
             Admin Menü
           </p>
           {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+            const isActive = item.exact
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link
                 key={item.href}

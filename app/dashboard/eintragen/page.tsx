@@ -27,7 +27,7 @@ export default function EintragenPage() {
   const currentMember = useAppStore((s) => s.currentMember);
   const currentClub   = useAppStore((s) => s.currentClub);
 
-  const planFeatures  = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("free");
+  const planFeatures  = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures("starter");
   const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
   const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
 

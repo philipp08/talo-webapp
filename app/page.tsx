@@ -158,21 +158,21 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           <ScrollReveal direction="up" delay={0.05}>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-[11px] font-semibold text-gray-500 dark:text-gray-400 tracking-wide mb-10">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              🏓 Gemacht für Tischtennis-Vereine
+              Jetzt verfügbar für deutsche Vereine
             </div>
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.13}>
             <h1 className="text-center not-italic font-medium tracking-tight leading-[1.08] font-logo text-gray-950 dark:text-white mb-7 [font-size:clamp(2rem,5.5vw,5rem)] [text-wrap:balance]">
-              Tischtennis-Vereine,{" "}
-              <span className="text-gray-400 dark:text-white/30">digital verwaltet.</span>
+              Vereinsmanagement,{" "}
+              <span className="text-gray-400 dark:text-white/30">endlich einfach.</span>
             </h1>
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.21}>
             <p className="text-lg sm:text-xl text-gray-500 dark:text-[#888] leading-relaxed max-w-2xl mx-auto mb-12" style={{ textWrap: "pretty" } as CSSProperties}>
-              Pflichtdienste, Training, Ligabetrieb und WhatsApp-Einsatzpläne –
-              TALO macht Schluss mit Excel-Chaos und Zettelwirtschaft im TT-Verein.
+              TALO übernimmt Punktevergabe, Genehmigungen und Mitgliederverwaltung –
+              damit ihr euch auf das konzentriert, was zählt: euren Verein.
             </p>
           </ScrollReveal>
 
@@ -279,7 +279,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             </h2>
           </ScrollReveal>
           <ScrollText
-            text="Kein Tischtennis-Verein sollte noch mit Zettelwirtschaft, WhatsApp-Chaos und Excel-Listen kämpfen. Talo macht das in 5 Minuten überflüssig."
+            text="Jeder Verein verdient eine Verwaltung, die mitdenkt. Kein Papierkram mehr, keine doppelte Buchführung, keine verlorenen Anträge. Nur ein System, das einfach funktioniert."
             className="text-xl md:text-3xl lg:text-[2.6rem] text-gray-900 dark:text-white font-medium leading-[1.3] tracking-tight max-w-4xl mx-auto text-center"
           />
         </div>
@@ -672,12 +672,12 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                   a: "Talo ist auf Datenschutz, klare Rollen und transparente Datenverarbeitung ausgelegt. Die konkreten Informationen zur Auftragsverarbeitung stellen wir im Onboarding bereit.",
                 },
                 {
-                  q: "Wie lange dauert die Einrichtung für einen TT-Verein?",
-                  a: "Unter 10 Minuten. Verein anlegen, Mitglieder einladen, Aktivitäten (Tischwart, Schiedsrichter etc.) definieren – fertig. Wir haben Tischtennis-Vorlagen direkt eingebaut.",
+                  q: "Wie lange dauert die Einrichtung?",
+                  a: "Die Einrichtung ist geführt und auf typische Vereinsabläufe ausgelegt. Wir helfen euch dabei, Mitglieder, Rollen und Punkte sauber aufzusetzen.",
                 },
                 {
                   q: "Was kostet TALO?",
-                  a: "Kleine TT-Abteilungen (bis 20 Mitglieder) starten kostenlos. Für aktive Vereine mit Ligabetrieb gibt es Jahrespakete ab €69 – weniger als ein Tischtennisball pro Mitglied im Jahr.",
+                  a: "Wir bieten faire Pakete für jede Vereinsgröße. Kleine Vereine starten kostenlos mit bis zu 20 Mitgliedern und können jederzeit auf Club oder Pro upgraden, wenn der Verein wächst.",
                 },
                 {
                   q: "Kann ich meine Daten jederzeit exportieren?",

@@ -8,8 +8,7 @@ import { ArrowRight, Check, Info, Sparkles } from "lucide-react";
 import { PLAN_TIERS } from "@/lib/firebase/models";
 
 const tierCta: Record<string, { cta: string; href: string }> = {
-  free: { cta: "Kostenlos starten", href: "/anmelden" },
-  verein: { cta: "Lizenz aktivieren", href: "/anmelden" },
+  starter: { cta: "Kostenlos starten", href: "/anmelden" },
   club: { cta: "Club-Lizenz aktivieren", href: "/anmelden" },
   pro: { cta: "Pro-Lizenz aktivieren", href: "/anmelden" },
 };
@@ -133,8 +132,8 @@ export default function PricingPage() {
           <div className="space-y-8">
             {[
               { q: "Muss jedes Mitglied einzeln bezahlen?", a: "Nein, bei TALO zahlt immer der Verein. Es wird ein Lizenzschlüssel erworben, den ein Admin aktiviert, um den Plan für alle Mitglieder freizuschalten." },
-              { q: "Was passiert, wenn die Lizenz abläuft?", a: "Alle eure erfassten Daten bleiben sicher erhalten. Ihr könnt weiterhin auf das System zugreifen, jedoch sind bestimmte Funktionen sowie das Hinzufügen weiterer Mitglieder auf den Free-Plan eingeschränkt, bis eine neue Lizenz aktiviert wird." },
-              { q: "Können wir als kleiner Verein trotzdem starten?", a: "Absolut! Unser Start-Plan (Free) ist dauerhaft kostenlos für bis zu 10 Mitglieder. Danach könnt ihr unproblematisch auf den Verein- oder Club-Plan upgraden, wenn der Verein wächst." },
+              { q: "Was passiert, wenn die Lizenz abläuft?", a: "Alle eure erfassten Daten bleiben sicher erhalten. Ihr könnt weiterhin auf das System zugreifen, jedoch sind bestimmte Funktionen sowie das Hinzufügen weiterer Mitglieder auf den Starter-Plan eingeschränkt, bis eine neue Lizenz aktiviert wird." },
+              { q: "Können wir als kleiner Verein trotzdem starten?", a: "Absolut! Der Starter-Plan ist dauerhaft kostenlos für bis zu 20 Mitglieder. Danach könnt ihr unproblematisch auf den Club- oder Pro-Plan upgraden, wenn der Verein wächst." },
               { q: "Bietet ihr Hilfe bei der Ersteinrichtung an?", a: "Ja! Für einen kleinen Aufpreis helfen wir euch bei der Datenübernahme (Import) und beim Onboarding-Prozess. Sprecht uns einfach darauf an." }
             ].map((faq, i) => (
               <div key={i}>

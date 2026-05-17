@@ -52,7 +52,7 @@ export default function OnboardingFlow() {
         compensationPerMissingPoint: 10,
         seasonType: "Kalenderjahr",
         approvalRequired: true,
-        plan: "free",
+        plan: "starter",
         sportType: sportType,
       });
       console.log("Club created with ID:", newClubId);

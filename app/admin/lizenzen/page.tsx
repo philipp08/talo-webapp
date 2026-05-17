@@ -29,9 +29,8 @@ interface License {
 }
 
 const PLAN_OPTIONS = [
-  { value: "free", label: "Free", limit: 10 },
-  { value: "verein", label: "Verein", limit: 75 },
-  { value: "club", label: "Club", limit: 150 },
+  { value: "starter", label: "Starter", limit: 20 },
+  { value: "club", label: "Club", limit: 120 },
   { value: "pro", label: "Pro", limit: 300 },
 ];
 
@@ -143,11 +142,11 @@ export default function LizenzenAdminPage() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      // If license was used by a club, reset that club's plan to "free"
+      // If license was used by a club, reset that club's plan to "starter"
       if (deleteTarget.usedByOrgId && deleteTarget.status === "used") {
         try {
           await updateDoc(doc(db, "clubs", deleteTarget.usedByOrgId), {
-            plan: "free",
+            plan: "starter",
             licenseStatus: "expired",
             licenseExpiresAt: null,
           });
@@ -391,7 +390,7 @@ export default function LizenzenAdminPage() {
                 {deleteTarget.status === "used" && deleteTarget.usedByOrgId && (
                   <div className="rounded-xl bg-[#FF9500]/10 border border-[#FF9500]/20 px-4 py-2.5 mb-2 w-full">
                     <p className="text-[11px] font-bold text-[#FF9500]">
-                      ⚠ Der Verein „{clubNames[deleteTarget.usedByOrgId] || "Unbekannt"}" wird auf den Free-Plan zurückgesetzt.
+                      ⚠ Der Verein „{clubNames[deleteTarget.usedByOrgId] || "Unbekannt"}" wird auf den Starter-Plan zurückgesetzt.
                     </p>
                   </div>
                 )}

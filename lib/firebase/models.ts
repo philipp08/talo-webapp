@@ -331,13 +331,15 @@ export const calculateTargetPoints = (
   return Number((base * factor).toFixed(1));
 };
 
-export type PlanKey = "free" | "verein" | "club" | "pro";
+export type PlanKey = "starter" | "club" | "pro";
 
 export interface PlanFeatures {
   key: PlanKey;
   name: string;
   price: string;
   period?: string;
+  priceMonthly?: string;
+  priceYearly?: string;
   desc: string;
   features: string[];
   maxMembers: number;
@@ -365,23 +367,28 @@ export interface PlanFeatures {
 }
 
 const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
-  free: {
-    key: "free",
-    name: "Free",
+  starter: {
+    key: "starter",
+    name: "Starter",
     price: "0€",
     period: "/ Jahr",
-    desc: "Für den Einstieg.",
+    priceMonthly: "0€",
+    priceYearly: "0€",
+    desc: "Für kleine TT-Abteilungen zum Schnuppern.",
     features: [
-      "Bis zu 10 Mitglieder",
-      "Bis zu 3 Tätigkeiten (Katalog)",
+      "Bis zu 20 Mitglieder",
+      "Bis zu 5 Tätigkeiten (Katalog)",
       "Punkte & Tätigkeiten erfassen",
       "Genehmigungsworkflow (Admins/Trainer)",
-      "Basis-Ranglisten (Alle Mitglieder)",
+      "Basis-Rangliste (alle Mitglieder)",
       "Standard-Mitgliedertypen (Aktiv, Passiv, etc.)",
+      "WhatsApp-Share für Einsatzpläne",
+      "Sportart-spezifische Emojis 🏓",
+      "Saison nach Kalenderjahr / Vereinssaison / Schuljahr",
       "Nur Lese-Zugriff bei Limit-Überschreitung",
     ],
-    maxMembers: 10,
-    maxActivities: 3,
+    maxMembers: 20,
+    maxActivities: 5,
     canExportCsv: false,
     canExportPdf: false,
     hasGroups: false,
@@ -402,59 +409,30 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasTrainingRSVP: false,
     hasMultiTrainer: false,
   },
-  verein: {
-    key: "verein",
-    name: "Verein",
-    price: "49€",
-    period: "/ Jahr",
-    desc: "Für aktive Vereine.",
-    features: [
-      "Bis zu 75 Mitglieder",
-      "Unbegrenzte Tätigkeiten im Katalog",
-      "Eigene Saisonzeiträume (Tagesgenau)",
-      "CSV-Export für alle Daten",
-      "Individuelles Vereinslogo",
-      "Alles aus dem Free-Plan",
-    ],
-    maxMembers: 75,
-    maxActivities: 999,
-    canExportCsv: true,
-    canExportPdf: false,
-    hasGroups: false,
-    hasGroupLeaderboards: false,
-    hasSelfServiceShifts: false,
-    hasAdvancedStats: false,
-    hasAdvancedFilters: false,
-    hasAdvancedRoles: false,
-    hasClubLogo: true,
-    hasClubColors: false,
-    hasPrioritySupport: false,
-    hasAdvancedAdmin: false,
-    hasDataImportSupport: false,
-    hasPersonalOnboarding: false,
-    hasCustomFeatures: false,
-    hasCustomMemberTypes: false,
-    hasCustomSeason: true,
-    hasTrainingRSVP: false,
-    hasMultiTrainer: false,
-  },
   club: {
     key: "club",
     name: "Club",
-    price: "99€",
+    price: "79€",
     period: "/ Jahr",
-    desc: "Professionelle Verwaltung.",
+    priceMonthly: "9€",
+    priceYearly: "79€",
+    desc: "Für aktive TT-Vereine mit Ligabetrieb.",
     features: [
-      "Bis zu 150 Mitglieder",
+      "Bis zu 120 Mitglieder",
+      "Unbegrenzte Tätigkeiten im Katalog",
       "Trainings-Anmeldung & RSVP (Zusagen/Absagen)",
-      "Gruppenranglisten & Filter",
+      "Gruppen, Mannschaften & Gruppenranglisten",
       "Eigene Mitgliedertypen (z. B. Fördermitglied)",
-      "Individuelle Punktefaktoren pro Typ",
-      "Umfangreicher PDF-Export & Jahresberichte",
+      "Individuelle Punktefaktoren pro Mitgliedstyp",
+      "Eigene Saisonzeiträume (tagesgenau)",
+      "CSV-Export für alle Daten",
+      "PDF-Export & Saisonberichte",
+      "Individuelles Vereinslogo",
       "Erweiterte Filter & Statistiken",
-      "Alles aus dem Verein-Plan (Logo, CSV)",
+      "Standard E-Mail-Support",
+      "Alles aus dem Starter-Plan",
     ],
-    maxMembers: 150,
+    maxMembers: 120,
     maxActivities: 999,
     canExportCsv: true,
     canExportPdf: true,
@@ -480,18 +458,21 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
   pro: {
     key: "pro",
     name: "Pro",
-    price: "199€",
+    price: "159€",
     period: "/ Jahr",
-    desc: "Für große Vereine.",
+    priceMonthly: "19€",
+    priceYearly: "159€",
+    desc: "Für Großvereine mit mehreren Mannschaften.",
     features: [
       "Bis zu 300 Mitglieder",
       "Volles App-Branding (Vereinsfarben anpassen)",
-      "Trainings-Anmeldung & RSVP",
-      "Mehrere Gruppen & Abteilungen",
+      "Schicht-Börse: Mitglieder buchen selbst",
+      "Multi-Trainer Support (2. & 3. Trainer)",
       "Erweiterte Rollen für Funktionäre",
-      "Detaillierte Auswertungen & Analysen",
+      "Erweiterte Admin-Ansichten & Analysen",
+      "Datenimport-Service (Excel/CSV-Migration)",
+      "Persönliches Onboarding-Gespräch",
       "Priorisierter E-Mail & Chat Support",
-      "Erweiterte Admin-Ansichten",
       "Alles aus dem Club-Plan",
     ],
     maxMembers: 300,
@@ -508,8 +489,8 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
     hasClubColors: true,
     hasPrioritySupport: true,
     hasAdvancedAdmin: true,
-    hasDataImportSupport: false,
-    hasPersonalOnboarding: false,
+    hasDataImportSupport: true,
+    hasPersonalOnboarding: true,
     hasCustomFeatures: false,
     hasCustomMemberTypes: true,
     hasCustomSeason: true,
@@ -519,16 +500,20 @@ const PLAN_FEATURES: Record<PlanKey, PlanFeatures> = {
 };
 
 export const PLAN_TIERS = [
-  PLAN_FEATURES.free,
-  PLAN_FEATURES.verein,
+  PLAN_FEATURES.starter,
   PLAN_FEATURES.club,
   PLAN_FEATURES.pro,
 ] as const;
 
+/**
+ * Maps any stored plan string to a current PlanKey.
+ * Handles legacy keys: "free" → "starter", "verein" → "club".
+ */
 export const getPlanKey = (plan?: string): PlanKey => {
-  const p = (plan || "free").toLowerCase();
-  if (p === "verein" || p === "club" || p === "pro") return p;
-  return "free";
+  const p = (plan || "").toLowerCase();
+  if (p === "pro") return "pro";
+  if (p === "club" || p === "verein") return "club";
+  return "starter";
 };
 
 export const getPlanFeatures = (plan?: string): PlanFeatures => {
@@ -547,7 +532,7 @@ export const isLicenseExpired = (club: Club): boolean => {
 };
 
 export const getEffectivePlanFeatures = (club: Club): PlanFeatures => {
-  if (isLicenseExpired(club)) return PLAN_FEATURES.free;
+  if (isLicenseExpired(club)) return PLAN_FEATURES.starter;
   return getPlanFeatures(club.plan);
 };
 
