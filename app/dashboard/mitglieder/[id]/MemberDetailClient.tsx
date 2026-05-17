@@ -678,61 +678,57 @@ export default function MemberDetailPage() {
       {/* Entry Edit Modal */}
       <AnimatePresence>
         {entryToEdit && entryForm && (
-           <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/40 backdrop-blur-sm flex justify-center p-4 sm:p-6 md:p-10">
-             <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }} className="w-full max-w-xl my-auto">
-                <div className="bg-white border border-black/10 rounded-[30px] sm:rounded-[40px] p-6 sm:p-8 lg:p-9 flex flex-col gap-5 sm:gap-6 shadow-2xl relative">
-                   <div className="absolute top-0 right-0 w-64 h-64 bg-black/[0.03] blur-3xl rounded-full" />
-                   
-                   <div className="flex items-start justify-between gap-4 relative z-10">
-                      <div className="flex min-w-0 items-center gap-3">
-                         <div className="w-12 h-12 shrink-0 rounded-2xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
-                            <Activity size={24} />
-                         </div>
-                         <div className="flex min-w-0 flex-col">
-                            <h3 className="font-poppins font-black text-[#0A0A0A] text-lg sm:text-xl uppercase tracking-tight italic">Eintrag Details</h3>
-                            <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest">Administrative Korrektur</span>
-                         </div>
-                      </div>
-                      <button onClick={() => setEntryToEdit(null)} className="w-10 h-10 shrink-0 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-colors"><X size={20} /></button>
-                   </div>
-
-                   <div className="flex flex-col gap-6 relative z-10">
-                      <FormInput label="Bezeichnung der Tätigkeit" value={entryForm.activityName} onChange={(v) => setEntryForm({...entryForm, activityName: v})} />
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                         <FormInput label="Punkte Wert" value={entryForm.points} onChange={(v) => setEntryForm({...entryForm, points: v})} type="number" />
-                         <FormInput label="Durchgeführt am" value={entryForm.date} onChange={(v) => setEntryForm({...entryForm, date: v})} type="date" />
-                      </div>
-
-                      <div className="flex flex-col gap-3">
-                         <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">Status Festlegen</label>
-                         <div className="grid grid-cols-3 gap-1.5 p-2 rounded-2xl bg-black/[0.04] border border-black/5">
-                            {[EntryStatus.Pending, EntryStatus.Approved, EntryStatus.Rejected].map((s) => (
-                              <button key={s} onClick={() => setEntryForm({...entryForm, status: s})}
-                                className={`flex-1 py-3 rounded-xl text-xs font-poppins font-black transition-all uppercase tracking-widest ${
-                                   entryForm.status === s 
-                                      ? "bg-[#0A0A0A] text-white shadow-2xl" 
-                                      : "text-[#71717A] hover:text-[#0A0A0A]"
-                                }`}>
-                                {s === EntryStatus.Pending ? "Prüfung" : s === EntryStatus.Approved ? "OK" : "Abbruch"}
-                              </button>
-                            ))}
-                         </div>
-                      </div>
-
-                      {entryForm.status === EntryStatus.Rejected && (
-                         <div className="mt-2">
-                            <FormInput label="Ablehnungsgrund" value={entryForm.rejectionReason} onChange={(v) => setEntryForm({...entryForm, rejectionReason: v})} />
-                         </div>
-                      )}
-                   </div>
-
-                   <div className="pt-6 border-t border-black/5 relative z-10">
-                      <TButton label={savingEntry ? "Aktualisierung…" : "Änderungen speichern"} onClick={saveEntry} disabled={savingEntry} style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }} />
-                   </div>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 16 }} transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }} className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto no-scrollbar">
+              <div className="bg-white border border-black/8 rounded-[28px] shadow-xl p-7 flex flex-col gap-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <h3 className="font-poppins font-black text-[#0A0A0A] text-xl tracking-tight italic uppercase">Eintrag bearbeiten</h3>
+                    <span className="text-[10px] font-black text-[#71717A] uppercase tracking-[0.2em]">Administrative Korrektur</span>
+                  </div>
+                  <button onClick={() => setEntryToEdit(null)} className="w-9 h-9 shrink-0 rounded-xl bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] transition-colors"><X size={18} /></button>
                 </div>
-             </motion.div>
-           </div>
+
+                <div className="flex flex-col gap-5">
+                  <FormInput label="Bezeichnung" value={entryForm.activityName} onChange={(v) => setEntryForm({...entryForm, activityName: v})} />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormInput label="Punkte" value={entryForm.points} onChange={(v) => setEntryForm({...entryForm, points: v})} type="number" />
+                    <FormInput label="Datum" value={entryForm.date} onChange={(v) => setEntryForm({...entryForm, date: v})} type="date" />
+                  </div>
+
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.2em] pl-1">Status</label>
+                    <div className="grid grid-cols-3 gap-1 p-1 rounded-2xl bg-black/[0.04] border border-black/5">
+                      {[EntryStatus.Pending, EntryStatus.Approved, EntryStatus.Rejected].map((s) => (
+                        <button key={s} onClick={() => setEntryForm({...entryForm, status: s})}
+                          className={`py-2.5 rounded-xl text-[11px] font-poppins font-black transition-all uppercase tracking-[0.15em] ${
+                            entryForm.status === s
+                              ? "bg-white text-[#0A0A0A] shadow-sm"
+                              : "text-[#71717A] hover:text-[#0A0A0A]"
+                          }`}>
+                          {s === EntryStatus.Pending ? "Prüfung" : s === EntryStatus.Approved ? "OK" : "Abbruch"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {entryForm.status === EntryStatus.Rejected && (
+                    <FormInput label="Ablehnungsgrund" value={entryForm.rejectionReason} onChange={(v) => setEntryForm({...entryForm, rejectionReason: v})} />
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2.5 pt-1">
+                  <button onClick={saveEntry} disabled={savingEntry} style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }} className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-[0.98] disabled:opacity-60 hover:brightness-110">
+                    {savingEntry ? "Speichern…" : "Speichern"}
+                  </button>
+                  <button onClick={() => setEntryToEdit(null)} className="w-full py-4 bg-black/[0.04] hover:bg-black/[0.08] text-[#0A0A0A] rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all border border-black/5 active:scale-[0.98]">
+                    Abbrechen
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
