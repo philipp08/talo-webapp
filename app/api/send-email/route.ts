@@ -791,7 +791,7 @@ ${adminName} · ${clubName}`.trim();
     from: { email: "zugangsdaten@talo-club.de", name: "Zugangsdaten-Service von Talo" },
     content: [
       { type: "text/plain", value: plainText },
-      { type: "text/html", value: isExistingUser ? renderWelcomeExistingHtml(memberName, to, clubName, adminName) : renderWelcomeHtml(memberName, to, password, clubName, adminName) },
+      { type: "text/html", value: isExistingUser ? renderWelcomeExistingHtml(memberName, to, clubName, adminName) : renderWelcomeHtml(memberName, to, password ?? "", clubName, adminName) },
     ],
     tracking_settings: {
       click_tracking: {
