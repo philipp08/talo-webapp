@@ -167,6 +167,54 @@ export default function ShiftsPage() {
     },
   ];
 
+  const shareEventShifts = (eventName: string, list: Shift[]) => {
+    let text = `📢 *HELFERSCHICHTEN: ${eventName.toUpperCase()}* 📢\n\nHallo zusammen! Für unser Event werden noch fleißige Helfer gesucht. Bitte tragt euch direkt ein:\n\n`;
+    list.forEach((s) => {
+      const statusStr = s.claimedById 
+        ? `✅ Besetzt von ${s.claimedByName}` 
+        : `👉 Noch frei! (+${s.points.toFixed(1)} Pkt.)`;
+      text += `🔹 *${s.title}*\n   🕒 ${s.date} | ${s.time}\n   ${statusStr}\n\n`;
+    });
+    text += `👉 Jetzt im Talo Dashboard anmelden und Wunschschicht buchen:\n${window.location.origin}/dashboard/schichten\n\nWir freuen uns auf eure Unterstützung! 🚀`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  };
+
+  const shareSingleShift = (s: Shift) => {
+    const statusStr = s.claimedById 
+      ? `✅ Besetzt von ${s.claimedByName}` 
+      : `👉 Noch frei!`;
+    const text = `⚽ *TALO HELFERSCHICHT* ⚽\n\nFür das Event *${s.event}* wird ein Helfer gesucht:\n\n📌 *Schicht*: ${s.title}\n📅 *Datum*: ${s.date}\n🕒 *Uhrzeit*: ${s.time}\n🏆 *Punkte*: +${s.points.toFixed(1)} Pkt.\n\n${statusStr}\n\n👉 Jetzt direkt im Talo Dashboard buchen: ${window.location.origin}/dashboard/schichten\n\nDanke für deinen einsatz! 🙌`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  };
+
+  const groupedShifts = useMemo(() => {
+    const groups: { [eventName: string]: Shift[] } = {};
+    shifts.forEach((s) => {
+      if (!groups[s.event]) {
+        groups[s.event] = [];
+      }
+      groups[s.event].push(s);
+    });
+    return Object.entries(groups).map(([eventName, list]) => ({
+      eventName,
+      list: list.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)),
+    }));
+  }, [shifts]);
+
+  const groupedMockShifts = useMemo(() => {
+    const groups: { [eventName: string]: Shift[] } = {};
+    mockShifts.forEach((s) => {
+      if (!groups[s.event]) {
+        groups[s.event] = [];
+      }
+      groups[s.event].push(s);
+    });
+    return Object.entries(groups).map(([eventName, list]) => ({
+      eventName,
+      list,
+    }));
+  }, []);
+
   return (
     <div className="relative min-h-screen bg-[#FAFAFA]">
       <div className="max-w-[1600px] mx-auto py-6 px-4 sm:px-6 lg:py-8 lg:px-10 flex flex-col gap-7 lg:gap-8 pb-16">
@@ -233,41 +281,41 @@ export default function ShiftsPage() {
               </div>
             </div>
 
-            {/* Blurred Mockup Content */}
-            <div className="opacity-40 pointer-events-none select-none flex flex-col gap-6">
-              <div className="flex items-center gap-2 text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">
-                Anstehende Schichten
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {mockShifts.map((s) => (
-                  <GlassSection key={s.id} className="p-5 flex flex-col gap-4 border border-black/5 rounded-[24px]">
-                    <div className="flex justify-between items-start gap-3">
-                      <TBadge label={s.event} />
-                      <span className="text-xs font-mono font-black text-[#34C759]">+{s.points.toFixed(1)} Pkt.</span>
-                    </div>
-                    <div>
-                      <h4 className="font-poppins font-bold text-sm text-[#0A0A0A]">{s.title}</h4>
-                      <div className="flex flex-col gap-1 mt-3">
-                        <div className="flex items-center gap-2 text-xs text-[#71717A]">
-                          <Calendar size={13} /> <span>{s.date}</span>
+            {/* Blurred Mockup Content grouped by Event */}
+            <div className="opacity-40 pointer-events-none select-none flex flex-col gap-10">
+              {groupedMockShifts.map((group) => (
+                <div key={group.eventName} className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between border-b border-black/5 pb-2">
+                    <h3 className="font-poppins font-black text-sm text-[#0A0A0A] uppercase tracking-wider">
+                      {group.eventName}
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    {group.list.map((s) => (
+                      <GlassSection key={s.id} className="p-5 flex flex-col justify-between min-h-[200px] border border-black/5 rounded-[24px]">
+                        <div className="flex justify-between items-start gap-3">
+                          <TBadge label={s.event} />
+                          <span className="text-xs font-mono font-black text-[#34C759]">+{s.points.toFixed(1)} Pkt.</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-[#71717A]">
-                          <Clock size={13} /> <span>{s.time}</span>
+                        <div>
+                          <h4 className="font-poppins font-bold text-sm text-[#0A0A0A]">{s.title}</h4>
+                          <div className="flex flex-col gap-1 mt-3">
+                            <div className="flex items-center gap-2 text-xs text-[#71717A]">
+                              <Calendar size={13} /> <span>{s.date}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-[#71717A]">
+                              <Clock size={13} /> <span>{s.time}</span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <div className="pt-2 border-t border-black/5 flex items-center justify-between">
-                      {s.claimedById ? (
-                        <div className="flex items-center gap-2 text-xs text-[#71717A] bg-black/[0.04] px-2.5 py-1.5 rounded-xl w-full">
-                          <Users size={12} /> Gebucht von {s.claimedByName}
+                        <div className="pt-2 border-t border-black/5 flex items-center justify-between">
+                          <TButton label="Schicht buchen" onClick={() => {}} className="w-full rounded-xl py-2" />
                         </div>
-                      ) : (
-                        <TButton label="Schicht buchen" onClick={() => {}} className="w-full rounded-xl py-2" />
-                      )}
-                    </div>
-                  </GlassSection>
-                ))}
-              </div>
+                      </GlassSection>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ) : (
@@ -280,12 +328,6 @@ export default function ShiftsPage() {
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between pl-1">
-                  <div className="flex items-center gap-2 text-[10px] font-black text-[#52525B] uppercase tracking-widest">
-                    Anstehende Schichten ({shifts.length})
-                  </div>
-                </div>
-
                 {shifts.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-32 bg-white border border-black/5 rounded-[28px] p-6 text-center shadow-sm">
                     <Layers size={48} className="text-[#A1A1AA] mb-4" />
@@ -297,68 +339,107 @@ export default function ShiftsPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    {shifts.map((s) => {
-                      const isMine = s.claimedById === currentMember?.id;
-                      const isOther = s.claimedById && !isMine;
-
-                      return (
-                        <GlassSection key={s.id} className="p-5 flex flex-col justify-between min-h-[220px] border border-black/5 rounded-[24px]">
-                          <div className="flex flex-col gap-3">
-                            <div className="flex justify-between items-start gap-3">
-                              <TBadge label={s.event} color={isMine ? "#34C759" : "#0A0A0A"} />
-                              <span className="text-xs font-mono font-black text-[#34C759]">+{s.points.toFixed(1)} Pkt.</span>
-                            </div>
-                            <div>
-                              <h4 className="font-poppins font-bold text-sm text-[#0A0A0A]">{s.title}</h4>
-                              <div className="flex flex-col gap-1 mt-3">
-                                <div className="flex items-center gap-2 text-xs text-[#71717A]">
-                                  <Calendar size={13} /> <span>{s.date}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-xs text-[#71717A]">
-                                  <Clock size={13} /> <span>{s.time}</span>
-                                </div>
-                              </div>
-                            </div>
+                  <div className="flex flex-col gap-12">
+                    {groupedShifts.map((group) => (
+                      <div key={group.eventName} className="flex flex-col gap-5">
+                        
+                        {/* Event Header with WhatsApp Invite Generator */}
+                        <div className="flex items-center justify-between border-b border-black/5 pb-3">
+                          <div className="flex items-center gap-3">
+                            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                            <h3 className="font-poppins font-black text-base text-[#0A0A0A] uppercase tracking-wider">
+                              {group.eventName}
+                            </h3>
                           </div>
+                          
+                          <button
+                            onClick={() => shareEventShifts(group.eventName, group.list)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all text-[10px] font-black uppercase tracking-widest shadow-sm"
+                            title="Gesamtes Event auf WhatsApp bewerben"
+                          >
+                            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.002 5.419 5.4 0 12.008 0c3.202.001 6.212 1.246 8.477 3.517 2.266 2.27 3.51 5.284 3.508 8.49-.004 6.587-5.395 12.002-12.002 12.002-.003 0-.005 0-.008 0-1.997-.001-3.957-.502-5.69-1.455L0 24zm6.59-4.859c1.72.1.1.1-1.815.1 1.72.1-.1.1.002 0l.39.232c1.523.905 3.364 1.382 5.253 1.383 5.4 0 9.794-4.383 9.797-9.77.001-2.607-1.015-5.059-2.862-6.908C17.328 4.249 14.887 3.23 12.28 3.23c-5.4 0-9.794 4.383-9.797 9.771-.001 1.954.512 3.864 1.487 5.568l.243.424-.984 3.593 3.678-.965.421.25c1.653.978 3.536 1.493 5.452 1.493z" />
+                            </svg>
+                            <span>Event bewerben</span>
+                          </button>
+                        </div>
 
-                          <div className="pt-3 border-t border-black/5 flex flex-col gap-2 mt-4">
-                            {isMine ? (
-                              <div className="flex flex-col gap-2">
-                                <div className="flex items-center gap-2 text-xs text-[#34C759] font-poppins font-bold bg-[#34C759]/10 border border-[#34C759]/20 px-3 py-2 rounded-xl justify-center">
-                                  <Check size={14} /> Von dir gebucht!
+                        {/* Shifts Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                          {group.list.map((s) => {
+                            const isMine = s.claimedById === currentMember?.id;
+                            const isOther = s.claimedById && !isMine;
+
+                            return (
+                              <GlassSection key={s.id} className="p-5 flex flex-col justify-between min-h-[220px] border border-black/5 rounded-[24px] hover:shadow-md transition-all">
+                                <div className="flex flex-col gap-3">
+                                  <div className="flex justify-between items-start gap-3">
+                                    <span className="text-xs font-mono font-black text-[#34C759]">+{s.points.toFixed(1)} Pkt.</span>
+                                    
+                                    {/* Copy / Share Button for WhatsApp */}
+                                    <button
+                                      onClick={() => shareSingleShift(s)}
+                                      className="p-1.5 rounded-lg border border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15 transition-all"
+                                      title="Schicht via WhatsApp teilen"
+                                    >
+                                      <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.002 5.419 5.4 0 12.008 0c3.202.001 6.212 1.246 8.477 3.517 2.266 2.27 3.51 5.284 3.508 8.49-.004 6.587-5.395 12.002-12.002 12.002-.003 0-.005 0-.008 0-1.997-.001-3.957-.502-5.69-1.455L0 24zm6.59-4.859c1.72.1.1.1-1.815.1 1.72.1-.1.1.002 0l.39.232c1.523.905 3.364 1.382 5.253 1.383 5.4 0 9.794-4.383 9.797-9.77.001-2.607-1.015-5.059-2.862-6.908C17.328 4.249 14.887 3.23 12.28 3.23c-5.4 0-9.794 4.383-9.797 9.771-.001 1.954.512 3.864 1.487 5.568l.243.424-.984 3.593 3.678-.965.421.25c1.653.978 3.536 1.493 5.452 1.493z" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <div>
+                                    <h4 className="font-poppins font-bold text-sm text-[#0A0A0A]">{s.title}</h4>
+                                    <div className="flex flex-col gap-1 mt-3">
+                                      <div className="flex items-center gap-2 text-xs text-[#71717A]">
+                                        <Calendar size={13} /> <span>{s.date}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 text-xs text-[#71717A]">
+                                        <Clock size={13} /> <span>{s.time}</span>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
-                                <TButton
-                                  label="Schicht freigeben"
-                                  variant="danger"
-                                  onClick={() => releaseShift(s)}
-                                  className="w-full rounded-xl py-2"
-                                />
-                              </div>
-                            ) : isOther ? (
-                              <div className="flex items-center gap-2 text-xs text-[#71717A] bg-black/[0.04] px-3 py-2 rounded-xl w-full justify-center">
-                                <Users size={12} /> Gebucht: {s.claimedByName}
-                              </div>
-                            ) : (
-                              <TButton
-                                label="Schicht buchen"
-                                onClick={() => claimShift(s)}
-                                className="w-full rounded-xl py-2"
-                              />
-                            )}
 
-                            {isAdmin && (
-                              <button
-                                onClick={() => deleteShift(s.id)}
-                                className="flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors mt-2"
-                              >
-                                <Trash size={12} /> Schicht löschen
-                              </button>
-                            )}
-                          </div>
-                        </GlassSection>
-                      );
-                    })}
+                                <div className="pt-3 border-t border-black/5 flex flex-col gap-2 mt-4">
+                                  {isMine ? (
+                                    <div className="flex flex-col gap-2">
+                                      <div className="flex items-center gap-2 text-xs text-[#34C759] font-poppins font-bold bg-[#34C759]/10 border border-[#34C759]/20 px-3 py-2 rounded-xl justify-center">
+                                        <Check size={14} /> Von dir gebucht!
+                                      </div>
+                                      <TButton
+                                        label="Schicht freigeben"
+                                        variant="danger"
+                                        onClick={() => releaseShift(s)}
+                                        className="w-full rounded-xl py-2"
+                                      />
+                                    </div>
+                                  ) : isOther ? (
+                                    <div className="flex items-center gap-2 text-xs text-[#71717A] bg-black/[0.04] px-3 py-2 rounded-xl w-full justify-center">
+                                      <Users size={12} /> Gebucht: {s.claimedByName}
+                                    </div>
+                                  ) : (
+                                    <TButton
+                                      label="Schicht buchen"
+                                      onClick={() => claimShift(s)}
+                                      className="w-full rounded-xl py-2"
+                                    />
+                                  )}
+
+                                  {isAdmin && (
+                                    <button
+                                      onClick={() => deleteShift(s.id)}
+                                      className="flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors mt-2"
+                                    >
+                                      <Trash size={12} /> Schicht löschen
+                                    </button>
+                                  )}
+                                </div>
+                              </GlassSection>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </>
