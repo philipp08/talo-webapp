@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase/config";
-import { collection, getDocs, collectionGroup, query, orderBy, limit, Timestamp } from "firebase/firestore";
+import { collection, getDocs, collectionGroup, query, orderBy, limit, Timestamp, deleteDoc, doc } from "firebase/firestore";
 import { motion } from "framer-motion";
 import {
   Building2, Users, Activity, Key, RefreshCw, TrendingUp,
@@ -51,13 +51,70 @@ export default function AdminOverviewPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  async function runOrphanedCleanup(cSnap: any, mSnap: any) {
+    try {
+      const memberCountByClub = new Map<string, number>();
+      const memberClubMap = new Map<string, string[]>();
+      
+      mSnap.docs.forEach((m: any) => {
+        const data = m.data();
+        const clubIds: string[] = data.clubIds ?? (data.clubId ? [data.clubId] : []);
+        memberClubMap.set(m.id, clubIds);
+        clubIds.forEach((cid) => {
+          memberCountByClub.set(cid, (memberCountByClub.get(cid) ?? 0) + 1);
+        });
+      });
+
+      const emptyClubIds: string[] = [];
+      cSnap.docs.forEach((c: any) => {
+        const memberCount = memberCountByClub.get(c.id) ?? 0;
+        if (memberCount === 0) {
+          emptyClubIds.push(c.id);
+        }
+      });
+
+      const orphanedMemberIds: string[] = [];
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      mSnap.docs.forEach((m: any) => {
+        const data = m.data();
+        const clubIds = memberClubMap.get(m.id) ?? [];
+        const createdAt = data.createdAt?.toDate?.() ?? new Date();
+        if (clubIds.length === 0 && createdAt < fiveMinutesAgo) {
+          orphanedMemberIds.push(m.id);
+        }
+      });
+
+      if (emptyClubIds.length > 0) {
+        console.log(`Auto-deleting ${emptyClubIds.length} empty clubs:`, emptyClubIds);
+        await Promise.all(emptyClubIds.map(id => deleteDoc(doc(db, "clubs", id))));
+      }
+
+      if (orphanedMemberIds.length > 0) {
+        console.log(`Auto-deleting ${orphanedMemberIds.length} orphaned members:`, orphanedMemberIds);
+        await Promise.all(orphanedMemberIds.map(id => deleteDoc(doc(db, "members", id))));
+      }
+      
+      return {
+        deletedClubs: emptyClubIds.length,
+        deletedMembers: orphanedMemberIds.length
+      };
+    } catch (e) {
+      console.error("Fehler bei der automatischen Bereinigung verwaister Daten:", e);
+      return { deletedClubs: 0, deletedMembers: 0 };
+    }
+  }
+
   async function loadStats() {
     setLoading(true);
     try {
-      const [clubsSnap, membersSnap] = await Promise.all([
-        getDocs(collection(db, "clubs")),
-        getDocs(collection(db, "members")),
-      ]);
+      let clubsSnap = await getDocs(collection(db, "clubs"));
+      let membersSnap = await getDocs(collection(db, "members"));
+
+      const cleanup = await runOrphanedCleanup(clubsSnap, membersSnap);
+      if (cleanup.deletedClubs > 0 || cleanup.deletedMembers > 0) {
+        clubsSnap = await getDocs(collection(db, "clubs"));
+        membersSnap = await getDocs(collection(db, "members"));
+      }
 
       // Member-to-club mapping
       const memberClubMap = new Map<string, string[]>();
