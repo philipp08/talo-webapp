@@ -619,6 +619,9 @@ function ListView({
   showGroups: boolean;
 }) {
   const planFeatures = currentClub ? getPlanFeatures(currentClub.plan) : getPlanFeatures();
+  const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
+  const accent        = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
+  const accentLight   = isLightColor(accent);
   const allTypes = [...memberTypeOrder];
   if (planFeatures.hasCustomMemberTypes && currentClub?.customMemberTypes) {
     currentClub.customMemberTypes.forEach((c: any) => allTypes.push(c.name));
@@ -660,11 +663,11 @@ function ListView({
           <div className="bg-white border border-black/5 rounded-[32px] overflow-x-auto shadow-xl">
             <table className="w-full text-left border-collapse min-w-[520px]">
               <thead>
-                <tr className="border-b border-black/5 bg-black/[0.02]">
-                  <th className="px-6 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Mitglied</th>
-                  <th className="px-6 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest">Fortschritt</th>
-                  <th className="px-6 py-5 text-[10px] font-black text-[#71717A] uppercase tracking-widest text-right">Punkte</th>
-                  <th className="px-6 py-5 w-12"></th>
+                <tr className="border-b border-black/5" style={{ backgroundColor: accent }}>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest rounded-tl-[31px]" style={{ color: accentLight ? "#0A0A0A" : "#FFFFFF" }}>Mitglied</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest" style={{ color: accentLight ? "#0A0A0A" : "#FFFFFF" }}>Fortschritt</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-right" style={{ color: accentLight ? "#0A0A0A" : "#FFFFFF" }}>Punkte</th>
+                  <th className="px-6 py-4 w-12 rounded-tr-[31px]"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/[0.04]">

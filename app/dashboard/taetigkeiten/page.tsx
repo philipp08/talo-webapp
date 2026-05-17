@@ -117,7 +117,7 @@ export default function ActivitiesPage() {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-3">
                   <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Tätigkeiten</h1>
-                  <TBadge color={isLimitReached ? "#EF4444" : accent} className="hidden sm:inline-flex" label={`${activities.length} ${planFeatures.maxActivities < 999 ? `/ ${planFeatures.maxActivities}` : ""} Tätigkeiten`} />
+                  <TBadge color={isLimitReached ? "#EF4444" : "#0A0A0A"} className="hidden sm:inline-flex" label={`${activities.length} ${planFeatures.maxActivities < 999 ? `/ ${planFeatures.maxActivities}` : ""} Tätigkeiten`} />
                 </div>
                 <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name} · Aktivitätskatalog verwalten</p>
               </div>
