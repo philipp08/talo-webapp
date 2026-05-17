@@ -5,10 +5,11 @@ interface EmailParams {
   name: string;
   subject?: string;
   memberName: string;
-  password: string;
+  password?: string;
   clubName: string;
   clubId: string;
   adminName: string;
+  isExistingUser?: boolean;
 }
 
 interface ContactParams {

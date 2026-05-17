@@ -408,6 +408,256 @@ box-shadow:0 20px 60px rgba(0,0,0,0.08);
 </html>`.trim();
 }
 
+function renderWelcomeExistingHtml(memberName: string, email: string, clubName: string, adminName: string) {
+  return `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="supported-color-schemes" content="light dark" />
+  <title>Du wurdest zu ${escapeHtml(clubName)} hinzugefügt</title>
+</head>
+
+<body style="margin:0; padding:0; background:transparent; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px; background:transparent;">
+<tr>
+<td align="center">
+
+<table width="100%" cellpadding="0" cellspacing="0"
+style="
+max-width:640px;
+background:#ffffff;
+border-radius:32px;
+overflow:hidden;
+box-shadow:0 20px 60px rgba(0,0,0,0.08);
+">
+
+  <!-- HEADER -->
+  <tr>
+    <td
+      bgcolor="#0f172a"
+      style="
+      background-color:#0f172a;
+      padding:70px 40px 60px;
+      text-align:center;
+      "
+    >
+
+      <div
+        style="
+        display:inline-block;
+        padding:8px 18px;
+        border-radius:999px;
+        background:#1e293b;
+        border:1px solid #334155;
+        color:#ffffff !important;
+        font-size:13px;
+        font-weight:600;
+        letter-spacing:0.4px;
+        margin-bottom:24px;
+        "
+      >
+        <span style="color:#ffffff !important;">Neuer Verein in Talo</span>
+      </div>
+
+      <h1
+        style="
+        margin:0;
+        font-size:36px;
+        line-height:1.15;
+        font-weight:800;
+        color:#ffffff !important;
+        letter-spacing:-1.2px;
+        "
+      >
+        <span style="color:#ffffff !important;">Du wurdest zu<br />${escapeHtml(clubName)} hinzugefügt.</span>
+      </h1>
+
+      <p
+        style="
+        margin:24px auto 0;
+        max-width:460px;
+        font-size:17px;
+        line-height:1.7;
+        color:#ffffff !important;
+        opacity:0.8;
+        "
+      >
+        <span style="color:#ffffff !important; opacity:0.8;">Verwalte all deine Vereine jetzt ganz einfach mit einem einzigen Talo-Konto.</span>
+      </p>
+
+    </td>
+  </tr>
+
+  <!-- CONTENT -->
+  <tr>
+    <td style="padding:48px 40px;">
+
+      <p
+        style="
+        margin:0 0 22px;
+        font-size:17px;
+        line-height:1.8;
+        color:#374151;
+        "
+      >
+        Hallo ${escapeHtml(memberName)},
+      </p>
+
+      <p
+        style="
+        margin:0 0 34px;
+        font-size:17px;
+        line-height:1.8;
+        color:#4b5563;
+        "
+      >
+        dein Verein nutzt <strong style="color:#111827;">Talo</strong>, um Engagement, Aktivitäten und die Vereinsorganisation digital und transparent zu verwalten. Du wurdest soeben hinzugefügt.
+      </p>
+
+      <!-- INFO BOX -->
+      <table width="100%" cellpadding="0" cellspacing="0"
+      style="
+      background:#f8fafc;
+      border:1px solid #e5e7eb;
+      border-radius:24px;
+      overflow:hidden;
+      margin-bottom:36px;
+      ">
+        <tr>
+          <td style="padding:30px;">
+
+            <div
+              style="
+              font-size:13px;
+              font-weight:700;
+              text-transform:uppercase;
+              letter-spacing:1px;
+              color:#64748b;
+              margin-bottom:12px;
+              "
+            >
+              Bestehendes Talo-Konto
+            </div>
+
+            <p style="margin:0; font-size:15px; line-height:1.7; color:#1e293b;">
+              Da du bereits ein Talo-Konto besitzt, kannst du dich einfach wie gewohnt mit deiner E-Mail-Adresse <strong>${escapeHtml(email)}</strong> und deinem bestehenden Passwort anmelden. Nach dem Login kannst du oben im Menü bequem zwischen deinen Vereinen hin- und herwechseln.
+            </p>
+
+          </td>
+        </tr>
+      </table>
+
+      <!-- BUTTON -->
+      <div style="text-align:center; margin-bottom:34px;">
+
+        <a
+          href="https://talo-club.de/anmelden"
+          style="
+          display:inline-block;
+          background:#111827;
+          color:#ffffff;
+          text-decoration:none;
+          padding:18px 34px;
+          border-radius:999px;
+          font-size:16px;
+          font-weight:700;
+          letter-spacing:-0.2px;
+          box-shadow:0 10px 30px rgba(17,24,39,0.18);
+          "
+        >
+          Zum Dashboard wechseln
+        </a>
+
+      </div>
+
+      <!-- LINK -->
+      <p
+        style="
+        margin:0 0 30px;
+        font-size:14px;
+        line-height:1.8;
+        color:#6b7280;
+        text-align:center;
+        "
+      >
+        Oder direkt hier öffnen:<br />
+
+        <a
+          href="https://talo-club.de/anmelden"
+          style="
+          color:#111827;
+          font-weight:600;
+          text-decoration:none;
+          "
+        >
+          talo-club.de/anmelden
+        </a>
+      </p>
+
+      <p
+        style="
+        margin:38px 0 0;
+        font-size:16px;
+        line-height:1.8;
+        color:#374151;
+        "
+      >
+        Viel Spaß mit Talo!<br />
+        <strong style="color:#111827;">${escapeHtml(adminName)} · ${escapeHtml(clubName)}</strong>
+      </p>
+
+    </td>
+  </tr>
+
+  <!-- FOOTER -->
+  <tr>
+    <td
+      style="
+      background:#f9fafb;
+      border-top:1px solid #e5e7eb;
+      padding:24px;
+      text-align:center;
+      "
+    >
+
+      <p
+        style="
+        margin:0;
+        font-size:12px;
+        line-height:1.7;
+        color:#9ca3af;
+        "
+      >
+        Diese E-Mail wurde automatisch versendet, weil du zu einem Verein in Talo hinzugefügt wurdest.
+      </p>
+
+      <p
+        style="
+        margin:8px 0 0;
+        font-size:12px;
+        color:#9ca3af;
+        "
+      >
+        © 2026 Talo
+      </p>
+
+    </td>
+  </tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>`.trim();
+}
+
 function renderNewsletterWelcomeHtml(email: string, token: string, origin: string) {
   const unsubscribeUrl = `${origin}/newsletter/abmelden?token=${encodeURIComponent(token)}`;
 
@@ -499,13 +749,29 @@ function welcomePayload(body: Record<string, unknown>): SendGridPayload | null {
   const clubName = readString(body, "clubName", 180);
   const clubId = readString(body, "clubId", 180);
   const adminName = readString(body, "adminName", 160);
+  const isExistingUser = body.isExistingUser === true || body.isExistingUser === "true";
 
-  if (!to || !isEmail(to) || !name || !memberName || !password || !clubName || !clubId || !adminName) {
+  if (!to || !isEmail(to) || !name || !memberName || !clubName || !clubId || !adminName || (!isExistingUser && !password)) {
     return null;
   }
 
-  const subject = `Willkommen bei ${clubName} - Deine Zugangsdaten`;
-  const plainText = `
+  const subject = isExistingUser
+    ? `Du wurdest zu ${clubName} hinzugefügt`
+    : `Willkommen bei ${clubName} - Deine Zugangsdaten`;
+
+  const plainText = isExistingUser
+    ? `
+Hallo ${memberName},
+
+du wurdest erfolgreich zu ${clubName} hinzugefügt!
+
+Da du bereits ein Talo-Konto besitzt, kannst du dich einfach mit deiner E-Mail (${to}) und deinem bestehenden Passwort anmelden. Nach dem Login kannst du ganz einfach über das Menü oben zwischen deinen Vereinen wechseln.
+
+Bei Fragen: ${SUPPORT_EMAIL}
+
+Viele Grüße
+${adminName} · ${clubName}`.trim()
+    : `
 Hallo ${memberName},
 
 herzlich willkommen bei ${clubName}!
@@ -525,7 +791,7 @@ ${adminName} · ${clubName}`.trim();
     from: { email: "zugangsdaten@talo-club.de", name: "Zugangsdaten-Service von Talo" },
     content: [
       { type: "text/plain", value: plainText },
-      { type: "text/html", value: renderWelcomeHtml(memberName, to, password, clubName, adminName) },
+      { type: "text/html", value: isExistingUser ? renderWelcomeExistingHtml(memberName, to, clubName, adminName) : renderWelcomeHtml(memberName, to, password, clubName, adminName) },
     ],
     tracking_settings: {
       click_tracking: {

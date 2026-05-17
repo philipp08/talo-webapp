@@ -79,6 +79,40 @@ export default function MembersPage() {
   const isAdmin = currentMember?.isAdmin === true;
   const canViewMembers = isAdmin || currentMember?.isTrainer === true;
 
+  // CSV Import state
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [importStep, setImportStep] = useState<"upload" | "map" | "preview" | "progress" | "complete">("upload");
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [csvRows, setCsvRows] = useState<string[][]>([]);
+  const [fieldMappings, setFieldMappings] = useState<{
+    firstName: number;
+    lastName: number;
+    email: number;
+    memberType: number;
+  }>({ firstName: -1, lastName: -1, email: -1, memberType: -1 });
+  const [mappedMembers, setMappedMembers] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    memberType: string;
+    isValid: boolean;
+    errorReason?: string;
+    selected: boolean;
+    alreadyExists: boolean;
+  }[]>([]);
+  const [importProgress, setImportProgress] = useState(0);
+  const [currentImportingName, setCurrentImportingName] = useState("");
+  const [sendWelcomeEmailsBulk, setSendWelcomeEmailsBulk] = useState(true);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [importedResults, setImportedResults] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    password?: string;
+    status: "success" | "existing" | "error";
+    errorMsg?: string;
+  }[]>([]);
+
   const closeInviteModal = () => {
     setIsInviteOpen(false);
     setInviteEmail("");
@@ -92,6 +126,20 @@ export default function MembersPage() {
     setUserAlreadyExisted(false);
     setErrorMessage(null);
     setGeneratedPassword(null);
+  };
+
+  const closeImportModal = () => {
+    setIsImportOpen(false);
+    setImportStep("upload");
+    setCsvHeaders([]);
+    setCsvRows([]);
+    setFieldMappings({ firstName: -1, lastName: -1, email: -1, memberType: -1 });
+    setMappedMembers([]);
+    setImportProgress(0);
+    setCurrentImportingName("");
+    setSendWelcomeEmailsBulk(true);
+    setIsPreviewLoading(false);
+    setImportedResults([]);
   };
   const planFeatures = currentClub ? getEffectivePlanFeatures(currentClub) : getPlanFeatures();
   const accentRaw     = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
@@ -168,6 +216,314 @@ export default function MembersPage() {
     [visibleGroups]
   );
 
+  const availableTypes = useMemo(() => {
+    const list = [MemberType.Active, MemberType.Board, MemberType.Passive, MemberType.Youth];
+    if (planFeatures.hasCustomMemberTypes && currentClub?.customMemberTypes) {
+      currentClub.customMemberTypes.forEach((c: any) => {
+        if (!list.includes(c.name)) list.push(c.name);
+      });
+    }
+    return list;
+  }, [planFeatures, currentClub]);
+
+  // CSV Helper Functions
+  const parseCSV = (text: string): string[][] => {
+    const lines: string[][] = [];
+    let row: string[] = [""];
+    let insideQuote = false;
+    
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const nextChar = text[i + 1];
+      
+      if (char === '"') {
+        if (insideQuote && nextChar === '"') {
+          row[row.length - 1] += '"';
+          i++;
+        } else {
+          insideQuote = !insideQuote;
+        }
+      } else if (char === ',' || char === ';') {
+        if (insideQuote) {
+          row[row.length - 1] += char;
+        } else {
+          row.push("");
+        }
+      } else if (char === '\n' || char === '\r') {
+        if (insideQuote) {
+          row[row.length - 1] += char;
+        } else {
+          if (char === '\r' && nextChar === '\n') {
+            i++;
+          }
+          lines.push(row);
+          row = [""];
+        }
+      } else {
+        row[row.length - 1] += char;
+      }
+    }
+    
+    if (row.length > 1 || row[0] !== "") {
+      lines.push(row);
+    }
+    
+    return lines;
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (!text) return;
+      const parsed = parseCSV(text);
+      if (parsed.length < 2) {
+        alert("Die CSV-Datei enthält nicht genügend Daten.");
+        return;
+      }
+      
+      const headers = parsed[0].map(h => h.trim());
+      const rows = parsed.slice(1).filter(r => r.some(c => c.trim() !== ""));
+      
+      setCsvHeaders(headers);
+      setCsvRows(rows);
+      
+      // Auto mapping
+      const mapping = { firstName: -1, lastName: -1, email: -1, memberType: -1 };
+      headers.forEach((h, index) => {
+        const lh = h.toLowerCase();
+        if (lh.includes("vorname") || lh.includes("first name") || lh.includes("givenname")) {
+          mapping.firstName = index;
+        } else if (lh.includes("nachname") || lh.includes("last name") || lh.includes("surname") || lh.includes("familyname") || lh.includes("name")) {
+          if (mapping.lastName === -1) mapping.lastName = index;
+        }
+        
+        if (lh.includes("email") || lh.includes("e-mail") || lh.includes("mail")) {
+          mapping.email = index;
+        }
+        
+        if (lh.includes("typ") || lh.includes("type") || lh.includes("status") || lh.includes("mitgliedertyp")) {
+          mapping.memberType = index;
+        }
+      });
+      
+      if (mapping.lastName === -1) {
+        const nameIdx = headers.findIndex(h => h.toLowerCase() === "name");
+        if (nameIdx !== -1) mapping.lastName = nameIdx;
+      }
+      
+      setFieldMappings(mapping);
+      setImportStep("map");
+    };
+    reader.readAsText(file);
+  };
+
+  const generatePreview = async () => {
+    setIsPreviewLoading(true);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    const items = csvRows.map(row => {
+      const fName = fieldMappings.firstName !== -1 ? row[fieldMappings.firstName]?.trim() : "";
+      const lName = fieldMappings.lastName !== -1 ? row[fieldMappings.lastName]?.trim() : "";
+      const emailVal = fieldMappings.email !== -1 ? row[fieldMappings.email]?.trim().toLowerCase() : "";
+      let mType = fieldMappings.memberType !== -1 ? row[fieldMappings.memberType]?.trim() : "Aktiv";
+      
+      const lType = mType.toLowerCase();
+      if (lType.includes("vorstand") || lType.includes("board") || lType.includes("admin")) {
+        mType = MemberType.Board;
+      } else if (lType.includes("jugend") || lType.includes("youth") || lType.includes("kind") || lType.includes("junior")) {
+        mType = MemberType.Youth;
+      } else if (lType.includes("passiv") || lType.includes("passive")) {
+        mType = MemberType.Passive;
+      } else {
+        mType = MemberType.Active;
+      }
+      
+      let isValid = true;
+      let errorReason = "";
+      
+      if (!fName || !lName) {
+        isValid = false;
+        errorReason = "Name fehlt";
+      } else if (!emailVal || !emailRegex.test(emailVal)) {
+        isValid = false;
+        errorReason = "Ungültige E-Mail";
+      }
+      
+      return {
+        firstName: fName,
+        lastName: lName,
+        email: emailVal,
+        memberType: mType,
+        isValid,
+        errorReason,
+        selected: isValid,
+        alreadyExists: false,
+      };
+    });
+    
+    // Check registrations in Firestore in parallel
+    const previewItems = await Promise.all(items.map(async (item) => {
+      if (!item.isValid || !item.email) return item;
+      try {
+        const existing = await FirebaseManager.getMemberByEmail(item.email);
+        if (existing) {
+          return { ...item, alreadyExists: true };
+        }
+      } catch (err) {
+        console.error("Error checking existing member for", item.email, err);
+      }
+      return item;
+    }));
+    
+    setMappedMembers(previewItems);
+    setIsPreviewLoading(false);
+    setImportStep("preview");
+  };
+
+  const startImport = async () => {
+    setImportStep("progress");
+    setImportProgress(0);
+    const results: typeof importedResults = [];
+    const clubId = currentClub?.id;
+    if (!clubId) return;
+    
+    const validMembers = mappedMembers.filter(m => m.isValid && m.selected);
+    let count = 0;
+    
+    for (const m of validMembers) {
+      setCurrentImportingName(`${m.firstName} ${m.lastName}`);
+      try {
+        const existingMember = await FirebaseManager.getMemberByEmail(m.email);
+        
+        if (existingMember) {
+          if (existingMember.clubIds.includes(clubId) || existingMember.clubId === clubId) {
+            results.push({
+              firstName: m.firstName,
+              lastName: m.lastName,
+              email: m.email,
+              status: "existing",
+            });
+          } else {
+            await FirebaseManager.addMemberToClub(existingMember, clubId, {
+              memberType: m.memberType,
+              isAdmin: false,
+              isTrainer: false,
+            });
+            
+            if (sendWelcomeEmailsBulk) {
+              try {
+                await EmailService.sendWelcomeMail({
+                  to: m.email,
+                  name: `${m.firstName} ${m.lastName}`,
+                  memberName: m.firstName,
+                  clubName: currentClub?.name || "Talo",
+                  clubId: clubId,
+                  adminName: `${currentMember?.firstName || "Admin"} ${currentMember?.lastName || ""}`,
+                  isExistingUser: true,
+                });
+              } catch (mailErr) {
+                console.error("Failed to send welcome email for existing user", m.email, mailErr);
+              }
+            }
+
+            results.push({
+              firstName: m.firstName,
+              lastName: m.lastName,
+              email: m.email,
+              status: "existing",
+            });
+          }
+        } else {
+          const { uid, password } = await AuthService.createMemberAuth(m.email, m.firstName, m.lastName, clubId);
+          
+          const newMember = {
+            firstName: m.firstName,
+            lastName: m.lastName,
+            email: m.email,
+            memberType: m.memberType,
+            isAdmin: false,
+            isTrainer: false,
+            clubId: clubId,
+            clubIds: [clubId],
+            clubMemberships: {
+              [clubId]: {
+                memberType: m.memberType,
+                isAdmin: false,
+                isTrainer: false,
+              },
+            },
+          };
+          
+          await FirebaseManager.setMember(uid, newMember);
+          
+          if (sendWelcomeEmailsBulk) {
+            try {
+              await EmailService.sendWelcomeMail({
+                to: m.email,
+                name: `${m.firstName} ${m.lastName}`,
+                subject: `Willkommen bei ${currentClub?.name || "Talo"} – Deine Zugangsdaten`,
+                memberName: m.firstName,
+                password: password,
+                clubName: currentClub?.name || "Talo",
+                clubId: clubId,
+                adminName: `${currentMember?.firstName || "Admin"} ${currentMember?.lastName || ""}`,
+              });
+            } catch (mailErr) {
+              console.error("Failed to send welcome email for", m.email, mailErr);
+            }
+          }
+
+          results.push({
+            firstName: m.firstName,
+            lastName: m.lastName,
+            email: m.email,
+            password: password,
+            status: "success",
+          });
+        }
+      } catch (err) {
+        console.error("Error importing member:", err);
+        results.push({
+          firstName: m.firstName,
+          lastName: m.lastName,
+          email: m.email,
+          status: "error",
+          errorMsg: err instanceof Error ? err.message : "Unbekannter Fehler",
+        });
+      }
+      
+      count++;
+      setImportProgress(Math.round((count / validMembers.length) * 100));
+    }
+    
+    // Refresh members list
+    setLoading(true);
+    const list = await FirebaseManager.getMembers(clubId);
+    setMembers(list);
+    setLoading(false);
+    
+    setImportedResults(results);
+    setImportStep("complete");
+  };
+
+  const downloadResults = () => {
+    const header = "Vorname,Nachname,E-Mail,Status,Temporaeres Passwort\n";
+    const rows = importedResults.map(r => 
+      `"${r.firstName}","${r.lastName}","${r.email}","${r.status === "success" ? "Neu angelegt" : r.status === "existing" ? "Bereits Mitglied" : "Fehler"}","${r.password || ""}"`
+    ).join("\n");
+    const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Talo_Import_Ergebnisse_${currentClub?.name || "Verein"}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (!canViewMembers) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -200,22 +556,31 @@ export default function MembersPage() {
               </div>
             </div>
             {isAdmin && (
-              <button
-                onClick={() => {
-                  if (isLimitReached) {
-                    alert(`Das Mitgliederlimit (${planFeatures.maxMembers}) deines aktuellen Plans ist erreicht. Bitte im Bereich 'Einstellungen' eine neue Lizenz aktivieren.`);
-                    return;
-                  }
-                  setIsInviteOpen(true);
-                }}
-                style={isLimitReached ? undefined : { backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
-                className={`shrink-0 flex items-center gap-2 px-4 py-3 md:px-6 rounded-2xl border transition-all font-black text-[11px] uppercase tracking-widest shadow-xl shadow-black/5 ${
-                  isLimitReached ? "bg-black/[0.05] text-[#71717A] border-black/10 cursor-not-allowed" : "hover:opacity-95 border-black/10 text-white"
-                }`}
-              >
-                <UserPlus size={16} />
-                <span className="hidden sm:inline">{isLimitReached ? t("common.limitReached") : t("mitglieder.addMember")}</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsImportOpen(true)}
+                  className="shrink-0 flex items-center gap-2 px-4 py-3 md:px-5 rounded-2xl border border-black/10 bg-white hover:bg-black/[0.02] text-[#0A0A0A] transition-all font-black text-[11px] uppercase tracking-widest shadow-sm"
+                >
+                  <Layers size={16} />
+                  <span className="hidden md:inline">Importieren</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (isLimitReached) {
+                      alert(`Das Mitgliederlimit (${planFeatures.maxMembers}) deines aktuellen Plans ist erreicht. Bitte im Bereich 'Einstellungen' eine neue Lizenz aktivieren.`);
+                      return;
+                    }
+                    setIsInviteOpen(true);
+                  }}
+                  style={isLimitReached ? undefined : { backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
+                  className={`shrink-0 flex items-center gap-2 px-4 py-3 md:px-6 rounded-2xl border transition-all font-black text-[11px] uppercase tracking-widest shadow-xl shadow-black/5 ${
+                    isLimitReached ? "bg-black/[0.05] text-[#71717A] border-black/10 cursor-not-allowed" : "hover:opacity-95 border-black/10 text-white"
+                  }`}
+                >
+                  <UserPlus size={16} />
+                  <span className="hidden sm:inline">{isLimitReached ? t("common.limitReached") : t("mitglieder.addMember")}</span>
+                </button>
+              </div>
             )}
           </div>
 
@@ -623,6 +988,352 @@ export default function MembersPage() {
         </AnimatePresence>,
         document.body
       )}
+
+        {/* CSV Import Modal */}
+        {typeof document !== "undefined" && createPortal(
+          <AnimatePresence>
+            {isImportOpen && isAdmin && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={(e) => { if (e.target === e.currentTarget) closeImportModal(); }}
+                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto"
+              >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full max-w-2xl my-8"
+                >
+                  <GlassSection className="relative overflow-hidden border-black/10 shadow-3xl">
+                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-black/[0.04] rounded-full blur-[80px] pointer-events-none" />
+                    
+                    <div className="p-8 flex flex-col gap-6">
+                      {/* Header */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-2">
+                          <h2 className="text-2xl font-poppins font-black text-[#0A0A0A] tracking-tight italic">MITGLIEDER IMPORTIEREN</h2>
+                          <p className="text-[#71717A] font-bold text-[10px] uppercase tracking-[0.2em]">Mitglieder aus Clubdesk oder Excel via CSV importieren</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={closeImportModal}
+                          className="w-10 h-10 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#71717A] hover:text-[#0A0A0A] transition-all"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+
+                      {/* Step 1: Upload */}
+                      {importStep === "upload" && (
+                        <div className="flex flex-col gap-6">
+                          <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
+                            <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für Clubdesk-Export:</p>
+                            <ol className="list-decimal list-inside space-y-2 font-medium">
+                              <li>Logge dich bei <strong>Clubdesk</strong> ein.</li>
+                              <li>Gehe links im Hauptmenü auf <strong>„Kontakte“</strong> (oder „Mitglieder“).</li>
+                              <li>Klicke oben in der Leiste auf den Button <strong>„Exportieren“</strong>.</li>
+                              <li>Wähle im folgenden Fenster das Format <strong>„CSV“</strong> und lade die Datei auf deinen Computer herunter.</li>
+                            </ol>
+                            <p className="italic text-[10px] text-[#71717A]">Talo erkennt die Spalten wie Name, Vorname und E-Mail automatisch.</p>
+                          </div>
+
+                          <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
+                            <input
+                              type="file"
+                              accept=".csv"
+                              onChange={handleFileChange}
+                              className="absolute inset-0 opacity-0 cursor-pointer"
+                            />
+                            <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
+                              <Plus size={20} />
+                            </div>
+                            <div className="text-center">
+                              <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
+                              <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Step 2: Map Fields */}
+                      {importStep === "map" && (
+                        <div className="flex flex-col gap-6">
+                          <p className="text-xs font-semibold text-[#52525B]">
+                            Ordne die Talo-Felder den Spalten deiner hochgeladenen CSV-Datei zu:
+                          </p>
+
+                          <div className="flex flex-col gap-4 bg-black/[0.01] p-5 rounded-2xl border border-black/5">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Vorname *</label>
+                              <select
+                                value={fieldMappings.firstName}
+                                onChange={(e) => setFieldMappings(prev => ({ ...prev, firstName: Number(e.target.value) }))}
+                                className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
+                              >
+                                <option value={-1}>-- Spalte auswählen --</option>
+                                {csvHeaders.map((h, idx) => (
+                                  <option key={idx} value={idx}>{h}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Nachname *</label>
+                              <select
+                                value={fieldMappings.lastName}
+                                onChange={(e) => setFieldMappings(prev => ({ ...prev, lastName: Number(e.target.value) }))}
+                                className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
+                              >
+                                <option value={-1}>-- Spalte auswählen --</option>
+                                {csvHeaders.map((h, idx) => (
+                                  <option key={idx} value={idx}>{h}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">E-Mail *</label>
+                              <select
+                                value={fieldMappings.email}
+                                onChange={(e) => setFieldMappings(prev => ({ ...prev, email: Number(e.target.value) }))}
+                                className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
+                              >
+                                <option value={-1}>-- Spalte auswählen --</option>
+                                {csvHeaders.map((h, idx) => (
+                                  <option key={idx} value={idx}>{h}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-bold text-[#71717A] uppercase tracking-wider">Mitgliedertyp (Optional)</label>
+                              <select
+                                value={fieldMappings.memberType}
+                                onChange={(e) => setFieldMappings(prev => ({ ...prev, memberType: Number(e.target.value) }))}
+                                className="h-12 px-4 rounded-xl border border-black/10 bg-white text-xs font-semibold text-[#0A0A0A] focus:outline-none"
+                              >
+                                <option value={-1}>-- Standard (Aktiv) --</option>
+                                {csvHeaders.map((h, idx) => (
+                                  <option key={idx} value={idx}>{h}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => setImportStep("upload")}
+                              className="flex-1 h-12 rounded-xl border border-black/10 font-bold text-xs uppercase tracking-widest text-[#52525B]"
+                            >
+                              Zurück
+                            </button>
+                            <button
+                              onClick={generatePreview}
+                              disabled={isPreviewLoading || fieldMappings.firstName === -1 || fieldMappings.lastName === -1 || fieldMappings.email === -1}
+                              style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
+                              className="flex-1 h-12 rounded-xl font-bold text-xs uppercase tracking-widest text-white disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                              {isPreviewLoading ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                              ) : (
+                                "Vorschau generieren"
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Step 3: Preview */}
+                      {importStep === "preview" && (
+                        <div className="flex flex-col gap-6">
+                          <div className="flex justify-between items-center text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">
+                            <span>Vorschau ({mappedMembers.filter(m => m.isValid && m.selected).length} bereit zum Import)</span>
+                            {mappedMembers.some(m => !m.isValid) && (
+                              <span className="text-red-500 font-semibold">{mappedMembers.filter(m => !m.isValid).length} Fehlerhaft</span>
+                            )}
+                          </div>
+
+                          <div className="max-h-60 overflow-y-auto border border-black/5 rounded-2xl bg-black/[0.01] overflow-x-auto">
+                            <table className="w-full text-left border-collapse text-xs">
+                              <thead>
+                                <tr className="border-b border-black/5 text-[9px] font-black text-[#71717A] uppercase tracking-wider bg-black/[0.02]">
+                                  <th className="p-3 w-10 text-center">
+                                    <input
+                                      type="checkbox"
+                                      checked={mappedMembers.length > 0 && mappedMembers.filter(m => m.isValid).every(m => m.selected)}
+                                      onChange={(e) => {
+                                        const checked = e.target.checked;
+                                        setMappedMembers(prev => prev.map(m => m.isValid ? { ...m, selected: checked } : m));
+                                      }}
+                                      className="w-3.5 h-3.5 rounded border-black/10 text-black focus:ring-black accent-black cursor-pointer"
+                                    />
+                                  </th>
+                                  <th className="p-3">Mitglied</th>
+                                  <th className="p-3">E-Mail</th>
+                                  <th className="p-3">Typ</th>
+                                  <th className="p-3 text-right">Status</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-black/5">
+                                {mappedMembers.map((m, idx) => (
+                                  <tr key={idx} className={`hover:bg-black/[0.01] transition-all ${!m.isValid ? "opacity-60 bg-red-500/[0.01]" : ""}`}>
+                                    <td className="p-3 text-center">
+                                      <input
+                                        type="checkbox"
+                                        disabled={!m.isValid}
+                                        checked={m.selected}
+                                        onChange={(e) => {
+                                          const checked = e.target.checked;
+                                          setMappedMembers(prev => prev.map((item, i) => i === idx ? { ...item, selected: checked } : item));
+                                        }}
+                                        className="w-3.5 h-3.5 rounded border-black/10 text-black focus:ring-black accent-black cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                                      />
+                                    </td>
+                                    <td className="p-3 font-semibold text-[#0A0A0A] whitespace-nowrap">
+                                      <div className="flex items-center gap-2">
+                                        <span>{m.firstName} {m.lastName}</span>
+                                        {m.alreadyExists && (
+                                          <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-600 text-[9px] font-black uppercase tracking-wider">
+                                            Bestehendes Konto
+                                          </span>
+                                        )}
+                                      </div>
+                                    </td>
+                                    <td className="p-3 font-medium text-[#71717A] whitespace-nowrap font-mono text-[10px]">
+                                      {m.email || "Keine E-Mail"}
+                                    </td>
+                                    <td className="p-3 whitespace-nowrap">
+                                      {m.isValid ? (
+                                        <select
+                                          value={m.memberType}
+                                          onChange={(e) => {
+                                            const newType = e.target.value;
+                                            setMappedMembers(prev => prev.map((item, i) => i === idx ? { ...item, memberType: newType } : item));
+                                          }}
+                                          className="h-8 px-2 py-0.5 rounded-lg border border-black/10 bg-white text-[10px] font-black uppercase tracking-wider text-[#0A0A0A] focus:outline-none cursor-pointer"
+                                        >
+                                          {availableTypes.map((type) => (
+                                            <option key={type} value={type}>{type}</option>
+                                          ))}
+                                        </select>
+                                      ) : (
+                                        <span className="px-2 py-0.5 rounded bg-black/[0.04] text-[9px] uppercase tracking-widest font-black text-[#52525B]">
+                                          {m.memberType}
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td className="p-3 text-right whitespace-nowrap">
+                                      {m.isValid ? (
+                                        <span className="text-green-600 font-bold text-[10px] uppercase tracking-wider">Bereit</span>
+                                      ) : (
+                                        <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-500 font-black text-[9px] uppercase tracking-wider">{m.errorReason}</span>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+
+                          <div className="flex items-center gap-3 p-4 rounded-2xl bg-black/[0.02] border border-black/5">
+                            <input
+                              type="checkbox"
+                              id="bulkSendWelcomeEmails"
+                              checked={sendWelcomeEmailsBulk}
+                              onChange={(e) => setSendWelcomeEmailsBulk(e.target.checked)}
+                              className="w-4 h-4 rounded border-black/10 text-black focus:ring-black accent-black cursor-pointer"
+                            />
+                            <label htmlFor="bulkSendWelcomeEmails" className="text-xs text-[#52525B] font-bold uppercase tracking-wider select-none cursor-pointer">
+                              Willkommens-E-Mails direkt nach Erstellung automatisch an alle neuen Mitglieder senden
+                            </label>
+                          </div>
+
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => setImportStep("map")}
+                              className="flex-1 h-12 rounded-xl border border-black/10 font-bold text-xs uppercase tracking-widest text-[#52525B]"
+                            >
+                              Zurück
+                            </button>
+                            <button
+                              onClick={() => {
+                                const validCount = mappedMembers.filter(m => m.isValid && m.selected).length;
+                                if (members.length + validCount > planFeatures.maxMembers) {
+                                  alert(`Mitgliederlimit (${planFeatures.maxMembers}) würde überschritten. Du kannst maximal ${planFeatures.maxMembers - members.length} neue Mitglieder hinzufügen.`);
+                                  return;
+                                }
+                                startImport();
+                              }}
+                              disabled={mappedMembers.filter(m => m.isValid && m.selected).length === 0}
+                              style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
+                              className="flex-1 h-12 rounded-xl font-bold text-xs uppercase tracking-widest text-white disabled:opacity-50 shadow-lg shadow-black/10"
+                            >
+                              Import starten
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Step 4: Progress */}
+                      {importStep === "progress" && (
+                        <div className="flex flex-col gap-6 items-center justify-center py-8">
+                          <div className="relative w-24 h-24 flex items-center justify-center">
+                            <div className="absolute inset-0 rounded-full border-4 border-black/5" />
+                            <div className="absolute inset-0 rounded-full border-4 border-[#0A0A0A] border-t-transparent animate-spin" />
+                            <span className="text-lg font-black font-poppins text-[#0A0A0A]">{importProgress}%</span>
+                          </div>
+                          <div className="flex flex-col gap-1 text-center">
+                            <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">Mitglieder werden angelegt...</p>
+                            <p className="text-[10px] text-[#71717A] font-semibold italic">Importiere: {currentImportingName}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Step 5: Complete */}
+                      {importStep === "complete" && (
+                        <div className="flex flex-col gap-6">
+                          <div className="flex flex-col items-center justify-center gap-3 py-4 text-center">
+                            <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-600">
+                              <Check size={28} strokeWidth={3} />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <h3 className="text-lg font-bold font-logo uppercase tracking-widest text-[#0A0A0A]">Import erfolgreich!</h3>
+                              <p className="text-xs text-[#52525B] font-medium max-w-sm leading-relaxed">
+                                Die Mitglieder wurden erfolgreich in Talo registriert. Du kannst die Liste der Passwörter jetzt herunterladen.
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="p-4 rounded-2xl bg-black/[0.02] border border-black/5 flex justify-between items-center">
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-xs font-bold text-[#0A0A0A] uppercase tracking-wider">Ergebnis-Report</span>
+                              <span className="text-[10px] text-[#71717A] font-semibold">Enthält alle neuen Mitglieder und temporäre Passwörter</span>
+                            </div>
+                            <button
+                              onClick={downloadResults}
+                              className="px-4 py-2 bg-[#0A0A0A] text-white hover:bg-[#1F1F23] rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
+                            >
+                              Report herunterladen (CSV)
+                            </button>
+                          </div>
+
+                          <button
+                            onClick={closeImportModal}
+                            className="w-full h-12 rounded-xl border border-black/10 font-bold text-xs uppercase tracking-widest text-[#0A0A0A] hover:bg-black/[0.02]"
+                          >
+                            Fertigstellen
+                          </button>
+                        </div>
+                      )}
+
+                    </div>
+                  </GlassSection>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
     </div>
   );
 }
