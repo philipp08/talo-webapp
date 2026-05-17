@@ -82,6 +82,7 @@ export default function MembersPage() {
   // CSV Import state
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [importStep, setImportStep] = useState<"upload" | "map" | "preview" | "progress" | "complete">("upload");
+  const [selectedProvider, setSelectedProvider] = useState<"clubdesk" | "spielerplus">("clubdesk");
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [csvRows, setCsvRows] = useState<string[][]>([]);
   const [fieldMappings, setFieldMappings] = useState<{
@@ -131,6 +132,7 @@ export default function MembersPage() {
   const closeImportModal = () => {
     setIsImportOpen(false);
     setImportStep("upload");
+    setSelectedProvider("clubdesk");
     setCsvHeaders([]);
     setCsvRows([]);
     setFieldMappings({ firstName: -1, lastName: -1, email: -1, memberType: -1 });
@@ -1029,32 +1031,82 @@ export default function MembersPage() {
                       {/* Step 1: Upload */}
                       {importStep === "upload" && (
                         <div className="flex flex-col gap-6">
-                          <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
-                            <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für Clubdesk-Export:</p>
-                            <ol className="list-decimal list-inside space-y-2 font-medium">
-                              <li>Logge dich bei <strong>Clubdesk</strong> ein.</li>
-                              <li>Gehe links im Hauptmenü auf <strong>„Kontakte“</strong> (oder „Mitglieder“).</li>
-                              <li>Klicke oben in der Leiste auf den Button <strong>„Exportieren“</strong>.</li>
-                              <li>Wähle im folgenden Fenster das Format <strong>„CSV“</strong> und lade die Datei auf deinen Computer herunter.</li>
-                            </ol>
-                            <p className="italic text-[10px] text-[#71717A]">Talo erkennt die Spalten wie Name, Vorname und E-Mail automatisch.</p>
+                          <div className="flex flex-col gap-2">
+                            <span className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1">Import-Quelle auswählen</span>
+                            <div className="grid grid-cols-2 gap-4">
+                              {/* ClubDesk */}
+                              <button
+                                type="button"
+                                onClick={() => setSelectedProvider("clubdesk")}
+                                className={`p-5 rounded-2xl border flex flex-col items-center justify-center gap-4 text-center transition-all ${
+                                  selectedProvider === "clubdesk"
+                                    ? "border-[#0A0A0A] bg-black/[0.02] shadow-sm"
+                                    : "border-black/5 bg-transparent hover:border-black/10 hover:bg-black/[0.005]"
+                                }`}
+                              >
+                                <div className="h-10 flex items-center justify-center overflow-hidden rounded-xl bg-white px-3 py-1.5 border border-black/5 shadow-sm">
+                                  <img
+                                    src="https://assets.reviews.omr.com/ucezzmrel1u19brhvuz4yix51qhj"
+                                    alt="ClubDesk Logo"
+                                    className="h-full object-contain"
+                                  />
+                                </div>
+                                <div className="flex flex-col items-center">
+                                  <h4 className="text-[11px] font-black text-[#0A0A0A] uppercase tracking-wider">ClubDesk</h4>
+                                  <p className="text-[9px] text-[#71717A] font-medium mt-0.5">Smarter Spaltenabgleich</p>
+                                </div>
+                              </button>
+
+                              {/* SpielerPlus */}
+                              <button
+                                type="button"
+                                disabled
+                                className="p-5 rounded-2xl border border-black/5 bg-black/[0.01] opacity-40 flex flex-col items-center justify-center gap-4 text-center relative cursor-not-allowed overflow-hidden"
+                              >
+                                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/[0.04] text-[8px] font-black uppercase tracking-wider text-[#52525B]">
+                                  In Kürze
+                                </div>
+                                <div className="h-10 px-4 flex items-center justify-center text-[10px] font-black uppercase tracking-widest text-[#71717A] bg-white rounded-xl border border-black/5 shadow-sm">
+                                  SpielerPlus
+                                </div>
+                                <div className="flex flex-col items-center">
+                                  <h4 className="text-[11px] font-black text-[#52525B] uppercase tracking-wider">SpielerPlus</h4>
+                                  <p className="text-[9px] text-[#A1A1AA] font-medium mt-0.5">Automatisches Rollen-Mapping</p>
+                                </div>
+                              </button>
+                            </div>
                           </div>
 
-                          <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
-                            <input
-                              type="file"
-                              accept=".csv"
-                              onChange={handleFileChange}
-                              className="absolute inset-0 opacity-0 cursor-pointer"
-                            />
-                            <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
-                              <Plus size={20} />
+                          {selectedProvider === "clubdesk" && (
+                            <div className="flex flex-col gap-6">
+                              <div className="p-5 rounded-2xl bg-black/[0.02] border border-black/5 flex flex-col gap-4 text-xs text-[#52525B] leading-relaxed">
+                                <p className="font-bold text-[#0A0A0A] uppercase tracking-wider text-[10px]">Anleitung für Clubdesk-Export:</p>
+                                <ol className="list-decimal list-inside space-y-2 font-medium">
+                                  <li>Logge dich bei <strong>Clubdesk</strong> ein.</li>
+                                  <li>Gehe links im Hauptmenü auf <strong>„Kontakte“</strong> (oder „Mitglieder“).</li>
+                                  <li>Klicke oben in der Leiste auf den Button <strong>„Exportieren“</strong>.</li>
+                                  <li>Wähle im folgenden Fenster das Format <strong>„CSV“</strong> und lade die Datei auf deinen Computer herunter.</li>
+                                </ol>
+                                <p className="italic text-[10px] text-[#71717A]">Talo erkennt die Spalten wie Name, Vorname und E-Mail automatisch.</p>
+                              </div>
+
+                              <div className="relative border-2 border-dashed border-black/10 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 hover:border-black/20 transition-all cursor-pointer bg-black/[0.01]">
+                                <input
+                                  type="file"
+                                  accept=".csv"
+                                  onChange={handleFileChange}
+                                  className="absolute inset-0 opacity-0 cursor-pointer"
+                                />
+                                <div className="w-12 h-12 rounded-full bg-black/[0.04] flex items-center justify-center text-[#71717A]">
+                                  <Plus size={20} />
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
+                                  <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
+                                </div>
+                              </div>
                             </div>
-                            <div className="text-center">
-                              <p className="text-xs font-bold text-[#0A0A0A] uppercase tracking-widest">CSV-Datei auswählen</p>
-                              <p className="text-[10px] text-[#71717A] font-medium mt-1">Klicken oder hierher ziehen</p>
-                            </div>
-                          </div>
+                          )}
                         </div>
                       )}
 
