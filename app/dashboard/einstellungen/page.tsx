@@ -897,7 +897,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Plan Options */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {PLAN_TIERS.map((tier) => {
                     const isCurrent = planFeatures.key === tier.key;
                     return (

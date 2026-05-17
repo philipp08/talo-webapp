@@ -401,18 +401,18 @@ export default function ShiftsPage() {
                 </div>
               )}
               <div className="flex flex-col">
-                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">Self-Service Schicht-Börse</h1>
+                <h1 className="text-3xl md:text-4xl font-poppins font-black text-[#0A0A0A] tracking-tighter">{t("schichten.title")}</h1>
                 <div className="flex items-center gap-2 mt-1">
                   <p className="text-[#71717A] font-bold text-xs uppercase tracking-[0.2em]">{currentClub?.name}</p>
                   <div className="px-2 py-0.5 bg-black/[0.05] border border-black/10 rounded-full">
-                    <p className="text-[#52525B] font-bold text-[10px] uppercase tracking-widest">Schichten</p>
+                    <p className="text-[#52525B] font-bold text-[10px] uppercase tracking-widest">{t("schichten.badge")}</p>
                   </div>
                 </div>
               </div>
             </div>
             {hasAccess && isAdmin && (
               <TButton
-                label="Neue Schicht"
+                label={t("schichten.newShift")}
                 icon={Plus}
                 onClick={() => setShowForm(true)}
                 className="rounded-2xl"
@@ -431,7 +431,7 @@ export default function ShiftsPage() {
                   viewMode === "cards" ? "bg-white text-[#0A0A0A] shadow-sm border border-[#0A0A0A]/5" : "text-[#71717A] hover:text-[#0A0A0A]"
                 }`}
               >
-                Karten-Ansicht
+                {t("schichten.cardsView")}
               </button>
               <button
                 type="button"
@@ -440,7 +440,7 @@ export default function ShiftsPage() {
                   viewMode === "timeline" ? "bg-white text-[#0A0A0A] shadow-sm border border-[#0A0A0A]/5" : "text-[#71717A] hover:text-[#0A0A0A]"
                 }`}
               >
-                Zeitplan / Timeline
+                {t("schichten.timelineView")}
               </button>
             </div>
           </div>
@@ -457,26 +457,26 @@ export default function ShiftsPage() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <h3 className="font-poppins font-black text-[#0A0A0A] text-lg">
-                    Schicht-Börse ab Pro-Plan verfügbar
+                    {t("schichten.proPlanAlert")}
                   </h3>
                   <p className="text-xs text-[#52525B] leading-relaxed">
-                    Automatisiere deine gesamte Helferplanung! Lass Mitglieder sich selbst für Arbeitseinsätze oder Turnierdienste eintragen. Die Punktegutschrift erfolgt vollkommen automatisch.
+                    {t("schichten.proPlanAlertDesc")}
                   </p>
                 </div>
                 <div className="w-full h-[1px] bg-black/5" />
                 <div className="flex flex-col gap-1.5 w-full">
                   <span className="text-[9px] font-black uppercase tracking-widest text-[#A1A1AA]">
-                    DEINE VORTEILE
+                    {t("schichten.advantagesHeader")}
                   </span>
                   <ul className="text-left text-xs text-[#52525B] flex flex-col gap-1 list-disc pl-4 font-poppins">
-                    <li>Kein mühsames E-Mail-Koordiniere mehr</li>
-                    <li>Live-Status wer welche Schicht übernommen hat</li>
-                    <li>Automatischer Tauschmarktplatz</li>
-                    <li>Direktes Buchen & Punktegutschrift in Talo</li>
+                    <li>{t("schichten.adv1")}</li>
+                    <li>{t("schichten.adv2")}</li>
+                    <li>{t("schichten.adv3")}</li>
+                    <li>{t("schichten.adv4")}</li>
                   </ul>
                 </div>
                 <span className="text-xs font-black uppercase tracking-widest text-amber-600 bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-full mt-2">
-                  Upgrade im Hauptmenü unter Einstellungen
+                  {t("schichten.upgradeAlert")}
                 </span>
               </div>
             </div>
@@ -524,7 +524,7 @@ export default function ShiftsPage() {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-32 gap-3">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-black/10 border-t-[#0A0A0A]" />
-                <span className="text-xs text-[#71717A] font-poppins">Lade Schicht-Börse...</span>
+                <span className="text-xs text-[#71717A] font-poppins">{t("schichten.loading")}</span>
               </div>
             ) : (
               <>
@@ -532,10 +532,10 @@ export default function ShiftsPage() {
                   <div className="flex flex-col items-center justify-center py-32 bg-white border border-black/5 rounded-[28px] p-6 text-center shadow-sm">
                     <Layers size={48} className="text-[#A1A1AA] mb-4" />
                     <h3 className="font-poppins font-bold text-sm text-[#0A0A0A]">
-                      Derzeit keine Schichten eingetragen
+                      {t("schichten.noShifts")}
                     </h3>
                     <p className="text-xs text-[#71717A] mt-1 max-w-xs">
-                      Sobald Admins Arbeitseinsätze oder Helferdienste anlegen, erscheinen sie hier zur Buchung.
+                      {t("schichten.noShiftsDesc")}
                     </p>
                   </div>
                 ) : viewMode === "timeline" ? (
