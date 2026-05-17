@@ -130,14 +130,23 @@ export default function ClubDetailPage() {
           safeGetDocs(collection(db, `clubs/${clubId}/trainings`)),
         ]);
 
-      let entriesSnap;
+      const getSafeDate = (val: any) => {
+        if (!val) return new Date(2000, 0, 1);
+        if (typeof val.toDate === "function") return val.toDate();
+        const parsed = new Date(val);
+        return isNaN(parsed.getTime()) ? new Date(2000, 0, 1) : parsed;
+      };
+
+      let entriesDocs: any[] = [];
       try {
-        entriesSnap = await getDocs(query(collection(db, `clubs/${clubId}/entries`), orderBy("date", "desc"), limit(15)));
+        const snap = await getDocs(query(collection(db, `clubs/${clubId}/entries`), orderBy("date", "desc"), limit(50)));
+        entriesDocs = snap.docs;
       } catch (e) {
         try {
-          entriesSnap = await safeGetDocs(collection(db, `clubs/${clubId}/entries`));
+          const snap = await safeGetDocs(collection(db, `clubs/${clubId}/entries`));
+          entriesDocs = snap.docs;
         } catch {
-          entriesSnap = { docs: [], size: 0 } as any;
+          entriesDocs = [];
         }
       }
 
@@ -166,7 +175,14 @@ export default function ClubDetailPage() {
       const memberNameById = new Map<string, string>();
       clubMembers.forEach((m) => memberNameById.set(m.id, `${m.firstName} ${m.lastName}`.trim()));
 
-      const recentEntries: EntrySummary[] = entriesSnap.docs.slice(0, 15).map((e: any) => {
+      // Sort in memory by date descending to be 100% robust and index-free
+      entriesDocs.sort((a, b) => {
+        const dateA = getSafeDate(a.data().date);
+        const dateB = getSafeDate(b.data().date);
+        return dateB.getTime() - dateA.getTime();
+      });
+
+      const recentEntries: EntrySummary[] = entriesDocs.slice(0, 15).map((e: any) => {
         const d = e.data();
         return {
           id: e.id,
@@ -175,7 +191,7 @@ export default function ClubDetailPage() {
           activityName: d.activityName ?? "—",
           points: d.points ?? 0,
           status: d.status ?? "—",
-          date: d.date?.toDate?.() ?? null,
+          date: getSafeDate(d.date),
         };
       });
 

@@ -122,7 +122,7 @@ export default function AktivitaetAdminPage() {
         try {
           const clubEntriesPromises = clubsSnap.docs.map(async (clubDoc) => {
             const entriesSnap = await getDocs(
-              query(collection(db, "clubs", clubDoc.id, "entries"), orderBy("date", "desc"), limit(25))
+              query(collection(db, "clubs", clubDoc.id, "entries"), limit(50))
             );
             return entriesSnap.docs;
           });
@@ -130,8 +130,8 @@ export default function AktivitaetAdminPage() {
           const allEntries = resolved.flat();
           // Sort by date in memory desc
           allEntries.sort((a, b) => {
-            const dateA = a.data().date?.toDate?.() ?? new Date(a.data().date ?? 0);
-            const dateB = b.data().date?.toDate?.() ?? new Date(b.data().date ?? 0);
+            const dateA = getSafeDate(a.data().date);
+            const dateB = getSafeDate(b.data().date);
             return dateB.getTime() - dateA.getTime();
           });
           entriesDocs = allEntries.slice(0, 50);
