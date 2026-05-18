@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { db } from "@/lib/firebase/config";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { db, auth } from "@/lib/firebase/config";
+import { collection, getDocs } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { Building2, RefreshCw, Users, ChevronRight, Search, EyeOff, Eye, Trash2 } from "lucide-react";
 import { GlassSection } from "@/app/components/ui/NativeUI";
@@ -78,9 +78,26 @@ export default function VereineAdminPage() {
   useEffect(() => { loadClubs(); }, []);
 
   const deleteClub = async (id: string, name: string) => {
-    if (!confirm(`Möchtest du den Verein "${name}" wirklich endgültig löschen? Alle zugehörigen Daten gehen verloren.`)) return;
+    if (!confirm(
+      `Möchtest du den Verein "${name}" wirklich endgültig löschen?\n\n` +
+      `Alle zugehörigen Daten (Einträge, Schichten, Trainings, Aktivitäten, ` +
+      `Gruppen, Ankündigungen, Duelle) werden ebenfalls gelöscht. Mitglieder ` +
+      `werden vom Verein getrennt, ihre Konten bleiben erhalten.`
+    )) return;
     try {
-      await deleteDoc(doc(db, "clubs", id));
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error("Nicht autorisiert.");
+
+      const res = await fetch("/api/admin/delete-club", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ clubId: id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Fehler beim Löschen.");
       setClubs((prev) => prev.filter((c) => c.id !== id));
     } catch (e) {
       console.error("Error deleting club:", e);

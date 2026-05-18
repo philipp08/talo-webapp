@@ -104,7 +104,9 @@ export default function MembersPage() {
   }[]>([]);
   const [importProgress, setImportProgress] = useState(0);
   const [currentImportingName, setCurrentImportingName] = useState("");
-  const [sendWelcomeEmailsBulk, setSendWelcomeEmailsBulk] = useState(true);
+  // Default OFF: protect against accidental mass-mailing during import.
+  // Admin must opt-in; for >50 selected members a confirm-dialog is shown.
+  const [sendWelcomeEmailsBulk, setSendWelcomeEmailsBulk] = useState(false);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [importedResults, setImportedResults] = useState<{
     firstName: string;
@@ -139,7 +141,7 @@ export default function MembersPage() {
     setMappedMembers([]);
     setImportProgress(0);
     setCurrentImportingName("");
-    setSendWelcomeEmailsBulk(true);
+    setSendWelcomeEmailsBulk(false);
     setIsPreviewLoading(false);
     setImportedResults([]);
   };
@@ -436,33 +438,44 @@ export default function MembersPage() {
       });
     }
 
+    const validMembers = allowedMembers;
+
+    // Welcome-mail rate-limit warning: opt-in already, but for large imports
+    // ask the admin to re-confirm before triggering many transactional mails.
+    if (sendWelcomeEmailsBulk && validMembers.length > 50) {
+      const ok = window.confirm(
+        `Du importierst ${validMembers.length} Mitglieder MIT Willkommens-Mail.\n\n` +
+        `Das sendet bis zu ${validMembers.length} E-Mails. Bei großen Mengen ` +
+        `kann dein Mail-Provider als Spam markieren.\n\n` +
+        `Fortfahren?`
+      );
+      if (!ok) return;
+    }
+
     setImportStep("progress");
     setImportProgress(0);
     const results: typeof importedResults = [];
 
-    const validMembers = allowedMembers;
-    let count = 0;
-
-    for (const m of validMembers) {
-      setCurrentImportingName(`${m.firstName} ${m.lastName}`);
+    // Process one member end-to-end. Returns a result row.
+    const processMember = async (
+      m: (typeof validMembers)[number]
+    ): Promise<(typeof importedResults)[number]> => {
       try {
-        const existingMember = await FirebaseManager.getMemberByEmail(m.email);
-        const inClub = members.some(mb => mb.email?.trim().toLowerCase() === m.email.trim().toLowerCase());
-
+        const inClub = members.some(
+          (mb) => mb.email?.trim().toLowerCase() === m.email.trim().toLowerCase()
+        );
         if (inClub) {
-          results.push({
-            firstName: m.firstName,
-            lastName: m.lastName,
-            email: m.email,
-            status: "existing",
-          });
-        } else if (existingMember) {
+          return { firstName: m.firstName, lastName: m.lastName, email: m.email, status: "existing" };
+        }
+
+        const existingMember = await FirebaseManager.getMemberByEmail(m.email);
+
+        if (existingMember) {
           await FirebaseManager.addMemberToClub(existingMember, clubId, {
             memberType: m.memberType,
             isAdmin: false,
             isTrainer: false,
           });
-
           if (sendWelcomeEmailsBulk) {
             try {
               await EmailService.sendWelcomeMail({
@@ -478,74 +491,93 @@ export default function MembersPage() {
               console.error("Failed to send welcome email for existing user", m.email, mailErr);
             }
           }
-
-          results.push({
-            firstName: m.firstName,
-            lastName: m.lastName,
-            email: m.email,
-            status: "existing",
-          });
-        } else {
-          const { uid, password } = await AuthService.createMemberAuth(m.email, m.firstName, m.lastName, clubId);
-
-          const newMember = {
-            firstName: m.firstName,
-            lastName: m.lastName,
-            email: m.email,
-            memberType: m.memberType,
-            isAdmin: false,
-            isTrainer: false,
-            clubId: clubId,
-            clubIds: [clubId],
-            clubMemberships: {
-              [clubId]: {
-                memberType: m.memberType,
-                isAdmin: false,
-                isTrainer: false,
-              },
-            },
-          };
-
-          await FirebaseManager.setMember(uid, newMember);
-
-          if (sendWelcomeEmailsBulk) {
-            try {
-              await EmailService.sendWelcomeMail({
-                to: m.email,
-                name: `${m.firstName} ${m.lastName}`,
-                subject: `Willkommen bei ${currentClub?.name || "Talo"} – Deine Zugangsdaten`,
-                memberName: m.firstName,
-                password: password,
-                clubName: currentClub?.name || "Talo",
-                clubId: clubId,
-                adminName: `${currentMember?.firstName || "Admin"} ${currentMember?.lastName || ""}`,
-              });
-            } catch (mailErr) {
-              console.error("Failed to send welcome email for", m.email, mailErr);
-            }
-          }
-
-          results.push({
-            firstName: m.firstName,
-            lastName: m.lastName,
-            email: m.email,
-            password: password,
-            status: "success",
-          });
+          return { firstName: m.firstName, lastName: m.lastName, email: m.email, status: "existing" };
         }
+
+        // Brand-new — create Firebase Auth user, then the Firestore member doc.
+        let uid: string;
+        let password: string;
+        try {
+          const r = await AuthService.createMemberAuth(m.email, m.firstName, m.lastName, clubId);
+          uid = r.uid;
+          password = r.password;
+        } catch (authErr) {
+          // EMAIL_EXISTS = Firebase Auth account exists, but no Firestore member doc.
+          // Don't surface this as a hard error — treat it like "already exists".
+          const msg = authErr instanceof Error ? authErr.message : String(authErr);
+          if (/EMAIL_EXISTS|bereits vergeben/i.test(msg)) {
+            return {
+              firstName: m.firstName,
+              lastName: m.lastName,
+              email: m.email,
+              status: "existing",
+            };
+          }
+          throw authErr;
+        }
+
+        const newMember = {
+          firstName: m.firstName,
+          lastName: m.lastName,
+          email: m.email,
+          memberType: m.memberType,
+          isAdmin: false,
+          isTrainer: false,
+          clubId,
+          clubIds: [clubId],
+          clubMemberships: {
+            [clubId]: {
+              memberType: m.memberType,
+              isAdmin: false,
+              isTrainer: false,
+            },
+          },
+        };
+        await FirebaseManager.setMember(uid, newMember);
+
+        if (sendWelcomeEmailsBulk) {
+          try {
+            await EmailService.sendWelcomeMail({
+              to: m.email,
+              name: `${m.firstName} ${m.lastName}`,
+              subject: `Willkommen bei ${currentClub?.name || "Talo"} – Deine Zugangsdaten`,
+              memberName: m.firstName,
+              password,
+              clubName: currentClub?.name || "Talo",
+              clubId,
+              adminName: `${currentMember?.firstName || "Admin"} ${currentMember?.lastName || ""}`,
+            });
+          } catch (mailErr) {
+            console.error("Failed to send welcome email for", m.email, mailErr);
+          }
+        }
+
+        return { firstName: m.firstName, lastName: m.lastName, email: m.email, password, status: "success" };
       } catch (err) {
         console.error("Error importing member:", err);
-        results.push({
+        return {
           firstName: m.firstName,
           lastName: m.lastName,
           email: m.email,
           status: "error",
           errorMsg: err instanceof Error ? err.message : "Unbekannter Fehler",
-        });
+        };
       }
+    };
 
-      count++;
-      setImportProgress(Math.round((count / validMembers.length) * 100));
+    // Chunked parallel processing. Chunk size 5 stays under the Firebase Auth
+    // signUp rate limit (~10/sec) and finishes a 100-member import in ~30s
+    // instead of 3-5 minutes sequentially.
+    const CHUNK_SIZE = 5;
+    let completed = 0;
+    for (let i = 0; i < validMembers.length; i += CHUNK_SIZE) {
+      const chunk = validMembers.slice(i, i + CHUNK_SIZE);
+      // Update the "currently importing" label to the first item of the chunk.
+      setCurrentImportingName(`${chunk[0].firstName} ${chunk[0].lastName}…`);
+      const chunkResults = await Promise.all(chunk.map(processMember));
+      results.push(...chunkResults);
+      completed += chunk.length;
+      setImportProgress(Math.round((completed / validMembers.length) * 100));
     }
 
     // Refresh members list

@@ -2,10 +2,10 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { db } from "@/lib/firebase/config";
+import { db, auth } from "@/lib/firebase/config";
 import {
   collection, getDocs, doc, getDoc, updateDoc, Timestamp,
-  query, orderBy, limit, deleteDoc,
+  query, orderBy, limit,
 } from "firebase/firestore";
 import { motion } from "framer-motion";
 import {
@@ -293,9 +293,20 @@ export default function ClubDetailPage() {
     if (!club) return;
     setDeleting(true);
     try {
-      // Note: this only deletes the club doc — subcollections (entries, members membership refs)
-      // need to be cleaned via a Cloud Function in production. For now, manual cleanup.
-      await deleteDoc(doc(db, "clubs", club.id));
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error("Nicht autorisiert.");
+
+      // Server-side cascade delete: subcollections + member detach + club doc.
+      const res = await fetch("/api/admin/delete-club", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ clubId: club.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Fehler beim Löschen.");
       router.push("/admin/vereine");
     } catch (e) {
       alert("Fehler beim Löschen: " + (e as Error).message);
