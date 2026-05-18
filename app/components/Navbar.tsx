@@ -80,9 +80,10 @@ export default function Navbar() {
       label: "Plattform",
       href: "/funktionen",
       items: [
+        { title: "Vereinssoftware", description: "Talo als Plattform im Überblick", href: "/vereinssoftware" },
         { title: "Punktevergabe", description: "Automatisierte Erfassung von Aktivitäten", href: "/funktionen#punkte" },
         { title: "Genehmigungsworkflow", description: "Sicherer Prozess für Nachweise", href: "/funktionen#workflow" },
-        { title: "Mitgliederverwaltung", description: "Alle Profile an einem Ort", href: "/funktionen#admin" },
+        { title: "Mitgliederverwaltung", description: "Alle Profile an einem Ort", href: "/vereinssoftware/mitgliederverwaltung" },
         { title: "Statistiken", description: "Datengesteuerte Einblicke in den Verein", href: "/funktionen#admin" },
         { title: "Export & Berichte", description: "Ready für die Steuererklärung", href: "/funktionen" },
       ],
@@ -97,7 +98,7 @@ export default function Navbar() {
       label: "Lösungen",
       href: "/loesungen",
       items: [
-        { title: "Sportvereine", description: "Effiziente Trainings- & Spielverwaltung", href: "/loesungen#sport" },
+        { title: "Sportvereine", description: "Effiziente Trainings- & Spielverwaltung", href: "/vereinssoftware/sportverein" },
         { title: "Mehrspartenvereine", description: "Mehrere Abteilungen unter einem Dach", href: "/loesungen#abteilungen" },
       ],
       featured: {

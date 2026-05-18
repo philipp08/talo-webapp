@@ -6,6 +6,10 @@ const lastModified = new Date("2026-05-18");
 
 const staticRoutes = [
   { path: "/", changeFrequency: "weekly" as const, priority: 1, images: [defaultOgImage.url] },
+  { path: "/vereinssoftware", changeFrequency: "monthly" as const, priority: 0.95 },
+  { path: "/vereinssoftware/sportverein", changeFrequency: "monthly" as const, priority: 0.88 },
+  { path: "/vereinssoftware/punkteverwaltung", changeFrequency: "monthly" as const, priority: 0.88 },
+  { path: "/vereinssoftware/mitgliederverwaltung", changeFrequency: "monthly" as const, priority: 0.88 },
   { path: "/funktionen", changeFrequency: "monthly" as const, priority: 0.9 },
   { path: "/loesungen", changeFrequency: "monthly" as const, priority: 0.85 },
   { path: "/preise", changeFrequency: "monthly" as const, priority: 0.8 },
