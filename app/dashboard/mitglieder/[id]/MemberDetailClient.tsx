@@ -694,7 +694,7 @@ export default function MemberDetailPage() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={() => setEntryToEdit(null)}
-            className="fixed inset-0 z-[100] flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 16 }}
@@ -786,7 +786,7 @@ export default function MemberDetailPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={(e) => { if (e.target === e.currentTarget) setMemberToDelete(false); }}
-            className="fixed inset-0 z-[110] flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4"
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}

@@ -1848,9 +1848,8 @@ function Backdrop({ children, onClick }: { children: React.ReactNode; onClick: (
   if (!mounted || typeof document === "undefined") return null;
 
   return createPortal(
-    // Mobile: bottom-sheet (anchored to bottom, edge-to-edge). Desktop: centered.
-    <div
-      className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4"
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" 
       onClick={onClick}
     >
       {children}
@@ -1860,41 +1859,30 @@ function Backdrop({ children, onClick }: { children: React.ReactNode; onClick: (
 }
 
 function Modal({ children, wide, extraWide, onClick }: { children: React.ReactNode; wide?: boolean; extraWide?: boolean; onClick?: React.MouseEventHandler }) {
-  // Mobile: full-width sheet with rounded top + safe-area-bottom for iOS.
-  // Desktop: classic centered card with max-w cap.
-  const widthClass = extraWide
-    ? "sm:max-w-4xl"
-    : wide
-    ? "sm:max-w-lg"
-    : "sm:max-w-sm";
-
   return (
     <motion.div
-      initial={{ y: "100%", opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: "100%", opacity: 0 }}
-      transition={{ type: "spring", stiffness: 380, damping: 32 }}
-      className={`w-full ${widthClass} max-h-[90dvh] flex flex-col`}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className={`w-full ${
+        extraWide ? "max-w-4xl max-h-[90vh] flex flex-col" :
+        wide ? "max-w-lg max-h-[90vh] flex flex-col" : 
+        "max-w-sm"
+      }`}
       onClick={onClick ?? ((e) => e.stopPropagation())}
     >
-      <div className="flex flex-col overflow-hidden bg-white rounded-t-3xl sm:rounded-3xl shadow-[0_-8px_32px_rgba(0,0,0,0.08)] sm:shadow-[0_20px_60px_rgba(0,0,0,0.18)] max-h-[90dvh] pb-[env(safe-area-inset-bottom)] sm:pb-0">
+      <GlassSection className={(wide || extraWide) ? "flex flex-col overflow-hidden max-h-[90vh]" : ""}>
         {children}
-      </div>
+      </GlassSection>
     </motion.div>
   );
 }
 
 function ModalHeader({ title, onClose }: { title: string; onClose: () => void }) {
   return (
-    <div className="relative flex items-center justify-between p-5 border-b border-black/5">
-      {/* Drag indicator (only visible on mobile bottom-sheet) */}
-      <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-black/15 sm:hidden" aria-hidden="true" />
-      <h3 className="font-poppins font-black text-[#0A0A0A] text-base uppercase tracking-tight pt-2 sm:pt-0">{title}</h3>
-      <button
-        onClick={onClose}
-        aria-label="Schließen"
-        className="flex items-center justify-center min-w-[44px] min-h-[44px] -mr-2 text-[#52525B] hover:text-[#0A0A0A] transition-all"
-      >
+    <div className="flex items-center justify-between p-5 border-b border-black/5">
+      <h3 className="font-poppins font-black text-[#0A0A0A] text-base uppercase tracking-tight">{title}</h3>
+      <button onClick={onClose} className="text-[#52525B] hover:text-[#0A0A0A] transition-all">
         <X size={20} />
       </button>
     </div>

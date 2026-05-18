@@ -253,25 +253,19 @@ export default function GenehmigungPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={(e) => { if (e.target === e.currentTarget) setRejectTarget(null); }}
-              className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4"
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             >
               <motion.div
-                initial={{ y: "100%", opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: "100%", opacity: 0 }}
-                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full sm:max-w-sm max-h-[90dvh] overflow-y-auto bg-white rounded-t-3xl sm:rounded-3xl shadow-[0_-8px_32px_rgba(0,0,0,0.08)] sm:shadow-[0_20px_60px_rgba(0,0,0,0.18)] pb-[env(safe-area-inset-bottom)] sm:pb-0"
+                className="w-full max-w-sm"
               >
-                <div className="p-6 flex flex-col gap-4 relative">
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-black/15 sm:hidden" aria-hidden="true" />
-                  <div className="flex items-center justify-between pt-2 sm:pt-0">
+                <GlassSection className="p-6 flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
                     <p className="font-poppins font-bold text-[17px] text-[#0A0A0A]">{t("genehmigungen.rejectTitle")}</p>
-                    <button
-                      onClick={() => setRejectTarget(null)}
-                      aria-label="Schließen"
-                      className="flex items-center justify-center min-w-[44px] min-h-[44px] -mr-2"
-                    >
+                    <button onClick={() => setRejectTarget(null)}>
                       <X size={18} style={{ color: "#52525B" }} />
                     </button>
                   </div>
@@ -314,7 +308,7 @@ export default function GenehmigungPage() {
                       {saving ? t("genehmigungen.rejecting") : t("common.reject")}
                     </button>
                   </div>
-                </div>
+                </GlassSection>
               </motion.div>
             </motion.div>
           )}

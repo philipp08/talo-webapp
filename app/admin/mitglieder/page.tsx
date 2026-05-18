@@ -241,7 +241,7 @@ export default function MitgliederAdminPage() {
 
         {/* Cleanup preview modal */}
         {cleanupPreview && (
-          <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => !cleanupRunning && setCleanupPreview(null)}>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => !cleanupRunning && setCleanupPreview(null)}>
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
