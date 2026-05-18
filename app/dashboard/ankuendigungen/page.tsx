@@ -241,21 +241,27 @@ export default function AnnouncementsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}
-              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4"
             >
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+              <motion.div
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: "100%", opacity: 0 }}
+                transition={{ type: "spring", stiffness: 380, damping: 32 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm"
+                className="w-full sm:max-w-sm max-h-[90dvh] overflow-y-auto bg-white rounded-t-3xl sm:rounded-3xl shadow-[0_-8px_32px_rgba(0,0,0,0.08)] sm:shadow-[0_20px_60px_rgba(0,0,0,0.18)] pb-[env(safe-area-inset-bottom)] sm:pb-0"
               >
-                <GlassSection className="p-6 flex flex-col gap-5">
-                  <div className="flex items-center justify-between">
+                <div className="p-6 flex flex-col gap-5 relative">
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-black/15 sm:hidden" aria-hidden="true" />
+                  <div className="flex items-center justify-between pt-2 sm:pt-0">
                     <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
                       {t("ankuendigungen.modalTitle")}
                     </h3>
-                    <button onClick={() => setShowForm(false)} className="text-[#52525B] hover:text-[#0A0A0A]">
+                    <button
+                      onClick={() => setShowForm(false)}
+                      aria-label="Schließen"
+                      className="flex items-center justify-center min-w-[44px] min-h-[44px] -mr-2 text-[#52525B] hover:text-[#0A0A0A]"
+                    >
                       <X size={20} />
                     </button>
                   </div>
@@ -294,7 +300,7 @@ export default function AnnouncementsPage() {
                       disabled={saving || !message.trim()}
                     />
                   </div>
-                </GlassSection>
+                </div>
               </motion.div>
             </motion.div>
           )}
@@ -311,17 +317,19 @@ export default function AnnouncementsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={(e) => { if (e.target === e.currentTarget) setDeleteTarget(null); }}
-              className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 z-[10000] flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4"
             >
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }} 
-                animate={{ scale: 1, opacity: 1 }} 
-                exit={{ scale: 0.9, opacity: 0 }} 
+              <motion.div
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: "100%", opacity: 0 }}
+                transition={{ type: "spring", stiffness: 380, damping: 32 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-xs"
+                className="w-full sm:max-w-xs bg-white rounded-t-3xl sm:rounded-3xl shadow-[0_-8px_32px_rgba(0,0,0,0.08)] sm:shadow-[0_20px_60px_rgba(0,0,0,0.18)] pb-[env(safe-area-inset-bottom)] sm:pb-0"
               >
-                <GlassSection className="p-7 flex flex-col items-center text-center gap-1 font-poppins">
-                  <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-3 border border-red-500/20">
+                <div className="p-7 flex flex-col items-center text-center gap-1 font-poppins relative">
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-black/15 sm:hidden" aria-hidden="true" />
+                  <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-3 border border-red-500/20 mt-2 sm:mt-0">
                     <Trash2 size={28} className="text-red-400" />
                   </div>
                   <h3 className="text-xl font-bold text-[#0A0A0A]">{t("ankuendigungen.deleteTitle")}</h3>
@@ -330,7 +338,7 @@ export default function AnnouncementsPage() {
                     <TButton label={t("common.delete")} variant="danger" onClick={deleteAnnouncement} />
                     <TButton label={t("common.cancel")} variant="secondary" onClick={() => setDeleteTarget(null)} />
                   </div>
-                </GlassSection>
+                </div>
               </motion.div>
             </motion.div>
           )}
