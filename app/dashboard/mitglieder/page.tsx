@@ -394,13 +394,53 @@ export default function MembersPage() {
   };
 
   const startImport = async () => {
-    setImportStep("progress");
-    setImportProgress(0);
-    const results: typeof importedResults = [];
     const clubId = currentClub?.id;
     if (!clubId) return;
 
-    const validMembers = mappedMembers.filter(m => m.isValid && m.selected);
+    // Plan-Limit enforcement: never import beyond the member cap.
+    // Members already in this club (in-club duplicates) don't consume a slot —
+    // they get a skip-result, not a create. So only count members that would
+    // actually become NEW members of this club.
+    const inClubEmails = new Set(
+      members.map((mb) => mb.email?.trim().toLowerCase()).filter(Boolean)
+    );
+    const wouldAddNew = mappedMembers.filter(
+      (m) => m.isValid && m.selected && !inClubEmails.has(m.email.trim().toLowerCase())
+    );
+    const remaining = Math.max(0, planFeatures.maxMembers - members.length);
+
+    let allowedMembers = mappedMembers.filter((m) => m.isValid && m.selected);
+    let truncated = 0;
+
+    if (wouldAddNew.length > remaining) {
+      truncated = wouldAddNew.length - remaining;
+      const proceed = window.confirm(
+        `Dein ${planFeatures.name}-Plan erlaubt maximal ${planFeatures.maxMembers} Mitglieder.\n\n` +
+        `Aktuell: ${members.length}\n` +
+        `Neue Mitglieder im Import: ${wouldAddNew.length}\n` +
+        `Davon importierbar: ${remaining}\n\n` +
+        `${truncated} Mitglieder werden übersprungen. Importieren?`
+      );
+      if (!proceed) return;
+
+      // Build truncated list: keep all in-club skips (they don't consume slots)
+      // plus only `remaining` new ones.
+      const newEmailsToKeep = new Set(
+        wouldAddNew.slice(0, remaining).map((m) => m.email.trim().toLowerCase())
+      );
+      allowedMembers = mappedMembers.filter((m) => {
+        if (!m.isValid || !m.selected) return false;
+        const email = m.email.trim().toLowerCase();
+        if (inClubEmails.has(email)) return true;
+        return newEmailsToKeep.has(email);
+      });
+    }
+
+    setImportStep("progress");
+    setImportProgress(0);
+    const results: typeof importedResults = [];
+
+    const validMembers = allowedMembers;
     let count = 0;
 
     for (const m of validMembers) {

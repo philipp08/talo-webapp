@@ -116,7 +116,10 @@ const mergeMemberSnapshots = (
 export class FirebaseManager {
   // === CLUBS ===
   static async createClub(club: Omit<Club, "id">): Promise<string> {
-    const docRef = await addDoc(collection(db, "clubs"), club);
+    const docRef = await addDoc(collection(db, "clubs"), {
+      ...club,
+      createdAt: Timestamp.now(),
+    });
     return docRef.id;
   }
 
@@ -888,7 +891,13 @@ export class FirebaseManager {
     memberId: string,
     member: Omit<Member, "id">
   ): Promise<void> {
-    await setDoc(doc(db, "members", memberId), member);
+    // setDoc fully replaces the document — only stamp createdAt if it isn't
+    // already provided by the caller (e.g. on re-saves of existing members).
+    const payload: Record<string, any> = { ...member };
+    if (!("createdAt" in payload)) {
+      payload.createdAt = Timestamp.now();
+    }
+    await setDoc(doc(db, "members", memberId), payload);
   }
 
   static async updateMember(

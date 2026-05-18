@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { verifyAdminRequest } from "@/lib/server/firebaseAuth";
 import * as admin from "firebase-admin";
+import { isSuperAdminEmail } from "@/lib/firebase/constants";
 
 if (!admin.apps.length) {
   try {
@@ -34,13 +34,7 @@ async function checkSuperAdmin(request: Request): Promise<boolean> {
     if (!authHeader.startsWith("Bearer ")) return false;
     const token = authHeader.split("Bearer ")[1];
     const decodedToken = await admin.auth().verifyIdToken(token);
-    const email = decodedToken.email || "";
-    const isSuper =
-      email.endsWith("@pauli-one.de") ||
-      email.endsWith("@pauli-one.com") ||
-      email.endsWith("@talo.app") ||
-      email.endsWith("@talo-club.de");
-    return isSuper;
+    return isSuperAdminEmail(decodedToken.email);
   } catch (e) {
     console.error("Super Admin check failed in delete-member API:", e);
     return false;

@@ -1,6 +1,24 @@
 export const ADMIN_EMAIL =
   process.env.NEXT_PUBLIC_TALO_ADMIN_EMAIL ?? "philipp@pauli-one.de";
 
+/**
+ * Single source of truth for which email domains count as Talo super-admin.
+ * MUST match the Firestore security rules (`isSuperAdmin()` regex list).
+ * If you add/remove a domain here, update `firestore.rules` as well.
+ */
+export const SUPER_ADMIN_DOMAINS = [
+  "pauli-one.de",
+  "pauli-one.com",
+  "talo.app",
+  "talo-club.de",
+] as const;
+
+export function isSuperAdminEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const lower = email.toLowerCase();
+  return SUPER_ADMIN_DOMAINS.some((d) => lower.endsWith("@" + d));
+}
+
 export const FIREBASE_API_KEY =
   process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "AIzaSyAIe0tYGLYgnbI2Evd6jr_Q3kXzzTIwU9E";
 

@@ -6,9 +6,10 @@ import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { motion } from "framer-motion";
 import {
   Users, RefreshCw, Search, Crown, Shield, Mail,
-  Building2, Filter, ChevronRight, Trash2,
+  Building2, Filter, ChevronRight, Trash2, Sparkles, AlertTriangle,
 } from "lucide-react";
-import { GlassSection } from "@/app/components/ui/NativeUI";
+import { GlassSection, TButton } from "@/app/components/ui/NativeUI";
+import { findOrphanedData, executeCleanup, MIN_CLUB_AGE_MS, MIN_MEMBER_AGE_MS } from "@/lib/admin/orphanedCleanup";
 import Link from "next/link";
 
 interface MemberRow {
@@ -39,59 +40,59 @@ export default function MitgliederAdminPage() {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [clubFilter, setClubFilter] = useState<string>("all");
 
-  async function runOrphanedCleanup(cSnap: any, mSnap: any) {
+  // Cleanup UI state — manual trigger only, NEVER runs automatically.
+  // Auto-cleanup would race with the onboarding flow (createClub → updateMember)
+  // and delete brand-new clubs before the admin user is assigned.
+  const [cleanupPreview, setCleanupPreview] = useState<{
+    deletableClubs: number;
+    deletableMembers: number;
+    preservedClubs: number;
+    preservedMembers: number;
+  } | null>(null);
+  const [cleanupRunning, setCleanupRunning] = useState(false);
+
+  const previewCleanup = async () => {
+    setCleanupRunning(true);
     try {
-      const memberCountByClub = new Map<string, number>();
-      const memberClubMap = new Map<string, string[]>();
-      
-      mSnap.docs.forEach((m: any) => {
-        const data = m.data();
-        const clubIds: string[] = data.clubIds ?? (data.clubId ? [data.clubId] : []);
-        memberClubMap.set(m.id, clubIds);
-        clubIds.forEach((cid) => {
-          memberCountByClub.set(cid, (memberCountByClub.get(cid) ?? 0) + 1);
-        });
+      const [clubsSnap, membersSnap] = await Promise.all([
+        getDocs(collection(db, "clubs")),
+        getDocs(collection(db, "members")),
+      ]);
+      const candidates = findOrphanedData(clubsSnap, membersSnap);
+      setCleanupPreview({
+        deletableClubs: candidates.emptyClubIds.length,
+        deletableMembers: candidates.orphanedMemberIds.length,
+        preservedClubs: candidates.emptyClubIdsPreserved,
+        preservedMembers: candidates.orphanedMembersPreserved,
       });
-
-      const emptyClubIds: string[] = [];
-      cSnap.docs.forEach((c: any) => {
-        const memberCount = memberCountByClub.get(c.id) ?? 0;
-        if (memberCount === 0) {
-          emptyClubIds.push(c.id);
-        }
-      });
-
-      const orphanedMemberIds: string[] = [];
-      // Use a shorter safety duration or immediate deletion for orphans if they are found in list
-      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-      mSnap.docs.forEach((m: any) => {
-        const data = m.data();
-        const clubIds = memberClubMap.get(m.id) ?? [];
-        const createdAt = data.createdAt?.toDate?.() ?? new Date();
-        if (clubIds.length === 0 && createdAt < fiveMinutesAgo) {
-          orphanedMemberIds.push(m.id);
-        }
-      });
-
-      if (emptyClubIds.length > 0) {
-        console.log(`Auto-deleting ${emptyClubIds.length} empty clubs:`, emptyClubIds);
-        await Promise.all(emptyClubIds.map(id => deleteDoc(doc(db, "clubs", id))));
-      }
-
-      if (orphanedMemberIds.length > 0) {
-        console.log(`Auto-deleting ${orphanedMemberIds.length} orphaned members:`, orphanedMemberIds);
-        await Promise.all(orphanedMemberIds.map(id => deleteDoc(doc(db, "members", id))));
-      }
-      
-      return {
-        deletedClubs: emptyClubIds.length,
-        deletedMembers: orphanedMemberIds.length
-      };
     } catch (e) {
-      console.error("Fehler bei der automatischen Bereinigung verwaister Daten:", e);
-      return { deletedClubs: 0, deletedMembers: 0 };
+      alert("Fehler beim Prüfen: " + (e as Error).message);
     }
-  }
+    setCleanupRunning(false);
+  };
+
+  const confirmCleanup = async () => {
+    if (!cleanupPreview) return;
+    if (!confirm(
+      `${cleanupPreview.deletableClubs} leere Vereine und ${cleanupPreview.deletableMembers} verwaiste Mitglieder werden ENDGÜLTIG gelöscht. Fortfahren?`
+    )) return;
+
+    setCleanupRunning(true);
+    try {
+      const [clubsSnap, membersSnap] = await Promise.all([
+        getDocs(collection(db, "clubs")),
+        getDocs(collection(db, "members")),
+      ]);
+      const candidates = findOrphanedData(clubsSnap, membersSnap);
+      const result = await executeCleanup(candidates);
+      alert(`Bereinigt: ${result.deletedClubs} Vereine, ${result.deletedMembers} Mitglieder.`);
+      setCleanupPreview(null);
+      await loadAll();
+    } catch (e) {
+      alert("Fehler beim Bereinigen: " + (e as Error).message);
+    }
+    setCleanupRunning(false);
+  };
 
   const deleteMember = async (id: string, name: string) => {
     if (!confirm(`Möchtest du das Mitglied "${name}" und sein Login-Konto wirklich komplett und endgültig aus der App löschen?`)) return;
@@ -124,14 +125,8 @@ export default function MitgliederAdminPage() {
   async function loadAll() {
     setLoading(true);
     try {
-      let membersSnap = await getDocs(collection(db, "members"));
-      let clubsSnap = await getDocs(collection(db, "clubs"));
-
-      const cleanup = await runOrphanedCleanup(clubsSnap, membersSnap);
-      if (cleanup.deletedClubs > 0 || cleanup.deletedMembers > 0) {
-        membersSnap = await getDocs(collection(db, "members"));
-        clubsSnap = await getDocs(collection(db, "clubs"));
-      }
+      const membersSnap = await getDocs(collection(db, "members"));
+      const clubsSnap = await getDocs(collection(db, "clubs"));
 
       const clubMap = new Map<string, ClubLookup>();
       clubsSnap.docs.forEach((c) => clubMap.set(c.id, { id: c.id, name: c.data().name ?? "—" }));
@@ -200,15 +195,74 @@ export default function MitgliederAdminPage() {
               Globale Suche über alle Vereine
             </p>
           </div>
-          <button
-            onClick={loadAll}
-            disabled={loading}
-            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
-            style={{ background: "rgba(0,0,0,0.05)", color: "#71717A" }}
-          >
-            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={previewCleanup}
+              disabled={cleanupRunning || loading}
+              title="Verwaiste Daten prüfen (älter als 1h für Mitglieder, 24h für Vereine)"
+              className="flex items-center gap-2 px-3 h-10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+              style={{ background: "rgba(0,0,0,0.05)", color: "#71717A" }}
+            >
+              <Sparkles size={13} /> Bereinigen
+            </button>
+            <button
+              onClick={loadAll}
+              disabled={loading}
+              className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
+              style={{ background: "rgba(0,0,0,0.05)", color: "#71717A" }}
+            >
+              <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+            </button>
+          </div>
         </div>
+
+        {/* Cleanup preview modal */}
+        {cleanupPreview && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => !cleanupRunning && setCleanupPreview(null)}>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <GlassSection>
+                <div className="p-6 flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center">
+                      <AlertTriangle size={18} className="text-orange-500" />
+                    </div>
+                    <h3 className="text-lg font-poppins font-bold text-[#0A0A0A]">Datenbereinigung</h3>
+                  </div>
+                  <div className="space-y-2 text-[12px] text-[#52525B]">
+                    <div className="flex justify-between py-1 border-b border-black/[0.04]">
+                      <span>Löschbare leere Vereine (älter als 24h):</span>
+                      <span className="font-bold text-[#0A0A0A]">{cleanupPreview.deletableClubs}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-black/[0.04]">
+                      <span>Löschbare verwaiste Mitglieder (älter als 1h):</span>
+                      <span className="font-bold text-[#0A0A0A]">{cleanupPreview.deletableMembers}</span>
+                    </div>
+                    {(cleanupPreview.preservedClubs > 0 || cleanupPreview.preservedMembers > 0) && (
+                      <div className="text-[10px] text-[#71717A] pt-2">
+                        {cleanupPreview.preservedClubs > 0 && <p>· {cleanupPreview.preservedClubs} leere Vereine zu jung oder ohne createdAt – nicht löschbar</p>}
+                        {cleanupPreview.preservedMembers > 0 && <p>· {cleanupPreview.preservedMembers} verwaiste Mitglieder zu jung oder ohne createdAt – nicht löschbar</p>}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2 mt-2">
+                    <TButton
+                      label={cleanupRunning ? "Lösche…" : `${cleanupPreview.deletableClubs + cleanupPreview.deletableMembers} Einträge löschen`}
+                      variant="danger"
+                      onClick={confirmCleanup}
+                      disabled={cleanupRunning || (cleanupPreview.deletableClubs + cleanupPreview.deletableMembers) === 0}
+                    />
+                    <TButton label="Abbrechen" variant="secondary" onClick={() => setCleanupPreview(null)} disabled={cleanupRunning} />
+                  </div>
+                </div>
+              </GlassSection>
+            </motion.div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/lib/firebase/config";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, Timestamp } from "firebase/firestore";
 import { ADMIN_EMAIL } from "@/lib/firebase/constants";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -154,6 +154,7 @@ export default function LoginPage() {
           isTrainer: false,
           clubId: "",
           clubIds: [],
+          createdAt: Timestamp.now(),
         });
         
         router.push("/dashboard");
