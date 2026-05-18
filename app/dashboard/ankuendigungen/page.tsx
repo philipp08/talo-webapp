@@ -269,7 +269,7 @@ export default function AnnouncementsPage() {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder={t("ankuendigungen.placeholder")}
-                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all resize-none"
+                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-base text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all resize-none"
                       />
                     </div>
 

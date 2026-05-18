@@ -263,7 +263,7 @@ export default function ActivitiesPage() {
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
                         placeholder={t("taetigkeiten.namePlaceholder")}
-                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all"
+                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-base text-[#0A0A0A] placeholder-[#A1A1AA] focus:outline-none focus:border-black/15 transition-all"
                       />
                     </div>
 
@@ -274,7 +274,7 @@ export default function ActivitiesPage() {
                         step="0.5"
                         value={form.points}
                         onChange={(e) => setForm({ ...form, points: e.target.value })}
-                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3.5 font-poppins text-[15px] text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
+                        className="w-full rounded-2xl bg-black/[0.04] border border-black/10 px-4 py-3 font-poppins text-base text-[#0A0A0A] focus:outline-none focus:border-black/15 transition-all"
                       />
                     </div>
 

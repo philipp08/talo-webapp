@@ -524,7 +524,7 @@ export default function TrainingPage() {
           <Backdrop onClick={() => setAbsenceTarget(null)}>
             <Modal>
               <ModalHeader title={t("training.reportAbsence")} onClose={() => setAbsenceTarget(null)} />
-              <div className="p-5 flex flex-col gap-4">
+              <div className="p-6 flex flex-col gap-5">
                 <p className="text-xs text-[#71717A] font-bold uppercase tracking-widest pl-1">Grund wählen</p>
                 <div className="grid grid-cols-2 gap-2">
                   {ABSENCE_REASONS.map((r) => (
@@ -790,7 +790,7 @@ export default function TrainingPage() {
           <Backdrop onClick={() => setShowExtraForm(false)}>
             <Modal onClick={(e) => e.stopPropagation()}>
               <ModalHeader title={t("training.extraSession")} onClose={() => setShowExtraForm(false)} />
-              <div className="p-5 flex flex-col gap-4">
+              <div className="p-6 flex flex-col gap-5">
                 <Field label={t("training.trainingGroup")}>
                   <select
                     autoFocus
@@ -1879,10 +1879,16 @@ function Modal({ children, wide, extraWide, onClick }: { children: React.ReactNo
 }
 
 function ModalHeader({ title, onClose }: { title: string; onClose: () => void }) {
+  // Symmetric inset: -mr-2 on close-button visually cancels its 44px touch area
+  // so the icon sits the same distance from the right edge as the title does from the left.
   return (
-    <div className="flex items-center justify-between p-5 border-b border-black/5">
+    <div className="flex items-center justify-between p-6 border-b border-black/5">
       <h3 className="font-poppins font-black text-[#0A0A0A] text-base uppercase tracking-tight">{title}</h3>
-      <button onClick={onClose} className="text-[#52525B] hover:text-[#0A0A0A] transition-all">
+      <button
+        onClick={onClose}
+        aria-label="Schließen"
+        className="flex items-center justify-center w-11 h-11 -mr-2 rounded-lg text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.04] transition-all"
+      >
         <X size={20} />
       </button>
     </div>
@@ -1890,9 +1896,13 @@ function ModalHeader({ title, onClose }: { title: string; onClose: () => void })
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  // Gap matches gap-2 used in other dashboard modals (schichten, taetigkeiten,
+  // ankuendigungen). Label `pl-1` (4px) is the shared house style for label indent.
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-[10px] font-black text-[#71717A] uppercase tracking-widest pl-1">{label}</label>
+    <div className="flex flex-col gap-2">
+      <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">
+        {label}
+      </label>
       {children}
     </div>
   );

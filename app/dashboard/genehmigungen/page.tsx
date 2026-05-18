@@ -278,9 +278,8 @@ export default function GenehmigungPage() {
                       : "Unbekannt"}
                   </p>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest pl-0.5"
-                           style={{ color: "#71717A" }}>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[11px] font-poppins font-bold uppercase tracking-widest pl-1 text-[#52525B]">
                       {t("genehmigungen.rejectReason")}
                     </label>
                     <textarea
