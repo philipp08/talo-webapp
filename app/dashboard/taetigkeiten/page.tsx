@@ -10,6 +10,7 @@ import { Activity, ActivityCategory, getPlanFeatures, isLightColor } from "@/lib
 import { GlassSection, TCatBadge, TSearchBar, TButton, TBadge } from "@/app/components/ui/NativeUI";
 import { useI18n } from "@/lib/i18n/I18nContext";
 import type { TranslationKey } from "@/lib/i18n/translations";
+import { toast } from "@/lib/ui/toast";
 
 const categoryColors: Record<string, string> = {
   A: "#E87AA0",
@@ -68,7 +69,7 @@ export default function ActivitiesPage() {
 
   const openAdd = () => {
     if (isLimitReached) {
-      alert(t("taetigkeiten.limitAlert"));
+      toast.warning(t("taetigkeiten.limitAlert"));
       return;
     }
     setEditTarget(null);

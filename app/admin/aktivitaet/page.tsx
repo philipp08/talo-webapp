@@ -9,6 +9,7 @@ import {
   Calendar, CheckCircle2, XCircle, Clock, Key, Sparkles,
 } from "lucide-react";
 import { GlassSection } from "@/app/components/ui/NativeUI";
+import { EmptyState } from "@/app/components/ui/EmptyState";
 import Link from "next/link";
 
 type FeedItem =
@@ -209,7 +210,7 @@ export default function AktivitaetAdminPage() {
               Letzte 100 Ereignisse plattformweit
             </p>
           </div>
-          <button
+          <button aria-label="Aktualisieren"
             onClick={loadFeed}
             disabled={loading}
             className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
@@ -245,10 +246,15 @@ export default function AktivitaetAdminPage() {
             <div className="w-7 h-7 rounded-full border-2 border-black/10 border-t-[#0A0A0A] animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <Activity size={32} className="mb-4" style={{ color: "#71717A" }} />
-            <p className="font-poppins font-bold text-[18px] text-[#0A0A0A] mb-2">Keine Aktivität</p>
-          </div>
+          <EmptyState
+            icon={Activity}
+            title="Noch keine Aktivität"
+            description={
+              filter === "all"
+                ? "Sobald Mitglieder, Vereine oder Einträge entstehen, erscheinen sie hier."
+                : "Für diesen Filter gibt es noch keine Ereignisse."
+            }
+          />
         ) : (
           <GlassSection>
             <div className="p-1">

@@ -9,6 +9,8 @@ import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Shift, getPlanFeatures, isLightColor, SPORT_TYPE_EMOJIS } from "@/lib/firebase/models";
 import { GlassSection, TButton, TBadge } from "@/app/components/ui/NativeUI";
 import { useI18n } from "@/lib/i18n/I18nContext";
+import { toast } from "@/lib/ui/toast";
+import { confirmDialog } from "@/lib/ui/dialog";
 
 type ShiftFormData = {
   title: string;
@@ -175,9 +177,17 @@ export default function ShiftsPage() {
   };
 
   const deleteShift = async (shiftId: string) => {
-    if (!currentClub || !confirm(t("schichten.confirmDelete"))) return;
+    if (!currentClub) return;
+    const ok = await confirmDialog({
+      title: "Schicht löschen?",
+      description: t("schichten.confirmDelete"),
+      confirmLabel: "Löschen",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       await FirebaseManager.deleteShift(currentClub.id, shiftId);
+      toast.success("Schicht gelöscht");
     } catch (e) {
       console.error("Error deleting shift:", e);
     }
@@ -191,15 +201,15 @@ export default function ShiftsPage() {
       || shift.claimedById === currentMember.id;
       
     if (alreadyClaimed) {
-      alert(t("schichten.alreadyBooked"));
+      toast.info(t("schichten.alreadyBooked"));
       return;
     }
 
     const required = shift.slotsRequired || 1;
     const currentClaimedCount = shift.claimedSlots?.length || (shift.claimedById ? 1 : 0);
-    
+
     if (currentClaimedCount >= required) {
-      alert(t("schichten.alreadyFull"));
+      toast.warning(t("schichten.alreadyFull"));
       return;
     }
 
@@ -263,12 +273,19 @@ export default function ShiftsPage() {
       });
     } catch (e) {
       console.error("Error claiming shift:", e);
-      alert(t("schichten.errorBooking") + (e instanceof Error ? e.message : String(e)));
+      toast.error(t("schichten.errorBooking"), { description: e instanceof Error ? e.message : String(e) });
     }
   };
 
   const releaseShift = async (shift: Shift) => {
-    if (!currentClub || !currentMember || !confirm(t("schichten.confirmRelease"))) return;
+    if (!currentClub || !currentMember) return;
+    const ok = await confirmDialog({
+      title: "Schicht freigeben?",
+      description: t("schichten.confirmRelease"),
+      confirmLabel: "Freigeben",
+      variant: "warning",
+    });
+    if (!ok) return;
     try {
       let newSlots = shift.claimedSlots ? [...shift.claimedSlots] : [];
       if (shift.claimedById && newSlots.length === 0) {
@@ -299,7 +316,7 @@ export default function ShiftsPage() {
       }
     } catch (e) {
       console.error("Error releasing shift:", e);
-      alert(t("schichten.errorReleasing") + (e instanceof Error ? e.message : String(e)));
+      toast.error(t("schichten.errorReleasing"), { description: e instanceof Error ? e.message : String(e) });
     }
   };
 
@@ -315,7 +332,7 @@ export default function ShiftsPage() {
       });
     } catch (e) {
       console.error("Error adjusting slots count:", e);
-      alert(t("schichten.errorAdjusting") + (e instanceof Error ? e.message : String(e)));
+      toast.error(t("schichten.errorAdjusting"), { description: e instanceof Error ? e.message : String(e) });
     }
   };
 

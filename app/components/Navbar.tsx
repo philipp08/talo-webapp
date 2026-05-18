@@ -82,7 +82,7 @@ export default function Navbar() {
       items: [
         { title: "Punktevergabe", description: "Automatisierte Erfassung von Aktivitäten", href: "/funktionen#punkte" },
         { title: "Genehmigungsworkflow", description: "Sicherer Prozess für Nachweise", href: "/funktionen#workflow" },
-        { title: "Mitgliederverwaltung", description: "Alle Profile an einem Ort", href: "/dashboard" },
+        { title: "Mitgliederverwaltung", description: "Alle Profile an einem Ort", href: "/funktionen#admin" },
         { title: "Statistiken", description: "Datengesteuerte Einblicke in den Verein", href: "/funktionen#admin" },
         { title: "Export & Berichte", description: "Ready für die Steuererklärung", href: "/funktionen" },
       ],

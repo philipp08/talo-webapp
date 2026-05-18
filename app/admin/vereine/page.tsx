@@ -6,7 +6,10 @@ import { collection, getDocs } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { Building2, RefreshCw, Users, ChevronRight, Search, EyeOff, Eye, Trash2 } from "lucide-react";
 import { GlassSection } from "@/app/components/ui/NativeUI";
+import { EmptyState } from "@/app/components/ui/EmptyState";
 import { getPlanFeatures, getPlanKey } from "@/lib/firebase/models";
+import { toast } from "@/lib/ui/toast";
+import { confirmDialog } from "@/lib/ui/dialog";
 import Link from "next/link";
 
 interface ClubRow {
@@ -78,12 +81,16 @@ export default function VereineAdminPage() {
   useEffect(() => { loadClubs(); }, []);
 
   const deleteClub = async (id: string, name: string) => {
-    if (!confirm(
-      `Möchtest du den Verein "${name}" wirklich endgültig löschen?\n\n` +
-      `Alle zugehörigen Daten (Einträge, Schichten, Trainings, Aktivitäten, ` +
-      `Gruppen, Ankündigungen, Duelle) werden ebenfalls gelöscht. Mitglieder ` +
-      `werden vom Verein getrennt, ihre Konten bleiben erhalten.`
-    )) return;
+    const ok = await confirmDialog({
+      title: `${name} löschen?`,
+      description:
+        "Alle zugehörigen Daten (Einträge, Schichten, Trainings, Aktivitäten, " +
+        "Gruppen, Ankündigungen, Duelle) werden ebenfalls gelöscht. Mitglieder " +
+        "werden vom Verein getrennt, ihre Konten bleiben erhalten.",
+      confirmLabel: "Endgültig löschen",
+      variant: "danger",
+    });
+    if (!ok) return;
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error("Nicht autorisiert.");
@@ -99,9 +106,10 @@ export default function VereineAdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Fehler beim Löschen.");
       setClubs((prev) => prev.filter((c) => c.id !== id));
+      toast.success("Verein gelöscht", { description: `${name} wurde entfernt.` });
     } catch (e) {
       console.error("Error deleting club:", e);
-      alert("Fehler beim Löschen: " + (e instanceof Error ? e.message : String(e)));
+      toast.error("Löschen fehlgeschlagen", { description: e instanceof Error ? e.message : String(e) });
     }
   };
 
@@ -138,7 +146,7 @@ export default function VereineAdminPage() {
               {planCounts.active} aktiv · {planCounts.empty} leer
             </p>
           </div>
-          <button
+          <button aria-label="Aktualisieren"
             onClick={loadClubs}
             disabled={loading}
             className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
@@ -202,15 +210,25 @@ export default function VereineAdminPage() {
             <div className="w-7 h-7 rounded-full border-2 border-black/10 border-t-[#0A0A0A] animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <Building2 size={32} className="mb-4" style={{ color: "#71717A" }} />
-            <p className="font-poppins font-bold text-[18px] text-[#0A0A0A] mb-2">Keine Vereine gefunden</p>
-            {!showEmpty && planCounts.empty > 0 && (
-              <button onClick={() => setShowEmpty(true)} className="text-[12px] text-[#007AFF] hover:underline mt-2">
-                {planCounts.empty} leere Vereine anzeigen
-              </button>
-            )}
-          </div>
+          <EmptyState
+            icon={Building2}
+            title="Keine Vereine gefunden"
+            description={
+              search
+                ? `Kein Verein passt zum Suchbegriff "${search}".`
+                : "Es sind noch keine Vereine in dieser Auswahl."
+            }
+            action={
+              !showEmpty && planCounts.empty > 0 ? (
+                <button
+                  onClick={() => setShowEmpty(true)}
+                  className="text-[12px] font-semibold text-[#007AFF] hover:underline"
+                >
+                  {planCounts.empty} leere Vereine anzeigen
+                </button>
+              ) : null
+            }
+          />
         ) : (
           <div className="flex flex-col gap-2">
             {filtered.map((club, i) => (

@@ -207,7 +207,7 @@ export default function AnnouncementsPage() {
                              </button>
                              <button 
                                onClick={() => setDeleteTarget(announcement)}
-                               className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-red-400 bg-black/[0.04] transition-all"
+                               className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-red-400 bg-black/[0.04] transition-all"
                              >
                                 <Trash2 size={14} />
                              </button>

@@ -9,7 +9,11 @@ import {
   Building2, Filter, ChevronRight, Trash2, Sparkles, AlertTriangle,
 } from "lucide-react";
 import { GlassSection, TButton } from "@/app/components/ui/NativeUI";
+import { EmptyState } from "@/app/components/ui/EmptyState";
 import { findOrphanedData, executeCleanup, MIN_CLUB_AGE_MS, MIN_MEMBER_AGE_MS } from "@/lib/admin/orphanedCleanup";
+import { toast } from "@/lib/ui/toast";
+import { confirmDialog } from "@/lib/ui/dialog";
+import { useEscapeKey } from "@/lib/ui/useEscapeKey";
 import Link from "next/link";
 
 interface MemberRow {
@@ -51,6 +55,9 @@ export default function MitgliederAdminPage() {
   } | null>(null);
   const [cleanupRunning, setCleanupRunning] = useState(false);
 
+  // Escape closes the cleanup preview modal — but only if no destructive op runs.
+  useEscapeKey(!!cleanupPreview && !cleanupRunning, () => setCleanupPreview(null));
+
   const previewCleanup = async () => {
     setCleanupRunning(true);
     try {
@@ -66,16 +73,23 @@ export default function MitgliederAdminPage() {
         preservedMembers: candidates.orphanedMembersPreserved,
       });
     } catch (e) {
-      alert("Fehler beim Prüfen: " + (e as Error).message);
+      toast.error("Bereinigung nicht möglich", { description: (e as Error).message });
     }
     setCleanupRunning(false);
   };
 
   const confirmCleanup = async () => {
     if (!cleanupPreview) return;
-    if (!confirm(
-      `${cleanupPreview.deletableClubs} leere Vereine und ${cleanupPreview.deletableMembers} verwaiste Mitglieder werden ENDGÜLTIG gelöscht. Fortfahren?`
-    )) return;
+    const ok = await confirmDialog({
+      title: "Endgültig bereinigen?",
+      description:
+        `${cleanupPreview.deletableClubs} leere Vereine und ` +
+        `${cleanupPreview.deletableMembers} verwaiste Mitglieder werden ` +
+        `unwiderruflich gelöscht.`,
+      confirmLabel: "Löschen",
+      variant: "danger",
+    });
+    if (!ok) return;
 
     setCleanupRunning(true);
     try {
@@ -85,21 +99,30 @@ export default function MitgliederAdminPage() {
       ]);
       const candidates = findOrphanedData(clubsSnap, membersSnap);
       const result = await executeCleanup(candidates);
-      alert(`Bereinigt: ${result.deletedClubs} Vereine, ${result.deletedMembers} Mitglieder.`);
+      toast.success("Daten bereinigt", {
+        description: `${result.deletedClubs} Vereine und ${result.deletedMembers} Mitglieder gelöscht.`,
+      });
       setCleanupPreview(null);
       await loadAll();
     } catch (e) {
-      alert("Fehler beim Bereinigen: " + (e as Error).message);
+      toast.error("Bereinigung fehlgeschlagen", { description: (e as Error).message });
     }
     setCleanupRunning(false);
   };
 
   const deleteMember = async (id: string, name: string) => {
-    if (!confirm(`Möchtest du das Mitglied "${name}" und sein Login-Konto wirklich komplett und endgültig aus der App löschen?`)) return;
+    const ok = await confirmDialog({
+      title: `${name} löschen?`,
+      description: "Das Mitglied und sein Login-Konto werden komplett und endgültig aus der App entfernt.",
+      confirmLabel: "Endgültig löschen",
+      variant: "danger",
+    });
+    if (!ok) return;
+
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) {
-        alert("Fehler: Nicht autorisiert.");
+        toast.error("Nicht autorisiert", { description: "Bitte erneut einloggen." });
         return;
       }
       const res = await fetch("/api/admin/delete-member", {
@@ -115,10 +138,10 @@ export default function MitgliederAdminPage() {
         throw new Error(data.error ?? "Fehler beim Löschen des Mitglieds.");
       }
       setMembers((prev) => prev.filter((m) => m.id !== id));
-      alert("Mitglied und Login-Konto erfolgreich gelöscht!");
+      toast.success("Mitglied gelöscht", { description: `${name} wurde entfernt.` });
     } catch (e) {
       console.error(e);
-      alert("Fehler beim Löschen: " + (e as Error).message);
+      toast.error("Löschen fehlgeschlagen", { description: (e as Error).message });
     }
   };
 
@@ -205,7 +228,7 @@ export default function MitgliederAdminPage() {
             >
               <Sparkles size={13} /> Bereinigen
             </button>
-            <button
+            <button aria-label="Aktualisieren"
               onClick={loadAll}
               disabled={loading}
               className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
@@ -332,10 +355,15 @@ export default function MitgliederAdminPage() {
             <div className="w-7 h-7 rounded-full border-2 border-black/10 border-t-[#0A0A0A] animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <Users size={32} className="mb-4" style={{ color: "#71717A" }} />
-            <p className="font-poppins font-bold text-[18px] text-[#0A0A0A] mb-2">Keine Mitglieder gefunden</p>
-          </div>
+          <EmptyState
+            icon={Users}
+            title="Keine Mitglieder gefunden"
+            description={
+              search
+                ? `Kein Mitglied passt zum Suchbegriff "${search}".`
+                : "In dieser Auswahl sind keine Mitglieder."
+            }
+          />
         ) : (
           <div className="flex flex-col gap-2">
             <p className="text-[10px] font-black uppercase tracking-widest text-[#71717A] pl-1">

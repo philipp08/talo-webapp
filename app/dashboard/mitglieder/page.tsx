@@ -15,6 +15,9 @@ import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { Member, MemberType, calculateTargetPoints, Entry, ClubGroup, getPlanFeatures, getEffectivePlanFeatures, isLightColor, Duel, DuelGroupConfig } from "@/lib/firebase/models";
 import { AuthService } from "@/lib/firebase/authService";
 import { EmailService } from "@/lib/firebase/emailService";
+import { toast } from "@/lib/ui/toast";
+import { confirmDialog, alertDialog } from "@/lib/ui/dialog";
+import { useEscapeKey } from "@/lib/ui/useEscapeKey";
 import { TAvatar, GlassSection, TLine, TSearchBar } from "@/app/components/ui/NativeUI";
 import { useI18n } from "@/lib/i18n/I18nContext";
 
@@ -132,6 +135,12 @@ export default function MembersPage() {
     setGeneratedPassword(null);
   };
 
+  // Escape closes both modals — but only if no destructive op is running.
+  useEscapeKey(isInviteOpen && !isCreating && !isSendingMail, closeInviteModal);
+
+  // Escape closes the import modal — but never during the in-progress step
+  // (would lose progress; user must explicitly wait for completion).
+  // We declare it before closeImportModal because the hook reads its state.
   const closeImportModal = () => {
     setIsImportOpen(false);
     setImportStep("upload");
@@ -145,6 +154,9 @@ export default function MembersPage() {
     setIsPreviewLoading(false);
     setImportedResults([]);
   };
+
+  useEscapeKey(isImportOpen && importStep !== "progress", closeImportModal);
+
   const planFeatures = currentClub ? getEffectivePlanFeatures(currentClub) : getPlanFeatures();
   const accentRaw = currentClub?.accentColor ?? currentClub?.brandColor ?? "#0A0A0A";
   const accent = planFeatures.hasClubColors ? accentRaw : "#0A0A0A";
@@ -284,7 +296,9 @@ export default function MembersPage() {
       if (!text) return;
       const parsed = parseCSV(text);
       if (parsed.length < 2) {
-        alert("Die CSV-Datei enthält nicht genügend Daten.");
+        toast.error("CSV-Datei unbrauchbar", {
+          description: "Die Datei enthält keine Datenzeilen. Mindestens Kopfzeile + 1 Mitglied erwartet.",
+        });
         return;
       }
 
@@ -416,13 +430,17 @@ export default function MembersPage() {
 
     if (wouldAddNew.length > remaining) {
       truncated = wouldAddNew.length - remaining;
-      const proceed = window.confirm(
-        `Dein ${planFeatures.name}-Plan erlaubt maximal ${planFeatures.maxMembers} Mitglieder.\n\n` +
-        `Aktuell: ${members.length}\n` +
-        `Neue Mitglieder im Import: ${wouldAddNew.length}\n` +
-        `Davon importierbar: ${remaining}\n\n` +
-        `${truncated} Mitglieder werden übersprungen. Importieren?`
-      );
+      const proceed = await confirmDialog({
+        title: "Mitgliederlimit erreicht",
+        description:
+          `Dein ${planFeatures.name}-Plan erlaubt maximal ${planFeatures.maxMembers} Mitglieder.\n\n` +
+          `Aktuell: ${members.length}\n` +
+          `Neue Mitglieder im Import: ${wouldAddNew.length}\n` +
+          `Davon importierbar: ${remaining}\n\n` +
+          `${truncated} Mitglieder werden übersprungen.`,
+        confirmLabel: `${remaining} importieren`,
+        variant: "warning",
+      });
       if (!proceed) return;
 
       // Build truncated list: keep all in-club skips (they don't consume slots)
@@ -443,12 +461,15 @@ export default function MembersPage() {
     // Welcome-mail rate-limit warning: opt-in already, but for large imports
     // ask the admin to re-confirm before triggering many transactional mails.
     if (sendWelcomeEmailsBulk && validMembers.length > 50) {
-      const ok = window.confirm(
-        `Du importierst ${validMembers.length} Mitglieder MIT Willkommens-Mail.\n\n` +
-        `Das sendet bis zu ${validMembers.length} E-Mails. Bei großen Mengen ` +
-        `kann dein Mail-Provider als Spam markieren.\n\n` +
-        `Fortfahren?`
-      );
+      const ok = await confirmDialog({
+        title: `${validMembers.length} Willkommens-Mails versenden?`,
+        description:
+          `Du importierst ${validMembers.length} Mitglieder MIT Willkommens-Mail. ` +
+          `Das sendet bis zu ${validMembers.length} E-Mails. Bei großen Mengen ` +
+          `kann dein Mail-Provider als Spam markieren.`,
+        confirmLabel: "Mails versenden",
+        variant: "warning",
+      });
       if (!ok) return;
     }
 
@@ -648,7 +669,9 @@ export default function MembersPage() {
                 <button
                   onClick={() => {
                     if (isLimitReached) {
-                      alert(`Das Mitgliederlimit (${planFeatures.maxMembers}) deines aktuellen Plans ist erreicht. Bitte im Bereich 'Einstellungen' eine neue Lizenz aktivieren.`);
+                      toast.warning("Mitgliederlimit erreicht", {
+                        description: `Dein ${planFeatures.name}-Plan erlaubt maximal ${planFeatures.maxMembers} Mitglieder. Aktiviere eine neue Lizenz in den Einstellungen.`,
+                      });
                       return;
                     }
                     setIsInviteOpen(true);
@@ -1498,14 +1521,7 @@ export default function MembersPage() {
                             Zurück
                           </button>
                           <button
-                            onClick={() => {
-                              const validCount = mappedMembers.filter(m => m.isValid && m.selected).length;
-                              if (members.length + validCount > planFeatures.maxMembers) {
-                                alert(`Mitgliederlimit (${planFeatures.maxMembers}) würde überschritten. Du kannst maximal ${planFeatures.maxMembers - members.length} neue Mitglieder hinzufügen.`);
-                                return;
-                              }
-                              startImport();
-                            }}
+                            onClick={() => startImport()}
                             disabled={mappedMembers.filter(m => m.isValid && m.selected).length === 0}
                             style={{ backgroundColor: accent, color: accentLight ? "#0A0A0A" : "#FFFFFF" }}
                             className="flex-1 h-12 rounded-xl font-bold text-xs uppercase tracking-widest text-white disabled:opacity-50 shadow-lg shadow-black/10"
@@ -1694,7 +1710,7 @@ function ListView({
                       
                       <Link
                         href={`/dashboard/mitglieder/${member.id}`}
-                        className="w-8 h-8 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all"
+                        className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all"
                       >
                         <MoreVertical size={14} />
                       </Link>
@@ -1766,7 +1782,7 @@ function ListView({
                         <td className="px-6 py-4">
                           <Link
                             href={`/dashboard/mitglieder/${member.id}`}
-                            className="w-8 h-8 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all"
+                            className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-xl bg-black/[0.04] flex items-center justify-center text-[#52525B] hover:text-[#0A0A0A] hover:bg-black/[0.08] transition-all"
                           >
                             <MoreVertical size={14} />
                           </Link>

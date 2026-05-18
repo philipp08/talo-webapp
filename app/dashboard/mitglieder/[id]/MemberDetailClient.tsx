@@ -18,10 +18,11 @@ import {
   Member, Entry, MemberType,
   calculateTargetPoints, EntryStatus, ClubGroup, getPlanFeatures, isLightColor,
 } from "@/lib/firebase/models";
-import { 
+import {
   TAvatar,
   TButton, TCatBadge, TStatusBadge
 } from "@/app/components/ui/NativeUI";
+import { toast } from "@/lib/ui/toast";
 
 function toDate(d: Entry["date"]): Date {
   return d instanceof Date ? d : d.toDate();
@@ -85,13 +86,16 @@ export default function MemberDetailPage() {
       });
       if (res.ok) {
         setResetState("sent");
+        toast.success("Reset-Link versendet", {
+          description: `Eine E-Mail wurde an ${member.email} geschickt.`,
+        });
       } else {
         setResetState("idle");
-        alert("Reset-Link konnte nicht gesendet werden.");
+        toast.error("Reset-Link konnte nicht gesendet werden");
       }
     } catch {
       setResetState("idle");
-      alert("Fehler beim Senden.");
+      toast.error("Senden fehlgeschlagen", { description: "Netzwerk- oder Serverfehler." });
     }
   };
 
@@ -229,7 +233,10 @@ export default function MemberDetailPage() {
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
             console.error("Auth deletion failed:", data.error || data);
-            alert(`Mitglied wurde aus der Datenbank gelöscht, aber das Firebase Auth-Konto konnte nicht entfernt werden.\n\nGrund: ${data.error || data.reason || "Serverfehler"}.\n\nBitte vergewissere dich, dass die Firebase Admin-Umgebungsvariablen (FIREBASE_CLIENT_EMAIL & FIREBASE_PRIVATE_KEY) auf dem Server (Vercel) konfiguriert sind, damit Auth-Konten administrativ entfernt werden können.`);
+            toast.warning("Login-Konto nicht entfernt", {
+              description: `Mitglied gelöscht, aber das Firebase Auth-Konto konnte nicht entfernt werden. Grund: ${data.error || data.reason || "Serverfehler"}.`,
+              durationMs: 8000,
+            });
           }
         }
       } catch (err) {

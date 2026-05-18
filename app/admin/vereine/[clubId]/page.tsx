@@ -14,7 +14,10 @@ import {
   CheckCircle2, Mail, ChevronRight, Save, X, Sparkles,
 } from "lucide-react";
 import { GlassSection, TLine, TButton } from "@/app/components/ui/NativeUI";
+import { EmptyState } from "@/app/components/ui/EmptyState";
 import { getPlanFeatures, getPlanKey, PLAN_TIERS, PlanKey } from "@/lib/firebase/models";
+import { toast } from "@/lib/ui/toast";
+import { useEscapeKey } from "@/lib/ui/useEscapeKey";
 import Link from "next/link";
 
 interface ClubDetail {
@@ -83,6 +86,9 @@ export default function ClubDetailPage() {
   // Delete confirmation
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Escape closes the delete-confirm modal (unless deletion is running).
+  useEscapeKey(showDelete && !deleting, () => setShowDelete(false));
 
   // Club config editing
   const [editingConfig, setEditingConfig] = useState(false);
@@ -249,24 +255,30 @@ export default function ClubDetailPage() {
       await updateDoc(doc(db, "clubs", club.id), updates);
       setEditingPlan(false);
       await loadAll();
+      toast.success("Plan aktualisiert");
     } catch (e) {
-      alert("Fehler: " + (e as Error).message);
+      toast.error("Speichern fehlgeschlagen", { description: (e as Error).message });
     }
     setSavingPlan(false);
   };
 
   const extendLicense = async (years: number) => {
     if (!club) return;
-    const currentExpiry =
-      club.licenseExpiresAt?.toDate?.() ?? new Date();
-    const base = currentExpiry > new Date() ? currentExpiry : new Date();
-    const newDate = new Date(base);
-    newDate.setFullYear(newDate.getFullYear() + years);
-    await updateDoc(doc(db, "clubs", club.id), {
-      licenseExpiresAt: Timestamp.fromDate(newDate),
-      licenseStatus: "active",
-    });
-    await loadAll();
+    try {
+      const currentExpiry =
+        club.licenseExpiresAt?.toDate?.() ?? new Date();
+      const base = currentExpiry > new Date() ? currentExpiry : new Date();
+      const newDate = new Date(base);
+      newDate.setFullYear(newDate.getFullYear() + years);
+      await updateDoc(doc(db, "clubs", club.id), {
+        licenseExpiresAt: Timestamp.fromDate(newDate),
+        licenseStatus: "active",
+      });
+      await loadAll();
+      toast.success(`Lizenz um ${years} Jahr${years > 1 ? "e" : ""} verlängert`);
+    } catch (e) {
+      toast.error("Verlängerung fehlgeschlagen", { description: (e as Error).message });
+    }
   };
 
   const saveConfig = async () => {
@@ -283,8 +295,9 @@ export default function ClubDetailPage() {
       });
       setEditingConfig(false);
       await loadAll();
+      toast.success("Konfiguration gespeichert");
     } catch (e) {
-      alert("Fehler beim Speichern: " + (e as Error).message);
+      toast.error("Speichern fehlgeschlagen", { description: (e as Error).message });
     }
     setSavingConfig(false);
   };
@@ -307,9 +320,10 @@ export default function ClubDetailPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Fehler beim Löschen.");
+      toast.success("Verein gelöscht");
       router.push("/admin/vereine");
     } catch (e) {
-      alert("Fehler beim Löschen: " + (e as Error).message);
+      toast.error("Löschen fehlgeschlagen", { description: (e as Error).message });
       setDeleting(false);
     }
   };
@@ -379,7 +393,7 @@ export default function ClubDetailPage() {
               </div>
             </div>
           </div>
-          <button
+          <button aria-label="Aktualisieren"
             onClick={loadAll}
             className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
             style={{ background: "rgba(0,0,0,0.05)", color: "#71717A" }}
@@ -641,7 +655,11 @@ export default function ClubDetailPage() {
                 </div>
                 <TLine />
                 {members.length === 0 ? (
-                  <p className="text-[12px] text-[#71717A] py-6 text-center">Noch keine Mitglieder.</p>
+                  <EmptyState
+                    icon={Users}
+                    title="Noch keine Mitglieder"
+                    description="Dieser Verein hat noch keine Mitglieder. Sobald der Admin Mitglieder einlädt, erscheinen sie hier."
+                  />
                 ) : (
                   <div className="flex flex-col divide-y divide-black/[0.04] max-h-[400px] overflow-y-auto">
                     {members.map((m) => (
@@ -681,7 +699,11 @@ export default function ClubDetailPage() {
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#71717A]">Letzte Einträge</p>
                 <TLine />
                 {entries.length === 0 ? (
-                  <p className="text-[12px] text-[#71717A] py-6 text-center">Noch keine Einträge.</p>
+                  <EmptyState
+                    icon={FileText}
+                    title="Noch keine Einträge"
+                    description="Sobald Mitglieder Punkte erfassen oder Schichten übernehmen, erscheinen die Einträge hier."
+                  />
                 ) : (
                   <div className="flex flex-col divide-y divide-black/[0.04]">
                     {entries.map((e) => (

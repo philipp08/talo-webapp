@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
 import { posts } from "./blog/posts";
-import { absoluteUrl } from "./seo";
+import { absoluteUrl, defaultOgImage } from "./seo";
 
-const lastModified = new Date("2026-05-14");
+const lastModified = new Date("2026-05-18");
 
 const staticRoutes = [
-  { path: "/", changeFrequency: "weekly" as const, priority: 1 },
+  { path: "/", changeFrequency: "weekly" as const, priority: 1, images: [defaultOgImage.url] },
   { path: "/funktionen", changeFrequency: "monthly" as const, priority: 0.9 },
   { path: "/loesungen", changeFrequency: "monthly" as const, priority: 0.85 },
   { path: "/preise", changeFrequency: "monthly" as const, priority: 0.8 },
@@ -26,6 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: route.changeFrequency,
       priority: route.priority,
+      ...(route.images ? { images: route.images } : {}),
     })),
     ...posts.map((post) => ({
       url: absoluteUrl(`/blog/${post.slug}`),

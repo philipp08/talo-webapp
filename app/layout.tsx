@@ -3,7 +3,15 @@ import { Poppins, Montserrat } from "next/font/google";
 import AuthProvider from "./components/AuthProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 import CookieBanner from "./components/CookieBanner";
-import { createPageMetadata, defaultDescription, organizationJsonLd, siteName, siteUrl, websiteJsonLd } from "./seo";
+import {
+  createPageMetadata,
+  defaultDescription,
+  organizationJsonLd,
+  siteName,
+  siteUrl,
+  softwareApplicationJsonLd,
+  websiteJsonLd,
+} from "./seo";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -22,14 +30,16 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   ...createPageMetadata({
-    title: "Talo | Digitale Vereinsverwaltung für Engagement und Punkte",
+    title: "Talo | Vereinssoftware für Punktevergabe und Mitgliederverwaltung",
     description: defaultDescription,
-    keywords: ["Vereinsverwaltung", "Ehrenamt", "Punktesystem Verein", "Mitgliederverwaltung", "Talo"],
+    keywords: ["Vereinssoftware", "Vereinsverwaltung", "Punktevergabe Verein", "Mitgliederverwaltung", "Talo"],
   }),
   metadataBase: new URL(siteUrl),
   applicationName: siteName,
+  creator: "Talo",
+  publisher: "Talo",
   title: {
-    default: "Talo | Digitale Vereinsverwaltung für Engagement und Punkte",
+    default: "Talo | Vereinssoftware für Punktevergabe und Mitgliederverwaltung",
     template: "%s | Talo",
   },
   appleWebApp: {
@@ -51,6 +61,8 @@ export const viewport = {
 
 import { DemoProvider } from "@/lib/context/DemoContext";
 import DemoModal from "./components/DemoModal";
+import { Toaster } from "./components/ui/Toaster";
+import { DialogRoot } from "./components/ui/DialogRoot";
 
 export default function RootLayout({
   children,
@@ -63,7 +75,7 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([organizationJsonLd, websiteJsonLd]),
+            __html: JSON.stringify([organizationJsonLd, websiteJsonLd, softwareApplicationJsonLd]),
           }}
         />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light">
@@ -72,6 +84,8 @@ export default function RootLayout({
               {children}
               <DemoModal />
               <CookieBanner />
+              <Toaster />
+              <DialogRoot />
             </DemoProvider>
           </AuthProvider>
         </ThemeProvider>

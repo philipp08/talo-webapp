@@ -18,11 +18,6 @@ import Counter from "./components/Counter";
 import { motion, AnimatePresence, useScroll, useTransform, MotionValue } from "framer-motion";
 import dynamic from "next/dynamic";
 
-const HeroAnimationPlayer = dynamic(
-  () => import("./components/HeroAnimationPlayer").then((m) => m.HeroAnimationPlayer),
-  { ssr: false }
-);
-
 const ActivityFeedPlayer = dynamic(
   () => import("./components/MiniAnimationPlayers").then((m) => m.ActivityFeedPlayer),
   { ssr: false }
@@ -164,7 +159,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
 
           <ScrollReveal direction="up" delay={0.13}>
             <h1 className="text-center not-italic font-medium tracking-tight leading-[1.08] font-logo text-gray-950 dark:text-white mb-7 [font-size:clamp(2rem,5.5vw,5rem)] [text-wrap:balance]">
-              Vereinsmanagement,{" "}
+              Vereinsverwaltung,{" "}
               <span className="text-gray-400 dark:text-white/30">endlich einfach.</span>
             </h1>
           </ScrollReveal>
@@ -220,9 +215,13 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
         <ScrollReveal direction="up" delay={0.4}>
           <div className="max-w-4xl mx-auto px-6 mt-20 relative">
             <div className="relative rounded-2xl md:rounded-3xl border border-gray-200/80 dark:border-white/[0.08] overflow-hidden shadow-2xl bg-white dark:bg-[#111]">
-              <img
-                src="https://i.ibb.co/FLDXZ7b3/Bildschirmfoto-2026-05-17-um-17-15-16.png"
-                alt="TALO Vereinsmanagement Dashboard"
+              <Image
+                src="/dashboard-mockup.png"
+                alt="Talo Dashboard für Punktevergabe, Genehmigungen und Mitgliederverwaltung im Verein"
+                width={1024}
+                height={609}
+                priority
+                sizes="(min-width: 1024px) 896px, calc(100vw - 48px)"
                 className="w-full h-auto object-contain block"
               />
             </div>

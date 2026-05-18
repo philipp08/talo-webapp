@@ -198,7 +198,7 @@ export default function AdminOverviewPage() {
               Globale Plattform-Statistiken
             </p>
           </div>
-          <button
+          <button aria-label="Aktualisieren"
             onClick={loadStats}
             disabled={loading}
             className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"

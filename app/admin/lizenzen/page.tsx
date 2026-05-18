@@ -3,6 +3,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "@/lib/ui/toast";
+import { useEscapeKey } from "@/lib/ui/useEscapeKey";
 import { db } from "@/lib/firebase/config";
 import {
   collection, getDocs, Timestamp, addDoc, doc, deleteDoc, updateDoc, getDoc,
@@ -60,6 +62,9 @@ export default function LizenzenAdminPage() {
   // Delete
   const [deleteTarget, setDeleteTarget] = useState<License | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Escape closes the delete-confirm modal (unless deletion is running).
+  useEscapeKey(!!deleteTarget && !deleting, () => setDeleteTarget(null));
 
   async function loadLicenses() {
     setLoading(true);
@@ -133,7 +138,7 @@ export default function LizenzenAdminPage() {
       setExpiresAtStr("");
       loadLicenses();
     } catch (err) {
-      alert("Fehler: " + err);
+      toast.error("Lizenz konnte nicht erstellt werden", { description: String(err) });
     }
     setCreating(false);
   }
@@ -160,7 +165,7 @@ export default function LizenzenAdminPage() {
       setDeleteTarget(null);
       loadLicenses();
     } catch (err) {
-      alert("Fehler beim Löschen: " + err);
+      toast.error("Lizenz konnte nicht gelöscht werden", { description: String(err) });
     }
     setDeleting(false);
   }
@@ -187,7 +192,7 @@ export default function LizenzenAdminPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <button aria-label="Aktualisieren"
               onClick={loadLicenses}
               disabled={loading}
               className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"

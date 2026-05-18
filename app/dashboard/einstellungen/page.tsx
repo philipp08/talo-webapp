@@ -15,6 +15,8 @@ import { FirebaseManager } from "@/lib/firebase/firebaseManager";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
 import { SeasonType, Entry, Member, ClubGroup, PLAN_TIERS, getPlanFeatures, getEffectivePlanFeatures, isLicenseExpired, CustomMemberType, isLightColor, MemberType, PointFactors, SPORT_TYPE_LABELS } from "@/lib/firebase/models";
+import { toast } from "@/lib/ui/toast";
+import { confirmDialog } from "@/lib/ui/dialog";
 import {
   GlassSection, TLine, TAvatar, TButton, TBadge,
   PlanLockedField, PlanUpsell
@@ -369,8 +371,19 @@ export default function SettingsPage() {
 
   const deleteGroup = async (groupId: string) => {
     if (!currentClub || !planFeatures.hasGroups) return;
-    if (!window.confirm("Gruppe löschen? Mitglieder werden aus dieser Gruppe entfernt.")) return;
-    await FirebaseManager.deleteGroup(currentClub.id, groupId);
+    const ok = await confirmDialog({
+      title: "Gruppe löschen?",
+      description: "Mitglieder werden aus dieser Gruppe entfernt. Ihre Einträge und Punktekonten bleiben erhalten.",
+      confirmLabel: "Löschen",
+      variant: "danger",
+    });
+    if (!ok) return;
+    try {
+      await FirebaseManager.deleteGroup(currentClub.id, groupId);
+      toast.success("Gruppe gelöscht");
+    } catch (e) {
+      toast.error("Gruppe konnte nicht gelöscht werden", { description: (e as Error).message });
+    }
   };
 
   const addCustomMemberType = async () => {
@@ -414,11 +427,15 @@ export default function SettingsPage() {
     const isCsv = key.includes("csv");
 
     if (isCsv && !planFeatures.canExportCsv) {
-      alert("CSV-Exporte sind in deinem aktuellen Plan nicht enthalten (ab Verein verfügbar).");
+      toast.warning("CSV-Export nicht verfügbar", {
+        description: "Upgrade auf den Club-Plan, um Daten als CSV zu exportieren.",
+      });
       return;
     }
     if (isPdf && !planFeatures.canExportPdf) {
-      alert("PDF-Exporte sind in deinem aktuellen Plan nicht enthalten (ab Club verfügbar).");
+      toast.warning("PDF-Export nicht verfügbar", {
+        description: "Upgrade auf den Club-Plan, um Berichte als PDF zu exportieren.",
+      });
       return;
     }
 
@@ -496,7 +513,7 @@ export default function SettingsPage() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="lg:sticky lg:top-6"
+            className="md:sticky md:top-6"
           >
             <GlassSection>
               <div className="p-6 flex flex-col items-center gap-3">
@@ -734,7 +751,7 @@ export default function SettingsPage() {
                                 </div>
                                 <button
                                   onClick={() => deleteGroup(group.id)}
-                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#FF453A] hover:bg-[#FF453A]/10 transition-all"
+                                  className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#FF453A] hover:bg-[#FF453A]/10 transition-all"
                                 >
                                   <Trash2 size={14} />
                                 </button>
@@ -802,7 +819,7 @@ export default function SettingsPage() {
                                 </div>
                                 <button
                                   onClick={() => updateBuiltInFactor(type, String(currentPct))}
-                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#0A0A0A] hover:bg-black/[0.06] transition-all shrink-0"
+                                  className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#0A0A0A] hover:bg-black/[0.06] transition-all shrink-0"
                                   title="Speichern"
                                 >
                                   <Check size={14} />
@@ -844,7 +861,7 @@ export default function SettingsPage() {
                                 </div>
                                 <button
                                   onClick={() => removeCustomMemberType(cmt.id)}
-                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#FF453A] hover:bg-[#FF453A]/10 transition-all"
+                                  className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg flex items-center justify-center text-[#A1A1AA] hover:text-[#FF453A] hover:bg-[#FF453A]/10 transition-all"
                                 >
                                   <Trash2 size={14} />
                                 </button>

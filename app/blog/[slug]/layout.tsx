@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { getPostBySlug } from "@/app/blog/posts";
-import { absoluteUrl, createPageMetadata, siteName } from "@/app/seo";
+import { absoluteUrl, createPageMetadata, defaultOgImage, siteName } from "@/app/seo";
 
 type Props = {
   children: ReactNode;
@@ -48,6 +48,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
       publishedTime: post.publishedTime,
       authors: [post.author],
       tags: post.keywords,
+      images: [defaultOgImage],
     },
   };
 }
