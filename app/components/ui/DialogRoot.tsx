@@ -129,7 +129,7 @@ export function DialogRoot() {
               const style = VARIANT_STYLES[top.variant];
               const Icon = style.icon;
               return (
-                <div className="flex flex-col items-center gap-3 p-7 text-center">
+                <div className="flex flex-col items-center gap-3 p-5 sm:p-7 text-center">
                   <div
                     className="flex h-14 w-14 items-center justify-center rounded-2xl"
                     style={{ background: style.bg, color: style.color }}

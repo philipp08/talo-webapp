@@ -1027,7 +1027,7 @@ export default function ShiftsPage() {
                 onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-sm"
               >
-                <GlassSection className="p-6 flex flex-col gap-5">
+                <GlassSection className="p-5 sm:p-6 flex flex-col gap-4 sm:gap-5">
                   <div className="flex items-center justify-between">
                     <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
                       {t("schichten.createModalTitle")}
@@ -1078,7 +1078,7 @@ export default function ShiftsPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="flex flex-col gap-2">
                         <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-widest pl-1">{t("schichten.dateLabel")}</label>
                         <input
@@ -1100,7 +1100,7 @@ export default function ShiftsPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 bg-black/[0.02] border border-black/5 p-4 rounded-[24px]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-black/[0.02] border border-black/5 p-4 rounded-[24px]">
                       <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-poppins font-black text-[#71717A] uppercase tracking-widest pl-1">{t("schichten.startTimeLabel")}</label>
                         <input

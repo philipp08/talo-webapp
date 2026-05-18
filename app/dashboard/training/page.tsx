@@ -524,9 +524,9 @@ export default function TrainingPage() {
           <Backdrop onClick={() => setAbsenceTarget(null)}>
             <Modal>
               <ModalHeader title={t("training.reportAbsence")} onClose={() => setAbsenceTarget(null)} />
-              <div className="p-6 flex flex-col gap-5">
+              <div className="p-5 sm:p-6 flex flex-col gap-4 sm:gap-5">
                 <p className="text-xs text-[#71717A] font-bold uppercase tracking-widest pl-1">Grund wählen</p>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {ABSENCE_REASONS.map((r) => (
                     <button
                       key={r}
@@ -790,7 +790,7 @@ export default function TrainingPage() {
           <Backdrop onClick={() => setShowExtraForm(false)}>
             <Modal onClick={(e) => e.stopPropagation()}>
               <ModalHeader title={t("training.extraSession")} onClose={() => setShowExtraForm(false)} />
-              <div className="p-6 flex flex-col gap-5">
+              <div className="p-5 sm:p-6 flex flex-col gap-4 sm:gap-5">
                 <Field label={t("training.trainingGroup")}>
                   <select
                     autoFocus

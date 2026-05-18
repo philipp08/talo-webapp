@@ -908,7 +908,7 @@ export default function MembersPage() {
                     ) : (
                       <>
                         {/* Form */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Vorname</label>
                             <div className="relative">
@@ -1132,7 +1132,7 @@ export default function MembersPage() {
                       <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
                           <label className="text-[10px] font-black text-[#52525B] uppercase tracking-widest pl-1 italic">Import-Quelle auswählen</label>
-                          <div className="grid grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {/* ClubDesk */}
                             <button
                               type="button"

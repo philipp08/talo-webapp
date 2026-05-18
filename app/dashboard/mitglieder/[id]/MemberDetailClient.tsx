@@ -429,7 +429,7 @@ export default function MemberDetailPage() {
                        </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                        <div className="bg-black/[0.04] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/5 flex flex-col gap-2">
                           <span className="text-[9px] font-black text-[#52525B] uppercase tracking-widest">Bestätigt</span>
                           <span className="text-xl sm:text-2xl font-mono font-black text-[#0A0A0A]">+{approvedPts.toFixed(1)}</span>
@@ -520,7 +520,7 @@ export default function MemberDetailPage() {
                             <div className="space-y-6">
                                <div className="flex flex-col gap-3">
                                   <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.3em] pl-1">{t("memberDetail.memberType")}</label>
-                                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                                      {availableMemberTypes.map((t) => (
                                        <button key={t} onClick={() => setEditForm({...editForm, memberType: t})}
                                          className={`py-3.5 sm:py-4 rounded-2xl font-poppins font-black text-[10px] sm:text-[11px] transition-all border uppercase tracking-widest ${editForm.memberType === t ? "bg-[#0A0A0A] text-white border-black/15" : "bg-black/[0.03] text-[#71717A] border-black/[0.08] hover:border-black/10"}`}>
@@ -702,7 +702,7 @@ export default function MemberDetailPage() {
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto no-scrollbar"
             >
-              <div className="bg-white border border-black/8 rounded-[28px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] p-7 flex flex-col gap-6">
+              <div className="bg-white border border-black/8 rounded-[24px] sm:rounded-[28px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] p-5 sm:p-7 flex flex-col gap-5 sm:gap-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="w-11 h-11 shrink-0 rounded-2xl bg-black/[0.04] flex items-center justify-center text-[#0A0A0A]">
@@ -719,14 +719,14 @@ export default function MemberDetailPage() {
                 <div className="flex flex-col gap-5">
                   <FormInput label={t("memberDetail.label")} value={entryForm.activityName} onChange={(v) => setEntryForm({...entryForm, activityName: v})} />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormInput label={t("common.points")} value={entryForm.points} onChange={(v) => setEntryForm({...entryForm, points: v})} type="number" />
                     <FormInput label={t("common.date")} value={entryForm.date} onChange={(v) => setEntryForm({...entryForm, date: v})} type="date" />
                   </div>
 
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[11px] font-poppins font-bold text-[#52525B] uppercase tracking-[0.2em] pl-1">Status</label>
-                    <div className="grid grid-cols-3 gap-1 p-1 rounded-2xl bg-black/[0.04] border border-black/5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-1 p-1 rounded-2xl bg-black/[0.04] border border-black/5">
                       {[EntryStatus.Pending, EntryStatus.Approved, EntryStatus.Rejected].map((s) => {
                         const active = entryForm.status === s;
                         const bg =

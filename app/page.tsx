@@ -1,52 +1,96 @@
 "use client";
 
-import { CSSProperties, Dispatch, SetStateAction, useState, useEffect, useRef } from "react";
+import {
+  CSSProperties,
+  Dispatch,
+  SetStateAction,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import ScrollReveal, { StaggerContainer, StaggerItem } from "./components/ScrollReveal";
+import ScrollReveal, {
+  StaggerContainer,
+  StaggerItem,
+} from "./components/ScrollReveal";
 import StickyScroll from "./components/StickyScroll";
 import {
-  Star, ShieldCheck, ArrowRight, Zap, Globe, Lock, Cpu,
+  Star,
+  ShieldCheck,
+  ArrowRight,
+  Zap,
+  Globe,
+  Lock,
+  Cpu,
   Plus,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import ContactForm from "./components/ContactForm";
+import {
+  ApprovalWorkflowMock,
+  WhatsAppShareMock,
+  ImportMock,
+  LicenseKeysMock,
+  ComingSoonMock,
+} from "./components/ExtraUSPPlayers";
 import { posts as blogPosts } from "./blog/posts";
 import { useDemo } from "@/lib/context/DemoContext";
 import Counter from "./components/Counter";
-import { motion, AnimatePresence, useScroll, useTransform, MotionValue } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+  MotionValue,
+} from "framer-motion";
 import dynamic from "next/dynamic";
 
 const ActivityFeedPlayer = dynamic(
-  () => import("./components/MiniAnimationPlayers").then((m) => m.ActivityFeedPlayer),
-  { ssr: false }
+  () =>
+    import("./components/MiniAnimationPlayers").then(
+      (m) => m.ActivityFeedPlayer,
+    ),
+  { ssr: false },
 );
 
 const LeaderboardPlayer = dynamic(
-  () => import("./components/MiniAnimationPlayers").then((m) => m.LeaderboardPlayer),
-  { ssr: false }
+  () =>
+    import("./components/MiniAnimationPlayers").then(
+      (m) => m.LeaderboardPlayer,
+    ),
+  { ssr: false },
 );
 
 const MailingPlayer = dynamic(
-  () => import("./components/MiniAnimationPlayers").then((m) => m.MailingPlayer),
-  { ssr: false }
+  () =>
+    import("./components/MiniAnimationPlayers").then((m) => m.MailingPlayer),
+  { ssr: false },
 );
 
 const RolesPlayer = dynamic(
   () => import("./components/MiniAnimationPlayers").then((m) => m.RolesPlayer),
-  { ssr: false }
+  { ssr: false },
 );
 
 const ExportPlayer = dynamic(
   () => import("./components/MiniAnimationPlayers").then((m) => m.ExportPlayer),
-  { ssr: false }
+  { ssr: false },
 );
 
 /* ─── Word-by-word scroll reveal ─────────────────────────────────── */
 function Word({
-  word, progress, start, end,
-}: { word: string; progress: MotionValue<number>; start: number; end: number }) {
+  word,
+  progress,
+  start,
+  end,
+}: {
+  word: string;
+  progress: MotionValue<number>;
+  start: number;
+  end: number;
+}) {
   const opacity = useTransform(progress, [start, end], [0.12, 1]);
   const y = useTransform(progress, [start, end], [8, 0]);
   return (
@@ -58,14 +102,20 @@ function Word({
 
 function ScrollText({ text, className }: { text: string; className?: string }) {
   const ref = useRef<HTMLParagraphElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.95", "end 0.55"] });
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 0.95", "end 0.55"],
+  });
   const words = text.split(" ");
   return (
     <p ref={ref} className={className}>
       {words.map((word, i) => (
         <Word
-          key={i} word={word} progress={scrollYProgress}
-          start={i / words.length} end={Math.min((i + 2) / words.length, 1)}
+          key={i}
+          word={word}
+          progress={scrollYProgress}
+          start={i / words.length}
+          end={Math.min((i + 2) / words.length, 1)}
         />
       ))}
     </p>
@@ -73,8 +123,16 @@ function ScrollText({ text, className }: { text: string; className?: string }) {
 }
 
 /* ─── FAQ accordion ───────────────────────────────────────────────── */
-function FAQItem({ q, a, isOpen, onToggle }: {
-  q: string; a: string; isOpen: boolean; onToggle: () => void;
+function FAQItem({
+  q,
+  a,
+  isOpen,
+  onToggle,
+}: {
+  q: string;
+  a: string;
+  isOpen: boolean;
+  onToggle: () => void;
 }) {
   return (
     <div className="border-b border-gray-100 dark:border-white/[0.06]">
@@ -82,7 +140,9 @@ function FAQItem({ q, a, isOpen, onToggle }: {
         className="w-full flex items-center justify-between py-6 text-left gap-6"
         onClick={onToggle}
       >
-        <span className="text-base font-semibold text-gray-900 dark:text-white">{q}</span>
+        <span className="text-base font-semibold text-gray-900 dark:text-white">
+          {q}
+        </span>
         <motion.div
           animate={{ rotate: isOpen ? 45 : 0 }}
           transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
@@ -101,7 +161,9 @@ function FAQItem({ q, a, isOpen, onToggle }: {
             transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
             className="overflow-hidden"
           >
-            <p className="pb-6 text-gray-500 dark:text-[#8A8A8A] leading-relaxed text-sm">{a}</p>
+            <p className="pb-6 text-gray-500 dark:text-[#8A8A8A] leading-relaxed text-sm">
+              {a}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -114,8 +176,10 @@ export default function Home() {
   const [isBannerVisible, setIsBannerVisible] = useState(true);
   return (
     <HomeContent
-      showBanner={showBanner} isBannerVisible={isBannerVisible}
-      setShowBanner={setShowBanner} setIsBannerVisible={setIsBannerVisible}
+      showBanner={showBanner}
+      isBannerVisible={isBannerVisible}
+      setShowBanner={setShowBanner}
+      setIsBannerVisible={setIsBannerVisible}
     />
   );
 }
@@ -127,7 +191,12 @@ type HomeContentProps = {
   setIsBannerVisible: Dispatch<SetStateAction<boolean>>;
 };
 
-function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVisible }: HomeContentProps) {
+function HomeContent({
+  showBanner,
+  isBannerVisible,
+  setShowBanner,
+  setIsBannerVisible,
+}: HomeContentProps) {
   const { openDemo } = useDemo();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -149,7 +218,6 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       {/* ── HERO ──────────────────────────────────────────────────── */}
       <section className="relative pt-40 pb-32 md:pt-52 md:pb-44 overflow-hidden">
         <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
-
           <ScrollReveal direction="up" delay={0.05}>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-[11px] font-semibold text-gray-500 dark:text-gray-400 tracking-wide mb-10">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -160,14 +228,20 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           <ScrollReveal direction="up" delay={0.13}>
             <h1 className="text-center not-italic font-medium tracking-tight leading-[1.08] font-logo text-gray-950 dark:text-white mb-7 [font-size:clamp(2.5rem,6vw,5.5rem)] [text-wrap:balance]">
               Die All-in-One App für{" "}
-              <span className="text-gray-400 dark:text-white/30">euren Verein.</span>
+              <span className="text-gray-400 dark:text-white/30">
+                euren Verein.
+              </span>
             </h1>
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.21}>
-            <p className="text-lg sm:text-xl text-gray-500 dark:text-[#888] leading-relaxed max-w-2xl mx-auto mb-12" style={{ textWrap: "pretty" } as CSSProperties}>
-              TALO übernimmt Punktevergabe, Genehmigungen und Mitgliederverwaltung –
-              damit ihr euch auf das konzentriert, was zählt: euren Verein.
+            <p
+              className="text-lg sm:text-xl text-gray-500 dark:text-[#888] leading-relaxed max-w-2xl mx-auto mb-12"
+              style={{ textWrap: "pretty" } as CSSProperties}
+            >
+              TALO übernimmt Punktevergabe, Genehmigungen und
+              Mitgliederverwaltung – damit ihr euch auf das konzentriert, was
+              zählt: euren Verein.
             </p>
           </ScrollReveal>
 
@@ -176,15 +250,27 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               <Link
                 href="/anmelden"
                 className="group hidden sm:inline-flex items-center gap-2.5 px-7 py-4 rounded-xl bg-gray-950 dark:bg-white text-white dark:text-black font-semibold text-sm shadow-[0_4px_24px_rgba(0,0,0,0.12)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.18)] hover:-translate-y-px active:scale-[0.97] active:shadow-none"
-                style={{ transition: "transform 160ms cubic-bezier(0.23,1,0.32,1), box-shadow 160ms cubic-bezier(0.23,1,0.32,1)" }}
+                style={{
+                  transition:
+                    "transform 160ms cubic-bezier(0.23,1,0.32,1), box-shadow 160ms cubic-bezier(0.23,1,0.32,1)",
+                }}
               >
                 Kostenlos starten
-                <ArrowRight size={14} strokeWidth={2.5} className="group-hover:translate-x-0.5" style={{ transition: "transform 160ms cubic-bezier(0.23,1,0.32,1)" }} />
+                <ArrowRight
+                  size={14}
+                  strokeWidth={2.5}
+                  className="group-hover:translate-x-0.5"
+                  style={{
+                    transition: "transform 160ms cubic-bezier(0.23,1,0.32,1)",
+                  }}
+                />
               </Link>
               <Link
                 href="/anmelden"
                 className="flex sm:hidden w-full items-center justify-center gap-2.5 px-7 py-4 rounded-xl bg-gray-950 dark:bg-white text-white dark:text-black font-semibold text-sm shadow-[0_4px_24px_rgba(0,0,0,0.12)] active:scale-[0.97]"
-                style={{ transition: "transform 160ms cubic-bezier(0.23,1,0.32,1)" }}
+                style={{
+                  transition: "transform 160ms cubic-bezier(0.23,1,0.32,1)",
+                }}
               >
                 <ArrowRight size={14} strokeWidth={2.5} />
                 Kostenlos starten
@@ -192,7 +278,10 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               <button
                 onClick={openDemo}
                 className="w-full sm:w-auto px-7 py-4 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white font-semibold text-sm hover:bg-gray-50 dark:hover:bg-white/5 active:scale-[0.97]"
-                style={{ transition: "transform 160ms cubic-bezier(0.23,1,0.32,1), background-color 150ms ease-out" }}
+                style={{
+                  transition:
+                    "transform 160ms cubic-bezier(0.23,1,0.32,1), background-color 150ms ease-out",
+                }}
               >
                 Demo anfragen
               </button>
@@ -200,7 +289,11 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
 
             <div className="flex flex-wrap items-center justify-center gap-5 text-xs font-medium text-gray-400 dark:text-gray-600">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck size={13} strokeWidth={2} className="text-gray-300 dark:text-gray-700" />
+                <ShieldCheck
+                  size={13}
+                  strokeWidth={2}
+                  className="text-gray-300 dark:text-gray-700"
+                />
                 Datenschutz im Fokus
               </span>
               <span className="w-px h-3.5 bg-gray-200 dark:bg-gray-800" />
@@ -253,8 +346,12 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               ].map(({ label, sub }) => (
                 <StaggerItem key={label}>
                   <div className="text-center">
-                    <p className="text-sm font-bold text-gray-700 dark:text-gray-300 tracking-tight">{label}</p>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5 uppercase tracking-wider">{sub}</p>
+                    <p className="text-sm font-bold text-gray-700 dark:text-gray-300 tracking-tight">
+                      {label}
+                    </p>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5 uppercase tracking-wider">
+                      {sub}
+                    </p>
                   </div>
                 </StaggerItem>
               ))}
@@ -273,8 +370,11 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           </ScrollReveal>
           <ScrollReveal direction="up" delay={0.1}>
             <h2 className="text-[2.8rem] md:text-[6rem] lg:text-[8rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[0.93] mb-20 md:mb-32 text-center">
-              Engagement.<br />
-              <span className="text-gray-300 dark:text-white/10 italic font-logo">Orchestriert.</span>
+              Engagement.
+              <br />
+              <span className="text-gray-300 dark:text-white/10 italic font-logo">
+                Orchestriert.
+              </span>
             </h2>
           </ScrollReveal>
           <ScrollText
@@ -298,7 +398,8 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 </h2>
               </div>
               <p className="text-gray-500 dark:text-[#888] leading-relaxed md:max-w-xs text-sm">
-                Vereinssoftware, die eure Daten schützt, eure Mitglieder einbindet und mit euch wächst.
+                Vereinssoftware, die eure Daten schützt, eure Mitglieder
+                einbindet und mit euch wächst.
               </p>
             </div>
           </ScrollReveal>
@@ -326,20 +427,29 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
             ].map((item, i) => (
               <ScrollReveal key={i} direction="up" delay={i * 0.07}>
                 <div className="group flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-10 md:gap-16 py-9 md:py-12 cursor-default">
-                  <span className="text-[10px] font-semibold tracking-[0.3em] text-gray-300 dark:text-gray-800 shrink-0 w-7">{item.num}</span>
+                  <span className="text-[10px] font-semibold tracking-[0.3em] text-gray-300 dark:text-gray-800 shrink-0 w-7">
+                    {item.num}
+                  </span>
                   <div
                     className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] flex items-center justify-center text-gray-400 dark:text-gray-500 shrink-0 group-hover:bg-gray-950 group-hover:text-white group-hover:border-transparent dark:group-hover:bg-white dark:group-hover:text-black"
-                    style={{ transition: "background-color 200ms ease-out, color 200ms ease-out, border-color 200ms ease-out" }}
+                    style={{
+                      transition:
+                        "background-color 200ms ease-out, color 200ms ease-out, border-color 200ms ease-out",
+                    }}
                   >
                     {item.icon}
                   </div>
                   <h3
                     className="text-xl md:text-2xl font-semibold text-gray-950 dark:text-white font-logo tracking-tight flex-1 group-hover:translate-x-1"
-                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
                   >
                     {item.title}
                   </h3>
-                  <p className="text-gray-500 dark:text-[#888] leading-relaxed md:max-w-[260px] text-sm">{item.desc}</p>
+                  <p className="text-gray-500 dark:text-[#888] leading-relaxed md:max-w-[260px] text-sm">
+                    {item.desc}
+                  </p>
                 </div>
               </ScrollReveal>
             ))}
@@ -351,7 +461,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       <section id="funktionen">
         <div className="max-w-7xl mx-auto px-6 pt-16 pb-4">
           <ScrollReveal direction="up">
-            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-600 tracking-[0.2em] uppercase mb-5">Das System</p>
+            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-600 tracking-[0.2em] uppercase mb-5">
+              Das System
+            </p>
             <h2 className="text-[2rem] md:text-[4rem] font-medium tracking-tight text-gray-950 dark:text-white leading-[1.1] font-logo">
               Vier Schritte. Ein System.
             </h2>
@@ -364,7 +476,6 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       <section className="px-4 md:px-8 lg:px-14 my-20 lg:my-40">
         <div className="py-20 lg:py-40 bg-[#f7f7f7] dark:bg-white/[0.02] rounded-[40px] md:rounded-[72px] overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
-
             <ScrollReveal direction="up">
               <div className="max-w-2xl mb-16 md:mb-28">
                 <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-600 tracking-[0.2em] uppercase mb-5">
@@ -374,30 +485,38 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                   Ein komplettes Ökosystem für euren Verein.
                 </h2>
                 <p className="text-gray-500 dark:text-[#888] leading-relaxed text-base">
-                  TALO ist das Betriebssystem für modernen Vereinsbetrieb. Durchdacht bis ins Detail.
+                  TALO ist das Betriebssystem für modernen Vereinsbetrieb.
+                  Durchdacht bis ins Detail.
                 </p>
               </div>
             </ScrollReveal>
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-
               {/* Card 1 — large 8 cols — with live activity feed */}
               <div className="md:col-span-8">
                 <ScrollReveal direction="up" delay={0}>
                   <div
                     className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
-                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
                   >
                     <div className="p-8 md:p-10 pb-4 flex flex-col items-center text-center">
                       <div
                         className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-7 text-blue-500 group-hover:-translate-y-0.5"
-                        style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                        style={{
+                          transition:
+                            "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                        }}
                       >
                         <Globe size={18} strokeWidth={1.75} />
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Digitale Mitgliederakte</h3>
+                      <h3 className="text-xl font-semibold text-gray-950 dark:text-white tracking-tight mb-2">
+                        Digitale Mitgliederakte
+                      </h3>
                       <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm max-w-md">
-                        Alle Aktivitäten, Einträge und Punktehistorien — übersichtlich und immer aktuell.
+                        Alle Aktivitäten, Einträge und Punktehistorien —
+                        übersichtlich und immer aktuell.
                       </p>
                     </div>
                     {/* Live activity feed animation */}
@@ -413,18 +532,26 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 <ScrollReveal direction="up" delay={0.05}>
                   <div
                     className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
-                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
                   >
                     <div className="p-8 pb-3 flex flex-col items-center text-center">
                       <div
                         className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center mb-7 text-amber-500 group-hover:-translate-y-0.5"
-                        style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                        style={{
+                          transition:
+                            "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                        }}
                       >
                         <Zap size={18} strokeWidth={1.75} />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Automatische Benachrichtigungen</h3>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">
+                        Automatische Benachrichtigungen
+                      </h3>
                       <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
-                        Push-Benachrichtigungen bei Genehmigungen, Ablehnungen und Saisonfristen – kein manuelles Nachhaken.
+                        Push-Benachrichtigungen bei Genehmigungen, Ablehnungen
+                        und Saisonfristen – kein manuelles Nachhaken.
                       </p>
                     </div>
                     <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
@@ -439,18 +566,26 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 <ScrollReveal direction="up" delay={0.08}>
                   <div
                     className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
-                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
                   >
                     <div className="p-8 pb-3 flex flex-col items-center text-center">
                       <div
                         className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mb-7 text-emerald-500 group-hover:-translate-y-0.5"
-                        style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                        style={{
+                          transition:
+                            "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                        }}
                       >
                         <Lock size={18} strokeWidth={1.75} />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Rollen & Berechtigungen</h3>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">
+                        Rollen & Berechtigungen
+                      </h3>
                       <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
-                        Präzises Rechtesystem — vom Vorstand bis zum Übungsleiter.
+                        Präzises Rechtesystem — vom Vorstand bis zum
+                        Übungsleiter.
                       </p>
                     </div>
                     <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
@@ -465,18 +600,26 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 <ScrollReveal direction="up" delay={0.11}>
                   <div
                     className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
-                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
                   >
                     <div className="p-8 pb-3 flex flex-col items-center text-center">
                       <div
                         className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center mb-7 text-purple-500 group-hover:-translate-y-0.5"
-                        style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                        style={{
+                          transition:
+                            "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                        }}
                       >
                         <Cpu size={18} strokeWidth={1.75} />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Deep Analytics</h3>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">
+                        Deep Analytics
+                      </h3>
                       <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
-                        Live Rankings, Bestenlisten und Saisonübersichten — auf einen Blick.
+                        Live Rankings, Bestenlisten und Saisonübersichten — auf
+                        einen Blick.
                       </p>
                     </div>
                     <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
@@ -491,18 +634,26 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 <ScrollReveal direction="up" delay={0.14}>
                   <div
                     className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
-                    style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
                   >
                     <div className="p-8 pb-3 flex flex-col items-center text-center">
                       <div
                         className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mb-7 text-rose-500 group-hover:-translate-y-0.5"
-                        style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                        style={{
+                          transition:
+                            "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                        }}
                       >
                         <ArrowRight size={18} strokeWidth={1.75} />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">Nahtlose Exporte</h3>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">
+                        Nahtlose Exporte
+                      </h3>
                       <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
-                        Excel oder PDF – eure Daten jederzeit in dem Format, das ihr braucht.
+                        Excel oder PDF – eure Daten jederzeit in dem Format, das
+                        ihr braucht.
                       </p>
                     </div>
                     <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e]">
@@ -512,7 +663,177 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 </ScrollReveal>
               </div>
 
+              {/* WhatsApp Share — 4 cols */}
+              <div className="md:col-span-4">
+                <ScrollReveal direction="up" delay={0.17}>
+                  <div
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
+                  >
+                    <div className="p-8 pb-3 flex flex-col items-center text-center">
+                      <div className="w-10 h-10 rounded-xl bg-green-50 dark:bg-green-500/10 flex items-center justify-center mb-7 text-green-500">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">
+                        WhatsApp Invite
+                      </h3>
+                      <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
+                        Lade Mitglieder mit einem Klick über WhatsApp direkt in
+                        den Verein ein.
+                      </p>
+                    </div>
+                    <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e] flex-1 flex flex-col">
+                      <WhatsAppShareMock />
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </div>
 
+              {/* Import — 4 cols */}
+              <div className="md:col-span-4">
+                <ScrollReveal direction="up" delay={0.2}>
+                  <div
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
+                  >
+                    <div className="p-8 pb-3 flex flex-col items-center text-center">
+                      <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center mb-7 text-teal-500">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="8" y1="13" x2="16" y2="13"></line>
+                          <line x1="8" y1="17" x2="16" y2="17"></line>
+                          <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">
+                        Nahtloser Import
+                      </h3>
+                      <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
+                        Datenübernahme aus ClubDesk, WISO oder simplen
+                        Excel-Listen in Sekunden.
+                      </p>
+                    </div>
+                    <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e] flex-1 flex flex-col">
+                      <ImportMock />
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </div>
+
+              {/* License / No headache — 4 cols */}
+              <div className="md:col-span-4">
+                <ScrollReveal direction="up" delay={0.23}>
+                  <div
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
+                  >
+                    <div className="p-8 pb-3 flex flex-col items-center text-center">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-7 text-indigo-500">
+                        <Lock size={18} strokeWidth={1.75} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">
+                        Lizenzschlüssel
+                      </h3>
+                      <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
+                        Einfaches Setup per Lizenzcode. Kopfschmerzfreie
+                        Anmeldung ohne Passwort-Chaos.
+                      </p>
+                    </div>
+                    <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e] flex-1 flex flex-col">
+                      <LicenseKeysMock />
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </div>
+
+              {/* Strafausgleich / Payment — 8 cols */}
+              <div className="md:col-span-8">
+                <ScrollReveal direction="up" delay={0.26}>
+                  <div
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
+                  >
+                    <div className="p-8 md:p-10 pb-4 flex flex-col items-center text-center">
+                      <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center mb-7 text-orange-500">
+                        <Zap size={18} strokeWidth={1.75} />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-950 dark:text-white tracking-tight mb-2">
+                        Strafausgleich per App{" "}
+                        <span className="ml-1 text-[10px] bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 px-2 py-0.5 rounded-full uppercase tracking-wider relative -top-0.5">
+                          Coming Soon
+                        </span>
+                      </h3>
+                      <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm max-w-md">
+                        Punkte nicht erreicht? Mitglieder können ihren Ausgleich
+                        am Saisonende bequem und sicher direkt über die App
+                        zahlen (z. B. Apple Pay).
+                      </p>
+                    </div>
+                    <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e] flex-1 flex flex-col">
+                      <ComingSoonMock />
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </div>
+
+              {/* Approval Workflow — 4 cols */}
+              <div className="md:col-span-4">
+                <ScrollReveal direction="up" delay={0.29}>
+                  <div
+                    className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
+                    style={{
+                      transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                    }}
+                  >
+                    <div className="p-8 pb-3 flex flex-col items-center text-center">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mb-7 text-emerald-500">
+                        <ShieldCheck size={18} strokeWidth={1.75} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-950 dark:text-white tracking-tight mb-2">
+                        Genehmigung
+                      </h3>
+                      <p className="text-gray-500 dark:text-[#888] leading-relaxed text-sm">
+                        Ein kluger Workflow macht das Freigeben von Punkten für
+                        den Admin spielend leicht.
+                      </p>
+                    </div>
+                    <div className="border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0e0e0e] flex-1 flex flex-col">
+                      <ApprovalWorkflowMock />
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </div>
             </div>
           </div>
         </div>
@@ -536,9 +857,15 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               <ScrollReveal key={i} direction="up" delay={i * 0.07}>
                 <div className="bg-white dark:bg-[#0a0a0a] px-6 py-12 md:py-16 text-center">
                   <p className="text-4xl md:text-5xl font-medium tracking-tight text-gray-950 dark:text-white mb-2 font-logo">
-                    <Counter value={s.value} suffix={s.suffix} decimalPlaces={0} />
+                    <Counter
+                      value={s.value}
+                      suffix={s.suffix}
+                      decimalPlaces={0}
+                    />
                   </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-600 uppercase tracking-wider">{s.label}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-600 uppercase tracking-wider">
+                    {s.label}
+                  </p>
                 </div>
               </ScrollReveal>
             ))}
@@ -565,19 +892,22 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               {
-                quote: "Genau dieses Gefühl soll Talo auslösen: weniger Suchen, weniger Tabellen, mehr Klarheit für den Vorstand.",
+                quote:
+                  "Genau dieses Gefühl soll Talo auslösen: weniger Suchen, weniger Tabellen, mehr Klarheit für den Vorstand.",
                 author: "Produktnotiz",
                 role: "Talo",
                 image: "/talo-logo.png",
               },
               {
-                quote: "Engagement wird nicht lauter, nur weil es wichtig ist. Talo macht es sichtbar, ohne den Verein mit Verwaltung zu belasten.",
+                quote:
+                  "Engagement wird nicht lauter, nur weil es wichtig ist. Talo macht es sichtbar, ohne den Verein mit Verwaltung zu belasten.",
                 author: "Produktnotiz",
                 role: "Talo",
                 image: "/talo-logo.png",
               },
               {
-                quote: "Die Oberfläche soll so ruhig bleiben, dass auch komplexe Abläufe im Alltag nicht kompliziert wirken.",
+                quote:
+                  "Die Oberfläche soll so ruhig bleiben, dass auch komplexe Abläufe im Alltag nicht kompliziert wirken.",
                 author: "Produktnotiz",
                 role: "Talo",
                 image: "/talo-logo.png",
@@ -586,21 +916,39 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               <ScrollReveal key={i} direction="up" delay={i * 0.08}>
                 <div
                   className="group h-full rounded-2xl bg-[#f7f7f7] dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-8 flex flex-col hover:-translate-y-1"
-                  style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                  style={{
+                    transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                  }}
                 >
                   <div className="flex gap-0.5 mb-6">
                     {Array.from({ length: 5 }).map((_, si) => (
-                      <Star key={si} size={13} fill="currentColor" strokeWidth={0} className="text-amber-400" />
+                      <Star
+                        key={si}
+                        size={13}
+                        fill="currentColor"
+                        strokeWidth={0}
+                        className="text-amber-400"
+                      />
                     ))}
                   </div>
                   <p className="text-gray-700 dark:text-[#999] leading-relaxed mb-8 flex-1 text-sm">
                     „{t.quote}“
                   </p>
                   <div className="flex items-center gap-3">
-                    <Image src={t.image} alt={t.author} width={36} height={36} className="w-9 h-9 rounded-full grayscale object-cover invert dark:invert-0" />
+                    <Image
+                      src={t.image}
+                      alt={t.author}
+                      width={36}
+                      height={36}
+                      className="w-9 h-9 rounded-full grayscale object-cover invert dark:invert-0"
+                    />
                     <div>
-                      <p className="text-sm font-semibold text-gray-950 dark:text-white">{t.author}</p>
-                      <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5 uppercase tracking-wider">{t.role}</p>
+                      <p className="text-sm font-semibold text-gray-950 dark:text-white">
+                        {t.author}
+                      </p>
+                      <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5 uppercase tracking-wider">
+                        {t.role}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -611,10 +959,12 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       </section>
 
       {/* ── CONTACT ──────────────────────────────────────────────── */}
-      <section id="kontakt" className="py-24 md:py-40 relative overflow-hidden bg-[#f7f7f7] dark:bg-white/[0.02]">
+      <section
+        id="kontakt"
+        className="py-24 md:py-40 relative overflow-hidden bg-[#f7f7f7] dark:bg-white/[0.02]"
+      >
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-
             <ScrollReveal direction="left">
               <div>
                 <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-600 tracking-[0.2em] uppercase mb-5">
@@ -624,7 +974,8 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                   Überzeug dich selbst.
                 </h2>
                 <p className="text-gray-500 dark:text-[#888] leading-relaxed mb-10 max-w-sm text-base">
-                  Wir zeigen euch TALO in einer persönlichen Demo — 30 Minuten, live, auf eure Fragen zugeschnitten.
+                  Wir zeigen euch TALO in einer persönlichen Demo — 30 Minuten,
+                  live, auf eure Fragen zugeschnitten.
                 </p>
                 <div className="flex flex-col gap-3">
                   {[
@@ -632,7 +983,10 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                     "Geführte Einrichtung",
                     "Persönlicher Ansprechpartner",
                   ].map((point) => (
-                    <div key={point} className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                    <div
+                      key={point}
+                      className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400"
+                    >
                       <div className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                       </div>
@@ -648,7 +1002,6 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 <ContactForm />
               </div>
             </ScrollReveal>
-
           </div>
         </div>
       </section>
@@ -657,11 +1010,15 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
       <section className="py-24 md:py-40 px-6 bg-white dark:bg-[#0a0a0a]">
         <div className="max-w-2xl mx-auto">
           <ScrollReveal direction="up">
-            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-600 tracking-[0.2em] uppercase mb-5">FAQ</p>
+            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-600 tracking-[0.2em] uppercase mb-5">
+              FAQ
+            </p>
             <h2 className="text-[2rem] md:text-[3rem] font-medium tracking-tight text-gray-950 dark:text-white mb-3 font-logo">
               Häufige Fragen.
             </h2>
-            <p className="text-gray-500 dark:text-[#888] mb-14 text-sm">Alles was ihr über TALO wissen müsst.</p>
+            <p className="text-gray-500 dark:text-[#888] mb-14 text-sm">
+              Alles was ihr über TALO wissen müsst.
+            </p>
           </ScrollReveal>
           <ScrollReveal direction="up" delay={0.1}>
             <div>
@@ -688,7 +1045,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 },
               ].map((faq, i) => (
                 <FAQItem
-                  key={i} q={faq.q} a={faq.a}
+                  key={i}
+                  q={faq.q}
+                  a={faq.a}
                   isOpen={openFaq === i}
                   onToggle={() => setOpenFaq(openFaq === i ? null : i)}
                 />
@@ -711,7 +1070,13 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 className="group hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-500 dark:hover:text-white transition-colors duration-200"
               >
                 Alle Beiträge
-                <ArrowRight size={13} className="group-hover:translate-x-0.5" style={{ transition: "transform 200ms cubic-bezier(0.23,1,0.32,1)" }} />
+                <ArrowRight
+                  size={13}
+                  className="group-hover:translate-x-0.5"
+                  style={{
+                    transition: "transform 200ms cubic-bezier(0.23,1,0.32,1)",
+                  }}
+                />
               </Link>
             </div>
           </ScrollReveal>
@@ -722,7 +1087,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 <Link
                   href={`/blog/${post.slug}`}
                   className="group flex flex-col rounded-2xl bg-[#f7f7f7] dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] p-6 h-full hover:-translate-y-1"
-                  style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
+                  style={{
+                    transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)",
+                  }}
                 >
                   <span className="inline-block text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-600 mb-4">
                     {post.category}
@@ -738,7 +1105,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                       {post.author.charAt(0)}
                     </div>
                     <div className="flex items-center gap-1.5 text-[11px] text-gray-400 dark:text-gray-600 min-w-0">
-                      <span className="font-medium text-gray-600 dark:text-gray-400 truncate">{post.author}</span>
+                      <span className="font-medium text-gray-600 dark:text-gray-400 truncate">
+                        {post.author}
+                      </span>
                       <span>·</span>
                       <span className="whitespace-nowrap">{post.date}</span>
                     </div>
@@ -762,31 +1131,88 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               pointerEvents: isBannerVisible ? "auto" : "none",
             }}
             exit={{ y: 100, opacity: 0, scale: 0.92 }}
-            transition={{ type: "spring", stiffness: 260, damping: 28, mass: 0.9, delay: isBannerVisible ? 1.2 : 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 28,
+              mass: 0.9,
+              delay: isBannerVisible ? 1.2 : 0,
+            }}
             className="fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-[100] w-[calc(100vw-32px)] sm:w-auto sm:max-w-[640px]"
           >
             <div className="relative flex items-center justify-between bg-[#080808] dark:bg-white text-white dark:text-black rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.35)] p-2 gap-2">
-              <Link href={`/blog/${blogPosts[blogPosts.length - 1].slug}`} className="flex items-center gap-3 min-w-0 flex-1">
+              <Link
+                href={`/blog/${blogPosts[blogPosts.length - 1].slug}`}
+                className="flex items-center gap-3 min-w-0 flex-1"
+              >
                 <div className="shrink-0 p-0.5 rounded-[12px]">
-                  <Image src="https://i.ibb.co/G4rrPn4n/klein-banner.png" alt="Neuster Beitrag" width={36} height={36} className="w-9 h-9 rounded-[10px] object-cover" />
+                  <Image
+                    src="https://i.ibb.co/G4rrPn4n/klein-banner.png"
+                    alt="Neuster Beitrag"
+                    width={36}
+                    height={36}
+                    className="w-9 h-9 rounded-[10px] object-cover"
+                  />
                 </div>
                 <div className="flex flex-col min-w-0 pr-1">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/40 dark:text-black/40 leading-none mb-0.5">Neuster Beitrag</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/40 dark:text-black/40 leading-none mb-0.5">
+                    Neuster Beitrag
+                  </span>
                   <span className="text-[13px] sm:text-sm font-semibold leading-snug line-clamp-1 text-white dark:text-black">
                     {blogPosts[blogPosts.length - 1].title}
                   </span>
                 </div>
               </Link>
               <div className="flex items-center gap-1 shrink-0">
-                <Link href={`/blog/${blogPosts[blogPosts.length - 1].slug}`} className="hidden sm:flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-[10px] bg-white/10 dark:bg-black/8 hover:bg-white/20 dark:hover:bg-black/15 whitespace-nowrap" style={{ transition: "background-color 160ms ease-out" }}>
+                <Link
+                  href={`/blog/${blogPosts[blogPosts.length - 1].slug}`}
+                  className="hidden sm:flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-[10px] bg-white/10 dark:bg-black/8 hover:bg-white/20 dark:hover:bg-black/15 whitespace-nowrap"
+                  style={{ transition: "background-color 160ms ease-out" }}
+                >
                   Lesen
-                  <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="none">
+                    <path
+                      d="M4.167 10h11.666M10.833 5l5 5-5 5"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </Link>
-                <Link href={`/blog/${blogPosts[blogPosts.length - 1].slug}`} className="sm:hidden flex items-center justify-center w-8 h-8 rounded-[10px] bg-white/10 dark:bg-black/8" aria-label="Lesen">
-                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <Link
+                  href={`/blog/${blogPosts[blogPosts.length - 1].slug}`}
+                  className="sm:hidden flex items-center justify-center w-8 h-8 rounded-[10px] bg-white/10 dark:bg-black/8"
+                  aria-label="Lesen"
+                >
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                    <path
+                      d="M4.167 10h11.666M10.833 5l5 5-5 5"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </Link>
-                <button type="button" onClick={() => setShowBanner(false)} aria-label="Schließen" className="flex items-center justify-center w-8 h-8 rounded-[10px] text-white/30 dark:text-black/30 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/8" style={{ transition: "background-color 160ms ease-out, color 160ms ease-out" }}>
-                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+                <button
+                  type="button"
+                  onClick={() => setShowBanner(false)}
+                  aria-label="Schließen"
+                  className="flex items-center justify-center w-8 h-8 rounded-[10px] text-white/30 dark:text-black/30 hover:text-white dark:hover:text-black hover:bg-white/10 dark:hover:bg-black/8"
+                  style={{
+                    transition:
+                      "background-color 160ms ease-out, color 160ms ease-out",
+                  }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                    <path
+                      d="m1.75 1.75 8.5 8.5m0-8.5-8.5 8.5"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
                 </button>
               </div>
             </div>

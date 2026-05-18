@@ -245,7 +245,7 @@ export default function ActivitiesPage() {
                 onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-sm"
               >
-                <GlassSection className="p-6 flex flex-col gap-5">
+                <GlassSection className="p-5 sm:p-6 flex flex-col gap-4 sm:gap-5">
                   <div className="flex items-center justify-between">
                     <h3 className="font-poppins font-bold text-[#0A0A0A] text-lg">
                       {editTarget ? t("taetigkeiten.editTitle") : t("taetigkeiten.newTitle")}
