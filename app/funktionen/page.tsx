@@ -167,12 +167,7 @@ export default function FeaturesPage() {
                       style={{ background: `radial-gradient(circle at ${glowOrigin}, ${item.accent}15 0%, transparent 60%)` }} 
                     />
 
-                    {/* Visual */}
-                    <div className={`${visualClass} overflow-hidden pointer-events-none select-none relative z-10 flex items-center justify-center p-0 m-0 bg-gray-50 dark:bg-white/[0.01]`}>
-                       <div className="w-full h-full transform transition-transform duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-105">
-                         {item.visual}
-                       </div>
-                    </div>
+                    
 
                     {/* Text */}
                     <div className={`p-8 md:p-10 lg:p-12 flex flex-col gap-4 ${textClass} ${textBorderClass} relative z-10 bg-white dark:bg-[#0a0a0a]`}>

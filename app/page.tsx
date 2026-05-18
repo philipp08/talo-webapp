@@ -158,9 +158,9 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.13}>
-            <h1 className="text-center not-italic font-medium tracking-tight leading-[1.08] font-logo text-gray-950 dark:text-white mb-7 [font-size:clamp(2rem,5.5vw,5rem)] [text-wrap:balance]">
-              Vereinsverwaltung,{" "}
-              <span className="text-gray-400 dark:text-white/30">endlich einfach.</span>
+            <h1 className="text-center not-italic font-medium tracking-tight leading-[1.08] font-logo text-gray-950 dark:text-white mb-7 [font-size:clamp(2.5rem,6vw,5.5rem)] [text-wrap:balance]">
+              Die All-in-One App für{" "}
+              <span className="text-gray-400 dark:text-white/30">euren Verein.</span>
             </h1>
           </ScrollReveal>
 
@@ -204,7 +204,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                 Datenschutz im Fokus
               </span>
               <span className="w-px h-3.5 bg-gray-200 dark:bg-gray-800" />
-              <span>EU-Server · Frankfurt</span>
+              <span>Google Cloud (Frankfurt)</span>
               <span className="w-px h-3.5 bg-gray-200 dark:bg-gray-800" />
               <span>Made in Germany</span>
             </div>
@@ -247,7 +247,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
               {[
                 { label: "DSGVO", sub: "konform" },
                 { label: "AES-256", sub: "verschlüsselt" },
-                { label: "EU-Server", sub: "Frankfurt" },
+                { label: "Google Cloud", sub: "Frankfurt" },
                 { label: "Made in", sub: "Germany" },
                 { label: "Kein Lock-in", sub: "exportierbar" },
               ].map(({ label, sub }) => (
@@ -388,7 +388,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                     className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
                     style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                   >
-                    <div className="p-8 md:p-10 pb-4">
+                    <div className="p-8 md:p-10 pb-4 flex flex-col items-center text-center">
                       <div
                         className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-7 text-blue-500 group-hover:-translate-y-0.5"
                         style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
@@ -415,7 +415,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                     className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
                     style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                   >
-                    <div className="p-8 pb-3">
+                    <div className="p-8 pb-3 flex flex-col items-center text-center">
                       <div
                         className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center mb-7 text-amber-500 group-hover:-translate-y-0.5"
                         style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
@@ -441,7 +441,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                     className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
                     style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                   >
-                    <div className="p-8 pb-3">
+                    <div className="p-8 pb-3 flex flex-col items-center text-center">
                       <div
                         className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mb-7 text-emerald-500 group-hover:-translate-y-0.5"
                         style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
@@ -467,7 +467,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                     className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
                     style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                   >
-                    <div className="p-8 pb-3">
+                    <div className="p-8 pb-3 flex flex-col items-center text-center">
                       <div
                         className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center mb-7 text-purple-500 group-hover:-translate-y-0.5"
                         style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
@@ -493,7 +493,7 @@ function HomeContent({ showBanner, isBannerVisible, setShowBanner, setIsBannerVi
                     className="group h-full rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/[0.06] overflow-hidden flex flex-col hover:-translate-y-1"
                     style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
                   >
-                    <div className="p-8 pb-3">
+                    <div className="p-8 pb-3 flex flex-col items-center text-center">
                       <div
                         className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mb-7 text-rose-500 group-hover:-translate-y-0.5"
                         style={{ transition: "transform 250ms cubic-bezier(0.23,1,0.32,1)" }}
